@@ -1,9 +1,11 @@
+import { AuthProvider } from "./contexts/AuthContext";
+import { AppRoutes } from "./types/AppRoutes";
+
 function App() {
   return (
-    <div className="App">
-      <h1>Hidrodema</h1>
-      <p>Projeto limpo e pronto para desenvolvimento</p>
-    </div>
+    <AuthProvider>
+      <AppRoutes />
+    </AuthProvider>
   );
 }
 
