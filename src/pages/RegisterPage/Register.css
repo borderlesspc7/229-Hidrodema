@@ -54,7 +54,7 @@
   line-height: 1.1;
   text-transform: uppercase;
   position: relative;
-  font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
   text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   transform: perspective(500px) rotateX(15deg);
   animation: titleGlow 3s ease-in-out infinite alternate;
