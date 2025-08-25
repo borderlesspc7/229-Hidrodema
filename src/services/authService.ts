@@ -63,6 +63,15 @@ export const authService = {
 
   async register(credentials: RegisterCredentials): Promise<User> {
     try {
+      // Validação dos campos obrigatórios
+      if (!credentials.email || !credentials.password || !credentials.name) {
+        throw new Error("Todos os campos são obrigatórios");
+      }
+
+      if (credentials.password.length < 6) {
+        throw new Error("A senha deve ter pelo menos 6 caracteres");
+      }
+
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         credentials.email,
@@ -73,16 +82,17 @@ export const authService = {
 
       const userData: User = {
         uid: firebaseUser.uid,
-        email: credentials.email ?? firebaseUser.email,
+        email: credentials.email,
         name: credentials.name,
         createdAt: new Date(),
         updatedAt: new Date(),
-        role: credentials.role,
+        role: credentials.role || "user", // Role padrão se não especificado
       };
 
       await setDoc(doc(db, "users", firebaseUser.uid), userData);
       return userData;
     } catch (error) {
+      console.error("Erro detalhado no registro:", error);
       const message = getFirebaseErrorMessage(error as string | FirebaseError);
       throw new Error(message);
     }
