@@ -1,0 +1,190 @@
+.card {
+  position: relative;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+}
+
+.card--rounded {
+  border-radius: 12px;
+}
+
+.card--shadow {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.card--border {
+  border: 2px solid currentColor;
+}
+
+/* Variantes de tamanho */
+.card--small {
+  min-height: 150px;
+  padding: 1rem;
+}
+
+.card--medium {
+  min-height: 200px;
+  padding: 1.5rem;
+}
+
+.card--large {
+  min-height: 250px;
+  padding: 2rem;
+}
+
+/* Variantes de tipo */
+.card--service {
+  background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
+}
+
+.card--technology {
+  background: linear-gradient(135deg, #2c5f5f, #1a3a3a);
+}
+
+.card--marketing {
+  background: linear-gradient(135deg, #ffffff, #f8f8f8);
+  border: 2px solid #e74c3c;
+}
+
+/* Conteúdo do card */
+.card__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.card__header {
+  margin-bottom: 1rem;
+}
+
+.card__title {
+  font-size: 3rem;
+  font-weight: 900;
+  margin: 0 0 0.5rem 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.card--small .card__title {
+  font-size: 2rem;
+}
+
+.card--large .card__title {
+  font-size: 3rem;
+}
+
+.card__subtitle-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  justify-content: center;
+}
+
+.card__subtitle {
+  font-size: 1.2rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.card--small .card__subtitle {
+  font-size: 1rem;
+}
+
+.card--large .card__subtitle {
+  font-size: 1.4rem;
+}
+
+.card__dots {
+  font-size: 1rem;
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+.card__description {
+  font-size: 0.9rem;
+  line-height: 1.4;
+  margin: 0;
+  opacity: 0.9;
+  flex: 1;
+  text-align: center;
+}
+
+.card--small .card__description {
+  font-size: 0.8rem;
+}
+
+.card--large .card__description {
+  font-size: 1rem;
+}
+
+/* Imagem do card */
+.card__image {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100px;
+  height: 100px;
+  opacity: 0.1;
+  z-index: 1;
+}
+
+.card__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Ícone do card */
+.card__icon {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 2;
+}
+
+/* Children do card */
+.card__children {
+  margin-top: auto;
+  padding-top: 1rem;
+}
+
+/* Estados interativos */
+.card:hover {
+  transform: translateY(-2px);
+}
+
+.card:hover.card--shadow {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .card {
+    padding: 1rem;
+    min-height: 180px;
+  }
+
+  .card__title {
+    font-size: 2rem;
+  }
+
+  .card__subtitle {
+    font-size: 1rem;
+  }
+
+  .card__description {
+    font-size: 0.8rem;
+  }
+}

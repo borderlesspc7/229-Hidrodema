@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./Login.css";
-import Input from "../../components/ui/Input";
-import Button from "../../components/ui/Button";
+import Input from "../../components/ui/Input/Input";
+import Button from "../../components/ui/Button/Button";
 import { useAuth } from "../../hooks/useAuth";
 import { useNavigate, Link } from "react-router-dom";
 import { paths } from "../../routes/paths";
@@ -79,11 +79,31 @@ export default function Login() {
             </a>
           </div>
 
-          <Button type="submit" disabled={authLoading}>
+          <Button
+            variant="primary"
+            className="button--full-width"
+            type="submit"
+            disabled={authLoading}
+          >
             {authLoading ? "Carregando..." : "Entrar"}
           </Button>
+
           {authError && <p className="error-message">{authError}</p>}
         </form>
+
+        <div className="auth-divider">
+          <div className="divider-line"></div>
+          <span>ou</span>
+          <div className="divider-line"></div>
+        </div>
+
+        <Button
+          onClick={() => navigate(paths.menu)}
+          variant="secondary"
+          className="button--full-width"
+        >
+          Entrar sem login
+        </Button>
 
         <div className="auth-toggle">
           <span>Não tem uma conta?</span>

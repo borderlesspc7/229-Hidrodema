@@ -1,11 +1,12 @@
-import React from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { paths } from "../../routes/paths";
 import "./Menu.css";
+import Card from "../../components/ui/Card/Card";
+import Button from "../../components/ui/Button/Button";
 
 export default function Menu() {
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -17,60 +18,54 @@ export default function Menu() {
     }
   };
 
-  if (!user) {
-    navigate(paths.login);
-    return null;
-  }
-
   return (
     <div className="menu-container">
       <div className="menu-header">
-        <h1 className="menu-title">Bem-vindo, {user.name}!</h1>
-        <p className="menu-subtitle">Escolha uma opção para continuar</p>
+        <Button
+          variant="secondary"
+          className="logout-button-left"
+          onClick={handleLogout}
+        >
+          Sair
+        </Button>
+        <div className="company-brand">
+          <h1 className="company-title">HIDRODEMA</h1>
+          <div className="company-underline"></div>
+        </div>
+        <div className="header-spacer"></div>
       </div>
-
-      <div className="menu-grid">
-        <div className="menu-item" onClick={() => console.log("Dashboard")}>
-          <div className="menu-icon">📊</div>
-          <h3>Dashboard</h3>
-          <p>Visualize estatísticas e relatórios</p>
-        </div>
-
-        <div className="menu-item" onClick={() => console.log("Projetos")}>
-          <div className="menu-icon">🏗️</div>
-          <h3>Projetos</h3>
-          <p>Gerencie seus projetos ativos</p>
-        </div>
-
-        <div className="menu-item" onClick={() => console.log("Clientes")}>
-          <div className="menu-icon">👥</div>
-          <h3>Clientes</h3>
-          <p>Cadastro e gestão de clientes</p>
-        </div>
-
-        <div className="menu-item" onClick={() => console.log("Relatórios")}>
-          <div className="menu-icon">📋</div>
-          <h3>Relatórios</h3>
-          <p>Gere relatórios personalizados</p>
-        </div>
-
-        <div className="menu-item" onClick={() => console.log("Configurações")}>
-          <div className="menu-icon">⚙️</div>
-          <h3>Configurações</h3>
-          <p>Configure sua conta e preferências</p>
-        </div>
-
-        <div className="menu-item" onClick={() => console.log("Suporte")}>
-          <div className="menu-icon">🆘</div>
-          <h3>Suporte</h3>
-          <p>Entre em contato com o suporte</p>
-        </div>
+      <div className="menu-cards">
+        <Card
+          variant="service"
+          title="Hidro"
+          subtitle="Service"
+          description="Engenharia de aplicaçao e serviços Hidrodema"
+          backgroundColor="#f5f5f5"
+          textColor="#333"
+          size="large"
+        />
+        <Card
+          variant="technology"
+          title="Hidro"
+          subtitle="meeting"
+          description="Tecnologia em termoplasticos industriais"
+          backgroundColor="#2c5f5f"
+          textColor="#fff"
+          size="large"
+        />
+        <Card
+          variant="marketing"
+          title="Marketing"
+          description="Gerencie seu marketing"
+          backgroundColor="#fff"
+          textColor="#000"
+          size="large"
+        />
       </div>
-
       <div className="menu-footer">
-        <button className="logout-button" onClick={handleLogout}>
-          Sair da conta
-        </button>
+        <Button onClick={() => navigate(paths.acessoExclusivo)}>
+          Acesso Exclusivo
+        </Button>
       </div>
     </div>
   );

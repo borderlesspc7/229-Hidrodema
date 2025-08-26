@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./Register.css";
-import Input from "../../components/ui/Input";
-import Button from "../../components/ui/Button";
+import Input from "../../components/ui/Input/Input";
+import Button from "../../components/ui/Button/Button";
 import { useAuth } from "../../hooks/useAuth";
 import { useNavigate, Link } from "react-router-dom";
 import { paths } from "../../routes/paths";
@@ -125,7 +125,12 @@ export default function Register() {
             </label>
           </div>
 
-          <Button type="submit" disabled={authLoading}>
+          <Button
+            variant="primary"
+            className="button--full-width"
+            type="submit"
+            disabled={authLoading}
+          >
             {authLoading ? "Carregando..." : "Criar conta"}
           </Button>
           {authError && <p className="error-message">{authError}</p>}

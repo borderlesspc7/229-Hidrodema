@@ -199,6 +199,14 @@
   transition: color 0.2s ease;
 }
 
+.auth-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0px;
+  margin: 10px 0;
+}
+
 .toggle-button:hover {
   color: #2c5f7a;
 }
