@@ -163,6 +163,7 @@
   cursor: pointer;
   position: relative;
   cursor: pointer !important;
+  border-radius: 30px;
 }
 
 .menu-cards .card:hover {
