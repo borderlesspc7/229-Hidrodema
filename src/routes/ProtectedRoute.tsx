@@ -1,5 +1,7 @@
+import { Navigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import type { ReactNode } from "react";
+import { paths } from "./paths";
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -12,9 +14,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     return <div>Loading...</div>;
   }
 
-  if (!user) {
-    return <div>Voce Precisa Estar Logado</div>;
-  }
+  if (!user) return <Navigate to={paths.menu} replace />;
 
   return <>{children}</>;
 }

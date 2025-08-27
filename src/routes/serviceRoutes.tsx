@@ -1,9 +1,10 @@
 import { Route, Routes } from "react-router-dom";
+import HidroService from "../pages/HidroService/HidroService";
 
 export default function ServiceRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<div>Service Home - Lista das 5 opções</div>} />
+      <Route path="/" element={<HidroService />} />
       <Route
         path="/resistencia-quimica"
         element={<div>Resistência Química</div>}

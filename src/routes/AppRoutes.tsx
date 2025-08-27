@@ -6,10 +6,8 @@ import Menu from "../pages/MenuPage/Menu";
 import ServiceRoutes from "./serviceRoutes";
 import ExclusiveRoutes from "./exclusiveRoutes";
 import { ProtectedRoute } from "./ProtectedRoute";
+import HidroService from "../pages/HidroService/HidroService";
 
-function Service() {
-  return <div>Service</div>;
-}
 function Meeting() {
   return <div>Meeting</div>;
 }
@@ -33,7 +31,7 @@ export const AppRoutes = () => {
         path={paths.service}
         element={
           <ProtectedRoute>
-            <Service />
+            <HidroService />
           </ProtectedRoute>
         }
       />

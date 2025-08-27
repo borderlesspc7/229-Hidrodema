@@ -162,6 +162,7 @@
   transition: all 0.3s ease;
   cursor: pointer;
   position: relative;
+  cursor: pointer !important;
 }
 
 .menu-cards .card:hover {

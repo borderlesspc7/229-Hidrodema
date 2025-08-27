@@ -4,10 +4,18 @@ import { paths } from "../../routes/paths";
 import "./Menu.css";
 import Card from "../../components/ui/Card/Card";
 import Button from "../../components/ui/Button/Button";
+import { useState } from "react";
+import Toast from "../../components/ui/Toast/Toast";
 
 export default function Menu() {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const navigate = useNavigate();
+
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState<
+    "success" | "error" | "warning" | "info"
+  >("error");
 
   const handleLogout = async () => {
     try {
@@ -15,6 +23,17 @@ export default function Menu() {
       navigate(paths.login);
     } catch (error) {
       console.error("Erro ao fazer logout:", error);
+    }
+  };
+
+  const handleCardClick = (path: string) => {
+    if (!user) {
+      setToastMessage("Voce Precisa Estar Logado");
+      setToastType("error");
+      setShowToast(true);
+      return;
+    } else {
+      navigate(path);
     }
   };
 
@@ -43,6 +62,7 @@ export default function Menu() {
           backgroundColor="#f5f5f5"
           textColor="#333"
           size="large"
+          onClick={() => handleCardClick(paths.service)}
         />
         <Card
           variant="technology"
@@ -52,6 +72,7 @@ export default function Menu() {
           backgroundColor="#2c5f5f"
           textColor="#fff"
           size="large"
+          onClick={() => handleCardClick(paths.meeting)}
         />
         <Card
           variant="marketing"
@@ -60,13 +81,22 @@ export default function Menu() {
           backgroundColor="#fff"
           textColor="#000"
           size="large"
+          onClick={() => handleCardClick(paths.marketing)}
         />
       </div>
       <div className="menu-footer">
-        <Button onClick={() => navigate(paths.acessoExclusivo)}>
-          Acesso Exclusivo
+        <Button onClick={() => handleCardClick(paths.acessoExclusivo)}>
+          Acesso Exclusivos
         </Button>
       </div>
+      {showToast && (
+        <Toast
+          message={toastMessage}
+          type={toastType}
+          duration={10000}
+          onClose={() => setShowToast(false)}
+        />
+      )}
     </div>
   );
 }

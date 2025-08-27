@@ -4,7 +4,7 @@ import React from "react";
 interface CardProps {
   title: string;
   subtitle?: string;
-  description: string;
+  description?: string;
   backgroundColor: string;
   textColor: string;
   onClick?: () => void;
@@ -12,9 +12,6 @@ interface CardProps {
   children?: React.ReactNode;
   variant?: "service" | "technology" | "marketing";
   size?: "small" | "medium" | "large";
-  rounded?: boolean;
-  shadow?: boolean;
-  border?: boolean;
   className?: string;
   icon?: React.ReactNode;
 }
@@ -30,9 +27,6 @@ const Card: React.FC<CardProps> = ({
   children,
   variant = "service",
   size = "medium",
-  rounded = true,
-  shadow = true,
-  border = false,
   className = "",
   icon,
 }) => {
@@ -42,15 +36,7 @@ const Card: React.FC<CardProps> = ({
     }
   };
 
-  const cardClasses = [
-    "card",
-    `card--${variant}`,
-    `card--${size}`,
-    rounded && "card--rounded",
-    shadow && "card--shadow",
-    border && "card--border",
-    className,
-  ]
+  const cardClasses = ["card", `card--${variant}`, `card--${size}`, className]
     .filter(Boolean)
     .join(" ");
 
@@ -75,10 +61,6 @@ const Card: React.FC<CardProps> = ({
           <h2 className="card__title">{title}</h2>
           <div className="card__subtitle-container">
             <span className="card__subtitle">{subtitle}</span>
-            {variant === "service" && <span className="card__dots">•••</span>}
-            {variant === "technology" && (
-              <span className="card__dots">•••</span>
-            )}
           </div>
         </div>
 
