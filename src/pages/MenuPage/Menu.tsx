@@ -85,8 +85,11 @@ export default function Menu() {
         />
       </div>
       <div className="menu-footer">
-        <Button onClick={() => handleCardClick(paths.acessoExclusivo)}>
-          Acesso Exclusivos
+        <Button
+          variant="secondary"
+          onClick={() => handleCardClick(paths.acessoExclusivo)}
+        >
+          Acesso Exclusivo
         </Button>
       </div>
       {showToast && (

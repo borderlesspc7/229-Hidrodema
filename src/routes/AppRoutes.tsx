@@ -7,15 +7,13 @@ import ServiceRoutes from "./serviceRoutes";
 import ExclusiveRoutes from "./exclusiveRoutes";
 import { ProtectedRoute } from "./ProtectedRoute";
 import HidroService from "../pages/HidroService/HidroService";
+import AcessoExclusivo from "../pages/HidroService/AcessoExclusivo/AcessoExclusivo";
 
 function Meeting() {
   return <div>Meeting</div>;
 }
 function Marketing() {
   return <div>Marketing</div>;
-}
-function Exclusive() {
-  return <div>AcessoExclusivo</div>;
 }
 
 export const AppRoutes = () => {
@@ -65,7 +63,7 @@ export const AppRoutes = () => {
         path={paths.acessoExclusivo}
         element={
           <ProtectedRoute>
-            <Exclusive />
+            <AcessoExclusivo />
           </ProtectedRoute>
         }
       />

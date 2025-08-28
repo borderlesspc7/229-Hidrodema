@@ -7,20 +7,15 @@ import Button from "../../components/ui/Button/Button";
 import Card from "../../components/ui/Card/Card";
 
 export default function HidroService() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!user) navigate(paths.menu);
   }, [user, navigate]);
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate(paths.login);
-    } catch (error) {
-      console.error("Erro ao fazer logout:", error);
-    }
+  const handleBack = () => {
+    navigate(paths.menu);
   };
 
   return (
@@ -29,9 +24,9 @@ export default function HidroService() {
         <Button
           variant="secondary"
           className="logout-button-left"
-          onClick={handleLogout}
+          onClick={handleBack}
         >
-          Sair
+          Voltar
         </Button>
         <div className="hidro-service-company-brand">
           <h1 className="hidro-service-company-title">HIDRO SERVICE</h1>
@@ -87,7 +82,9 @@ export default function HidroService() {
           textColor="#333"
           size="medium"
           className="hidro-service-card"
-          onClick={() => navigate("/service/curso-senai")}
+          onClick={() =>
+            window.open("https://www.senai.br/cursos/hidroservice", "_blank")
+          }
         />
       </div>
 
@@ -100,7 +97,7 @@ export default function HidroService() {
         <div className="hidro-service-footer-spacer"></div>
         <div>
           <Button onClick={() => navigate(paths.acessoExclusivo)}>
-            Acesso Exclusivos
+            Acesso Exclusivo
           </Button>
         </div>
       </div>

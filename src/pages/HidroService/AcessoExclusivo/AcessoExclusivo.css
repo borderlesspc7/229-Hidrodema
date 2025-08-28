@@ -1,5 +1,5 @@
-/* Container principal do HidroService */
-.hidro-service-container {
+/* Container principal do Acesso Exclusivo */
+.acesso-exclusivo-container {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -22,7 +22,7 @@
 }
 
 /* Padrão moderno de fundo com elementos flutuantes */
-.hidro-service-container::before {
+.acesso-exclusivo-container::before {
   content: "";
   position: absolute;
   top: 0;
@@ -30,62 +30,45 @@
   right: 0;
   bottom: 0;
   background-image: radial-gradient(
-      circle at 25% 25%,
-      rgba(59, 130, 246, 0.12) 0%,
+      circle at 30% 40%,
+      rgba(139, 92, 246, 0.12) 0%,
       transparent 50%
     ),
     radial-gradient(
-      circle at 75% 75%,
-      rgba(139, 92, 246, 0.1) 0%,
+      circle at 70% 60%,
+      rgba(59, 130, 246, 0.1) 0%,
       transparent 50%
     ),
     radial-gradient(
-      circle at 50% 10%,
-      rgba(16, 185, 129, 0.08) 0%,
+      circle at 40% 20%,
+      rgba(236, 72, 153, 0.08) 0%,
       transparent 50%
     ),
     radial-gradient(
-      circle at 20% 90%,
-      rgba(236, 72, 153, 0.06) 0%,
+      circle at 10% 80%,
+      rgba(16, 185, 129, 0.06) 0%,
       transparent 50%
     );
-  animation: floatingOrbs 20s ease-in-out infinite alternate;
+  animation: floatingOrbs 25s ease-in-out infinite alternate;
   pointer-events: none;
 }
 
-/* Header igual ao Menu */
-.hidro-service-header {
+/* Header igual ao HidroService */
+.acesso-exclusivo-container .acesso-exclusivo-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 100%;
-  max-width: 1200px;
   position: relative;
+  z-index: 2;
   margin-bottom: 20px;
 }
 
-.logout-button-left {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  color: #1a3a52;
-  border: 2px solid rgba(59, 130, 246, 0.3);
-  padding: 10px 12px;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  min-width: 100px;
-}
-
-.hidro-service-header-spacer {
+.acesso-exclusivo-container .acesso-exclusivo-header-spacer {
   width: 100px;
 }
 
-/* Marca da empresa - baseado no Menu */
-.hidro-service-company-brand {
+/* Marca da empresa - baseado no HidroService */
+.acesso-exclusivo-container .acesso-exclusivo-company-brand {
   text-align: center;
   position: relative;
   z-index: 2;
@@ -93,7 +76,7 @@
   flex: 1;
 }
 
-.hidro-service-company-title {
+.acesso-exclusivo-container .acesso-exclusivo-company-title {
   font-size: 48px;
   font-weight: 900;
   background: linear-gradient(
@@ -150,7 +133,7 @@
   }
 }
 
-.hidro-service-company-subtitle {
+.acesso-exclusivo-container .acesso-exclusivo-company-subtitle {
   font-size: 16px;
   color: rgba(255, 255, 255, 0.9);
   display: block;
@@ -159,7 +142,7 @@
   letter-spacing: 1px;
 }
 
-.hidro-service-company-underline {
+.acesso-exclusivo-container .acesso-exclusivo-company-underline {
   width: 150px;
   height: 6px;
   background: linear-gradient(90deg, #ffffff 0%, #3b82f6 50%, #1e40af 100%);
@@ -182,8 +165,24 @@
   }
 }
 
-/* Container dos cards - baseado no Menu */
-.hidro-service-content {
+.logout-button-left {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  color: #1a3a52;
+  border: 2px solid rgba(59, 130, 246, 0.3);
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  min-width: 100px;
+}
+
+/* Container dos cards - baseado no HidroService */
+.acesso-exclusivo-container .acesso-exclusivo-content {
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -193,8 +192,26 @@
   z-index: 2;
 }
 
-/* Estilização específica para os cards do HidroService */
-.hidro-service-content .card {
+.acesso-exclusivo-container .acesso-exclusivo-content-title {
+  font-size: 30px;
+  font-weight: 900;
+  text-align: center;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 50%, #c7d2fe 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 6px;
+  position: relative;
+  text-align: center;
+  margin-bottom: 10px;
+}
+/* Estilização específica para os cards do Acesso Exclusivo */
+.acesso-exclusivo-container .acesso-exclusivo-content .card {
   width: 100%;
   min-height: 70px;
   backdrop-filter: blur(16px);
@@ -210,7 +227,7 @@
   overflow: hidden;
 }
 
-.hidro-service-content .card::before {
+.acesso-exclusivo-container .acesso-exclusivo-content .card::before {
   content: "";
   position: absolute;
   top: 0;
@@ -226,39 +243,39 @@
   transition: left 0.6s ease;
 }
 
-.hidro-service-content .card:hover {
+.acesso-exclusivo-container .acesso-exclusivo-content .card:hover {
   transform: translateY(-6px) scale(1.02);
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3), 0 0 30px rgba(59, 130, 246, 0.15),
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3), 0 0 30px rgba(139, 92, 246, 0.15),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
   background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(59, 130, 246, 0.3);
+  border-color: rgba(139, 92, 246, 0.3);
 }
 
-.hidro-service-content .card:hover::before {
+.acesso-exclusivo-container .acesso-exclusivo-content .card:hover::before {
   left: 100%;
 }
 
-.hidro-service-content .card:active {
+.acesso-exclusivo-container .acesso-exclusivo-content .card:active {
   transform: translateY(-3px) scale(1.01);
 }
 
-/* Personalizar título dos cards para HidroService */
-/* Ajustar o título dos cards para HidroService */
-.hidro-service-content .card .card__title {
-  font-size: 20px !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 70px;
+/* Personalizar título dos cards para Acesso Exclusivo */
+.acesso-exclusivo-container .acesso-exclusivo-content .card .card__title {
+  font-size: 18px;
+  font-weight: 700;
   text-align: center;
   margin: 0;
   text-transform: uppercase;
   letter-spacing: 1px;
   line-height: 1.3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 70px;
 }
 
-/* Footer - baseado no Menu */
-.hidro-service-footer {
+/* Footer - baseado no HidroService */
+.acesso-exclusivo-container .acesso-exclusivo-footer {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -270,7 +287,7 @@
   z-index: 2;
 }
 
-.hidro-service-footer-company-subtitle {
+.acesso-exclusivo-container .acesso-exclusivo-footer-company-subtitle {
   font-size: 42px;
   font-weight: 900;
   background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 50%, #c7d2fe 100%);
@@ -285,7 +302,7 @@
   margin-bottom: 10px;
 }
 
-.hidro-service-footer-company-subtitle::after {
+.acesso-exclusivo-container .acesso-exclusivo-footer-company-subtitle::after {
   content: "®";
   font-size: 0.5em;
   position: absolute;
@@ -294,36 +311,8 @@
   opacity: 0.8;
 }
 
-/* Estilo do botão no footer - igual ao Menu */
-.hidro-service-footer button {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  color: #1a3a52;
-  border: 2px solid rgba(59, 130, 246, 0.3);
-  padding: 12px 24px;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  min-width: 160px;
-}
-
-.hidro-service-footer button:hover {
-  background: rgba(255, 255, 255, 1);
-  border-color: #3b82f6;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
-}
-
-.hidro-service-footer button:active {
-  transform: translateY(0);
-}
-
 /* Elementos decorativos - cilindros como no design */
-.hidro-service-container::after {
+.acesso-exclusivo-container::after {
   content: "";
   position: absolute;
   right: 30px;
@@ -345,95 +334,85 @@
 
 /* Responsividade */
 @media (max-width: 768px) {
-  .hidro-service-container {
+  .acesso-exclusivo-container {
     padding: 30px 15px;
     gap: 30px;
   }
 
-  .hidro-service-company-title {
+  .acesso-exclusivo-container .acesso-exclusivo-company-title {
     font-size: 36px;
     letter-spacing: 4px;
     margin: 0 0 8px 0;
   }
 
-  .hidro-service-company-subtitle {
+  .acesso-exclusivo-container .acesso-exclusivo-company-subtitle {
     font-size: 14px;
     margin-bottom: 12px;
   }
 
-  .hidro-service-company-underline {
+  .acesso-exclusivo-container .acesso-exclusivo-company-underline {
     width: 120px;
     height: 4px;
   }
 
-  .hidro-service-content {
+  .acesso-exclusivo-container .acesso-exclusivo-content {
     max-width: 100%;
     gap: 15px;
   }
 
-  .hidro-service-content .card {
+  .acesso-exclusivo-container .acesso-exclusivo-content .card {
     min-height: 60px;
     padding: 15px 25px;
   }
 
-  .hidro-service-content .card .card__title {
-    font-size: 14px;
+  .acesso-exclusivo-container .acesso-exclusivo-content .card .card__title {
+    font-size: 16px;
+    min-height: 60px;
   }
 
-  .hidro-service-footer-company-subtitle {
+  .acesso-exclusivo-container .acesso-exclusivo-footer-company-subtitle {
     font-size: 32px;
     letter-spacing: 4px;
   }
 
-  .hidro-service-footer button {
-    padding: 10px 20px;
-    font-size: 12px;
-    min-width: 140px;
-  }
-
-  .hidro-service-container::after {
+  .acesso-exclusivo-container::after {
     display: none;
   }
 }
 
 @media (max-width: 480px) {
-  .hidro-service-container {
+  .acesso-exclusivo-container {
     padding: 20px 10px;
     gap: 25px;
   }
 
-  .hidro-service-company-title {
+  .acesso-exclusivo-container .acesso-exclusivo-company-title {
     font-size: 28px;
     letter-spacing: 2px;
   }
 
-  .hidro-service-company-subtitle {
+  .acesso-exclusivo-container .acesso-exclusivo-company-subtitle {
     font-size: 12px;
   }
 
-  .hidro-service-company-underline {
+  .acesso-exclusivo-container .acesso-exclusivo-company-underline {
     width: 100px;
     height: 3px;
   }
 
-  .hidro-service-content .card {
+  .acesso-exclusivo-container .acesso-exclusivo-content .card {
     min-height: 50px;
     padding: 12px 20px;
   }
 
-  .hidro-service-content .card .card__title {
-    font-size: 12px;
+  .acesso-exclusivo-container .acesso-exclusivo-content .card .card__title {
+    font-size: 14px;
     letter-spacing: 0.5px;
+    min-height: 50px;
   }
 
-  .hidro-service-footer-company-subtitle {
+  .acesso-exclusivo-container .acesso-exclusivo-footer-company-subtitle {
     font-size: 26px;
     letter-spacing: 2px;
-  }
-
-  .hidro-service-footer button {
-    padding: 8px 16px;
-    font-size: 10px;
-    min-width: 120px;
   }
 }
