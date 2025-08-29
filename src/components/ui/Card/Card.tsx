@@ -5,7 +5,7 @@ interface CardProps {
   title: string;
   subtitle?: string;
   description?: string;
-  backgroundColor: string;
+  backgroundColor?: string;
   textColor: string;
   onClick?: () => void;
   image?: string;

@@ -7,7 +7,7 @@ import ServiceRoutes from "./serviceRoutes";
 import ExclusiveRoutes from "./exclusiveRoutes";
 import { ProtectedRoute } from "./ProtectedRoute";
 import HidroService from "../pages/HidroService/HidroService";
-import AcessoExclusivo from "../pages/HidroService/AcessoExclusivo/AcessoExclusivo";
+import AcessoExclusivo from "../pages/AcessoExclusivo/AcessoExclusivo";
 
 function Meeting() {
   return <div>Meeting</div>;

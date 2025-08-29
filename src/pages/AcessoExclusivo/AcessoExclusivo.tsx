@@ -1,10 +1,10 @@
 import "./AcessoExclusivo.css";
 import { useEffect } from "react";
-import { useAuth } from "../../../hooks/useAuth";
+import { useAuth } from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import { paths } from "../../../routes/paths";
-import Button from "../../../components/ui/Button/Button";
-import Card from "../../../components/ui/Card/Card";
+import { paths } from "../../routes/paths";
+import Button from "../../components/ui/Button/Button";
+import Card from "../../components/ui/Card/Card";
 
 export default function AcessoExclusivo() {
   const { user } = useAuth();
