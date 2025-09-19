@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import HidroService from "../pages/HidroService/HidroService";
 import EspacamentoSuportes from "../pages/HidroService/EspacamentoSuportes/EspacamentoSuportes";
+import ConsumoAdesivo from "../pages/HidroService/ConsumoAdesivo/ConsumoAdesivo";
 
 export default function ServiceRoutes() {
   return (
@@ -11,7 +12,7 @@ export default function ServiceRoutes() {
         element={<div>Resistência Química</div>}
       />
       <Route path="/espacamento-suportes" element={<EspacamentoSuportes />} />
-      <Route path="/consumo-adesivo" element={<div>Consumo de Adesivo</div>} />
+      <Route path="/consumo-adesivo" element={<ConsumoAdesivo />} />
       <Route
         path="/peso-termoplasticos"
         element={<div>Peso Termoplásticos</div>}
