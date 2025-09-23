@@ -1,4 +1,5 @@
 import { Route, Routes } from "react-router-dom";
+import SolicitacaoServicos from "../pages/AcessoExclusivo/SolicitacaoServicos/SolicitacaoServicos";
 
 export default function ExclusiveRoutes() {
   return (
@@ -19,10 +20,7 @@ export default function ExclusiveRoutes() {
         path="/equalizador-servico"
         element={<div>Equalizador de Serviço</div>}
       />
-      <Route
-        path="/solicitacao-servico"
-        element={<div>Solicitação de Serviço</div>}
-      />
+      <Route path="/solicitacao-servicos" element={<SolicitacaoServicos />} />
     </Routes>
   );
 }
