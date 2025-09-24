@@ -1,0 +1,625 @@
+/* Container principal */
+.resistencia-quimica-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  color: #ffffff;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
+  padding: 0;
+  margin: 0;
+}
+
+/* Header */
+.resistencia-quimica-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 30px;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.back-button {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.back-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+}
+
+.peso-tubos-title-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.peso-tubos-title {
+  font-size: 2.5rem;
+  font-weight: 900;
+  margin: 0;
+  background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.peso-tubos-subtitle {
+  font-size: 1rem;
+  color: #e2e8f0;
+  margin-top: 5px;
+  font-weight: 500;
+}
+
+.peso-tubos-header-spacer {
+  width: 120px;
+}
+
+/* Conteúdo principal */
+.resistencia-quimica-content {
+  padding: 30px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Seção de introdução */
+.intro-section {
+  background: transparent;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 30px;
+}
+
+.intro-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 15px 0;
+  text-align: center;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.title-icon {
+  font-size: 1.2em;
+  color: #4ecdc4;
+}
+
+.intro-content {
+  padding: 0;
+  line-height: 1.6;
+}
+
+.intro-content p {
+  color: #e2e8f0;
+  font-size: 1rem;
+  margin: 0 0 20px 0;
+  text-align: center;
+}
+
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.benefit-card {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.benefit-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  border-color: rgba(78, 205, 196, 0.5);
+}
+
+.benefit-icon {
+  font-size: 2.5rem;
+  color: #4ecdc4;
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 60px;
+}
+
+.benefit-card h3 {
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 10px 0;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.benefit-card p {
+  color: #e2e8f0;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* Seção de filtros */
+.filters-section {
+  background: transparent;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 30px;
+}
+
+.filters-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 20px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filter-icon {
+  color: #4ecdc4;
+  font-size: 1.1em;
+}
+
+.filters-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.search-filter {
+  display: flex;
+  justify-content: center;
+}
+
+.search-input-container {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #4ecdc4;
+  font-size: 1.1rem;
+}
+
+.search-input {
+  width: 100%;
+  padding: 12px 15px 12px 45px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.search-input::placeholder {
+  color: #a0aec0;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #4ecdc4;
+  box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.2);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.filter-select {
+  padding: 10px 15px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+  min-width: 150px;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #4ecdc4;
+  box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.2);
+}
+
+.filter-select option {
+  background: #2a5298;
+  color: #ffffff;
+}
+
+/* Seção da tabela */
+.table-section {
+  background: transparent;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 30px;
+}
+
+.table-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 15px 0;
+  text-align: center;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.table-container {
+  overflow-x: hidden;
+  margin: 15px 0;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+}
+
+.resistencia-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: transparent;
+  min-width: 100%;
+}
+
+.resistencia-table th {
+  background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+  color: #ffffff;
+  font-weight: 700;
+  padding: 15px 12px;
+  text-align: center;
+  font-size: 0.9rem;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.substance-header {
+  text-align: left;
+  min-width: 200px;
+}
+
+.material-header {
+  min-width: 120px;
+}
+
+.resistance-header {
+  min-width: 150px;
+}
+
+.resistencia-table td {
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.substance-cell {
+  text-align: left;
+  color: #ffffff;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.material-cell {
+  color: #e2e8f0;
+}
+
+.resistance-cell {
+  color: #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.data-row:nth-child(even) {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.data-row:hover {
+  background: rgba(78, 205, 196, 0.1);
+  transform: scale(1.01);
+  transition: all 0.3s ease;
+}
+
+/* Badges de resistência */
+.resistance-badge {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.resistance-badge.excellent {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+}
+
+.resistance-badge.good {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: #ffffff;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+}
+
+.resistance-badge.limited {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #ffffff;
+  box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
+}
+
+/* Ícones de resistência */
+.resistance-icon {
+  font-size: 1.2rem;
+}
+
+.resistance-icon.excellent {
+  color: #10b981;
+}
+
+.resistance-icon.good {
+  color: #3b82f6;
+}
+
+.resistance-icon.limited {
+  color: #f59e0b;
+}
+
+.resistance-icon.unknown {
+  color: #6b7280;
+}
+
+.resistance-text {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Seção de legenda */
+.legend-section {
+  background: transparent;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 30px;
+}
+
+.legend-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 15px 0;
+  text-align: center;
+}
+
+.legend-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.legend-icon {
+  font-size: 1.2rem;
+}
+
+.legend-icon.excellent {
+  color: #10b981;
+}
+
+.legend-icon.good {
+  color: #3b82f6;
+}
+
+.legend-icon.limited {
+  color: #f59e0b;
+}
+
+.legend-item span {
+  color: #e2e8f0;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+/* Sem resultados */
+.no-results {
+  text-align: center;
+  padding: 40px 20px;
+  color: #a0aec0;
+}
+
+.no-results-icon {
+  font-size: 3rem;
+  margin-bottom: 15px;
+  opacity: 0.5;
+}
+
+.no-results p {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer-company-subtitle {
+  font-size: 1.2rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .resistencia-quimica-header {
+    padding: 15px 20px;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .peso-tubos-title {
+    font-size: 2rem;
+  }
+
+  .peso-tubos-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .peso-tubos-header-spacer {
+    display: none;
+  }
+
+  .resistencia-quimica-content {
+    padding: 20px 15px;
+  }
+
+  .intro-title {
+    font-size: 1.3rem;
+  }
+
+  .benefits-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .filters-container {
+    gap: 15px;
+  }
+
+  .filter-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .filter-select {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .table-container {
+    overflow-x: auto;
+  }
+
+  .resistencia-table {
+    min-width: 600px;
+  }
+
+  .resistencia-table th,
+  .resistencia-table td {
+    padding: 8px 6px;
+    font-size: 0.8rem;
+  }
+
+  .substance-header {
+    min-width: 150px;
+  }
+
+  .material-header {
+    min-width: 100px;
+  }
+
+  .resistance-header {
+    min-width: 120px;
+  }
+
+  .legend-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .peso-tubos-title {
+    font-size: 1.8rem;
+  }
+
+  .intro-title {
+    font-size: 1.1rem;
+  }
+
+  .benefit-card {
+    padding: 15px;
+  }
+
+  .benefit-icon {
+    font-size: 2rem;
+    height: 50px;
+  }
+
+  .benefit-card h3 {
+    font-size: 1rem;
+  }
+
+  .benefit-card p {
+    font-size: 0.85rem;
+  }
+
+  .search-input {
+    padding: 10px 12px 10px 40px;
+    font-size: 0.9rem;
+  }
+
+  .filter-select {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+}
