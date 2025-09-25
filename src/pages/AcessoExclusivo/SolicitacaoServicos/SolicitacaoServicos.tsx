@@ -67,24 +67,640 @@ export default function SolicitacaoServicos() {
   );
   const [newComment, setNewComment] = useState("");
 
-  // Placeholder para as 70 perguntas - será preenchido quando você passar as perguntas
+  // Perguntas do formulário de solicitação de serviços
   const questions: Question[] = [
+    // Seção 1: Identificação e Dados Iniciais
     {
       id: "q1",
+      type: "radio",
+      question: "1 - Você Pertence a qual das Categorias abaixo:",
+      section: "Identificação e Dados Iniciais",
+      required: true,
+      options: [
+        "Engenharia - Hidrodema",
+        "Executivo de Vendas - Hidrodema",
+        "Cliente",
+        "Instalador",
+        "Instalador Autorizado Hidrodema",
+      ],
+    },
+    {
+      id: "q2",
       type: "text",
-      question: "Pergunta exemplo 1",
-      section: "Seção 1",
+      question: "2 - Data da Solicitação",
+      section: "Identificação e Dados Iniciais",
       required: true,
     },
-    // Mais perguntas serão adicionadas aqui...
+    // Seção 2: Dados do Solicitante
+    {
+      id: "q3",
+      type: "text",
+      question: "3 - Informe seu Nome - Solicitante",
+      section: "Dados do Solicitante",
+      required: true,
+    },
+    {
+      id: "q4",
+      type: "text",
+      question: "4 - E-mail - Solicitante",
+      section: "Dados do Solicitante",
+      required: true,
+    },
+    {
+      id: "q5",
+      type: "text",
+      question: "5 - Celular - Solicitante",
+      section: "Dados do Solicitante",
+      required: true,
+    },
+    // Seção 3: Responsável pelo Acompanhamento Interno
+    {
+      id: "q6",
+      type: "text",
+      question: "6 - Informe seu Nome - Internamente",
+      section: "Responsável pelo Acompanhamento Interno",
+      required: true,
+    },
+    {
+      id: "q7",
+      type: "text",
+      question: "7 - E-mail - Internamente",
+      section: "Responsável pelo Acompanhamento Interno",
+      required: true,
+    },
+    {
+      id: "q8",
+      type: "radio",
+      question: "8 - Segmento do Cliente",
+      section: "Responsável pelo Acompanhamento Interno",
+      required: true,
+      options: ["Industrial", "HVAC"],
+    },
+    {
+      id: "q9",
+      type: "radio",
+      question: "9 - Possui Pedido ou Proposta em Andamento?",
+      section: "Responsável pelo Acompanhamento Interno",
+      required: true,
+      options: ["Sim", "Não"],
+    },
+    {
+      id: "q10",
+      type: "text",
+      question: "10 - Informe o Pedido ou Proposta em Andamento",
+      section: "Responsável pelo Acompanhamento Interno",
+      required: true,
+    },
+    {
+      id: "q11",
+      type: "radio",
+      question: "11 - Informe a sua Regional",
+      section: "Responsável pelo Acompanhamento Interno",
+      required: true,
+      options: [
+        "Carlos Moraes - VEND I & II",
+        "Rogério Foltran - HUNTERS",
+        "Davi Salgado - HVAC",
+        "Nic Romano - Expansão & Novos Negócios",
+      ],
+    },
+    {
+      id: "q12",
+      type: "select",
+      question: "12 - VEND I & II",
+      section: "Responsável pelo Acompanhamento Interno",
+      required: true,
+      options: ["Selecionar sua resposta"],
+    },
+    {
+      id: "q13",
+      type: "select",
+      question: "13 - HUNTERS",
+      section: "Responsável pelo Acompanhamento Interno",
+      required: true,
+      options: ["Selecionar sua resposta"],
+    },
+    {
+      id: "q14",
+      type: "select",
+      question: "14 - HVAC",
+      section: "Responsável pelo Acompanhamento Interno",
+      required: true,
+      options: ["Selecionar sua resposta"],
+    },
+    {
+      id: "q15",
+      type: "select",
+      question: "15 - Expansão & Novos Negócios",
+      section: "Responsável pelo Acompanhamento Interno",
+      required: true,
+      options: ["Selecionar sua resposta"],
+    },
+    // Seção 4: Cadastrais dados do solicitante de serviço
+    {
+      id: "q16",
+      type: "text",
+      question: "16 - Empresa",
+      section: "Cadastrais dados do solicitante de serviço",
+      required: true,
+    },
+    {
+      id: "q17",
+      type: "text",
+      question: "17 - Código Interno do Cliente",
+      section: "Cadastrais dados do solicitante de serviço",
+      required: false,
+    },
+    {
+      id: "q18",
+      type: "text",
+      question: "18 - CNPJ",
+      section: "Cadastrais dados do solicitante de serviço",
+      required: true,
+    },
+    // Seção 5: Serviços
+    {
+      id: "q19",
+      type: "radio",
+      question: "19 - Qual é o grau de urgência da Solicitação",
+      section: "Serviços",
+      required: true,
+      options: [
+        "0 - Estável",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10 - Extremamente Urgente",
+      ],
+    },
+    {
+      id: "q20",
+      type: "select",
+      question: "20 - Selecione qual serviço você deseja solicitar",
+      section: "Serviços",
+      required: true,
+      options: ["Selecionar sua resposta"],
+    },
+    // Seção 6: Visita Técnica
+    {
+      id: "q21",
+      type: "select",
+      question: "21 - Qual será o tipo de visita?",
+      section: "Visita Técnica",
+      required: true,
+      options: ["Selecionar sua resposta"],
+    },
+    {
+      id: "q22",
+      type: "textarea",
+      question: "22 - Detalhe o motivo da Visita",
+      section: "Visita Técnica",
+      required: true,
+    },
+    {
+      id: "q23",
+      type: "text",
+      question: "23 - Endereço",
+      section: "Visita Técnica",
+      required: true,
+    },
+    {
+      id: "q24",
+      type: "text",
+      question: "24 - Nome Contato",
+      section: "Visita Técnica",
+      required: true,
+    },
+    {
+      id: "q25",
+      type: "text",
+      question: "25 - Telefone Contato",
+      section: "Visita Técnica",
+      required: true,
+    },
+    {
+      id: "q26",
+      type: "text",
+      question: "26 - E-mail Contato",
+      section: "Visita Técnica",
+      required: true,
+    },
+    {
+      id: "q27",
+      type: "text",
+      question: "27 - Data Sugerida de Visita",
+      section: "Visita Técnica",
+      required: true,
+    },
+    {
+      id: "q28",
+      type: "radio",
+      question: "28 - Período Sugerido de Visita",
+      section: "Visita Técnica",
+      required: true,
+      options: [
+        "Manhã | 09:00HS - 12:00HS",
+        "Tarde | 13:00HS - 16:00HS",
+        "Qualquer período",
+      ],
+    },
+    {
+      id: "q29",
+      type: "checkbox",
+      question: "29 - Qual a aplicação do Treinamento",
+      section: "Treinamento de Solda",
+      required: true,
+      options: ["Solda Química de PVC-U SCH80 | CPVC SCH80", "PPR"],
+    },
+    {
+      id: "q30",
+      type: "radio",
+      question: "30 - Modalidade do Treinamento",
+      section: "Treinamento de Solda",
+      required: true,
+      options: [
+        "Presencial - Cliente",
+        "Presencial - Amanco Academy",
+        "Online",
+      ],
+    },
+    {
+      id: "q31",
+      type: "text",
+      question: "31 - Endereço",
+      section: "Treinamento de Solda",
+      required: true,
+    },
+    {
+      id: "q32",
+      type: "text",
+      question: "32 - Nome Contato",
+      section: "Treinamento de Solda",
+      required: true,
+    },
+    {
+      id: "q33",
+      type: "text",
+      question: "33 - Telefone Contato",
+      section: "Treinamento de Solda",
+      required: true,
+    },
+    {
+      id: "q34",
+      type: "text",
+      question: "34 - E-mail Contato",
+      section: "Treinamento de Solda",
+      required: true,
+    },
+    {
+      id: "q35",
+      type: "text",
+      question: "35 - Data Sugerida do Treinamento",
+      section: "Treinamento de Solda",
+      required: true,
+    },
+    {
+      id: "q36",
+      type: "radio",
+      question: "36 - Período Sugerido do Treinamento",
+      section: "Treinamento de Solda",
+      required: true,
+      options: [
+        "Manhã | 09:00HS - 12:00HS",
+        "Tarde | 13:00HS - 16:00HS",
+        "Qualquer período",
+      ],
+    },
+    {
+      id: "q37",
+      type: "radio",
+      question: "37 - Qual estágio da Obra",
+      section: "Acompanhamento de Obras",
+      required: true,
+      options: ["Projeto", "Execução", "Finalização"],
+    },
+    {
+      id: "q38",
+      type: "text",
+      question: "38 - Previsão de Inicio da Obra",
+      section: "Acompanhamento de Obras",
+      required: true,
+    },
+    {
+      id: "q39",
+      type: "text",
+      question: "39 - Previsão de Término da Obra",
+      section: "Acompanhamento de Obras",
+      required: true,
+    },
+    {
+      id: "q40",
+      type: "checkbox",
+      question: "40 - Informe a linha de Produtos que está sendo instalada",
+      section: "Acompanhamento de Obras",
+      required: true,
+      options: [
+        "CPVC SCH80",
+        "PVC-U SCH80",
+        "PPR AZ",
+        "PPR VD",
+        "PVDF",
+        "DUPLA CONTENÇÃO",
+        "Outra",
+      ],
+    },
+    {
+      id: "q41",
+      type: "text",
+      question: "41 - Endereço",
+      section: "Acompanhamento de Obras",
+      required: true,
+    },
+    {
+      id: "q42",
+      type: "text",
+      question: "42 - Nome Contato",
+      section: "Acompanhamento de Obras",
+      required: true,
+    },
+    {
+      id: "q43",
+      type: "text",
+      question: "43 - Telefone Contato",
+      section: "Acompanhamento de Obras",
+      required: true,
+    },
+    {
+      id: "q44",
+      type: "text",
+      question: "44 - E-mail Contato",
+      section: "Acompanhamento de Obras",
+      required: true,
+    },
+    {
+      id: "q45",
+      type: "text",
+      question:
+        "45 - Informe o Período desejado em dias para Acompanhamento de Obra",
+      section: "Acompanhamento de Obras",
+      required: true,
+    },
+    {
+      id: "q46",
+      type: "text",
+      question: "46 - Data Sugerida para realização do acompanhamento de obra",
+      section: "Acompanhamento de Obras",
+      required: false,
+    },
+    {
+      id: "q47",
+      type: "radio",
+      question: "47 - Qual o tipo de instalação",
+      section: "Instalação e Montagem",
+      required: true,
+      options: ["Retrofit", "Projeto Novo"],
+    },
+    {
+      id: "q48",
+      type: "checkbox",
+      question: "48 - Características do Local de Instalação da Tubulação",
+      section: "Instalação e Montagem",
+      required: true,
+      options: [
+        "Aéreo",
+        "Nível do Solo (Até 2m de altura)",
+        "Enterrado",
+        "Outra",
+      ],
+    },
+    {
+      id: "q49",
+      type: "checkbox",
+      question: "49 - Informe a linha de Produtos que está sendo instalada",
+      section: "Instalação e Montagem",
+      required: true,
+      options: [
+        "CPVC SCH80",
+        "PVC-U SCH80",
+        "PPR AZ",
+        "PPR VD",
+        "PVDF",
+        "DUPLA CONTENÇÃO",
+        "Outra",
+      ],
+    },
+    {
+      id: "q50",
+      type: "text",
+      question: "50 - Previsão de Término da Obra",
+      section: "Instalação e Montagem",
+      required: true,
+    },
+    {
+      id: "q51",
+      type: "text",
+      question: "51 - Endereço",
+      section: "Instalação e Montagem",
+      required: true,
+    },
+    {
+      id: "q52",
+      type: "text",
+      question: "52 - Nome Contato",
+      section: "Instalação e Montagem",
+      required: true,
+    },
+    {
+      id: "q53",
+      type: "text",
+      question: "53 - Telefone Contato",
+      section: "Instalação e Montagem",
+      required: true,
+    },
+    {
+      id: "q54",
+      type: "text",
+      question: "54 - E-mail Contato",
+      section: "Instalação e Montagem",
+      required: true,
+    },
+    {
+      id: "q55",
+      type: "radio",
+      question: "55 - É necessário Integração",
+      section: "Instalação e Montagem",
+      required: true,
+      options: ["Sim", "Não"],
+    },
+    {
+      id: "q56",
+      type: "text",
+      question: "56 - Informe os documentos necessários para Integração",
+      section: "Instalação e Montagem",
+      required: true,
+    },
+    {
+      id: "q57",
+      type: "text",
+      question: "57 - Nome Contato",
+      section: "Conversão de DWG",
+      required: true,
+    },
+    {
+      id: "q58",
+      type: "text",
+      question: "58 - Telefone Contato",
+      section: "Conversão de DWG",
+      required: true,
+    },
+    {
+      id: "q59",
+      type: "text",
+      question: "59 - E-mail Contato",
+      section: "Conversão de DWG",
+      required: true,
+    },
+    {
+      id: "q60",
+      type: "text",
+      question: "60 - Link DWG",
+      section: "Conversão de DWG",
+      required: true,
+    },
+    {
+      id: "q61",
+      type: "text",
+      question: "61 - Informe a aplicação do sistema",
+      section: "Conversão de DWG",
+      required: true,
+    },
+    {
+      id: "q62",
+      type: "textarea",
+      question: "62 - Informe Detalhes do Projeto",
+      section: "Conversão de DWG",
+      required: true,
+    },
+    {
+      id: "q63",
+      type: "checkbox",
+      question: "63 - Selecione as ferramentas desejadas",
+      section: "Locação de Ferramentas",
+      required: true,
+      options: [
+        "Beiseladora elétrica",
+        "Torno coplador",
+        "Cavalete",
+        "Tifor",
+        'Corta tubos Manual - 1/4" a 2"',
+        'Corta tubos Manual - 2.1/2" a 5"',
+        'Corta tubos Manual - 6" a 8"',
+        'Beiseladora Cone - 3/4" a 2.1/2"',
+        'Corta Tubos manual - 4" a 12"',
+        "Termofusora 75MM - 110MM",
+        "Termofusora 20MM - 63MM",
+        'Corta Tubos elétrico - 4" - 16"',
+      ],
+    },
+    {
+      id: "q64",
+      type: "text",
+      question: "64 - Informe o Período desejado de Locação - Início",
+      section: "Locação de Ferramentas",
+      required: true,
+    },
+    {
+      id: "q65",
+      type: "text",
+      question: "65 - Informe o Período desejado de Locação - Término",
+      section: "Locação de Ferramentas",
+      required: true,
+    },
+    {
+      id: "q66",
+      type: "text",
+      question: "66 - Local da Obra",
+      section: "Locação de Ferramentas",
+      required: true,
+    },
+    {
+      id: "q67",
+      type: "text",
+      question: "67 - Dados do Cliente - Responsável pela Locação",
+      section: "Locação de Ferramentas",
+      required: true,
+    },
+    {
+      id: "q68",
+      type: "text",
+      question: "68 - Dados do Cliente - Contato e E-mail",
+      section: "Locação de Ferramentas",
+      required: true,
+    },
+    {
+      id: "q69",
+      type: "text",
+      question: "69 - Anexe os isométricos correspondentes ao Projeto",
+      section: "Fabricação de Produtos Engenheirados",
+      required: true,
+    },
+    {
+      id: "q70",
+      type: "text",
+      question: "70 - Informe a aplicação do sistema",
+      section: "Fabricação de Produtos Engenheirados",
+      required: true,
+    },
+    {
+      id: "q71",
+      type: "textarea",
+      question: "71 - Informe Detalhes do Projeto",
+      section: "Fabricação de Produtos Engenheirados",
+      required: true,
+    },
+    {
+      id: "q72",
+      type: "radio",
+      question: "72 - Informe a especificação da Cor da Tinta",
+      section: "Pintura de Tubos",
+      required: true,
+      options: [
+        "Alaranjado-segurança (Código: C244 Ácido)",
+        "Verde-emblema (Código: N541)",
+        "Lilás (Código: M 32T)",
+        "Outra",
+      ],
+    },
+    {
+      id: "q73",
+      type: "text",
+      question: "73 - Informe a Quantidade em Metros e Diâmetro da Tubulação",
+      section: "Pintura de Tubos",
+      required: true,
+    },
+    // Mais perguntas serão adicionadas conforme as próximas seções...
   ];
 
   const sections = [
-    "Dados Iniciais",
-    "Informações Técnicas",
-    "Especificações",
-    "Requisitos",
-    "Observações Finais",
+    "Identificação e Dados Iniciais",
+    "Dados do Solicitante",
+    "Responsável pelo Acompanhamento Interno",
+    "Cadastrais dados do solicitante de serviço",
+    "Serviços",
+    "Visita Técnica",
+    "Treinamento de Solda",
+    "Acompanhamento de Obras",
+    "Instalação e Montagem",
+    "Conversão de DWG",
+    "Locação de Ferramentas",
+    "Fabricação de Produtos Engenheirados",
+    "Pintura de Tubos",
   ];
 
   // Carregar solicitações do localStorage
@@ -330,7 +946,27 @@ export default function SolicitacaoServicos() {
     const value = formData[question.id] || "";
 
     switch (question.type) {
-      case "text":
+      case "text": {
+        const isDateField = question.question.toLowerCase().includes("data");
+        const isEmailField = question.question.toLowerCase().includes("e-mail");
+        const isPhoneField =
+          question.question.toLowerCase().includes("celular") ||
+          question.question.toLowerCase().includes("telefone");
+
+        let inputType = "text";
+        let placeholder = "Digite sua resposta";
+
+        if (isDateField) {
+          inputType = "date";
+          placeholder = "Selecione a data";
+        } else if (isEmailField) {
+          inputType = "email";
+          placeholder = "exemplo@email.com";
+        } else if (isPhoneField) {
+          inputType = "tel";
+          placeholder = "(11) 99999-9999";
+        }
+
         return (
           <div className="form-question" key={question.id}>
             <label className="question-label">
@@ -338,14 +974,15 @@ export default function SolicitacaoServicos() {
               {question.required && <span className="required">*</span>}
             </label>
             <Input
-              type="text"
-              placeholder="Digite sua resposta"
+              type={inputType}
+              placeholder={placeholder}
               value={value as string}
               onChange={(newValue) => handleInputChange(question.id, newValue)}
               required={question.required}
             />
           </div>
         );
+      }
 
       case "textarea":
         return (
