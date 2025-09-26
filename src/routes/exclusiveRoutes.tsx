@@ -1,5 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import SolicitacaoServicos from "../pages/AcessoExclusivo/SolicitacaoServicos/SolicitacaoServicos";
+import RelatorioVisitas from "../pages/AcessoExclusivo/RelatorioVisitas/RelatorioVisitas";
 
 export default function ExclusiveRoutes() {
   return (
@@ -8,10 +9,7 @@ export default function ExclusiveRoutes() {
         path="/"
         element={<div>Acesso Exclusivo Home - Lista das 5 opções</div>}
       />
-      <Route
-        path="/relatorio-visitas"
-        element={<div>Relatório de Visitas</div>}
-      />
+      <Route path="/relatorio-visitas" element={<RelatorioVisitas />} />
       <Route
         path="/gerenciamento-obra"
         element={<div>Gerenciamento de Obra</div>}

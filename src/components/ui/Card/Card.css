@@ -60,7 +60,6 @@
 }
 
 .card__title {
-  font-size: 3rem;
   font-weight: 900;
   margin: 0 0 0.5rem 0;
   text-transform: uppercase;
@@ -71,12 +70,8 @@
   text-align: center;
 }
 
-.card--small .card__title {
-  font-size: 2rem;
-}
-
-.card--large .card__title {
-  font-size: 3rem;
+.card__title h2 {
+  font-size: 1rem;
 }
 
 .card__subtitle-container {
