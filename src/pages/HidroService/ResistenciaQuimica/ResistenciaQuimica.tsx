@@ -8,7 +8,6 @@ import {
   FaFilter,
   FaExclamationTriangle,
   FaCheckCircle,
-  FaTimesCircle,
   FaQuestionCircle,
   FaTable,
   FaChartLine,

@@ -35,6 +35,8 @@ interface Question {
   options?: string[];
   required?: boolean;
   section?: string;
+  instruction?: string;
+  placeholder?: string;
 }
 
 type ViewMode = "menu" | "new" | "history" | "edit" | "comments" | "schedule";
@@ -76,59 +78,403 @@ export default function RelatorioVisitas() {
 
   // Estrutura preparada para receber 25 perguntas sobre visitas
   const questions: Question[] = [
-    // Seção 1: Dados da Visita
+    // Seção 1: Informações Regionais e Vendedores
     {
       id: "q1",
       type: "radio",
-      question: "1 - Tipo de Visita",
-      section: "Dados da Visita",
+      question: "1 - Informe sua Regional",
+      section: "Informações Regionais e Vendedores",
       required: true,
-      options: ["Técnica", "Comercial", "Técnica e Comercial"],
+      options: [
+        "Carlos Moraes - VEND I & II",
+        "Rogério Foltran - HUNTERS",
+        "Davi Salgado - HVAC",
+        "Nic Romano - Expansão & Novos Negócios",
+      ],
     },
     {
       id: "q2",
-      type: "text",
-      question: "2 - Cliente/Empresa",
-      section: "Dados da Visita",
+      type: "select",
+      question: "2 - Vendedor Solicitação - VEND I & II",
+      section: "Informações Regionais e Vendedores",
       required: true,
+      options: [
+        "002620 - ALESSANDRO APARECIDO DE RESENDE",
+        "035184 - ALEXANDRE DI RIENZO GANDARA",
+        "002630 - CHRISTIAN NONATO MATOS",
+        "002617 - CLAUDINEI RODRIGUES MARQUES",
+        "035174 - CZ",
+        "035163 - ELTON DA COSTA GONCALO",
+        "035179 - GABRIEL LUIS OLIVEIRA ALVES",
+        "035178 - HERBERT LOPES",
+        "035139 - LEONARDO AMARAL MONARI",
+        "035180 - MARIO PESCUMA FILHO",
+        "035183 - GUILHERME ALVES NOGUEIRA",
+        "035168 - JOAO VITOR DA SILVA PEREIRA",
+      ],
     },
     {
       id: "q3",
-      type: "text",
-      question: "3 - Vendedor Responsável",
-      section: "Dados da Visita",
+      type: "select",
+      question: "3 - Vendedor Solicitação - Hunters",
+      section: "Informações Regionais e Vendedores",
       required: true,
+      options: [
+        "035202 - ANA CAROLINE",
+        "035192 - ANA JULYA",
+        "035104 - LUCAS NASCIMENTO GONCALVES",
+        "035185 - GUILHERME CAMPOS DO CARMO",
+        "035201 - JULIA CINTRA",
+        "035195 - JULIA SANTANA",
+        "035189 - MARIA ROBERTA",
+        "035203 - MILENA RIBEIRO",
+        "035191 - PAOLA LINO",
+        "035190 - PEDRO HENRIQUE PEREIRA SOUZA",
+        "020719 - ROGERIO PINHEIRO FOLTRAN",
+      ],
     },
     {
       id: "q4",
-      type: "date",
-      question: "4 - Data da Visita",
-      section: "Dados da Visita",
+      type: "select",
+      question: "4 - Vendedor Solicitação - HVAC",
+      section: "Informações Regionais e Vendedores",
       required: true,
+      options: [
+        "99999G - CEOS CONSULTORIA, ASSESSORIA E REPRESENT",
+        "000356 - DAVI SALGADO DE A. MARTINS",
+        "035140 - DDK REPRESENTACOES LTDA",
+        "99999X - EMB REPRESENTACOES",
+        "A00000 - ENGINE - COMERCIO E SERVICOS EIRELI - EP",
+        "99999E - FAMAC REPRESENTACOES LTDA",
+        "035194 - GERSON SOUZA",
+        "99999Y - ISOLEX NE - PROJETOS, REPRESENTACOES",
+        "035144 - JOSE ROMERO JUNIOR",
+        "035141 - MARCO SOUTO",
+        "99999B - MAURICIO COSTA",
+        "99999D - MULT-ELETRIC REPRESENTACOES",
+        "A00001 - ONIX SP REPRESENTACOES LTDA",
+        "035175 - RC VEDACOES LTDA / RAFAEL",
+        "99999F - SAFETY CONTROL REPRESENTACOES LTDA",
+        "99999J - SAFETY/ZOEGA",
+        "99999N - SIMEY",
+        "99999O - TITO REPRESENTACOES LTDA",
+        "99999Q - TITO/ZOEGA",
+        "99999W - TROMPOWSKY REPRESENTACOES COMERCIAIS LTD",
+        "035176 - VEREDA REPRESENTACOES COMERCIAIS LTDA",
+      ],
     },
     {
       id: "q5",
-      type: "time",
-      question: "5 - Horário da Visita",
+      type: "select",
+      question: "5 - Vendedor Solicitação - Expansão & Novos Negócios",
+      section: "Informações Regionais e Vendedores",
+      required: true,
+      options: [
+        "035197 - DANILO TRIPOLI",
+        "035199 - EDSON RANGEL",
+        "035200 - MARCO TULIO",
+        "035193 - NILZA ROMANO",
+        "035198 - RAFAEL SOUZA DA COSTA",
+      ],
+    },
+    // Seção 2: Geral
+    {
+      id: "q6",
+      type: "radio",
+      question: "6 - Selecione a ação que deseja realizar",
+      section: "Geral",
+      required: true,
+      options: [
+        "Solicitar uma nova visita",
+        "Fazer o relatório de uma visita realizada",
+      ],
+    },
+    // Seção 3: Dados do Cliente
+    {
+      id: "q7",
+      type: "text",
+      question: "7 - Nome do Cliente",
+      section: "Dados do Cliente",
+      required: true,
+      placeholder: "Insira sua resposta",
+    },
+    {
+      id: "q8",
+      type: "text",
+      question: "8 - CNPJ do Cliente",
+      section: "Dados do Cliente",
+      required: false,
+      placeholder: "Insira pelo menos 13 caracteres",
+    },
+    {
+      id: "q9",
+      type: "text",
+      question: "9 - Código do Cliente",
+      section: "Dados do Cliente",
+      required: false,
+      instruction: "Insira conforme exemplo: N17318-01",
+      placeholder: "Insira pelo menos 8 caracteres",
+    },
+    {
+      id: "q10",
+      type: "text",
+      question: "10 - Município",
+      section: "Dados do Cliente",
+      required: true,
+      placeholder: "Insira sua resposta",
+    },
+    {
+      id: "q11",
+      type: "text",
+      question: "11 - Contato Cliente",
+      section: "Dados do Cliente",
+      required: true,
+      placeholder: "Insira sua resposta",
+    },
+    // Seção 4: Solicitação de Visita
+    {
+      id: "q12",
+      type: "radio",
+      question: "12 - Qual será o tipo de visita",
+      section: "Solicitação de Visita",
+      required: true,
+      options: [
+        "Levantamento Técnico",
+        "Apresentação Técnica",
+        "Reunião Técnica",
+        "Reunião Comercial",
+      ],
+    },
+    {
+      id: "q13",
+      type: "textarea",
+      question: "13 - Detalhe o motivo da visita",
+      section: "Solicitação de Visita",
+      required: true,
+      instruction: "Detalhe o escopo da visita",
+      placeholder: "Insira sua resposta",
+    },
+    {
+      id: "q14",
+      type: "text",
+      question: "14 - Endereço da Visita",
+      section: "Solicitação de Visita",
+      required: true,
+      placeholder: "Insira sua resposta",
+    },
+    {
+      id: "q15",
+      type: "date",
+      question: "15 - Data da visita",
+      section: "Solicitação de Visita",
+      required: true,
+      placeholder: "Insira a data (dd/MM/yyyy)",
+    },
+    {
+      id: "q16",
+      type: "radio",
+      question: "16 - Período Sugerido de Visita",
+      section: "Solicitação de Visita",
+      required: true,
+      options: [
+        "Manhã | 09:00HS - 12:00HS",
+        "Manhã | 09:00HS - 10:30HS",
+        "Manhã | 10:30HS - 12:00HS",
+        "Tarde | 13:00HS - 16:00HS",
+        "Tarde | 13:00HS - 14:30HS",
+        "Tarde | 14:30HS - 16:00HS",
+      ],
+    },
+    {
+      id: "q17",
+      type: "select",
+      question: "17 - Vendedor Responsável Solicitação",
+      section: "Solicitação de Visita",
+      required: true,
+      options: [
+        "002617 - CLAUDINEI",
+        "002620 - ALESSANDRO",
+        "002630 - CHRISTIAN",
+        "020719 - ROGERIO",
+        "035139 - LEONARDO",
+        "035163 - ELTON",
+        "035174 - MOACIR",
+        "035178 - HERBERT",
+        "035179 - GABRIEL LUIS",
+        "035180 - MARIO",
+        "035183 - GUILHERME ALVES",
+        "035184 - ALEXANDRE DI RIENZO",
+        "035185 - GUILHERME CAMPOS",
+        "035190 - PEDRO HENRIQUE",
+        "035197 - DANILO TRIPOLI",
+        "035199 - EDSON RANGEL",
+        "035200 - MARCO TULIO",
+        "035193 - NILZA ROMANO",
+        "035198 - RAFAEL SOUZA DA COSTA",
+        "Outro Vendedor",
+      ],
+    },
+    // Seção 5: Confirmação
+    {
+      id: "q18",
+      type: "checkbox",
+      question: "18 - Confirmação da Solicitação",
+      section: "Confirmação",
+      required: true,
+      options: [
+        "Confirmo que todas as informações fornecidas estão corretas e autorizo o processamento desta solicitação de visita",
+      ],
+    },
+    // Seção 6: Instruções para Relatório
+    {
+      id: "q19",
+      type: "text",
+      question: "19 - ID da Solicitação",
+      section: "Instruções para Relatório",
+      required: true,
+      placeholder: "Insira o ID da solicitação prévia",
+    },
+    // Seção 7: Dados da Visita
+    {
+      id: "q20",
+      type: "radio",
+      question: "20 - Possui o número de solicitação da visita (ID)",
       section: "Dados da Visita",
       required: true,
+      options: ["Sim", "Não"],
     },
-    // Placeholder para as demais 20 perguntas que serão adicionadas
-    // Elas serão distribuídas em outras seções como:
-    // - Dados do Cliente
-    // - Objetivos da Visita
-    // - Relatório da Visita
-    // - Follow-up
-    // - Observações
+    {
+      id: "q21",
+      type: "text",
+      question: "21 - Solicitação de Visita",
+      section: "Dados da Visita",
+      required: true,
+      instruction:
+        "Adicione o ID da Solicitação de visita que está referenciando.",
+      placeholder: "O número não pode ser 0",
+    },
+    {
+      id: "q22",
+      type: "text",
+      question: "22 - Nome do Cliente Visitado",
+      section: "Dados da Visita",
+      required: true,
+      placeholder: "Insira sua resposta",
+    },
+    {
+      id: "q23",
+      type: "date",
+      question: "23 - Data da Visita",
+      section: "Dados da Visita",
+      required: true,
+      placeholder: "Insira a data (dd/MM/yyyy)",
+    },
+    {
+      id: "q24",
+      type: "radio",
+      question: "24 - Essa visita foi Online",
+      section: "Dados da Visita",
+      required: true,
+      options: [
+        "Sim, foi uma apresentação Online",
+        "Não, foi uma visita Presencial",
+      ],
+    },
+    {
+      id: "q25",
+      type: "checkbox",
+      question: "25 - Quem realizou a visita",
+      section: "Dados da Visita",
+      required: true,
+      options: [
+        "Carlos Moraes",
+        "Eduardo Amaral",
+        "Eduardo Zoega",
+        "Enrique Leite",
+        "Marco Antônio - Amanco",
+        "Ricardo Reis - Lubrizol",
+        "Executivo de vendas responsável",
+        "Outra",
+      ],
+    },
+    // Seção 8: Relatório
+    {
+      id: "q26",
+      type: "select",
+      question: "26 - Tema principal da visita",
+      section: "Relatório",
+      required: true,
+      options: [
+        "Selecionar sua resposta",
+        "Levantamento técnico / Projeto",
+        "Apresentação da Hidrodema",
+        "Apresentação de proposta / negociação",
+        "Prospecção de cliente",
+        "Visita de rotina / Complemento de rota",
+        "Treinamento",
+        "Reunião Tecnica",
+        "Reunião Comercial",
+      ],
+    },
+    {
+      id: "q27",
+      type: "textarea",
+      question: "27 - Relatório da Visita",
+      section: "Relatório",
+      required: true,
+      instruction: "Relatar com detalhes o que foi realizado na visita",
+      placeholder: "Insira sua resposta",
+    },
+    {
+      id: "q28",
+      type: "checkbox",
+      question: "28 - Ponto Emocional Principal Constatado",
+      section: "Relatório",
+      required: true,
+      options: [
+        "Conveniência",
+        "Segurança",
+        "Qualidade",
+        "Agilidade",
+        "Tecnologia",
+        "Status",
+        "Responsabilidade",
+        "Comprometimento",
+        "Exclusividade",
+        "Transparência",
+        "Confiança",
+        "Responsabilidade Ambiental",
+        "Outra",
+      ],
+    },
+    {
+      id: "q29",
+      type: "text",
+      question: "29 - Próxima Ação",
+      section: "Relatório",
+      required: true,
+      instruction: "Vendedor / Engenharia / Logística...",
+      placeholder: "Insira sua resposta",
+    },
+    {
+      id: "q30",
+      type: "date",
+      question: "30 - Data para o Próximo Follow UP",
+      section: "Relatório",
+      required: true,
+      placeholder: "Insira a data (dd/MM/yyyy)",
+    },
   ];
 
   const sections = [
-    "Dados da Visita",
+    "Informações Regionais e Vendedores",
+    "Geral",
     "Dados do Cliente",
-    "Objetivos da Visita",
-    "Relatório da Visita",
-    "Follow-up",
-    "Observações",
+    "Solicitação de Visita",
+    "Confirmação",
+    "Instruções para Relatório",
+    "Dados da Visita",
+    "Relatório",
   ];
 
   // Carregar relatórios do localStorage
@@ -380,9 +726,14 @@ export default function RelatorioVisitas() {
               {question.question}
               {question.required && <span className="visitas-required">*</span>}
             </label>
+            {question.instruction && (
+              <div className="visitas-question-instruction">
+                {question.instruction}
+              </div>
+            )}
             <Input
               type="text"
-              placeholder="Digite sua resposta"
+              placeholder={question.placeholder || "Digite sua resposta"}
               value={value as string}
               onChange={(newValue) => handleInputChange(question.id, newValue)}
               required={question.required}
@@ -397,8 +748,13 @@ export default function RelatorioVisitas() {
               {question.question}
               {question.required && <span className="visitas-required">*</span>}
             </label>
+            {question.instruction && (
+              <div className="visitas-question-instruction">
+                {question.instruction}
+              </div>
+            )}
             <Input
-              placeholder="Digite sua resposta"
+              placeholder={question.placeholder || "Digite sua resposta"}
               type="date"
               value={value as string}
               onChange={(newValue) => handleInputChange(question.id, newValue)}
@@ -431,9 +787,16 @@ export default function RelatorioVisitas() {
               {question.question}
               {question.required && <span className="visitas-required">*</span>}
             </label>
+            {question.instruction && (
+              <div className="visitas-question-instruction">
+                {question.instruction}
+              </div>
+            )}
             <textarea
               className="visitas-form-textarea"
-              placeholder="Digite sua resposta detalhada"
+              placeholder={
+                question.placeholder || "Digite sua resposta detalhada"
+              }
               value={value as string}
               onChange={(e) => handleInputChange(question.id, e.target.value)}
               required={question.required}
@@ -918,7 +1281,28 @@ export default function RelatorioVisitas() {
 
             <div className="visitas-questions-container">
               {currentQuestions.length > 0 ? (
-                currentQuestions.map(renderQuestion)
+                <>
+                  {sections[currentSection] === "Confirmação" && (
+                    <div className="visitas-confirmation-message">
+                      <p>
+                        Confirme abaixo sua solicitação em breve você terá um
+                        retorno por e-mail.
+                      </p>
+                    </div>
+                  )}
+                  {sections[currentSection] === "Instruções para Relatório" && (
+                    <div className="visitas-instruction-message">
+                      <h4>TODA VISITA PRECISA TER UMA SOLICITAÇÃO PRÉVIA</h4>
+                      <p>
+                        Faça a solicitação de Visita para preencher o relatório
+                        da mesma. É necessário ter o ID da solicitação para
+                        preencher o relatório, acesse o link novamente e faça a
+                        solicitação.
+                      </p>
+                    </div>
+                  )}
+                  {currentQuestions.map(renderQuestion)}
+                </>
               ) : (
                 <div className="visitas-placeholder-message">
                   <p>
