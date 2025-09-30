@@ -65,7 +65,7 @@ export default function AcessoExclusivo() {
           textColor="#333"
           size="medium"
           className="acesso-exclusivo-card"
-          onClick={() => navigate("/acesso-exclusivo/equalizador-servicos")}
+          onClick={() => navigate("/acesso-exclusivo/equalizador-servico")}
         />
         <Card
           variant="service"

@@ -14,7 +14,7 @@
   overflow: hidden;
 }
 
-/* Efeito de fundo animado */
+/* Efeito de fundo estático */
 .solicitacao-container::before {
   content: "";
   position: absolute;
@@ -22,34 +22,8 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: radial-gradient(
-      circle at 30% 40%,
-      rgba(139, 92, 246, 0.08) 0%,
-      transparent 50%
-    ),
-    radial-gradient(
-      circle at 70% 60%,
-      rgba(59, 130, 246, 0.06) 0%,
-      transparent 50%
-    ),
-    radial-gradient(
-      circle at 40% 20%,
-      rgba(236, 72, 153, 0.04) 0%,
-      transparent 50%
-    );
-  animation: floatingOrbs 20s ease-in-out infinite alternate;
+  background: #1e3a5f;
   pointer-events: none;
-  z-index: 0;
-}
-
-@keyframes floatingOrbs {
-  0%,
-  100% {
-    transform: scale(1) rotate(0deg);
-  }
-  50% {
-    transform: scale(1.1) rotate(180deg);
-  }
 }
 
 /* Header */
@@ -121,8 +95,6 @@
   font-family: "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont,
     sans-serif;
   filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.5));
-  animation: titleGlow 3s ease-in-out infinite alternate,
-    gradientShift 4s ease-in-out infinite;
 }
 
 .company-subtitle {
@@ -143,7 +115,6 @@
   position: relative;
   overflow: hidden;
   box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
-  animation: underlinePulse 2s ease-in-out infinite alternate;
 }
 
 .header-spacer {
@@ -190,16 +161,6 @@
     rgba(255, 255, 255, 0.3),
     transparent
   );
-  animation: progressShimmer 2s infinite;
-}
-
-@keyframes progressShimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
 }
 
 .progress-text {
@@ -248,17 +209,6 @@
     #ef4444
   );
   background-size: 300% 100%;
-  animation: headerGradient 3s ease infinite;
-}
-
-@keyframes headerGradient {
-  0%,
-  100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
 }
 
 /* Form Header */
@@ -654,37 +604,6 @@
   top: 0;
   right: -0.8em;
   opacity: 0.8;
-}
-
-/* Animações */
-@keyframes titleGlow {
-  0% {
-    filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.3));
-  }
-  100% {
-    filter: drop-shadow(0 0 30px rgba(139, 92, 246, 0.8));
-  }
-}
-
-@keyframes gradientShift {
-  0%,
-  100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-}
-
-@keyframes underlinePulse {
-  0% {
-    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
-    transform: scaleX(1);
-  }
-  100% {
-    box-shadow: 0 4px 25px rgba(59, 130, 246, 0.7);
-    transform: scaleX(1.05);
-  }
 }
 
 /* Menu Container */

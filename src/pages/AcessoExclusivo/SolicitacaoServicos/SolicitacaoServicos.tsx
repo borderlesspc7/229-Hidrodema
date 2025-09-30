@@ -1107,7 +1107,7 @@ export default function SolicitacaoServicos() {
 
   // Renderizar menu principal
   const renderMenu = () => (
-    <div className="menu-container">
+    <div className="menu-container-solicitacao">
       <div className="menu-cards">
         <Card
           variant="service"
