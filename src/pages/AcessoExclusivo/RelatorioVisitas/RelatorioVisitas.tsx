@@ -466,16 +466,37 @@ export default function RelatorioVisitas() {
     },
   ];
 
-  const sections = [
+  // Seções para Solicitação de Visita
+  const solicitacaoSections = [
     "Informações Regionais e Vendedores",
     "Geral",
     "Dados do Cliente",
     "Solicitação de Visita",
     "Confirmação",
+  ];
+
+  // Seções para Relatório de Visita
+  const relatorioSections = [
     "Instruções para Relatório",
     "Dados da Visita",
     "Relatório",
   ];
+
+  // Determinar seções ativas baseadas na escolha do usuário
+  const getActiveSections = () => {
+    const selectedAction = formData.q6 as string;
+
+    if (selectedAction === "Solicitar uma nova visita") {
+      return solicitacaoSections;
+    } else if (selectedAction === "Fazer o relatório de uma visita realizada") {
+      return relatorioSections;
+    }
+
+    // Se ainda não selecionou, mostrar apenas até a seção Geral
+    return ["Informações Regionais e Vendedores", "Geral"];
+  };
+
+  const sections = getActiveSections();
 
   // Carregar relatórios do localStorage
   const loadVisitReports = () => {
@@ -496,6 +517,11 @@ export default function RelatorioVisitas() {
       ...prev,
       [questionId]: value,
     }));
+
+    // Se mudou a seleção de ação (q6), resetar para a seção Geral
+    if (questionId === "q6") {
+      setCurrentSection(1); // Índice da seção "Geral"
+    }
   };
 
   const handleNext = () => {
@@ -1303,6 +1329,17 @@ export default function RelatorioVisitas() {
                   )}
                   {currentQuestions.map(renderQuestion)}
                 </>
+              ) : currentSection > 1 && !formData.q6 ? (
+                <div className="visitas-placeholder-message">
+                  <p>
+                    ⚠️ Por favor, volte à seção "Geral" e selecione a ação que
+                    deseja realizar.
+                  </p>
+                  <p>
+                    Escolha entre "Solicitar uma nova visita" ou "Fazer o
+                    relatório de uma visita realizada".
+                  </p>
+                </div>
               ) : (
                 <div className="visitas-placeholder-message">
                   <p>
@@ -1310,7 +1347,7 @@ export default function RelatorioVisitas() {
                     fornecidas.
                   </p>
                   <p>
-                    Estrutura preparada para 25 perguntas distribuídas em{" "}
+                    Estrutura preparada para 30 perguntas distribuídas em{" "}
                     {sections.length} seções.
                   </p>
                 </div>

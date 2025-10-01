@@ -696,21 +696,45 @@ export default function SolicitacaoServicos() {
     // Mais perguntas serão adicionadas conforme as próximas seções...
   ];
 
-  const sections = [
+  // Mapeamento de serviços para suas seções correspondentes
+  const serviceToSectionMap: { [key: string]: string } = {
+    "Visita Técnica": "Visita Técnica",
+    "Treinamento de Solda": "Treinamento de Solda",
+    "Acompanhamento de Obras": "Acompanhamento de Obras",
+    "Instalações e Montagens": "Instalação e Montagem",
+    "Conversão de DWG": "Conversão de DWG",
+    "Locação de Ferramenta": "Locação de Ferramentas",
+    "Fabricação de Produtos Engenheirados":
+      "Fabricação de Produtos Engenheirados",
+    "Pintura de Tubulações": "Pintura de Tubos",
+  };
+
+  // Seções base que sempre aparecem
+  const baseSections = [
     "Identificação e Dados Iniciais",
     "Dados do Solicitante",
     "Responsável pelo Acompanhamento Interno",
     "Cadastrais dados do solicitante de serviço",
     "Serviços",
-    "Visita Técnica",
-    "Treinamento de Solda",
-    "Acompanhamento de Obras",
-    "Instalação e Montagem",
-    "Conversão de DWG",
-    "Locação de Ferramentas",
-    "Fabricação de Produtos Engenheirados",
-    "Pintura de Tubos",
   ];
+
+  // Determinar seções dinâmicas baseadas no serviço selecionado
+  const getActiveSections = () => {
+    const selectedService = formData.q20 as string;
+
+    if (!selectedService || selectedService === "") {
+      return baseSections;
+    }
+
+    const serviceSection = serviceToSectionMap[selectedService];
+    if (serviceSection) {
+      return [...baseSections, serviceSection];
+    }
+
+    return baseSections;
+  };
+
+  const sections = getActiveSections();
 
   // Carregar solicitações do localStorage
   const loadServiceRequests = () => {
@@ -731,6 +755,11 @@ export default function SolicitacaoServicos() {
       ...prev,
       [questionId]: value,
     }));
+
+    // Se mudou a seleção de serviço (q20), resetar para a última seção base
+    if (questionId === "q20") {
+      setCurrentSection(4); // Índice da seção "Serviços"
+    }
   };
 
   const handleNext = () => {
@@ -1378,6 +1407,17 @@ export default function SolicitacaoServicos() {
             <div className="questions-container">
               {currentQuestions.length > 0 ? (
                 currentQuestions.map(renderQuestion)
+              ) : currentSection === sections.length - 1 && !formData.q20 ? (
+                <div className="placeholder-message">
+                  <p>
+                    ⚠️ Por favor, volte à seção "Serviços" e selecione o tipo de
+                    serviço desejado.
+                  </p>
+                  <p>
+                    As perguntas específicas aparecerão de acordo com sua
+                    seleção.
+                  </p>
+                </div>
               ) : (
                 <div className="placeholder-message">
                   <p>
