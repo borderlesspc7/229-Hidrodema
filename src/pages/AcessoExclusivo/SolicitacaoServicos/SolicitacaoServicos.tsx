@@ -245,7 +245,16 @@ export default function SolicitacaoServicos() {
       question: "20 - Selecione qual serviço você deseja solicitar",
       section: "Serviços",
       required: true,
-      options: ["Selecionar sua resposta"],
+      options: [
+        "Visita Técnica",
+        "Treinamento de Solda",
+        "Acompanhamento de Obras",
+        "Conversão de DWG",
+        "Locação de Ferramenta",
+        "Fabricação de Produtos Engenheirados",
+        "Instalações e Montagens",
+        "Pintura de Tubulações",
+      ],
     },
     // Seção 6: Visita Técnica
     {
