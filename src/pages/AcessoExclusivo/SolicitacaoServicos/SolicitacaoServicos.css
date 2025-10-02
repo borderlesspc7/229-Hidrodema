@@ -607,7 +607,7 @@
   background: #1e3a5f;
 }
 
-.menu-cards {
+.solicitacao-menu-cards {
   display: grid !important;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important;
   gap: 30px;
@@ -620,6 +620,7 @@
   transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   position: relative;
   overflow: hidden;
+  border-radius: 12px;
 }
 
 .menu-card:hover {
@@ -1069,7 +1070,7 @@
     min-width: auto;
   }
 
-  .menu-cards {
+  .solicitacao-menu-cards {
     grid-template-columns: 1fr;
     gap: 20px;
   }
