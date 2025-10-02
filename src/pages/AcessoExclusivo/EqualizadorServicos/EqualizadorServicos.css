@@ -903,11 +903,19 @@
   background: transparent;
 }
 
-.equalizador-footer-company {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: white;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.equalizador-footer-logo {
+  height: 80px;
+  width: auto;
+  max-width: 400px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.4));
+  transition: all 0.3s ease;
+  margin-bottom: 10px;
+}
+
+.equalizador-footer-logo:hover {
+  filter: drop-shadow(0 0 25px rgba(139, 92, 246, 0.6));
+  transform: scale(1.05);
 }
 
 /* Responsive Design */
@@ -968,5 +976,17 @@
   .equalizador-form-actions {
     width: 100%;
     justify-content: center;
+  }
+
+  .equalizador-footer-logo {
+    height: 65px;
+    max-width: 320px;
+  }
+}
+
+@media (max-width: 480px) {
+  .equalizador-footer-logo {
+    height: 55px;
+    max-width: 280px;
   }
 }

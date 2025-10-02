@@ -42,6 +42,9 @@
 
 /* Marca da empresa - baseado no HidroService */
 .acesso-exclusivo-container .acesso-exclusivo-company-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
   position: relative;
   z-index: 2;
@@ -49,32 +52,18 @@
   flex: 1;
 }
 
-.acesso-exclusivo-container .acesso-exclusivo-company-title {
-  font-size: 48px;
-  font-weight: 900;
-  background: linear-gradient(
-    135deg,
-    #ffffff 0%,
-    #60a5fa 25%,
-    #3b82f6 50%,
-    #8b5cf6 75%,
-    #ffffff 100%
-  );
-  background-size: 300% 300%;
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: #ffffff;
-  letter-spacing: 6px;
-  margin: 0 0 10px 0;
-  line-height: 1.1;
-  text-transform: uppercase;
-  position: relative;
-  font-family: "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont,
-    sans-serif;
+.acesso-exclusivo-logo {
+  height: 180px;
+  width: 1000px;
+  object-fit: contain;
   filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.5));
-  animation: titleGlow 3s ease-in-out infinite alternate,
-    gradientShift 4s ease-in-out infinite;
+  transition: all 0.3s ease;
+  margin-bottom: 15px;
+}
+
+.acesso-exclusivo-logo:hover {
+  filter: drop-shadow(0 0 30px rgba(139, 92, 246, 0.8));
+  transform: scale(1.05);
 }
 
 @keyframes titleGlow {
@@ -238,28 +227,19 @@
   z-index: 2;
 }
 
-.acesso-exclusivo-container .acesso-exclusivo-footer-company-subtitle {
-  font-size: 42px;
-  font-weight: 900;
-  background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 50%, #c7d2fe 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: #ffffff;
-  text-transform: uppercase;
-  letter-spacing: 6px;
-  position: relative;
-  text-align: center;
+.acesso-exclusivo-footer-logo {
+  height: 80px;
+  width: 1000px;
+
+  object-fit: contain;
+  filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.4));
+  transition: all 0.3s ease;
   margin-bottom: 10px;
 }
 
-.acesso-exclusivo-container .acesso-exclusivo-footer-company-subtitle::after {
-  content: "®";
-  font-size: 0.5em;
-  position: absolute;
-  top: 0;
-  right: -0.8em;
-  opacity: 0.8;
+.acesso-exclusivo-footer-logo:hover {
+  filter: drop-shadow(0 0 25px rgba(139, 92, 246, 0.6));
+  transform: scale(1.05);
 }
 
 /* Elementos decorativos - cilindros como no design */
@@ -285,10 +265,9 @@
     gap: 30px;
   }
 
-  .acesso-exclusivo-container .acesso-exclusivo-company-title {
-    font-size: 36px;
-    letter-spacing: 4px;
-    margin: 0 0 8px 0;
+  .acesso-exclusivo-logo {
+    height: 90px;
+    max-width: 350px;
   }
 
   .acesso-exclusivo-container .acesso-exclusivo-company-subtitle {
@@ -316,9 +295,9 @@
     min-height: 60px;
   }
 
-  .acesso-exclusivo-container .acesso-exclusivo-footer-company-subtitle {
-    font-size: 32px;
-    letter-spacing: 4px;
+  .acesso-exclusivo-footer-logo {
+    height: 55px;
+    max-width: 280px;
   }
 
   .acesso-exclusivo-container::after {
@@ -332,9 +311,9 @@
     gap: 25px;
   }
 
-  .acesso-exclusivo-container .acesso-exclusivo-company-title {
-    font-size: 28px;
-    letter-spacing: 2px;
+  .acesso-exclusivo-logo {
+    height: 70px;
+    max-width: 280px;
   }
 
   .acesso-exclusivo-container .acesso-exclusivo-company-subtitle {
@@ -357,8 +336,8 @@
     min-height: 50px;
   }
 
-  .acesso-exclusivo-container .acesso-exclusivo-footer-company-subtitle {
-    font-size: 26px;
-    letter-spacing: 2px;
+  .acesso-exclusivo-footer-logo {
+    height: 45px;
+    max-width: 220px;
   }
 }

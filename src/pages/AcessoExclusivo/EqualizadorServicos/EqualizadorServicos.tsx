@@ -1024,7 +1024,11 @@ const EqualizadorServicos = () => {
 
       {/* Footer */}
       <div className="equalizador-footer">
-        <span className="equalizador-footer-company">HIDRODEMA®</span>
+        <img
+          src="/src/img/HIDRODEMA_LogoNovo_Branco (2).png"
+          alt="HIDRODEMA"
+          className="equalizador-footer-logo"
+        />
       </div>
     </div>
   );

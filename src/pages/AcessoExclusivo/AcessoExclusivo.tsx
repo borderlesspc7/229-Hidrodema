@@ -29,10 +29,11 @@ export default function AcessoExclusivo() {
           Voltar
         </Button>
         <div className="acesso-exclusivo-company-brand">
-          <h1 className="acesso-exclusivo-company-title">HIDRO SERVICE</h1>
-          <span className="acesso-exclusivo-company-subtitle">
-            Engenharia de aplicaçao e serviços Hidrodema
-          </span>
+          <img
+            src="/src/img/Logo HidroService.png"
+            alt="HIDRO SERVICE"
+            className="acesso-exclusivo-logo"
+          />
           <div className="acesso-exclusivo-company-underline"></div>
         </div>
         <div className="acesso-exclusivo-header-spacer"></div>
@@ -79,9 +80,11 @@ export default function AcessoExclusivo() {
       </div>
 
       <div className="acesso-exclusivo-footer">
-        <span className="acesso-exclusivo-footer-company-subtitle">
-          HIDRODEMA
-        </span>
+        <img
+          src="/src/img/HIDRODEMA_LogoNovo_Branco (2).png"
+          alt="HIDRODEMA"
+          className="acesso-exclusivo-footer-logo"
+        />
       </div>
     </div>
   );

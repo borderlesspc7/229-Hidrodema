@@ -409,7 +409,11 @@ export default function ResistenciaQuimica() {
       </div>
 
       <div className="footer">
-        <span className="footer-company-subtitle">HIDRODEMA</span>
+        <img
+          src="/src/img/HIDRODEMA_LogoNovo_Branco (2).png"
+          alt="HIDRODEMA"
+          className="footer-logo"
+        />
       </div>
     </div>
   );

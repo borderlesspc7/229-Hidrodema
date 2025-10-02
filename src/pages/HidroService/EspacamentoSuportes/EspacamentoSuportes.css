@@ -231,8 +231,23 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 15px;
+  padding: 25px 15px;
   backdrop-filter: blur(10px);
+}
+
+.footer-logo {
+  height: 80px;
+  width: auto;
+  max-width: 400px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.4));
+  transition: all 0.3s ease;
+  margin-bottom: 15px;
+}
+
+.footer-logo:hover {
+  filter: drop-shadow(0 0 25px rgba(139, 92, 246, 0.6));
+  transform: scale(1.05);
 }
 
 .footer-company-subtitle {
@@ -315,6 +330,11 @@
     padding: 8px 5px;
   }
 
+  .footer-logo {
+    height: 65px;
+    max-width: 320px;
+  }
+
   .footer {
     flex-direction: column;
     gap: 15px;
@@ -340,6 +360,11 @@
   .espacamento-table th,
   .espacamento-table td {
     padding: 6px 4px;
+  }
+
+  .footer-logo {
+    height: 55px;
+    max-width: 280px;
   }
 
   .intro-content p,

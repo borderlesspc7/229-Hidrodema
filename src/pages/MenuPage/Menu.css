@@ -142,6 +142,9 @@
   position: relative;
   z-index: 2;
   margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .company-title {
@@ -191,6 +194,19 @@
   }
 }
 
+.company-logo {
+  height: 100px;
+  width: 900px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.5));
+  transition: all 0.3s ease;
+}
+
+.company-logo:hover {
+  filter: drop-shadow(0 0 30px rgba(139, 92, 246, 0.8));
+  transform: scale(1.05);
+}
+
 .company-title::after {
   content: "®";
   font-size: 0.4em;
@@ -225,8 +241,8 @@
 
 /* Container dos cards */
 .menu-cards {
-  display: flex;
-  flex-direction: column;
+  display: flex !important;
+  flex-direction: column !important;
   gap: 24px;
   max-width: 400px;
   width: 100%;
@@ -297,6 +313,11 @@
     gap: 30px;
   }
 
+  .company-logo {
+    height: 45px;
+    max-width: 250px;
+  }
+
   .company-title {
     font-size: 36px;
     letter-spacing: 4px;
@@ -329,6 +350,11 @@
   .menu-container {
     padding: 20px 10px;
     gap: 25px;
+  }
+
+  .company-logo {
+    height: 35px;
+    max-width: 200px;
   }
 
   .company-title {

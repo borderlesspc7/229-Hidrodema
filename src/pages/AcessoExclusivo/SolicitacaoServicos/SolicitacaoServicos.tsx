@@ -1525,7 +1525,11 @@ export default function SolicitacaoServicos() {
 
       {/* Footer */}
       <div className="solicitacao-footer">
-        <span className="footer-company">HIDRODEMA®</span>
+        <img
+          src="/src/img/HIDRODEMA_LogoNovo_Branco (2).png"
+          alt="HIDRODEMA"
+          className="footer-logo"
+        />
       </div>
     </div>
   );

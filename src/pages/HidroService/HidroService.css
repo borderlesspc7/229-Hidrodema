@@ -91,6 +91,9 @@
   z-index: 2;
   margin-bottom: 0;
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .hidro-service-company-title {
@@ -150,6 +153,21 @@
   }
 }
 
+.hidro-service-logo {
+  height: 140px;
+  width: auto;
+  max-width: 500px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.5));
+  transition: all 0.3s ease;
+  margin-bottom: 20px;
+}
+
+.hidro-service-logo:hover {
+  filter: drop-shadow(0 0 30px rgba(139, 92, 246, 0.8));
+  transform: scale(1.05);
+}
+
 .hidro-service-company-subtitle {
   font-size: 16px;
   color: rgba(255, 255, 255, 0.9);
@@ -186,7 +204,7 @@
 .hidro-service-content {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 12px;
   max-width: 400px;
   width: 100%;
   position: relative;
@@ -196,7 +214,7 @@
 /* Estilização específica para os cards do HidroService */
 .hidro-service-content .card {
   width: 100%;
-  min-height: 70px;
+  min-height: 55px;
   backdrop-filter: blur(16px);
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -206,7 +224,7 @@
   cursor: pointer;
   position: relative;
   border-radius: 70px;
-  padding: 20px 30px;
+  padding: 15px 25px;
   overflow: hidden;
 }
 
@@ -245,11 +263,11 @@
 /* Personalizar título dos cards para HidroService */
 /* Ajustar o título dos cards para HidroService */
 .hidro-service-content .card .card__title {
-  font-size: 20px !important;
+  font-size: 16px !important;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 70px;
+  min-height: 55px;
   text-align: center;
   margin: 0;
   text-transform: uppercase;
@@ -268,6 +286,21 @@
   margin-top: auto;
   position: relative;
   z-index: 2;
+}
+
+.hidro-service-footer-logo {
+  height: 70px;
+  width: auto;
+  max-width: 300px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.4));
+  transition: all 0.3s ease;
+  margin-bottom: 15px;
+}
+
+.hidro-service-footer-logo:hover {
+  filter: drop-shadow(0 0 25px rgba(139, 92, 246, 0.6));
+  transform: scale(1.05);
 }
 
 .hidro-service-footer-company-subtitle {
@@ -350,6 +383,11 @@
     gap: 30px;
   }
 
+  .hidro-service-logo {
+    height: 100px;
+    max-width: 400px;
+  }
+
   .hidro-service-company-title {
     font-size: 36px;
     letter-spacing: 4px;
@@ -380,6 +418,11 @@
     font-size: 14px;
   }
 
+  .hidro-service-footer-logo {
+    height: 50px;
+    max-width: 250px;
+  }
+
   .hidro-service-footer-company-subtitle {
     font-size: 32px;
     letter-spacing: 4px;
@@ -400,6 +443,11 @@
   .hidro-service-container {
     padding: 20px 10px;
     gap: 25px;
+  }
+
+  .hidro-service-logo {
+    height: 80px;
+    max-width: 350px;
   }
 
   .hidro-service-company-title {
@@ -424,6 +472,11 @@
   .hidro-service-content .card .card__title {
     font-size: 12px;
     letter-spacing: 0.5px;
+  }
+
+  .hidro-service-footer-logo {
+    height: 40px;
+    max-width: 200px;
   }
 
   .hidro-service-footer-company-subtitle {

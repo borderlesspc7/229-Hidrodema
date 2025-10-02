@@ -1448,7 +1448,11 @@ export default function RelatorioVisitas() {
 
       {/* Footer */}
       <div className="visitas-footer">
-        <span className="visitas-footer-company">HIDRODEMA®</span>
+        <img
+          src="/src/img/HIDRODEMA_LogoNovo_Branco (2).png"
+          alt="HIDRODEMA"
+          className="visitas-footer-logo"
+        />
       </div>
     </div>
   );

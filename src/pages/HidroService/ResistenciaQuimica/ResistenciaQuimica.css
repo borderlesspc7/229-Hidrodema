@@ -492,10 +492,25 @@
 /* Footer */
 .footer {
   text-align: center;
-  padding: 20px;
+  padding: 30px 20px;
   background: rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(10px);
   border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer-logo {
+  height: 80px;
+  width: auto;
+  max-width: 400px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 15px rgba(78, 205, 196, 0.4));
+  transition: all 0.3s ease;
+  margin-bottom: 15px;
+}
+
+.footer-logo:hover {
+  filter: drop-shadow(0 0 25px rgba(78, 205, 196, 0.6));
+  transform: scale(1.05);
 }
 
 .footer-company-subtitle {
@@ -581,6 +596,11 @@
     min-width: 120px;
   }
 
+  .footer-logo {
+    height: 65px;
+    max-width: 320px;
+  }
+
   .legend-grid {
     grid-template-columns: 1fr;
     gap: 10px;
@@ -616,6 +636,11 @@
   .search-input {
     padding: 10px 12px 10px 40px;
     font-size: 0.9rem;
+  }
+
+  .footer-logo {
+    height: 55px;
+    max-width: 280px;
   }
 
   .filter-select {

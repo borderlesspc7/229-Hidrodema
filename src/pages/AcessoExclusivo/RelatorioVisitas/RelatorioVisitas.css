@@ -1227,28 +1227,19 @@
   z-index: 2;
 }
 
-.visitas-footer-company {
-  font-size: 42px;
-  font-weight: 900;
-  background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 50%, #c7d2fe 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: #ffffff;
-  text-transform: uppercase;
-  letter-spacing: 6px;
-  position: relative;
-  text-align: center;
+.visitas-footer-logo {
+  height: 80px;
+  width: auto;
+  max-width: 400px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.4));
+  transition: all 0.3s ease;
   margin-bottom: 10px;
 }
 
-.visitas-footer-company::after {
-  content: "®";
-  font-size: 0.5em;
-  position: absolute;
-  top: 0;
-  right: -0.8em;
-  opacity: 0.8;
+.visitas-footer-logo:hover {
+  filter: drop-shadow(0 0 25px rgba(139, 92, 246, 0.6));
+  transform: scale(1.05);
 }
 
 /* Animações compartilhadas */
@@ -1436,6 +1427,11 @@
   .visitas-table-actions {
     justify-content: center;
   }
+
+  .visitas-footer-logo {
+    height: 65px;
+    max-width: 320px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1526,6 +1522,11 @@
 
   .visitas-comment-text {
     font-size: 14px;
+  }
+
+  .visitas-footer-logo {
+    height: 55px;
+    max-width: 280px;
   }
 }
 

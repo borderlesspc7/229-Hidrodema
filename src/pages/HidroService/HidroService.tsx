@@ -29,10 +29,11 @@ export default function HidroService() {
           Voltar
         </Button>
         <div className="hidro-service-company-brand">
-          <h1 className="hidro-service-company-title">HIDRO SERVICE</h1>
-          <span className="hidro-service-company-subtitle">
-            Engenharia de aplicaçao e serviços Hidrodema
-          </span>
+          <img
+            src="/src/img/Logo HidroService.png"
+            alt="HIDRO SERVICE"
+            className="hidro-service-logo"
+          />
           <div className="hidro-service-company-underline"></div>
         </div>
         <div className="hidro-service-header-spacer"></div>
@@ -90,9 +91,11 @@ export default function HidroService() {
 
       <div className="hidro-service-footer">
         <div>
-          <span className="hidro-service-footer-company-subtitle">
-            HIDRODEMA
-          </span>
+          <img
+            src="/src/img/HIDRODEMA_LogoNovo_branco (2).png"
+            alt="HIDRODEMA"
+            className="hidro-service-footer-logo"
+          />
         </div>
         <div className="hidro-service-footer-spacer"></div>
         <div>
