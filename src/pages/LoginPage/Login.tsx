@@ -43,7 +43,11 @@ export default function Login() {
     <div className="login-page">
       {/* Título da Empresa */}
       <div className="company-brand">
-        <h1 className="company-title">HIDRODEMA</h1>
+        <img
+          src="/src/img/HIDRODEMA_LogoNovo_Branco (2).png"
+          alt="HIDRODEMA"
+          className="company-logo"
+        />
         <div className="company-underline"></div>
       </div>
 

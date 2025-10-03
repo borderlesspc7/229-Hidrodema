@@ -39,6 +39,9 @@
   position: relative;
   z-index: 2;
   margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .company-title {
@@ -67,6 +70,21 @@
   100% {
     filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.6));
   }
+}
+
+.company-logo {
+  height: 100px;
+  width: auto;
+  max-width: 600px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
+  transition: all 0.3s ease;
+  margin-bottom: 10px;
+}
+
+.company-logo:hover {
+  filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.5));
+  transform: scale(1.05);
 }
 
 .company-title::before {
@@ -293,6 +311,11 @@
   .auth-card {
     padding: 30px 25px;
   }
+
+  .company-logo {
+    height: 70px;
+    max-width: 450px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -308,5 +331,10 @@
 
   .auth-card {
     padding: 25px 20px;
+  }
+
+  .company-logo {
+    height: 60px;
+    max-width: 350px;
   }
 }

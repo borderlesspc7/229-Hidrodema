@@ -31,13 +31,23 @@ interface FormData {
 
 interface Question {
   id: string;
-  type: "text" | "textarea" | "radio" | "checkbox" | "select" | "date" | "time";
+  type:
+    | "text"
+    | "textarea"
+    | "radio"
+    | "checkbox"
+    | "select"
+    | "date"
+    | "time"
+    | "responsibility-matrix";
   question: string;
   options?: string[];
   required?: boolean;
   section?: string;
   instruction?: string;
   placeholder?: string;
+  matrix?: { item: string; key: string }[];
+  columns?: string[];
 }
 
 type ViewMode = "menu" | "new" | "history" | "edit" | "comments" | "quotations";
@@ -84,62 +94,420 @@ const EqualizadorServicos = () => {
 
   // Estrutura preparada para receber perguntas do formulário MDS
   const questions: Question[] = [
-    // Exemplo de perguntas para testar o funcionamento
+    // Seção 1: Informações da Obra
     {
-      id: "number",
+      id: "q1",
       type: "text",
-      question: "1 - Número do MDS",
-      section: "Informações Básicas",
+      question: "1. Cliente",
+      section: "Informações da Obra",
       required: true,
-      placeholder: "Digite o número do MDS",
+      placeholder: "Insira sua resposta",
     },
     {
-      id: "client",
+      id: "q2",
       type: "text",
-      question: "2 - Cliente",
-      section: "Informações Básicas",
+      question: "2. Local da obra",
+      section: "Informações da Obra",
       required: true,
-      placeholder: "Digite o nome do cliente",
+      placeholder: "Insira sua resposta",
     },
     {
-      id: "project",
-      type: "text",
-      question: "3 - Projeto",
-      section: "Informações Básicas",
+      id: "q3",
+      type: "date",
+      question: "3. Data de emissão da visita",
+      section: "Informações da Obra",
       required: true,
-      placeholder: "Digite o nome do projeto",
+      placeholder: "Insira a data (dd/MM/yyyy)",
     },
     {
       id: "q4",
-      type: "textarea",
-      question: "4 - Descrição do Serviço",
-      section: "Descrição do Serviço",
+      type: "radio",
+      question: "4. Responsável técnico HIDRODEMA",
+      section: "Informações da Obra",
       required: true,
-      placeholder: "Descreva detalhadamente o serviço a ser prestado",
+      options: [
+        "Enrique Casa Vechia - projetos@hidrodema.com.br - 11 99294-4001",
+        "Eduardo Zoéga - engenharia@hidrodema.com.br - 11 98311-3449",
+        "Eduardo Amaral - engenharia2@hidrodema.com.br - 11 95428-5116",
+      ],
     },
+    // Seção 2: Escopo de Fornecimento
     {
       id: "q5",
-      type: "text",
-      question: "5 - Especificações Técnicas",
-      section: "Especificações Técnicas",
-      required: false,
-      placeholder: "Informe as especificações técnicas necessárias",
+      type: "textarea",
+      question: "5. Descrição do serviço",
+      section: "Escopo de Fornecimento",
+      required: true,
+      placeholder: "Insira sua resposta",
     },
     {
       id: "q6",
+      type: "checkbox",
+      question: "6. Material das tubulações a ser instalada",
+      section: "Escopo de Fornecimento",
+      required: true,
+      options: ["PVC-U", "CPVC", "PPR", "Outra"],
+    },
+    {
+      id: "q7",
+      type: "checkbox",
+      question: "7. Diâmetro das Tubulações",
+      section: "Escopo de Fornecimento",
+      required: true,
+      options: ['1/2" a 2"', '2.1/2" a 4"', '6" a 8"', '10" a 14"'],
+    },
+    {
+      id: "q8",
       type: "text",
-      question: "6 - Documentação Necessária",
-      section: "Documentação",
-      required: false,
-      placeholder: "Liste a documentação necessária",
+      question: "8. Comprimento aproximado das tubulações",
+      section: "Escopo de Fornecimento",
+      required: true,
+      placeholder: "Insira sua resposta",
+      instruction:
+        '1/2" a 2" - xxx metros\n2.1/2" a 4" - xxx metros\n6" a 8" - xxx metros\n10" a 14" - xxx metros',
+    },
+    {
+      id: "q9",
+      type: "radio",
+      question: "9. Tipo de instalação",
+      section: "Escopo de Fornecimento",
+      required: true,
+      options: ["Nova", "Retrofit"],
+    },
+    {
+      id: "q10",
+      type: "radio",
+      question: "10. Área da Instalação",
+      section: "Escopo de Fornecimento",
+      required: true,
+      options: ["Externa", "Interna", "Interno e externo"],
+    },
+    {
+      id: "q11",
+      type: "checkbox",
+      question: "11. Instalação",
+      section: "Escopo de Fornecimento",
+      required: true,
+      options: [
+        "Parede",
+        "Pipe rack",
+        "Canaleta",
+        "Enterrado",
+        "Suporte metálico suspenso",
+        "Outra",
+      ],
+    },
+    {
+      id: "q12",
+      type: "checkbox",
+      question: "12. Altura das Tubulações",
+      section: "Escopo de Fornecimento",
+      required: true,
+      options: ["Abaixo de 2 metros", "2 a 3 metros", "4 a 5 metros", "Outra"],
+    },
+    {
+      id: "q13",
+      type: "text",
+      question: "13. Quantidade de pontos de instalação",
+      section: "Escopo de Fornecimento",
+      required: true,
+      placeholder: "Insira sua resposta",
+    },
+    {
+      id: "q14",
+      type: "text",
+      question: "14. Prazo de execução",
+      section: "Escopo de Fornecimento",
+      required: true,
+      placeholder: "Insira sua resposta",
+    },
+    {
+      id: "q15",
+      type: "checkbox",
+      question: "15. Regime de Trabalho",
+      section: "Escopo de Fornecimento",
+      required: true,
+      options: [
+        "Segunda a Sexta - 8h as 17h",
+        "Segunda a Sexta - 18h as 06h",
+        "Finais de semana - 8h as 17h",
+        "Finais de semana - 18h as 06h",
+        "Outra",
+      ],
+    },
+    // Seção 3: Quadro de Responsabilidades
+    {
+      id: "q16",
+      type: "responsibility-matrix",
+      question: "16. Aspectos Administrativos",
+      section: "Quadro de Responsabilidades",
+      required: true,
+      matrix: [
+        { item: "Transporte (equipe)", key: "transporte" },
+        { item: "Alimentação", key: "alimentacao" },
+        { item: "Hospedagem", key: "hospedagem" },
+        { item: "Emissão de ART", key: "art" },
+        {
+          item: "Fazer integração e apresentar documentação conforme exigência do cliente",
+          key: "integracao",
+        },
+        { item: "Seguro de obra", key: "seguro" },
+        { item: "Emissão de RDO", key: "rdo" },
+      ],
+      columns: ["Hidrodema", "Instaladora", "Cliente", "N/A"],
+    },
+    {
+      id: "q17",
+      type: "responsibility-matrix",
+      question: "17. Canteiro de Obras",
+      section: "Quadro de Responsabilidades",
+      required: true,
+      matrix: [
+        { item: "Área para alocação de canteiro", key: "area_canteiro" },
+        { item: "Energia elétrica para canteiro", key: "energia_canteiro" },
+        {
+          item: "Disponibilizar local seguro para guarda das ferramentas e equipamentos durante o período de serviços",
+          key: "guarda_ferramentas",
+        },
+        {
+          item: "Disponibilizar área (refeitório) para uso da equipe para alimentação",
+          key: "refeitorio",
+        },
+        {
+          item: "Fornecimento de banheiros e vestiários",
+          key: "banheiros_vestiarios",
+        },
+        {
+          item: "Água para consumo dos colaboradores da contratada",
+          key: "agua_consumo",
+        },
+      ],
+      columns: ["Hidrodema", "Instaladora", "Cliente", "N/A"],
+    },
+    {
+      id: "q18",
+      type: "responsibility-matrix",
+      question: "18. Utilidades",
+      section: "Quadro de Responsabilidades",
+      required: true,
+      matrix: [
+        {
+          item: "Disponibilizar ponto de energia adequado para uso dos equipamentos 110V e 220V, em pontos até 30 metros da frente de serviço",
+          key: "ponto_energia",
+        },
+        {
+          item: "Quadros elétricos, painéis para alimentação de seus equipamentos com DR, e tomadas provisórias para execução dos serviços",
+          key: "quadros_eletricos",
+        },
+        {
+          item: "Isolamento das áreas de serviço",
+          key: "isolamento_areas",
+        },
+        {
+          item: "Iluminação do local",
+          key: "iluminacao",
+        },
+        {
+          item: "Rentabilizar-se pela disposição e movimentação dos equipamentos e linhas existentes",
+          key: "movimentacao_equipamentos",
+        },
+        {
+          item: "Retirada de tubulação a ser substituída",
+          key: "retirada_tubulacao",
+        },
+        {
+          item: "Descarte adequado de materiais removidos",
+          key: "descarte_materiais",
+        },
+      ],
+      columns: ["Hidrodema", "Instaladora", "Cliente", "N/A"],
+    },
+    {
+      id: "q19",
+      type: "responsibility-matrix",
+      question: "19. Materiais e Equipamentos",
+      section: "Quadro de Responsabilidades",
+      required: true,
+      matrix: [
+        {
+          item: "Consumíveis necessários para montagem",
+          key: "consumiveis_montagem",
+        },
+        {
+          item: "Ferramentas e equipamentos necessários para corte, bisel e acoplamento da tubulação termoplástica industrial",
+          key: "ferramentas_tubulacao",
+        },
+        {
+          item: "Escadas para trabalho em altura",
+          key: "escadas_altura",
+        },
+        {
+          item: "Material de iluminação e refrigeração de espaço confinado conforme NR-33",
+          key: "iluminacao_refrigeracao_nr33",
+        },
+        {
+          item: "Posicionar e instalar todos os equipamentos que serão interligados com a tubulação (Skids, bombas, filtros, tanques etc.)",
+          key: "posicionar_instalar_equipamentos",
+        },
+        {
+          item: "Fornecer guindaste / caminhão munk para movimentação de máquinas ou tubulações",
+          key: "guindaste_caminhao_munk",
+        },
+        {
+          item: "Plataforma elevatória com diesel e/ou carregador elétrico",
+          key: "plataforma_elevatoria",
+        },
+        {
+          item: "Fornecimento de materiais e fabricação de suportes metálicos para tubulação termoplástica industrial",
+          key: "fornecimento_suportes_metalicos",
+        },
+        {
+          item: "Instalação de suportes para tubulação termoplástica industrial",
+          key: "instalacao_suportes_tubulacao",
+        },
+      ],
+      columns: ["Hidrodema", "Instaladora", "Cliente", "N/A"],
+    },
+    {
+      id: "q20",
+      type: "responsibility-matrix",
+      question: "20. Mão de Obra e Serviços",
+      section: "Quadro de Responsabilidades",
+      required: true,
+      matrix: [
+        {
+          item: "Equipe certificada (SENAI) para instalação de tubulação termoplástica industrial",
+          key: "equipe_certificada_senai",
+        },
+        {
+          item: "Técnico para supervisão e gerenciamento de montagem",
+          key: "tecnico_supervisao_montagem",
+        },
+        {
+          item: "Técnico de segurança",
+          key: "tecnico_seguranca",
+        },
+        {
+          item: "Andaimes (material e mão de obra)",
+          key: "andaimes_material_mao_obra",
+        },
+        {
+          item: "Fornecimento de materiais de isolamento Térmico",
+          key: "materiais_isolamento_termico",
+        },
+        {
+          item: "Instalação de isolamento Térmico em tubulação termoplástica industrial",
+          key: "instalacao_isolamento_termico",
+        },
+        {
+          item: "Perfurações de paredes ou lajes, escavações ou qualquer atividade civil",
+          key: "perfuracoes_escavacoes_civil",
+        },
+        {
+          item: "Montagens e interligações elétricas",
+          key: "montagens_interligacoes_eletricas",
+        },
+        {
+          item: "Limpeza diária do local de serviços",
+          key: "limpeza_diaria_servicos",
+        },
+        {
+          item: "Serviços de Pintura de tubulação",
+          key: "servicos_pintura_tubulacao",
+        },
+        {
+          item: "Acompanhamento de comissionamento",
+          key: "acompanhamento_comissionamento",
+        },
+      ],
+      columns: ["Hidrodema", "Instaladora", "Cliente", "N/A"],
+    },
+    {
+      id: "q21",
+      type: "responsibility-matrix",
+      question: "21. Segurança",
+      section: "Quadro de Responsabilidades",
+      required: true,
+      matrix: [
+        {
+          item: "Abertura / Fechamento da PT",
+          key: "abertura_fechamento_pt",
+        },
+        {
+          item: "Elaboração de APR",
+          key: "elaboracao_apr",
+        },
+        {
+          item: "Bloqueio / Desbloqueio de Equipamentos Rotativos e Elétricos.",
+          key: "bloqueio_desbloqueio_equipamentos",
+        },
+        {
+          item: "Isolamento, bloqueio e drenagem de tubulações em que serão realizados os serviços",
+          key: "isolamento_bloqueio_drenagem",
+        },
+        {
+          item: "EPI's (Capacete com jugular, calçado de segurança, óculos de proteção, protetor auricular, cinto de segurança com trava quedas)",
+          key: "epis",
+        },
+        {
+          item: "Fornecer EPI's especiais",
+          key: "fornecer_epis_especiais",
+        },
+        {
+          item: "Observador NR-33 (p/ trabalhos em espaço confinado).",
+          key: "observador_nr33",
+        },
+      ],
+      columns: ["Hidrodema", "Instaladora", "Cliente", "N/A"],
+    },
+    {
+      id: "q22",
+      type: "responsibility-matrix",
+      question: "22. Aspectos de Planejamento de Qualidade",
+      section: "Quadro de Responsabilidades",
+      required: true,
+      matrix: [
+        {
+          item: "Cronograma detalhado em dias dos serviços",
+          key: "cronograma_detalhado_servicos",
+        },
+        {
+          item: "Executar as atividades conforme escopo de trabalho",
+          key: "executar_atividades_escopo",
+        },
+        {
+          item: "Fornecer desenhos, projetos atualizados a serem seguidos para execução e informar responsável técnico pelo projeto.",
+          key: "fornecer_desenhos_projetos",
+        },
+        {
+          item: "Qualquer serviço ou atividade de suprimentos, inspeção e diligenciamento",
+          key: "suprimentos_inspecao_diligenciamento",
+        },
+        {
+          item: 'Emissão de projeto revisado como construído "as-built"',
+          key: "emissao_projeto_as_built",
+        },
+        {
+          item: "Emissão de relatório de entrega de obra",
+          key: "emissao_relatorio_entrega_obra",
+        },
+      ],
+      columns: ["Hidrodema", "Instaladora", "Cliente", "N/A"],
+    },
+    {
+      id: "q23",
+      type: "text",
+      question: "23. LINK DE ARQUIVOS WETRANSFER / GOOGLE DRIVE",
+      section: "Quadro de Responsabilidades",
+      required: true,
+      placeholder: "Insira sua resposta",
     },
   ];
 
   const sections = [
-    "Informações Básicas",
-    "Descrição do Serviço",
-    "Especificações Técnicas",
-    "Documentação",
+    "Informações da Obra",
+    "Escopo de Fornecimento",
+    "Quadro de Responsabilidades",
   ];
 
   // Carregar serviços MDS do localStorage
@@ -185,12 +553,12 @@ const EqualizadorServicos = () => {
   const handleSaveDraft = () => {
     const draftService: ServiceMDS = {
       id: editingService?.id || `MDS-${Date.now()}`,
-      number: (formData.number as string) || `MDS-${Date.now()}`,
-      client: (formData.client as string) || "Cliente não informado",
-      project: (formData.project as string) || "Projeto não informado",
-      status: "open",
+      number: `MDS-${Date.now()}`,
+      client: (formData.q1 as string) || "Cliente não informado",
+      project: (formData.q2 as string) || "Local não informado",
+        status: "open",
       createdAt: editingService?.createdAt || new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       formData,
       comments: editingService?.comments || [],
       quotations: editingService?.quotations || [],
@@ -208,12 +576,12 @@ const EqualizadorServicos = () => {
   const handleSubmit = () => {
     const newService: ServiceMDS = {
       id: editingService?.id || `MDS-${Date.now()}`,
-      number: (formData.number as string) || `MDS-${serviceMDS.length + 1}`,
-      client: (formData.client as string) || "Cliente não informado",
-      project: (formData.project as string) || "Projeto não informado",
-      status: "awaiting-quotes",
+      number: `MDS-${serviceMDS.length + 1}`,
+      client: (formData.q1 as string) || "Cliente não informado",
+      project: (formData.q2 as string) || "Local não informado",
+        status: "awaiting-quotes",
       createdAt: editingService?.createdAt || new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       formData,
       comments: editingService?.comments || [],
       quotations: editingService?.quotations || [],
@@ -229,9 +597,9 @@ const EqualizadorServicos = () => {
       editingService ? "MDS atualizado com sucesso!" : "MDS criado com sucesso!"
     );
     setViewMode("menu");
-    setFormData({});
+      setFormData({});
     setEditingService(null);
-    setCurrentSection(0);
+      setCurrentSection(0);
   };
 
   // Editar serviço
@@ -526,6 +894,60 @@ const EqualizadorServicos = () => {
                 </option>
               ))}
             </select>
+          </div>
+        );
+
+      case "responsibility-matrix":
+        return (
+          <div className="equalizador-form-question" key={question.id}>
+            <label className="equalizador-question-label">
+              {question.question}
+              {question.required && (
+                <span className="equalizador-required">*</span>
+              )}
+            </label>
+            <div className="equalizador-responsibility-matrix">
+              <div className="equalizador-matrix-header">
+                <div className="equalizador-matrix-item-header">Aspecto</div>
+                {question.columns?.map((column) => (
+                  <div
+                    key={column}
+                    className="equalizador-matrix-column-header"
+                  >
+                    {column}
+                  </div>
+                ))}
+              </div>
+              {question.matrix?.map((row, rowIndex) => (
+                <div key={rowIndex} className="equalizador-matrix-row">
+                  <div className="equalizador-matrix-item">{row.item}</div>
+                  {question.columns?.map((column) => (
+                    <div key={column} className="equalizador-matrix-cell">
+                      <label className="equalizador-radio-option">
+                        <input
+                          type="radio"
+                          name={`${question.id}_${row.key}`}
+                          value={column}
+                          checked={
+                            (formData[
+                              `${question.id}_${row.key}`
+                            ] as string) === column
+                          }
+                          onChange={(e) =>
+                            handleInputChange(
+                              `${question.id}_${row.key}`,
+                              e.target.value
+                            )
+                          }
+                          required={question.required}
+                        />
+                        <span className="equalizador-radio-custom"></span>
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
         );
 
@@ -958,14 +1380,14 @@ const EqualizadorServicos = () => {
             </div>
 
             <div className="equalizador-form-actions">
-              <Button
-                variant="secondary"
+                <Button
+                  variant="secondary"
                 onClick={handleSaveDraft}
-                className="equalizador-nav-button"
-              >
+                  className="equalizador-nav-button"
+                >
                 <FiSave size={16} />
                 Salvar Rascunho
-              </Button>
+                </Button>
 
               {currentSection === sections.length - 1 ? (
                 <Button
@@ -977,14 +1399,14 @@ const EqualizadorServicos = () => {
                   {viewMode === "edit" ? "Atualizar" : "Finalizar MDS"}
                 </Button>
               ) : (
-                <Button
-                  variant="primary"
+                  <Button
+                    variant="primary"
                   onClick={handleNext}
-                  className="equalizador-nav-button"
-                >
+                    className="equalizador-nav-button"
+                  >
                   Próxima
                   <FiChevronRight size={16} />
-                </Button>
+                  </Button>
               )}
             </div>
           </div>
@@ -1016,7 +1438,7 @@ const EqualizadorServicos = () => {
       </div>
 
       {/* Main Content */}
-      {viewMode === "menu" && renderMenu()}
+        {viewMode === "menu" && renderMenu()}
       {viewMode === "quotations" && renderQuotations()}
       {viewMode === "history" && renderHistory()}
       {viewMode === "comments" && renderComments()}
