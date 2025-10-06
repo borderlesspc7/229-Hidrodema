@@ -1,0 +1,892 @@
+/* Container principal - Gerenciamento de Obras */
+.obras-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #1e3a5f;
+  padding: 40px 20px;
+  margin: 0;
+  width: 100%;
+  gap: 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Efeito de fundo animado */
+.obras-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: radial-gradient(
+      circle at 30% 40%,
+      rgba(139, 92, 246, 0.08) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 70% 60%,
+      rgba(59, 130, 246, 0.06) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 40% 20%,
+      rgba(236, 72, 153, 0.04) 0%,
+      transparent 50%
+    );
+  animation: floatingOrbs 20s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Header */
+.obras-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1200px;
+  position: relative;
+  z-index: 2;
+  margin-bottom: 20px;
+}
+
+.obras-back-button {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  color: #1a3a52;
+  border: 2px solid rgba(59, 130, 246, 0.3);
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  min-width: 120px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.obras-back-button:hover {
+  background: rgba(59, 130, 246, 0.1);
+  color: #ffffff;
+  border-color: rgba(59, 130, 246, 0.5);
+  transform: translateY(-2px);
+}
+
+.obras-company-brand {
+  text-align: center;
+  position: relative;
+  z-index: 2;
+  flex: 1;
+}
+
+.obras-company-title {
+  font-size: 48px;
+  font-weight: 900;
+  background: linear-gradient(
+    135deg,
+    #ffffff 0%,
+    #60a5fa 25%,
+    #3b82f6 50%,
+    #8b5cf6 75%,
+    #ffffff 100%
+  );
+  background-size: 300% 300%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #ffffff;
+  letter-spacing: 6px;
+  margin: 0 0 10px 0;
+  line-height: 1.1;
+  text-transform: uppercase;
+  position: relative;
+  font-family: "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont,
+    sans-serif;
+  filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.5));
+  animation: titleGlow 3s ease-in-out infinite alternate,
+    gradientShift 4s ease-in-out infinite;
+}
+
+.obras-company-subtitle {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.9);
+  display: block;
+  margin-bottom: 15px;
+  font-weight: 400;
+  letter-spacing: 1px;
+}
+
+.obras-company-underline {
+  width: 150px;
+  height: 6px;
+  background: linear-gradient(90deg, #ffffff 0%, #3b82f6 50%, #1e40af 100%);
+  margin: 0 auto;
+  border-radius: 3px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+  animation: underlinePulse 2s ease-in-out infinite alternate;
+}
+
+.obras-header-spacer {
+  width: 120px;
+}
+
+/* Menu Container */
+.obras-menu-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+}
+
+.obras-menu-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+  max-width: 800px;
+  width: 100%;
+}
+
+.obras-menu-card {
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.obras-menu-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 40px rgba(59, 130, 246, 0.2);
+}
+
+.obras-menu-card-content {
+  text-align: center;
+  padding: 20px;
+}
+
+.obras-menu-icon {
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: currentColor;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.obras-menu-card-content p {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0 0 15px 0;
+  font-weight: 500;
+}
+
+.obras-entry-count {
+  display: block;
+  font-size: 14px;
+  color: #059669;
+  font-weight: 700;
+  background: rgba(5, 150, 105, 0.1);
+  padding: 8px 16px;
+  border-radius: 20px;
+  margin-top: 10px;
+}
+
+/* Form Container */
+.obras-form-container {
+  position: relative;
+  z-index: 2;
+  max-width: 900px;
+  width: 100%;
+}
+
+.obras-form-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 24px;
+  padding: 40px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.obras-form-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(
+    90deg,
+    #3b82f6,
+    #8b5cf6,
+    #06d6a0,
+    #f59e0b,
+    #ef4444
+  );
+  background-size: 300% 100%;
+  animation: headerGradient 3s ease infinite;
+}
+
+.obras-form-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.obras-form-title {
+  font-size: 32px;
+  font-weight: 900;
+  color: #1a3a52;
+  margin: 0 0 12px 0;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.obras-form-subtitle {
+  font-size: 16px;
+  color: #64748b;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Form Content */
+.obras-form-content {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.obras-section {
+  background: rgba(248, 250, 252, 0.8);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.3s ease;
+}
+
+.obras-section:hover {
+  background: rgba(241, 245, 249, 0.9);
+  border-color: rgba(59, 130, 246, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.1);
+}
+
+.obras-section-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e40af;
+  margin: 0 0 20px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.obras-form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.obras-form-row:last-child {
+  margin-bottom: 0;
+}
+
+.obras-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.obras-form-field label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e40af;
+}
+
+.obras-field-small {
+  flex: 0 0 100px;
+}
+
+.obras-select,
+.obras-textarea {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 16px;
+  font-family: inherit;
+  background: #ffffff;
+  color: #1e293b;
+  transition: all 0.3s ease;
+}
+
+.obras-select:focus,
+.obras-textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  background: #fefeff;
+}
+
+.obras-textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* Materials */
+.obras-materials-form {
+  margin-bottom: 20px;
+}
+
+.obras-add-material-btn {
+  min-width: 120px;
+}
+
+.obras-materials-list {
+  margin-top: 20px;
+}
+
+.obras-materials-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.obras-materials-table th,
+.obras-materials-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.obras-materials-table th {
+  background: linear-gradient(135deg, #1e40af, #3b82f6);
+  color: #ffffff;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+}
+
+.obras-materials-table tr:last-child td {
+  border-bottom: none;
+}
+
+.obras-materials-table tr:hover {
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.obras-remove-btn {
+  padding: 6px 12px;
+  min-width: auto;
+}
+
+/* Photos */
+.obras-photo-upload {
+  margin-bottom: 20px;
+}
+
+.obras-upload-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 30px;
+  border: 2px dashed #3b82f6;
+  border-radius: 12px;
+  background: rgba(59, 130, 246, 0.05);
+  color: #3b82f6;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.obras-upload-label:hover {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: #2563eb;
+  transform: translateY(-2px);
+}
+
+.obras-photos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.obras-photo-item {
+  position: relative;
+  background: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.obras-photo-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.obras-photo-item img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+}
+
+.obras-photo-description {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-top: 1px solid #e2e8f0;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.obras-photo-description:focus {
+  outline: none;
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.obras-remove-photo-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  min-width: auto;
+  padding: 8px;
+  background: rgba(239, 68, 68, 0.9);
+  color: #ffffff;
+  border-radius: 50%;
+}
+
+.obras-remove-photo-btn:hover {
+  background: rgba(220, 38, 38, 1);
+}
+
+/* Form Actions */
+.obras-form-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: flex-end;
+  padding-top: 30px;
+  border-top: 2px solid #e2e8f0;
+  margin-top: 30px;
+}
+
+.obras-action-btn {
+  padding: 14px 28px;
+  font-size: 16px;
+  font-weight: 700;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  min-width: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.obras-action-btn:hover {
+  transform: translateY(-2px);
+}
+
+.obras-submit-btn {
+  background: linear-gradient(135deg, #06d6a0, #10b981);
+  border: none;
+  color: #ffffff;
+  box-shadow: 0 8px 25px rgba(6, 214, 160, 0.3);
+}
+
+.obras-submit-btn:hover {
+  box-shadow: 0 12px 35px rgba(6, 214, 160, 0.4);
+  background: linear-gradient(135deg, #05c59a, #0f9175);
+}
+
+/* History Container */
+.obras-history-container {
+  position: relative;
+  z-index: 2;
+  max-width: 1200px;
+  width: 100%;
+}
+
+.obras-history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.obras-history-header h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.obras-back-to-menu {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.obras-back-to-menu:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Entries List */
+.obras-entries-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.obras-entry-item {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.obras-entry-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.98);
+}
+
+.obras-entry-info h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e40af;
+  margin: 0 0 12px 0;
+}
+
+.obras-entry-meta {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.obras-date,
+.obras-materials-count,
+.obras-photos-count {
+  font-size: 14px;
+  color: #64748b;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.obras-status {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.obras-status-em-andamento {
+  background: rgba(59, 130, 246, 0.2);
+  color: #2563eb;
+}
+
+.obras-status-concluida {
+  background: rgba(16, 185, 129, 0.2);
+  color: #059669;
+}
+
+.obras-status-pausada {
+  background: rgba(251, 191, 36, 0.2);
+  color: #d97706;
+}
+
+.obras-entry-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.obras-action-button {
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: auto;
+}
+
+.obras-delete {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.obras-delete:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+/* Empty State */
+.obras-empty-state {
+  text-align: center;
+  padding: 80px 20px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.obras-empty-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+  opacity: 0.6;
+  color: #3b82f6;
+}
+
+.obras-empty-state h3 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1e40af;
+  margin: 0 0 12px 0;
+}
+
+.obras-empty-state p {
+  font-size: 16px;
+  color: #64748b;
+  margin: 0 0 30px 0;
+}
+
+/* Footer */
+.obras-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  max-width: 400px;
+  margin-top: auto;
+  position: relative;
+  z-index: 2;
+}
+
+.obras-footer-logo {
+  height: 80px;
+  width: auto;
+  max-width: 400px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.4));
+  transition: all 0.3s ease;
+  margin-bottom: 10px;
+}
+
+.obras-footer-logo:hover {
+  filter: drop-shadow(0 0 25px rgba(139, 92, 246, 0.6));
+  transform: scale(1.05);
+}
+
+/* Animations */
+@keyframes titleGlow {
+  0% {
+    filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.3));
+  }
+  100% {
+    filter: drop-shadow(0 0 30px rgba(139, 92, 246, 0.8));
+  }
+}
+
+@keyframes gradientShift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes underlinePulse {
+  0% {
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+    transform: scaleX(1);
+  }
+  100% {
+    box-shadow: 0 4px 25px rgba(59, 130, 246, 0.7);
+    transform: scaleX(1.05);
+  }
+}
+
+@keyframes floatingOrbs {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.1) rotate(180deg);
+  }
+}
+
+@keyframes headerGradient {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Responsiveness */
+@media (max-width: 768px) {
+  .obras-header {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .obras-header-spacer {
+    display: none;
+  }
+
+  .obras-company-title {
+    font-size: 32px;
+    letter-spacing: 2px;
+  }
+
+  .obras-form-card {
+    padding: 30px 20px;
+  }
+
+  .obras-form-title {
+    font-size: 24px;
+  }
+
+  .obras-form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .obras-form-actions {
+    flex-direction: column;
+  }
+
+  .obras-action-btn {
+    width: 100%;
+  }
+
+  .obras-menu-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .obras-history-header {
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+  }
+
+  .obras-entry-item {
+    flex-direction: column;
+    gap: 20px;
+    align-items: stretch;
+  }
+
+  .obras-entry-actions {
+    justify-content: center;
+  }
+
+  .obras-photos-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+
+  .obras-footer-logo {
+    height: 65px;
+    max-width: 320px;
+  }
+}
+
+@media (max-width: 480px) {
+  .obras-company-title {
+    font-size: 24px;
+    letter-spacing: 1px;
+  }
+
+  .obras-company-subtitle {
+    font-size: 12px;
+  }
+
+  .obras-form-card {
+    padding: 20px 15px;
+  }
+
+  .obras-section {
+    padding: 20px;
+  }
+
+  .obras-history-header h2 {
+    font-size: 24px;
+  }
+
+  .obras-entry-info h3 {
+    font-size: 18px;
+  }
+
+  .obras-entry-meta {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .obras-action-button {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .obras-footer-logo {
+    height: 55px;
+    max-width: 280px;
+  }
+}
