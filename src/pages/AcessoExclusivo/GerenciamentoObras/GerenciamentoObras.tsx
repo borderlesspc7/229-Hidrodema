@@ -2767,7 +2767,7 @@ export default function GerenciamentoObras() {
       {/* Footer */}
       <div className="obras-footer">
         <img
-          src="/src/img/HIDRODEMA_LogoNovo_Branco (2).png"
+          src="/HIDRODEMA_LogoNovo_Branco (2).png"
           alt="HIDRODEMA"
           className="obras-footer-logo"
         />

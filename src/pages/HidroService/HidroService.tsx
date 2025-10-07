@@ -30,7 +30,7 @@ export default function HidroService() {
         </Button>
         <div className="hidro-service-company-brand">
           <img
-            src="/src/img/Logo HidroService.png"
+            src="/Logo HidroService.png"
             alt="HIDRO SERVICE"
             className="hidro-service-logo"
           />
@@ -92,7 +92,7 @@ export default function HidroService() {
       <div className="hidro-service-footer">
         <div>
           <img
-            src="/src/img/HIDRODEMA_LogoNovo_branco (2).png"
+            src="/HIDRODEMA_LogoNovo_branco (2).png"
             alt="HIDRODEMA"
             className="hidro-service-footer-logo"
           />

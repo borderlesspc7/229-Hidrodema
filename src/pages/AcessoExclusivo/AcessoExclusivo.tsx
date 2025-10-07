@@ -30,7 +30,7 @@ export default function AcessoExclusivo() {
         </Button>
         <div className="acesso-exclusivo-company-brand">
           <img
-            src="/src/img/Logo HidroService.png"
+            src="/Logo HidroService.png"
             alt="HIDRO SERVICE"
             className="acesso-exclusivo-logo"
           />
@@ -81,7 +81,7 @@ export default function AcessoExclusivo() {
 
       <div className="acesso-exclusivo-footer">
         <img
-          src="/src/img/HIDRODEMA_LogoNovo_Branco (2).png"
+          src="/HIDRODEMA_LogoNovo_Branco (2).png"
           alt="HIDRODEMA"
           className="acesso-exclusivo-footer-logo"
         />

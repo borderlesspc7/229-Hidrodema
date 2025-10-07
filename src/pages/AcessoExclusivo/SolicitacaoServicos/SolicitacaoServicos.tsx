@@ -1526,7 +1526,7 @@ export default function SolicitacaoServicos() {
       {/* Footer */}
       <div className="solicitacao-footer">
         <img
-          src="/src/img/HIDRODEMA_LogoNovo_Branco (2).png"
+          src="/HIDRODEMA_LogoNovo_Branco (2).png"
           alt="HIDRODEMA"
           className="footer-logo"
         />

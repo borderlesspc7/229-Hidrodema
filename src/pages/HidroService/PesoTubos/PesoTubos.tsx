@@ -389,7 +389,7 @@ export default function PesoTubos() {
 
       <div className="footer">
         <img
-          src="/src/img/HIDRODEMA_LogoNovo_Branco (2).png"
+          src="/HIDRODEMA_LogoNovo_Branco (2).png"
           alt="HIDRODEMA"
           className="footer-logo"
         />

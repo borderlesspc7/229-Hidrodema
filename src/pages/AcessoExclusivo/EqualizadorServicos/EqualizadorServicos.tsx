@@ -556,9 +556,9 @@ const EqualizadorServicos = () => {
       number: `MDS-${Date.now()}`,
       client: (formData.q1 as string) || "Cliente não informado",
       project: (formData.q2 as string) || "Local não informado",
-        status: "open",
+      status: "open",
       createdAt: editingService?.createdAt || new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
       formData,
       comments: editingService?.comments || [],
       quotations: editingService?.quotations || [],
@@ -579,9 +579,9 @@ const EqualizadorServicos = () => {
       number: `MDS-${serviceMDS.length + 1}`,
       client: (formData.q1 as string) || "Cliente não informado",
       project: (formData.q2 as string) || "Local não informado",
-        status: "awaiting-quotes",
+      status: "awaiting-quotes",
       createdAt: editingService?.createdAt || new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
       formData,
       comments: editingService?.comments || [],
       quotations: editingService?.quotations || [],
@@ -597,9 +597,9 @@ const EqualizadorServicos = () => {
       editingService ? "MDS atualizado com sucesso!" : "MDS criado com sucesso!"
     );
     setViewMode("menu");
-      setFormData({});
+    setFormData({});
     setEditingService(null);
-      setCurrentSection(0);
+    setCurrentSection(0);
   };
 
   // Editar serviço
@@ -1380,14 +1380,14 @@ const EqualizadorServicos = () => {
             </div>
 
             <div className="equalizador-form-actions">
-                <Button
-                  variant="secondary"
+              <Button
+                variant="secondary"
                 onClick={handleSaveDraft}
-                  className="equalizador-nav-button"
-                >
+                className="equalizador-nav-button"
+              >
                 <FiSave size={16} />
                 Salvar Rascunho
-                </Button>
+              </Button>
 
               {currentSection === sections.length - 1 ? (
                 <Button
@@ -1399,14 +1399,14 @@ const EqualizadorServicos = () => {
                   {viewMode === "edit" ? "Atualizar" : "Finalizar MDS"}
                 </Button>
               ) : (
-                  <Button
-                    variant="primary"
+                <Button
+                  variant="primary"
                   onClick={handleNext}
-                    className="equalizador-nav-button"
-                  >
+                  className="equalizador-nav-button"
+                >
                   Próxima
                   <FiChevronRight size={16} />
-                  </Button>
+                </Button>
               )}
             </div>
           </div>
@@ -1438,7 +1438,7 @@ const EqualizadorServicos = () => {
       </div>
 
       {/* Main Content */}
-        {viewMode === "menu" && renderMenu()}
+      {viewMode === "menu" && renderMenu()}
       {viewMode === "quotations" && renderQuotations()}
       {viewMode === "history" && renderHistory()}
       {viewMode === "comments" && renderComments()}
@@ -1447,7 +1447,7 @@ const EqualizadorServicos = () => {
       {/* Footer */}
       <div className="equalizador-footer">
         <img
-          src="/src/img/HIDRODEMA_LogoNovo_Branco (2).png"
+          src="/HIDRODEMA_LogoNovo_Branco (2).png"
           alt="HIDRODEMA"
           className="equalizador-footer-logo"
         />

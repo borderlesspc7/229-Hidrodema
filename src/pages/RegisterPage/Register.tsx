@@ -73,7 +73,7 @@ export default function Register() {
       {/* Título da Empresa */}
       <div className="company-brand">
         <img
-          src="/src/img/HIDRODEMA_LogoNovo_Branco (2).png"
+          src="/HIDRODEMA_LogoNovo_Branco (2).png"
           alt="HIDRODEMA"
           className="company-logo"
         />
