@@ -290,6 +290,116 @@ export default function ConsumoAdesivo() {
               </p>
             </div>
           </div>
+
+          <div className="tables-grid">
+            <div className="packaging-table-container">
+              <h3 className="packaging-table-title">INDICAÇÃO DE EMBALAGENS</h3>
+              <div className="packaging-table-wrapper">
+                <table className="packaging-table">
+                  <thead>
+                    <tr>
+                      <th className="packaging-header" colSpan={2}>
+                        Adesivo
+                      </th>
+                      <th className="packaging-header">Prime</th>
+                    </tr>
+                    <tr>
+                      <th className="packaging-subheader">705 Weld</th>
+                      <th className="packaging-subheader">717 Weld</th>
+                      <th className="packaging-subheader">Weld</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td className="packaging-label">Galão 3,785 l</td>
+                      <td className="packaging-value">0,0</td>
+                      <td className="packaging-value">0,0</td>
+                      <td className="packaging-value">0,0</td>
+                    </tr>
+                    <tr>
+                      <td className="packaging-label">Lata 946 ml</td>
+                      <td className="packaging-value">0,1</td>
+                      <td className="packaging-value">0,0</td>
+                      <td className="packaging-value">0,1</td>
+                    </tr>
+                    <tr>
+                      <td className="packaging-label">Lata 473 ml</td>
+                      <td className="packaging-value">0,3</td>
+                      <td className="packaging-value">0,0</td>
+                      <td className="packaging-value">0,1</td>
+                    </tr>
+                    <tr>
+                      <td className="packaging-label">Lata 237 ml</td>
+                      <td className="packaging-value">0,5</td>
+                      <td className="packaging-value">0,0</td>
+                      <td className="packaging-value">0,3</td>
+                    </tr>
+                    <tr>
+                      <td className="packaging-label">Lata 118 ml</td>
+                      <td className="packaging-value">1,0</td>
+                      <td className="packaging-value">0,0</td>
+                      <td className="packaging-value">0,5</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div className="safety-margin">
+                <strong>Margem segurança:</strong> 1,20
+              </div>
+            </div>
+
+            <div className="conversion-table-container">
+              <h3 className="conversion-table-title">FRACIONAMENTO</h3>
+              <div className="conversion-table-wrapper">
+                <table className="conversion-table">
+                  <thead>
+                    <tr>
+                      <th className="conversion-header"></th>
+                      <th className="conversion-header">Fração (0,1 a 0,9)</th>
+                      <th className="conversion-header">lata 946 ml</th>
+                      <th className="conversion-header">lata 473 ml</th>
+                      <th className="conversion-header">lata 273 ml</th>
+                      <th className="conversion-header">lata 118 ml</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td className="conversion-label">Galão 3,785l</td>
+                      <td className="conversion-empty"></td>
+                      <td className="conversion-value">0,0</td>
+                      <td className="conversion-value">0,0</td>
+                      <td className="conversion-value">0,0</td>
+                      <td className="conversion-value">0,0</td>
+                    </tr>
+                    <tr>
+                      <td className="conversion-label">lata 946 ml</td>
+                      <td className="conversion-empty"></td>
+                      <td className="conversion-gray"></td>
+                      <td className="conversion-value">0,0</td>
+                      <td className="conversion-value">0,0</td>
+                      <td className="conversion-value">0,0</td>
+                    </tr>
+                    <tr>
+                      <td className="conversion-label">lata 473 ml</td>
+                      <td className="conversion-empty"></td>
+                      <td className="conversion-gray"></td>
+                      <td className="conversion-gray"></td>
+                      <td className="conversion-value">0,0</td>
+                      <td className="conversion-value">0,0</td>
+                    </tr>
+                    <tr>
+                      <td className="conversion-label"></td>
+                      <td className="conversion-empty"></td>
+                      <td className="conversion-gray"></td>
+                      <td className="conversion-gray"></td>
+                      <td className="conversion-gray"></td>
+                      <td className="conversion-gray"></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

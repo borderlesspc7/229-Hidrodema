@@ -25,22 +25,8 @@ export const AppRoutes = () => {
       <Route path={paths.menu} element={<Menu />} />
 
       {/* Rotas protegidas para áreas específicas */}
-      <Route
-        path={paths.service}
-        element={
-          <ProtectedRoute>
-            <HidroService />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path={`${paths.service}/*`}
-        element={
-          <ProtectedRoute>
-            <ServiceRoutes />
-          </ProtectedRoute>
-        }
-      />
+      <Route path={paths.service} element={<HidroService />} />
+      <Route path={`${paths.service}/*`} element={<ServiceRoutes />} />
       <Route
         path={paths.meeting}
         element={

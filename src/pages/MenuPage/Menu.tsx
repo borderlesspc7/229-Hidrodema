@@ -66,7 +66,7 @@ export default function Menu() {
           backgroundColor="#f5f5f5"
           textColor="#333"
           size="large"
-          onClick={() => handleCardClick(paths.service)}
+          onClick={() => navigate(paths.service)}
         />
         <Card
           variant="technology"

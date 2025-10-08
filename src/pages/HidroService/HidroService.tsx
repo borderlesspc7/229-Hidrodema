@@ -1,18 +1,11 @@
 import "./HidroService.css";
-import { useEffect } from "react";
-import { useAuth } from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { paths } from "../../routes/paths";
 import Button from "../../components/ui/Button/Button";
 import Card from "../../components/ui/Card/Card";
 
 export default function HidroService() {
-  const { user } = useAuth();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!user) navigate(paths.menu);
-  }, [user, navigate]);
 
   const handleBack = () => {
     navigate(paths.menu);
@@ -92,7 +85,7 @@ export default function HidroService() {
       <div className="hidro-service-footer">
         <div>
           <img
-            src="/HIDRODEMA_LogoNovo_branco (2).png"
+            src="/HIDRODEMA_LogoNovo_Branco (2).png"
             alt="HIDRODEMA"
             className="hidro-service-footer-logo"
           />

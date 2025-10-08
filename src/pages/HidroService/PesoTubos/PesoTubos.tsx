@@ -22,7 +22,7 @@ export default function PesoTubos() {
   const pipeData = {
     '½"': {
       "CPVC / PVC-U": { empty: 0.15, water: 0.2, full: 0.35 },
-      "Tubo SCH 40": { empty: 0.85, water: 0.2, full: 1.05 },
+      "Tubo Aço SCH 40": { empty: 0.85, water: 0.2, full: 1.05 },
       "NBR 5580 L Preto": { empty: 0.0, water: 0.0, full: 0.0 },
       "NBR 5580 M Preto": { empty: 0.0, water: 0.0, full: 0.0 },
       "NBR 5580 L Galv": { empty: 0.0, water: 0.0, full: 0.0 },
@@ -30,7 +30,7 @@ export default function PesoTubos() {
     },
     '¾"': {
       "CPVC / PVC-U": { empty: 0.22, water: 0.35, full: 0.57 },
-      "Tubo SCH 40": { empty: 1.13, water: 0.35, full: 1.48 },
+      "Tubo Aço SCH 40": { empty: 1.13, water: 0.35, full: 1.48 },
       "NBR 5580 L Preto": { empty: 0.0, water: 0.0, full: 0.0 },
       "NBR 5580 M Preto": { empty: 0.0, water: 0.0, full: 0.0 },
       "NBR 5580 L Galv": { empty: 0.0, water: 0.0, full: 0.0 },
@@ -38,7 +38,7 @@ export default function PesoTubos() {
     },
     '1"': {
       "CPVC / PVC-U": { empty: 0.32, water: 0.6, full: 0.92 },
-      "Tubo SCH 40": { empty: 1.49, water: 0.6, full: 2.09 },
+      "Tubo Aço SCH 40": { empty: 1.49, water: 0.6, full: 2.09 },
       "NBR 5580 L Preto": { empty: 0.0, water: 0.0, full: 0.0 },
       "NBR 5580 M Preto": { empty: 0.0, water: 0.0, full: 0.0 },
       "NBR 5580 L Galv": { empty: 0.0, water: 0.0, full: 0.0 },
@@ -46,7 +46,7 @@ export default function PesoTubos() {
     },
     '1.1/4"': {
       "CPVC / PVC-U": { empty: 0.5, water: 0.95, full: 1.45 },
-      "Tubo SCH 40": { empty: 2.27, water: 0.95, full: 3.22 },
+      "Tubo Aço SCH 40": { empty: 2.27, water: 0.95, full: 3.22 },
       "NBR 5580 L Preto": { empty: 0.0, water: 0.0, full: 0.0 },
       "NBR 5580 M Preto": { empty: 0.0, water: 0.0, full: 0.0 },
       "NBR 5580 L Galv": { empty: 0.0, water: 0.0, full: 0.0 },
@@ -54,7 +54,7 @@ export default function PesoTubos() {
     },
     '1.1/2"': {
       "CPVC / PVC-U": { empty: 0.65, water: 1.35, full: 2.0 },
-      "Tubo SCH 40": { empty: 2.72, water: 1.35, full: 4.07 },
+      "Tubo Aço SCH 40": { empty: 2.72, water: 1.35, full: 4.07 },
       "NBR 5580 L Preto": { empty: 0.0, water: 0.0, full: 0.0 },
       "NBR 5580 M Preto": { empty: 0.0, water: 0.0, full: 0.0 },
       "NBR 5580 L Galv": { empty: 0.0, water: 0.0, full: 0.0 },
@@ -62,7 +62,7 @@ export default function PesoTubos() {
     },
     '2"': {
       "CPVC / PVC-U": { empty: 1.02, water: 2.4, full: 3.42 },
-      "Tubo SCH 40": { empty: 3.65, water: 2.4, full: 6.05 },
+      "Tubo Aço SCH 40": { empty: 3.65, water: 2.4, full: 6.05 },
       "NBR 5580 L Preto": { empty: 0.0, water: 0.0, full: 0.0 },
       "NBR 5580 M Preto": { empty: 0.0, water: 0.0, full: 0.0 },
       "NBR 5580 L Galv": { empty: 0.0, water: 0.0, full: 0.0 },
@@ -70,7 +70,7 @@ export default function PesoTubos() {
     },
     '2.1/2"': {
       "CPVC / PVC-U": { empty: 1.58, water: 3.8, full: 5.38 },
-      "Tubo SCH 40": { empty: 5.79, water: 3.8, full: 9.59 },
+      "Tubo Aço SCH 40": { empty: 5.79, water: 3.8, full: 9.59 },
       "NBR 5580 L Preto": { empty: 0.0, water: 0.0, full: 0.0 },
       "NBR 5580 M Preto": { empty: 0.0, water: 0.0, full: 0.0 },
       "NBR 5580 L Galv": { empty: 0.0, water: 0.0, full: 0.0 },
@@ -78,7 +78,7 @@ export default function PesoTubos() {
     },
     '3"': {
       "CPVC / PVC-U": { empty: 2.25, water: 5.5, full: 7.75 },
-      "Tubo SCH 40": { empty: 7.58, water: 5.5, full: 13.08 },
+      "Tubo Aço SCH 40": { empty: 7.58, water: 5.5, full: 13.08 },
       "NBR 5580 L Preto": { empty: 0.0, water: 0.0, full: 0.0 },
       "NBR 5580 M Preto": { empty: 0.0, water: 0.0, full: 0.0 },
       "NBR 5580 L Galv": { empty: 0.0, water: 0.0, full: 0.0 },
@@ -86,7 +86,7 @@ export default function PesoTubos() {
     },
     '4"': {
       "CPVC / PVC-U": { empty: 3.95, water: 9.8, full: 13.75 },
-      "Tubo SCH 40": { empty: 12.15, water: 9.8, full: 21.95 },
+      "Tubo Aço SCH 40": { empty: 12.15, water: 9.8, full: 21.95 },
       "NBR 5580 L Preto": { empty: 0.0, water: 0.0, full: 0.0 },
       "NBR 5580 M Preto": { empty: 0.0, water: 0.0, full: 0.0 },
       "NBR 5580 L Galv": { empty: 0.0, water: 0.0, full: 0.0 },
@@ -94,7 +94,7 @@ export default function PesoTubos() {
     },
     '6"': {
       "CPVC / PVC-U": { empty: 8.5, water: 22.0, full: 30.5 },
-      "Tubo SCH 40": { empty: 22.96, water: 22.0, full: 44.96 },
+      "Tubo Aço SCH 40": { empty: 22.96, water: 22.0, full: 44.96 },
       "NBR 5580 L Preto": { empty: 0.0, water: 0.0, full: 0.0 },
       "NBR 5580 M Preto": { empty: 0.0, water: 0.0, full: 0.0 },
       "NBR 5580 L Galv": { empty: 0.0, water: 0.0, full: 0.0 },
@@ -102,7 +102,7 @@ export default function PesoTubos() {
     },
     '8"': {
       "CPVC / PVC-U": { empty: 14.8, water: 39.2, full: 54.0 },
-      "Tubo SCH 40": { empty: 36.24, water: 39.2, full: 75.44 },
+      "Tubo Aço SCH 40": { empty: 36.24, water: 39.2, full: 75.44 },
       "NBR 5580 L Preto": { empty: 0.0, water: 0.0, full: 0.0 },
       "NBR 5580 M Preto": { empty: 0.0, water: 0.0, full: 0.0 },
       "NBR 5580 L Galv": { empty: 0.0, water: 0.0, full: 0.0 },
@@ -110,7 +110,7 @@ export default function PesoTubos() {
     },
     '10"': {
       "CPVC / PVC-U": { empty: 22.5, water: 61.2, full: 83.7 },
-      "Tubo SCH 40": { empty: 49.8, water: 61.2, full: 111.0 },
+      "Tubo Aço SCH 40": { empty: 49.8, water: 61.2, full: 111.0 },
       "NBR 5580 L Preto": { empty: 0.0, water: 0.0, full: 0.0 },
       "NBR 5580 M Preto": { empty: 0.0, water: 0.0, full: 0.0 },
       "NBR 5580 L Galv": { empty: 0.0, water: 0.0, full: 0.0 },
@@ -118,7 +118,7 @@ export default function PesoTubos() {
     },
     '12"': {
       "CPVC / PVC-U": { empty: 25.2, water: 69.96, full: 95.16 },
-      "Tubo SCH 40": { empty: 73.87, water: 72.96, full: 146.83 },
+      "Tubo Aço SCH 40": { empty: 73.87, water: 72.96, full: 146.83 },
       "NBR 5580 L Preto": { empty: 0.0, water: 0.0, full: 0.0 },
       "NBR 5580 M Preto": { empty: 0.0, water: 0.0, full: 0.0 },
       "NBR 5580 L Galv": { empty: 0.0, water: 0.0, full: 0.0 },
@@ -144,7 +144,7 @@ export default function PesoTubos() {
 
   const materials = [
     "CPVC / PVC-U",
-    "Tubo SCH 40",
+    "Tubo Aço SCH 40",
     "NBR 5580 L Preto",
     "NBR 5580 M Preto",
     "NBR 5580 L Galv",
@@ -158,7 +158,7 @@ export default function PesoTubos() {
     const cpvcData =
       pipeData[diameter as keyof typeof pipeData]["CPVC / PVC-U"];
     const sch40Data =
-      pipeData[diameter as keyof typeof pipeData]["Tubo SCH 40"];
+      pipeData[diameter as keyof typeof pipeData]["Tubo Aço SCH 40"];
 
     if (cpvcData.empty > 0 && sch40Data.empty > 0) {
       const reduction =
@@ -365,6 +365,9 @@ export default function PesoTubos() {
                     >
                       <span className="bar-value">{item.full}kg</span>
                     </div>
+                  </div>
+                  <div className="obseration">
+                    Os valores são calculados por metro de tubo{" "}
                   </div>
                 </div>
               ))}
