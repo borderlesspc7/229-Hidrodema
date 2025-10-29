@@ -23,6 +23,22 @@ import {
   FiX,
 } from "react-icons/fi";
 import "./RelatorioVisitas.css";
+import {
+  createVisitRequest,
+  createVisitReport,
+  getAllVisitRequests,
+  getAllVisitReports,
+  updateVisitRequest,
+  updateVisitReport,
+  deleteVisitRequest,
+  deleteVisitReport,
+  addComment,
+  getCommentsByRequestId,
+  deleteComment,
+  generateRequestId,
+  type VisitRequest,
+  type VisitComment,
+} from "../../../services/visitasService";
 
 interface FormData {
   [key: string]: string | string[];
@@ -41,10 +57,17 @@ interface Question {
 
 type ViewMode = "menu" | "new" | "history" | "edit" | "comments" | "schedule";
 
-interface VisitReport {
+// Interface local combinada para exibição
+interface DisplayVisit {
   id: string;
+  requestId?: string;
   title: string;
-  status: "scheduled" | "awaiting-report" | "cancelled" | "completed";
+  status:
+    | "pending"
+    | "scheduled"
+    | "awaiting-report"
+    | "cancelled"
+    | "completed";
   visitType: "technical" | "commercial";
   client: string;
   salesperson: string;
@@ -53,15 +76,10 @@ interface VisitReport {
   createdAt: string;
   updatedAt: string;
   formData: FormData;
-  comments: Comment[];
+  comments: VisitComment[];
   followUpDate?: string;
-}
-
-interface Comment {
-  id: string;
-  text: string;
-  author: string;
-  createdAt: string;
+  hasReport?: boolean;
+  isRequest?: boolean; // true se for solicitação, false se for relatório
 }
 
 export default function RelatorioVisitas() {
@@ -69,12 +87,17 @@ export default function RelatorioVisitas() {
   const [viewMode, setViewMode] = useState<ViewMode>("menu");
   const [currentSection, setCurrentSection] = useState(0);
   const [formData, setFormData] = useState<FormData>({});
-  const [visitReports, setVisitReports] = useState<VisitReport[]>([]);
-  const [editingReport, setEditingReport] = useState<VisitReport | null>(null);
-  const [selectedReport, setSelectedReport] = useState<VisitReport | null>(
+  const [visitReports, setVisitReports] = useState<DisplayVisit[]>([]);
+  const [editingReport, setEditingReport] = useState<DisplayVisit | null>(null);
+  const [selectedReport, setSelectedReport] = useState<DisplayVisit | null>(
     null
   );
   const [newComment, setNewComment] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [loadedRequest, setLoadedRequest] = useState<VisitRequest | null>(null);
+  const [availableRequests, setAvailableRequests] = useState<VisitRequest[]>(
+    []
+  );
 
   // Estrutura preparada para receber 25 perguntas sobre visitas
   const questions: Question[] = [
@@ -498,18 +521,103 @@ export default function RelatorioVisitas() {
 
   const sections = getActiveSections();
 
-  // Carregar relatórios do localStorage
-  const loadVisitReports = () => {
-    const saved = localStorage.getItem("visitReports");
-    if (saved) {
-      setVisitReports(JSON.parse(saved));
+  // Carregar dados do Firebase
+  const loadVisitData = async () => {
+    try {
+      setLoading(true);
+
+      // Carregar solicitações
+      const requests = await getAllVisitRequests();
+
+      // Carregar relatórios
+      const reports = await getAllVisitReports();
+
+      // Filtrar solicitações que ainda não têm relatório (disponíveis para fazer relatório)
+      const requestsWithoutReport = requests.filter((req) => !req.hasReport);
+      setAvailableRequests(requestsWithoutReport);
+
+      // Combinar para exibição
+      const displayData: DisplayVisit[] = [
+        ...requests.map((req) => ({
+          id: req.id || "",
+          requestId: req.requestId,
+          title: `${req.clientName} - ${new Date(
+            req.visitDate
+          ).toLocaleDateString()}`,
+          status: req.status as DisplayVisit["status"],
+          visitType:
+            req.visitType.includes("Técnico") ||
+            req.visitType.includes("Técnica")
+              ? ("technical" as const)
+              : ("commercial" as const),
+          client: req.clientName,
+          salesperson: req.responsibleSalesperson,
+          scheduledDate: req.visitDate,
+          createdAt: req.createdAt,
+          updatedAt: req.updatedAt,
+          formData: req.formData,
+          comments: [],
+          hasReport: req.hasReport,
+          isRequest: true,
+        })),
+        ...reports.map((rep) => ({
+          id: rep.id || "",
+          requestId: rep.requestId,
+          title: `Relatório - ${rep.requestId}`,
+          status: "completed" as const,
+          visitType: "technical" as const,
+          client: "",
+          salesperson: "",
+          scheduledDate: rep.visitDate,
+          createdAt: rep.createdAt,
+          updatedAt: rep.updatedAt,
+          formData: rep.formData,
+          comments: [],
+          followUpDate: rep.followUpDate,
+          isRequest: false,
+        })),
+      ];
+
+      setVisitReports(displayData);
+    } catch (err) {
+      console.error("Erro ao carregar dados:", err);
+      alert("Erro ao carregar dados. Tente novamente.");
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Salvar relatórios no localStorage
-  const saveVisitReports = (reports: VisitReport[]) => {
-    localStorage.setItem("visitReports", JSON.stringify(reports));
-    setVisitReports(reports);
+  // Carregar dados da solicitação selecionada no dropdown
+  const loadRequestFromSelect = (requestId: string) => {
+    if (!requestId) {
+      setLoadedRequest(null);
+      return;
+    }
+
+    console.log("📋 Carregando solicitação ID:", requestId);
+
+    // Buscar a solicitação na lista de disponíveis
+    const request = availableRequests.find(
+      (req) => req.requestId === requestId
+    );
+
+    if (request) {
+      setLoadedRequest(request);
+
+      // Preencher automaticamente os campos com os dados da solicitação
+      setFormData((prev) => ({
+        ...prev,
+        // Manter o ID da solicitação
+        q19: requestId,
+        q21: requestId,
+        // Preencher dados do cliente
+        q22: request.clientName,
+        // Dados da visita
+        q23: request.visitDate,
+      }));
+
+      console.log("✅ Dados carregados com sucesso!");
+    }
   };
 
   const handleInputChange = (questionId: string, value: string | string[]) => {
@@ -521,6 +629,15 @@ export default function RelatorioVisitas() {
     // Se mudou a seleção de ação (q6), resetar para a seção Geral
     if (questionId === "q6") {
       setCurrentSection(1); // Índice da seção "Geral"
+      setLoadedRequest(null); // Limpar solicitação carregada
+    }
+
+    // Se selecionou uma solicitação no dropdown, carregar os dados
+    if (
+      (questionId === "q19" || questionId === "q21") &&
+      typeof value === "string"
+    ) {
+      loadRequestFromSelect(value);
     }
   };
 
@@ -536,100 +653,224 @@ export default function RelatorioVisitas() {
     }
   };
 
-  const handleSaveDraft = () => {
-    const title = formData.q2 || `Visita ${new Date().toLocaleDateString()}`;
-    const newReport: VisitReport = {
-      id: Date.now().toString(),
-      title: title as string,
-      status: "scheduled",
-      visitType: formData.q1 === "Técnica" ? "technical" : "commercial",
-      client: (formData.q2 as string) || "Cliente não informado",
-      salesperson: (formData.q3 as string) || "Vendedor não informado",
-      scheduledDate:
-        (formData.q4 as string) || new Date().toISOString().split("T")[0],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      formData: { ...formData },
-      comments: [],
-    };
+  const handleSaveDraft = async () => {
+    try {
+      setLoading(true);
+      const selectedAction = formData.q6 as string;
 
-    const updatedReports = [...visitReports, newReport];
-    saveVisitReports(updatedReports);
-    alert("Rascunho salvo com sucesso!");
+      if (selectedAction === "Solicitar uma nova visita") {
+        // Salvar rascunho de solicitação
+        const requestId = generateRequestId();
+
+        await createVisitRequest({
+          requestId,
+          regional: (formData.q1 as string) || "",
+          vendedor:
+            (formData.q2 as string) ||
+            (formData.q3 as string) ||
+            (formData.q4 as string) ||
+            (formData.q5 as string) ||
+            "",
+          clientName: (formData.q7 as string) || "Cliente não informado",
+          clientCNPJ: formData.q8 as string,
+          clientCode: formData.q9 as string,
+          municipality: (formData.q10 as string) || "",
+          clientContact: (formData.q11 as string) || "",
+          visitType: (formData.q12 as string) || "",
+          visitReason: (formData.q13 as string) || "",
+          visitAddress: (formData.q14 as string) || "",
+          visitDate:
+            (formData.q15 as string) || new Date().toISOString().split("T")[0],
+          visitPeriod: (formData.q16 as string) || "",
+          responsibleSalesperson: (formData.q17 as string) || "",
+          status: "pending",
+          hasReport: false,
+          formData: { ...formData },
+        });
+
+        alert(
+          `Rascunho de solicitação salvo com sucesso!\nID da Solicitação: ${requestId}\n\nGuarde este ID para fazer o relatório posteriormente.`
+        );
+      }
+
+      await loadVisitData();
+    } catch (err) {
+      console.error("Erro ao salvar rascunho:", err);
+      alert("Erro ao salvar rascunho. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSubmit = () => {
-    const title = formData.q2 || `Visita ${new Date().toLocaleDateString()}`;
-    const newReport: VisitReport = {
-      id: Date.now().toString(),
-      title: title as string,
-      status: "scheduled",
-      visitType: formData.q1 === "Técnica" ? "technical" : "commercial",
-      client: (formData.q2 as string) || "Cliente não informado",
-      salesperson: (formData.q3 as string) || "Vendedor não informado",
-      scheduledDate:
-        (formData.q4 as string) || new Date().toISOString().split("T")[0],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      formData: { ...formData },
-      comments: [],
-    };
+  const handleSubmit = async () => {
+    try {
+      setLoading(true);
+      const selectedAction = formData.q6 as string;
 
-    const updatedReports = [...visitReports, newReport];
-    saveVisitReports(updatedReports);
-    alert("Visita agendada com sucesso!");
-    setViewMode("menu");
-    setFormData({});
-    setCurrentSection(0);
+      if (selectedAction === "Solicitar uma nova visita") {
+        // Criar nova solicitação
+        const requestId = generateRequestId();
+
+        await createVisitRequest({
+          requestId,
+          regional: (formData.q1 as string) || "",
+          vendedor:
+            (formData.q2 as string) ||
+            (formData.q3 as string) ||
+            (formData.q4 as string) ||
+            (formData.q5 as string) ||
+            "",
+          clientName: (formData.q7 as string) || "Cliente não informado",
+          clientCNPJ: formData.q8 as string,
+          clientCode: formData.q9 as string,
+          municipality: (formData.q10 as string) || "",
+          clientContact: (formData.q11 as string) || "",
+          visitType: (formData.q12 as string) || "",
+          visitReason: (formData.q13 as string) || "",
+          visitAddress: (formData.q14 as string) || "",
+          visitDate:
+            (formData.q15 as string) || new Date().toISOString().split("T")[0],
+          visitPeriod: (formData.q16 as string) || "",
+          responsibleSalesperson: (formData.q17 as string) || "",
+          status: "scheduled",
+          hasReport: false,
+          formData: { ...formData },
+        });
+
+        alert(
+          `Solicitação de visita criada com sucesso!\nID da Solicitação: ${requestId}\n\nGuarde este ID para fazer o relatório posteriormente.`
+        );
+      } else if (
+        selectedAction === "Fazer o relatório de uma visita realizada"
+      ) {
+        // Criar relatório vinculado à solicitação
+        const requestId = (formData.q19 || formData.q21) as string;
+
+        if (!requestId) {
+          alert(
+            "É necessário informar o ID da solicitação para criar o relatório."
+          );
+          return;
+        }
+
+        await createVisitReport({
+          requestId,
+          visitDate:
+            (formData.q23 as string) || new Date().toISOString().split("T")[0],
+          isOnline:
+            (formData.q24 as string) === "Sim, foi uma apresentação Online",
+          participants: Array.isArray(formData.q25)
+            ? formData.q25
+            : [formData.q25 as string],
+          mainTheme: (formData.q26 as string) || "",
+          reportText: (formData.q27 as string) || "",
+          emotionalPoints: Array.isArray(formData.q28)
+            ? formData.q28
+            : [formData.q28 as string],
+          nextAction: (formData.q29 as string) || "",
+          followUpDate: (formData.q30 as string) || "",
+          formData: { ...formData },
+        });
+
+        alert("Relatório de visita criado com sucesso!");
+      }
+
+      await loadVisitData();
+      setViewMode("menu");
+      setFormData({});
+      setCurrentSection(0);
+      setLoadedRequest(null);
+    } catch (err) {
+      console.error("Erro ao enviar formulário:", err);
+      alert("Erro ao salvar. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleEditReport = (report: VisitReport) => {
+  const handleEditReport = (report: DisplayVisit) => {
     setEditingReport(report);
     setFormData(report.formData);
     setViewMode("edit");
   };
 
-  const handleUpdateReport = () => {
+  const handleUpdateReport = async () => {
     if (!editingReport) return;
 
-    const updatedReport = {
-      ...editingReport,
-      formData: { ...formData },
-      updatedAt: new Date().toISOString(),
-    };
+    try {
+      setLoading(true);
 
-    const updatedReports = visitReports.map((rep) =>
-      rep.id === editingReport.id ? updatedReport : rep
-    );
+      if (editingReport.isRequest) {
+        // Atualizar solicitação
+        await updateVisitRequest(editingReport.id, {
+          formData: { ...formData },
+        });
+      } else {
+        // Atualizar relatório
+        await updateVisitReport(editingReport.id, {
+          formData: { ...formData },
+        });
+      }
 
-    saveVisitReports(updatedReports);
-    alert("Relatório atualizado com sucesso!");
-    setViewMode("history");
-    setEditingReport(null);
-    setFormData({});
-    setCurrentSection(0);
-  };
-
-  const handleDeleteReport = (reportId: string) => {
-    if (confirm("Tem certeza que deseja excluir este relatório?")) {
-      const updatedReports = visitReports.filter((rep) => rep.id !== reportId);
-      saveVisitReports(updatedReports);
+      alert("Atualizado com sucesso!");
+      await loadVisitData();
+      setViewMode("history");
+      setEditingReport(null);
+      setFormData({});
+      setCurrentSection(0);
+    } catch (err) {
+      console.error("Erro ao atualizar:", err);
+      alert("Erro ao atualizar. Tente novamente.");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleChangeStatus = (
-    reportId: string,
-    newStatus: VisitReport["status"]
-  ) => {
-    const updatedReports = visitReports.map((rep) =>
-      rep.id === reportId
-        ? { ...rep, status: newStatus, updatedAt: new Date().toISOString() }
-        : rep
-    );
-    saveVisitReports(updatedReports);
+  const handleDeleteReport = async (reportId: string) => {
+    if (!confirm("Tem certeza que deseja excluir?")) return;
+
+    try {
+      setLoading(true);
+      const report = visitReports.find((r) => r.id === reportId);
+
+      if (report) {
+        if (report.isRequest) {
+          await deleteVisitRequest(reportId);
+        } else {
+          await deleteVisitReport(reportId);
+        }
+      }
+
+      await loadVisitData();
+      alert("Excluído com sucesso!");
+    } catch (err) {
+      console.error("Erro ao excluir:", err);
+      alert("Erro ao excluir. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleExportPDF = (report: VisitReport) => {
+  const handleChangeStatus = async (
+    reportId: string,
+    newStatus: DisplayVisit["status"]
+  ) => {
+    try {
+      const report = visitReports.find((r) => r.id === reportId);
+
+      if (report && report.isRequest) {
+        await updateVisitRequest(reportId, {
+          status: newStatus as VisitRequest["status"],
+        });
+        await loadVisitData();
+      }
+    } catch (err) {
+      console.error("Erro ao alterar status:", err);
+      alert("Erro ao alterar status. Tente novamente.");
+    }
+  };
+
+  const handleExportPDF = (report: DisplayVisit) => {
     const printWindow = window.open("", "_blank");
     if (printWindow) {
       printWindow.document.write(`
@@ -651,6 +892,11 @@ export default function RelatorioVisitas() {
             <div class="header">
               <h1>RELATÓRIO DE VISITA</h1>
               <h2>Cliente: ${report.client}</h2>
+              ${
+                report.requestId
+                  ? `<p>ID Solicitação: ${report.requestId}</p>`
+                  : ""
+              }
               <p>Data: ${new Date(
                 report.scheduledDate
               ).toLocaleDateString()}</p>
@@ -679,51 +925,79 @@ export default function RelatorioVisitas() {
     }
   };
 
-  const handleViewComments = (report: VisitReport) => {
-    setSelectedReport(report);
-    setViewMode("comments");
+  const handleViewComments = async (report: DisplayVisit) => {
+    try {
+      setLoading(true);
+      const requestId = report.requestId || report.id;
+
+      // Carregar comentários do Firebase
+      const comments = await getCommentsByRequestId(requestId);
+
+      setSelectedReport({
+        ...report,
+        comments,
+      });
+      setViewMode("comments");
+    } catch (err) {
+      console.error("Erro ao carregar comentários:", err);
+      alert("Erro ao carregar comentários. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleAddComment = () => {
+  const handleAddComment = async () => {
     if (!selectedReport || !newComment.trim()) return;
 
-    const comment: Comment = {
-      id: Date.now().toString(),
-      text: newComment.trim(),
-      author: "Usuário",
-      createdAt: new Date().toISOString(),
-    };
+    try {
+      setLoading(true);
+      const requestId = selectedReport.requestId || selectedReport.id;
 
-    const updatedReport = {
-      ...selectedReport,
-      comments: [...selectedReport.comments, comment],
-      updatedAt: new Date().toISOString(),
-    };
+      await addComment({
+        requestId,
+        text: newComment.trim(),
+        author: "Usuário", // TODO: Pegar do contexto de autenticação
+      });
 
-    const updatedReports = visitReports.map((rep) =>
-      rep.id === selectedReport.id ? updatedReport : rep
-    );
+      // Recarregar comentários
+      const comments = await getCommentsByRequestId(requestId);
+      setSelectedReport({
+        ...selectedReport,
+        comments,
+      });
 
-    saveVisitReports(updatedReports);
-    setSelectedReport(updatedReport);
-    setNewComment("");
+      setNewComment("");
+      alert("Comentário adicionado com sucesso!");
+    } catch (err) {
+      console.error("Erro ao adicionar comentário:", err);
+      alert("Erro ao adicionar comentário. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDeleteComment = (commentId: string) => {
+  const handleDeleteComment = async (commentId: string) => {
     if (!selectedReport) return;
 
-    const updatedReport = {
-      ...selectedReport,
-      comments: selectedReport.comments.filter((c) => c.id !== commentId),
-      updatedAt: new Date().toISOString(),
-    };
+    try {
+      setLoading(true);
+      await deleteComment(commentId);
 
-    const updatedReports = visitReports.map((rep) =>
-      rep.id === selectedReport.id ? updatedReport : rep
-    );
+      // Recarregar comentários
+      const requestId = selectedReport.requestId || selectedReport.id;
+      const comments = await getCommentsByRequestId(requestId);
+      setSelectedReport({
+        ...selectedReport,
+        comments,
+      });
 
-    saveVisitReports(updatedReports);
-    setSelectedReport(updatedReport);
+      alert("Comentário excluído com sucesso!");
+    } catch (err) {
+      console.error("Erro ao excluir comentário:", err);
+      alert("Erro ao excluir comentário. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleBack = () => {
@@ -746,6 +1020,106 @@ export default function RelatorioVisitas() {
 
     switch (question.type) {
       case "text":
+        // Se for q19 ou q21 (seleção de solicitação), mostrar SELECT em vez de INPUT
+        if (question.id === "q19" || question.id === "q21") {
+          return (
+            <div className="visitas-form-question" key={question.id}>
+              <label className="visitas-question-label">
+                {question.question}
+                {question.required && (
+                  <span className="visitas-required">*</span>
+                )}
+              </label>
+              {question.instruction && (
+                <div className="visitas-question-instruction">
+                  {question.instruction}
+                </div>
+              )}
+
+              <select
+                className="visitas-form-select"
+                value={value as string}
+                onChange={(e) => handleInputChange(question.id, e.target.value)}
+                required={question.required}
+              >
+                <option value="">Selecione uma solicitação de visita</option>
+                {availableRequests.length === 0 ? (
+                  <option value="" disabled>
+                    Nenhuma solicitação disponível
+                  </option>
+                ) : (
+                  availableRequests.map((req) => (
+                    <option key={req.id} value={req.requestId}>
+                      {req.clientName} -{" "}
+                      {new Date(req.visitDate).toLocaleDateString()} -{" "}
+                      {req.visitType}
+                    </option>
+                  ))
+                )}
+              </select>
+
+              {/* Indicação de solicitação carregada */}
+              {loadedRequest && (
+                <div
+                  style={{
+                    marginTop: "12px",
+                    padding: "16px",
+                    background: "rgba(6, 214, 160, 0.1)",
+                    border: "2px solid rgba(6, 214, 160, 0.3)",
+                    borderRadius: "12px",
+                    color: "#059669",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontWeight: "700",
+                      fontSize: "16px",
+                      marginBottom: "8px",
+                    }}
+                  >
+                    ✓ Solicitação selecionada:
+                  </div>
+                  <div style={{ fontSize: "14px", marginBottom: "4px" }}>
+                    <strong>Cliente:</strong> {loadedRequest.clientName}
+                  </div>
+                  <div style={{ fontSize: "14px", marginBottom: "4px" }}>
+                    <strong>Data:</strong>{" "}
+                    {new Date(loadedRequest.visitDate).toLocaleDateString()}
+                  </div>
+                  <div style={{ fontSize: "14px", marginBottom: "4px" }}>
+                    <strong>Tipo:</strong> {loadedRequest.visitType}
+                  </div>
+                  <div
+                    style={{ fontSize: "12px", marginTop: "8px", opacity: 0.8 }}
+                  >
+                    ID: {loadedRequest.requestId}
+                  </div>
+                </div>
+              )}
+
+              {/* Aviso se não houver solicitações */}
+              {availableRequests.length === 0 && (
+                <div
+                  style={{
+                    marginTop: "12px",
+                    padding: "16px",
+                    background: "rgba(251, 191, 36, 0.1)",
+                    border: "2px solid rgba(251, 191, 36, 0.3)",
+                    borderRadius: "12px",
+                    color: "#d97706",
+                    fontSize: "14px",
+                  }}
+                >
+                  ⚠️ Não há solicitações de visita disponíveis para relatório.
+                  <br />
+                  Crie uma solicitação primeiro antes de fazer o relatório.
+                </div>
+              )}
+            </div>
+          );
+        }
+
+        // Para outros campos de texto, renderizar normalmente
         return (
           <div className="visitas-form-question" key={question.id}>
             <label className="visitas-question-label">
@@ -931,7 +1305,7 @@ export default function RelatorioVisitas() {
 
   // Carregar dados na inicialização
   useEffect(() => {
-    loadVisitReports();
+    loadVisitData();
   }, []);
 
   // Renderizar menu principal
@@ -1049,7 +1423,7 @@ export default function RelatorioVisitas() {
                   onChange={(e) =>
                     handleChangeStatus(
                       report.id,
-                      e.target.value as VisitReport["status"]
+                      e.target.value as DisplayVisit["status"]
                     )
                   }
                 >
@@ -1251,7 +1625,9 @@ export default function RelatorioVisitas() {
                   </div>
                   <Button
                     variant="secondary"
-                    onClick={() => handleDeleteComment(comment.id)}
+                    onClick={() =>
+                      comment.id && handleDeleteComment(comment.id)
+                    }
                     className="visitas-delete-comment-button"
                   >
                     <FiTrash2 size={16} />
@@ -1419,6 +1795,37 @@ export default function RelatorioVisitas() {
 
   return (
     <div className="visitas-container">
+      {/* Loading Indicator */}
+      {loading && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0, 0, 0, 0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999,
+          }}
+        >
+          <div
+            style={{
+              background: "white",
+              padding: "30px 50px",
+              borderRadius: "12px",
+              fontSize: "18px",
+              fontWeight: "600",
+              color: "#1e40af",
+            }}
+          >
+            Carregando...
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="visitas-header">
         <Button
