@@ -29,7 +29,6 @@ import {
   getServiceCommentsByRequestId,
   deleteServiceComment,
   generateServiceRequestId,
-  type ServiceRequest as FirebaseServiceRequest,
   type ServiceComment,
 } from "../../../services/servicosService";
 
@@ -749,7 +748,7 @@ export default function SolicitacaoServicos() {
     try {
       setLoading(true);
       const requests = await getAllServiceRequests();
-      
+
       // Converter para formato local com comentários vazios inicialmente
       const displayRequests: ServiceRequest[] = requests.map((req) => ({
         id: req.id || "",
@@ -761,7 +760,7 @@ export default function SolicitacaoServicos() {
         formData: req.formData,
         comments: [],
       }));
-      
+
       setServiceRequests(displayRequests);
     } catch (error) {
       console.error("Erro ao carregar solicitações:", error);
@@ -803,7 +802,8 @@ export default function SolicitacaoServicos() {
       await createServiceRequest({
         requestId,
         category: (formData.q1 as string) || "Não informado",
-        requestDate: (formData.q2 as string) || new Date().toISOString().split("T")[0],
+        requestDate:
+          (formData.q2 as string) || new Date().toISOString().split("T")[0],
         requesterName: (formData.q3 as string) || "Não informado",
         requesterEmail: (formData.q4 as string) || "",
         requesterPhone: (formData.q5 as string) || "",
@@ -811,7 +811,9 @@ export default function SolicitacaoServicos() {
         internalEmail: (formData.q7 as string) || "",
         clientSegment: (formData.q8 as string) || "",
         hasOrderOrProposal: (formData.q9 as string) || "Não",
-        orderOrProposalNumber: (formData.q10 as string) || undefined,
+        orderOrProposalNumber: (formData.q10 as string)
+          ? (formData.q10 as string)
+          : undefined,
         regional: (formData.q11 as string) || "",
         salesperson:
           (formData.q12 as string) ||
@@ -820,11 +822,15 @@ export default function SolicitacaoServicos() {
           (formData.q15 as string) ||
           "",
         company: (formData.q16 as string) || "Não informado",
-        clientCode: (formData.q17 as string) || undefined,
+        clientCode: (formData.q17 as string)
+          ? (formData.q17 as string)
+          : undefined,
         cnpj: (formData.q18 as string) || "",
         urgencyLevel: (formData.q19 as string) || "0",
         serviceType: (formData.q20 as string) || "Não especificado",
-        serviceDescription: (formData.q21 as string) || "",
+        serviceDescription: `Serviço: ${
+          (formData.q20 as string) || "Não especificado"
+        }`,
         status: "draft",
         formData: { ...formData },
       });
@@ -849,7 +855,8 @@ export default function SolicitacaoServicos() {
       await createServiceRequest({
         requestId,
         category: (formData.q1 as string) || "Não informado",
-        requestDate: (formData.q2 as string) || new Date().toISOString().split("T")[0],
+        requestDate:
+          (formData.q2 as string) || new Date().toISOString().split("T")[0],
         requesterName: (formData.q3 as string) || "Não informado",
         requesterEmail: (formData.q4 as string) || "",
         requesterPhone: (formData.q5 as string) || "",
@@ -857,7 +864,9 @@ export default function SolicitacaoServicos() {
         internalEmail: (formData.q7 as string) || "",
         clientSegment: (formData.q8 as string) || "",
         hasOrderOrProposal: (formData.q9 as string) || "Não",
-        orderOrProposalNumber: (formData.q10 as string) || undefined,
+        orderOrProposalNumber: (formData.q10 as string)
+          ? (formData.q10 as string)
+          : undefined,
         regional: (formData.q11 as string) || "",
         salesperson:
           (formData.q12 as string) ||
@@ -866,11 +875,15 @@ export default function SolicitacaoServicos() {
           (formData.q15 as string) ||
           "",
         company: (formData.q16 as string) || "Não informado",
-        clientCode: (formData.q17 as string) || undefined,
+        clientCode: (formData.q17 as string)
+          ? (formData.q17 as string)
+          : undefined,
         cnpj: (formData.q18 as string) || "",
         urgencyLevel: (formData.q19 as string) || "0",
         serviceType: (formData.q20 as string) || "Não especificado",
-        serviceDescription: (formData.q21 as string) || "",
+        serviceDescription: `Serviço: ${
+          (formData.q20 as string) || "Não especificado"
+        }`,
         status: "submitted",
         formData: { ...formData },
       });
@@ -1008,10 +1021,10 @@ export default function SolicitacaoServicos() {
     try {
       setLoading(true);
       const requestId = request.requestId || request.id;
-      
+
       // Carregar comentários do Firebase
       const comments = await getServiceCommentsByRequestId(requestId);
-      
+
       setSelectedRequest({
         ...request,
         comments,
@@ -1462,7 +1475,9 @@ export default function SolicitacaoServicos() {
                   </div>
                   <Button
                     variant="secondary"
-                    onClick={() => handleDeleteComment(comment.id)}
+                    onClick={() =>
+                      comment.id && handleDeleteComment(comment.id)
+                    }
                     className="delete-comment-button"
                   >
                     <FiTrash2 size={16} />
