@@ -23,6 +23,25 @@ import {
   FiX,
 } from "react-icons/fi";
 import "./EqualizadorServicos.css";
+import {
+  createServiceMDS,
+  getAllServiceMDS,
+  updateServiceMDS,
+  deleteServiceMDS,
+  addMDSQuotation,
+  getQuotationsByMDSId,
+  updateMDSQuotation,
+  deleteMDSQuotation,
+  approveMDSQuotation,
+  addMDSComment,
+  getCommentsByMDSId,
+  deleteMDSComment,
+  generateMDSNumber,
+  getMDSStatistics,
+  type ServiceMDS as FirebaseServiceMDS,
+  type MDSQuotation,
+  type MDSComment,
+} from "../../../services/equalizadorService";
 
 // Interfaces
 interface FormData {
@@ -52,8 +71,10 @@ interface Question {
 
 type ViewMode = "menu" | "new" | "history" | "edit" | "comments" | "quotations";
 
+// Interface local para display
 interface ServiceMDS {
   id: string;
+  mdsNumber?: string;
   number: string;
   client: string;
   project: string;
@@ -61,23 +82,8 @@ interface ServiceMDS {
   createdAt: string;
   updatedAt: string;
   formData: FormData;
-  comments?: Comment[];
-  quotations?: Quotation[];
-}
-
-interface Comment {
-  id: string;
-  text: string;
-  author: string;
-  createdAt: string;
-}
-
-interface Quotation {
-  id: string;
-  provider: string;
-  value: number;
-  date: string;
-  status: "pending" | "approved" | "rejected";
+  comments?: MDSComment[];
+  quotations?: MDSQuotation[];
 }
 
 const EqualizadorServicos = () => {
@@ -91,6 +97,7 @@ const EqualizadorServicos = () => {
     null
   );
   const [newComment, setNewComment] = useState("");
+  const [loading, setLoading] = useState(false);
 
   // Estrutura preparada para receber perguntas do formulário MDS
   const questions: Question[] = [
@@ -510,18 +517,34 @@ const EqualizadorServicos = () => {
     "Quadro de Responsabilidades",
   ];
 
-  // Carregar serviços MDS do localStorage
-  const loadServiceMDS = () => {
-    const saved = localStorage.getItem("serviceMDS");
-    if (saved) {
-      setServiceMDS(JSON.parse(saved));
+  // Carregar serviços MDS do Firebase
+  const loadServiceMDS = async () => {
+    try {
+      setLoading(true);
+      const mdsServices = await getAllServiceMDS();
+      
+      // Converter para formato local
+      const displayServices: ServiceMDS[] = mdsServices.map((mds) => ({
+        id: mds.id || "",
+        mdsNumber: mds.mdsNumber,
+        number: mds.mdsNumber || "",
+        client: mds.client,
+        project: mds.workLocation || "Projeto não especificado",
+        status: mds.status,
+        createdAt: mds.createdAt,
+        updatedAt: mds.updatedAt,
+        formData: mds.formData,
+        comments: [],
+        quotations: [],
+      }));
+      
+      setServiceMDS(displayServices);
+    } catch (error) {
+      console.error("Erro ao carregar MDS:", error);
+      alert("Erro ao carregar MDS. Tente novamente.");
+    } finally {
+      setLoading(false);
     }
-  };
-
-  // Salvar serviços MDS no localStorage
-  const saveServiceMDS = (services: ServiceMDS[]) => {
-    localStorage.setItem("serviceMDS", JSON.stringify(services));
-    setServiceMDS(services);
   };
 
   useEffect(() => {
@@ -550,56 +573,124 @@ const EqualizadorServicos = () => {
   };
 
   // Salvar rascunho
-  const handleSaveDraft = () => {
-    const draftService: ServiceMDS = {
-      id: editingService?.id || `MDS-${Date.now()}`,
-      number: `MDS-${Date.now()}`,
-      client: (formData.q1 as string) || "Cliente não informado",
-      project: (formData.q2 as string) || "Local não informado",
-      status: "open",
-      createdAt: editingService?.createdAt || new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      formData,
-      comments: editingService?.comments || [],
-      quotations: editingService?.quotations || [],
-    };
+  const handleSaveDraft = async () => {
+    try {
+      setLoading(true);
+      const mdsNumber = generateMDSNumber();
 
-    const updatedServices = editingService
-      ? serviceMDS.map((s) => (s.id === editingService.id ? draftService : s))
-      : [...serviceMDS, draftService];
+      if (editingService) {
+        // Atualizar MDS existente
+        await updateServiceMDS(editingService.id, {
+          formData: { ...formData },
+        });
+        alert("Rascunho atualizado com sucesso!");
+      } else {
+        // Extrair matriz de responsabilidades do formData
+        const responsibilityMatrix: { [key: string]: string } = {};
+        Object.keys(formData).forEach((key) => {
+          if (key.startsWith("q16_") || key.startsWith("q17_") || 
+              key.startsWith("q18_") || key.startsWith("q19_") || 
+              key.startsWith("q20_") || key.startsWith("q21_") || 
+              key.startsWith("q22_")) {
+            responsibilityMatrix[key] = formData[key] as string;
+          }
+        });
 
-    saveServiceMDS(updatedServices);
-    alert("Rascunho salvo com sucesso!");
+        // Criar novo MDS
+        await createServiceMDS({
+          mdsNumber,
+          client: (formData.q1 as string) || "Cliente não informado",
+          workLocation: (formData.q2 as string) || "Local não informado",
+          visitDate: (formData.q3 as string) || new Date().toISOString().split("T")[0],
+          technicalResponsible: (formData.q4 as string) || "",
+          serviceDescription: (formData.q5 as string) || "",
+          pipeMaterials: Array.isArray(formData.q6) ? formData.q6 : [formData.q6 as string],
+          pipeDiameters: Array.isArray(formData.q7) ? formData.q7 : [formData.q7 as string],
+          pipeLength: (formData.q8 as string) || "",
+          installationType: (formData.q9 as string) || "",
+          installationArea: (formData.q10 as string) || "",
+          installationMethod: Array.isArray(formData.q11) ? formData.q11 : [formData.q11 as string],
+          pipeHeight: Array.isArray(formData.q12) ? formData.q12 : [formData.q12 as string],
+          installationPoints: (formData.q13 as string) || "",
+          executionDeadline: (formData.q14 as string) || "",
+          workSchedule: Array.isArray(formData.q15) ? formData.q15 : [formData.q15 as string],
+          responsibilityMatrix: responsibilityMatrix,
+          status: "open",
+          formData: { ...formData },
+        });
+        alert(`Rascunho salvo com sucesso!\nMDS: ${mdsNumber}`);
+      }
+
+      await loadServiceMDS();
+    } catch (error) {
+      console.error("Erro ao salvar rascunho:", error);
+      alert("Erro ao salvar rascunho. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Submeter formulário
-  const handleSubmit = () => {
-    const newService: ServiceMDS = {
-      id: editingService?.id || `MDS-${Date.now()}`,
-      number: `MDS-${serviceMDS.length + 1}`,
-      client: (formData.q1 as string) || "Cliente não informado",
-      project: (formData.q2 as string) || "Local não informado",
-      status: "awaiting-quotes",
-      createdAt: editingService?.createdAt || new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      formData,
-      comments: editingService?.comments || [],
-      quotations: editingService?.quotations || [],
-    };
+  const handleSubmit = async () => {
+    try {
+      setLoading(true);
+      const mdsNumber = generateMDSNumber();
 
-    const updatedServices = editingService
-      ? serviceMDS.map((s) => (s.id === editingService.id ? newService : s))
-      : [...serviceMDS, newService];
+      if (editingService) {
+        // Atualizar MDS existente
+        await updateServiceMDS(editingService.id, {
+          formData: { ...formData },
+          status: "awaiting-quotes",
+        });
+        alert("MDS atualizado com sucesso!");
+      } else {
+        // Extrair matriz de responsabilidades do formData
+        const responsibilityMatrix: { [key: string]: string } = {};
+        Object.keys(formData).forEach((key) => {
+          if (key.startsWith("q16_") || key.startsWith("q17_") || 
+              key.startsWith("q18_") || key.startsWith("q19_") || 
+              key.startsWith("q20_") || key.startsWith("q21_") || 
+              key.startsWith("q22_")) {
+            responsibilityMatrix[key] = formData[key] as string;
+          }
+        });
 
-    saveServiceMDS(updatedServices);
+        // Criar novo MDS
+        await createServiceMDS({
+          mdsNumber,
+          client: (formData.q1 as string) || "Cliente não informado",
+          workLocation: (formData.q2 as string) || "Local não informado",
+          visitDate: (formData.q3 as string) || new Date().toISOString().split("T")[0],
+          technicalResponsible: (formData.q4 as string) || "",
+          serviceDescription: (formData.q5 as string) || "",
+          pipeMaterials: Array.isArray(formData.q6) ? formData.q6 : [formData.q6 as string],
+          pipeDiameters: Array.isArray(formData.q7) ? formData.q7 : [formData.q7 as string],
+          pipeLength: (formData.q8 as string) || "",
+          installationType: (formData.q9 as string) || "",
+          installationArea: (formData.q10 as string) || "",
+          installationMethod: Array.isArray(formData.q11) ? formData.q11 : [formData.q11 as string],
+          pipeHeight: Array.isArray(formData.q12) ? formData.q12 : [formData.q12 as string],
+          installationPoints: (formData.q13 as string) || "",
+          executionDeadline: (formData.q14 as string) || "",
+          workSchedule: Array.isArray(formData.q15) ? formData.q15 : [formData.q15 as string],
+          responsibilityMatrix: responsibilityMatrix,
+          status: "awaiting-quotes",
+          formData: { ...formData },
+        });
+        alert(`MDS criado com sucesso!\nMDS: ${mdsNumber}`);
+      }
 
-    alert(
-      editingService ? "MDS atualizado com sucesso!" : "MDS criado com sucesso!"
-    );
-    setViewMode("menu");
-    setFormData({});
-    setEditingService(null);
-    setCurrentSection(0);
+      await loadServiceMDS();
+      setViewMode("menu");
+      setFormData({});
+      setEditingService(null);
+      setCurrentSection(0);
+    } catch (error) {
+      console.error("Erro ao submeter MDS:", error);
+      alert("Erro ao submeter MDS. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Editar serviço
@@ -611,64 +702,91 @@ const EqualizadorServicos = () => {
   };
 
   // Deletar serviço
-  const handleDeleteService = (id: string) => {
-    if (window.confirm("Tem certeza que deseja excluir este MDS?")) {
-      const updatedServices = serviceMDS.filter((s) => s.id !== id);
-      saveServiceMDS(updatedServices);
+  const handleDeleteService = async (id: string) => {
+    if (!window.confirm("Tem certeza que deseja excluir este MDS?")) return;
+
+    try {
+      setLoading(true);
+      await deleteServiceMDS(id);
+      await loadServiceMDS();
+      alert("MDS excluído com sucesso!");
+    } catch (error) {
+      console.error("Erro ao excluir MDS:", error);
+      alert("Erro ao excluir MDS. Tente novamente.");
+    } finally {
+      setLoading(false);
     }
   };
 
   // Mudar status
-  const handleChangeStatus = (id: string, status: ServiceMDS["status"]) => {
-    const updatedServices = serviceMDS.map((s) =>
-      s.id === id ? { ...s, status, updatedAt: new Date().toISOString() } : s
-    );
-    saveServiceMDS(updatedServices);
+  const handleChangeStatus = async (id: string, status: ServiceMDS["status"]) => {
+    try {
+      setLoading(true);
+      await updateServiceMDS(id, { status });
+      await loadServiceMDS();
+    } catch (error) {
+      console.error("Erro ao alterar status:", error);
+      alert("Erro ao alterar status. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Adicionar comentário
-  const handleAddComment = () => {
+  const handleAddComment = async () => {
     if (!selectedService || !newComment.trim()) return;
 
-    const comment: Comment = {
-      id: `comment-${Date.now()}`,
-      text: newComment,
-      author: "Usuário Atual",
-      createdAt: new Date().toISOString(),
-    };
+    try {
+      setLoading(true);
+      const mdsId = selectedService.id;
+      const mdsNumber = selectedService.mdsNumber || selectedService.number;
 
-    const updatedServices = serviceMDS.map((s) =>
-      s.id === selectedService.id
-        ? { ...s, comments: [...(s.comments || []), comment] }
-        : s
-    );
+      await addMDSComment({
+        mdsId,
+        mdsNumber,
+        text: newComment.trim(),
+        author: "Usuário", // TODO: Pegar do contexto de autenticação
+      });
 
-    saveServiceMDS(updatedServices);
-    setNewComment("");
-    setSelectedService({
-      ...selectedService,
-      comments: [...(selectedService.comments || []), comment],
-    });
+      // Recarregar comentários
+      const comments = await getCommentsByMDSId(mdsId);
+      setSelectedService({
+        ...selectedService,
+        comments,
+      });
+
+      setNewComment("");
+      alert("Comentário adicionado com sucesso!");
+    } catch (error) {
+      console.error("Erro ao adicionar comentário:", error);
+      alert("Erro ao adicionar comentário. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Deletar comentário
-  const handleDeleteComment = (commentId: string) => {
+  const handleDeleteComment = async (commentId: string) => {
     if (!selectedService) return;
 
-    const updatedServices = serviceMDS.map((s) =>
-      s.id === selectedService.id
-        ? {
-            ...s,
-            comments: s.comments?.filter((c) => c.id !== commentId),
-          }
-        : s
-    );
+    try {
+      setLoading(true);
+      await deleteMDSComment(commentId);
 
-    saveServiceMDS(updatedServices);
-    setSelectedService({
-      ...selectedService,
-      comments: selectedService.comments?.filter((c) => c.id !== commentId),
-    });
+      // Recarregar comentários
+      const comments = await getCommentsByMDSId(selectedService.id);
+      setSelectedService({
+        ...selectedService,
+        comments,
+      });
+
+      alert("Comentário excluído com sucesso!");
+    } catch (error) {
+      console.error("Erro ao excluir comentário:", error);
+      alert("Erro ao excluir comentário. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Exportar para PDF (implementação básica)
@@ -683,9 +801,25 @@ const EqualizadorServicos = () => {
     // Implementação futura de envio de email com PDF
   };
 
-  const handleViewComments = (service: ServiceMDS) => {
-    setSelectedService(service);
-    setViewMode("comments");
+  const handleViewComments = async (service: ServiceMDS) => {
+    try {
+      setLoading(true);
+      const mdsId = service.id;
+
+      // Carregar comentários do Firebase
+      const comments = await getCommentsByMDSId(mdsId);
+
+      setSelectedService({
+        ...service,
+        comments,
+      });
+      setViewMode("comments");
+    } catch (error) {
+      console.error("Erro ao carregar comentários:", error);
+      alert("Erro ao carregar comentários. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Voltar
@@ -1417,6 +1551,37 @@ const EqualizadorServicos = () => {
 
   return (
     <div className="equalizador-container">
+      {/* Loading Indicator */}
+      {loading && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0, 0, 0, 0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999,
+          }}
+        >
+          <div
+            style={{
+              background: "white",
+              padding: "30px 50px",
+              borderRadius: "12px",
+              fontSize: "18px",
+              fontWeight: "600",
+              color: "#1e40af",
+            }}
+          >
+            Carregando...
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="equalizador-header">
         <Button

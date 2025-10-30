@@ -20,6 +20,18 @@ import {
   FiArrowLeft,
 } from "react-icons/fi";
 import "./SolicitacaoServicos.css";
+import {
+  createServiceRequest,
+  getAllServiceRequests,
+  updateServiceRequest,
+  deleteServiceRequest,
+  addServiceComment,
+  getServiceCommentsByRequestId,
+  deleteServiceComment,
+  generateServiceRequestId,
+  type ServiceRequest as FirebaseServiceRequest,
+  type ServiceComment,
+} from "../../../services/servicosService";
 
 interface FormData {
   [key: string]: string | string[];
@@ -36,21 +48,16 @@ interface Question {
 
 type ViewMode = "menu" | "new" | "history" | "edit" | "comments";
 
+// Interface local para display
 interface ServiceRequest {
   id: string;
+  requestId?: string;
   title: string;
-  status: "draft" | "submitted" | "in-progress" | "completed";
+  status: "draft" | "submitted" | "in-progress" | "completed" | "cancelled";
   createdAt: string;
   updatedAt: string;
   formData: FormData;
-  comments: Comment[];
-}
-
-interface Comment {
-  id: string;
-  text: string;
-  author: string;
-  createdAt: string;
+  comments: ServiceComment[];
 }
 
 export default function SolicitacaoServicos() {
@@ -66,6 +73,7 @@ export default function SolicitacaoServicos() {
     null
   );
   const [newComment, setNewComment] = useState("");
+  const [loading, setLoading] = useState(false);
 
   // Perguntas do formulário de solicitação de serviços
   const questions: Question[] = [
@@ -736,18 +744,31 @@ export default function SolicitacaoServicos() {
 
   const sections = getActiveSections();
 
-  // Carregar solicitações do localStorage
-  const loadServiceRequests = () => {
-    const saved = localStorage.getItem("serviceRequests");
-    if (saved) {
-      setServiceRequests(JSON.parse(saved));
+  // Carregar solicitações do Firebase
+  const loadServiceRequests = async () => {
+    try {
+      setLoading(true);
+      const requests = await getAllServiceRequests();
+      
+      // Converter para formato local com comentários vazios inicialmente
+      const displayRequests: ServiceRequest[] = requests.map((req) => ({
+        id: req.id || "",
+        requestId: req.requestId,
+        title: `${req.category} - ${req.company}`,
+        status: req.status,
+        createdAt: req.createdAt,
+        updatedAt: req.updatedAt,
+        formData: req.formData,
+        comments: [],
+      }));
+      
+      setServiceRequests(displayRequests);
+    } catch (error) {
+      console.error("Erro ao carregar solicitações:", error);
+      alert("Erro ao carregar solicitações. Tente novamente.");
+    } finally {
+      setLoading(false);
     }
-  };
-
-  // Salvar solicitações no localStorage
-  const saveServiceRequests = (requests: ServiceRequest[]) => {
-    localStorage.setItem("serviceRequests", JSON.stringify(requests));
-    setServiceRequests(requests);
   };
 
   const handleInputChange = (questionId: string, value: string | string[]) => {
@@ -774,43 +795,99 @@ export default function SolicitacaoServicos() {
     }
   };
 
-  const handleSaveDraft = () => {
-    const title =
-      formData.q1 || `Solicitação ${new Date().toLocaleDateString()}`;
-    const newRequest: ServiceRequest = {
-      id: Date.now().toString(),
-      title: title as string,
-      status: "draft",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      formData: { ...formData },
-      comments: [],
-    };
+  const handleSaveDraft = async () => {
+    try {
+      setLoading(true);
+      const requestId = generateServiceRequestId();
 
-    const updatedRequests = [...serviceRequests, newRequest];
-    saveServiceRequests(updatedRequests);
-    alert("Rascunho salvo com sucesso!");
+      await createServiceRequest({
+        requestId,
+        category: (formData.q1 as string) || "Não informado",
+        requestDate: (formData.q2 as string) || new Date().toISOString().split("T")[0],
+        requesterName: (formData.q3 as string) || "Não informado",
+        requesterEmail: (formData.q4 as string) || "",
+        requesterPhone: (formData.q5 as string) || "",
+        internalName: (formData.q6 as string) || "",
+        internalEmail: (formData.q7 as string) || "",
+        clientSegment: (formData.q8 as string) || "",
+        hasOrderOrProposal: (formData.q9 as string) || "Não",
+        orderOrProposalNumber: (formData.q10 as string) || undefined,
+        regional: (formData.q11 as string) || "",
+        salesperson:
+          (formData.q12 as string) ||
+          (formData.q13 as string) ||
+          (formData.q14 as string) ||
+          (formData.q15 as string) ||
+          "",
+        company: (formData.q16 as string) || "Não informado",
+        clientCode: (formData.q17 as string) || undefined,
+        cnpj: (formData.q18 as string) || "",
+        urgencyLevel: (formData.q19 as string) || "0",
+        serviceType: (formData.q20 as string) || "Não especificado",
+        serviceDescription: (formData.q21 as string) || "",
+        status: "draft",
+        formData: { ...formData },
+      });
+
+      await loadServiceRequests();
+      alert(
+        `Rascunho salvo com sucesso!\nID da Solicitação: ${requestId}\n\nGuarde este ID para referência futura.`
+      );
+    } catch (error) {
+      console.error("Erro ao salvar rascunho:", error);
+      alert("Erro ao salvar rascunho. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSubmit = () => {
-    const title =
-      formData.q1 || `Solicitação ${new Date().toLocaleDateString()}`;
-    const newRequest: ServiceRequest = {
-      id: Date.now().toString(),
-      title: title as string,
-      status: "submitted",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      formData: { ...formData },
-      comments: [],
-    };
+  const handleSubmit = async () => {
+    try {
+      setLoading(true);
+      const requestId = generateServiceRequestId();
 
-    const updatedRequests = [...serviceRequests, newRequest];
-    saveServiceRequests(updatedRequests);
-    alert("Solicitação enviada com sucesso!");
-    setViewMode("menu");
-    setFormData({});
-    setCurrentSection(0);
+      await createServiceRequest({
+        requestId,
+        category: (formData.q1 as string) || "Não informado",
+        requestDate: (formData.q2 as string) || new Date().toISOString().split("T")[0],
+        requesterName: (formData.q3 as string) || "Não informado",
+        requesterEmail: (formData.q4 as string) || "",
+        requesterPhone: (formData.q5 as string) || "",
+        internalName: (formData.q6 as string) || "",
+        internalEmail: (formData.q7 as string) || "",
+        clientSegment: (formData.q8 as string) || "",
+        hasOrderOrProposal: (formData.q9 as string) || "Não",
+        orderOrProposalNumber: (formData.q10 as string) || undefined,
+        regional: (formData.q11 as string) || "",
+        salesperson:
+          (formData.q12 as string) ||
+          (formData.q13 as string) ||
+          (formData.q14 as string) ||
+          (formData.q15 as string) ||
+          "",
+        company: (formData.q16 as string) || "Não informado",
+        clientCode: (formData.q17 as string) || undefined,
+        cnpj: (formData.q18 as string) || "",
+        urgencyLevel: (formData.q19 as string) || "0",
+        serviceType: (formData.q20 as string) || "Não especificado",
+        serviceDescription: (formData.q21 as string) || "",
+        status: "submitted",
+        formData: { ...formData },
+      });
+
+      await loadServiceRequests();
+      alert(
+        `Solicitação enviada com sucesso!\nID da Solicitação: ${requestId}\n\nVocê receberá atualizações por e-mail.`
+      );
+      setViewMode("menu");
+      setFormData({});
+      setCurrentSection(0);
+    } catch (error) {
+      console.error("Erro ao enviar solicitação:", error);
+      alert("Erro ao enviar solicitação. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleEditRequest = (request: ServiceRequest) => {
@@ -819,33 +896,42 @@ export default function SolicitacaoServicos() {
     setViewMode("edit");
   };
 
-  const handleUpdateRequest = () => {
+  const handleUpdateRequest = async () => {
     if (!editingRequest) return;
 
-    const updatedRequest = {
-      ...editingRequest,
-      formData: { ...formData },
-      updatedAt: new Date().toISOString(),
-    };
+    try {
+      setLoading(true);
+      await updateServiceRequest(editingRequest.id, {
+        formData: { ...formData },
+      });
 
-    const updatedRequests = serviceRequests.map((req) =>
-      req.id === editingRequest.id ? updatedRequest : req
-    );
-
-    saveServiceRequests(updatedRequests);
-    alert("Solicitação atualizada com sucesso!");
-    setViewMode("history");
-    setEditingRequest(null);
-    setFormData({});
-    setCurrentSection(0);
+      await loadServiceRequests();
+      alert("Solicitação atualizada com sucesso!");
+      setViewMode("history");
+      setEditingRequest(null);
+      setFormData({});
+      setCurrentSection(0);
+    } catch (error) {
+      console.error("Erro ao atualizar solicitação:", error);
+      alert("Erro ao atualizar solicitação. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDeleteRequest = (requestId: string) => {
-    if (confirm("Tem certeza que deseja excluir esta solicitação?")) {
-      const updatedRequests = serviceRequests.filter(
-        (req) => req.id !== requestId
-      );
-      saveServiceRequests(updatedRequests);
+  const handleDeleteRequest = async (requestId: string) => {
+    if (!confirm("Tem certeza que deseja excluir esta solicitação?")) return;
+
+    try {
+      setLoading(true);
+      await deleteServiceRequest(requestId);
+      await loadServiceRequests();
+      alert("Solicitação excluída com sucesso!");
+    } catch (error) {
+      console.error("Erro ao excluir solicitação:", error);
+      alert("Erro ao excluir solicitação. Tente novamente.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -918,51 +1004,79 @@ export default function SolicitacaoServicos() {
     }
   };
 
-  const handleViewComments = (request: ServiceRequest) => {
-    setSelectedRequest(request);
-    setViewMode("comments");
+  const handleViewComments = async (request: ServiceRequest) => {
+    try {
+      setLoading(true);
+      const requestId = request.requestId || request.id;
+      
+      // Carregar comentários do Firebase
+      const comments = await getServiceCommentsByRequestId(requestId);
+      
+      setSelectedRequest({
+        ...request,
+        comments,
+      });
+      setViewMode("comments");
+    } catch (error) {
+      console.error("Erro ao carregar comentários:", error);
+      alert("Erro ao carregar comentários. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleAddComment = () => {
+  const handleAddComment = async () => {
     if (!selectedRequest || !newComment.trim()) return;
 
-    const comment: Comment = {
-      id: Date.now().toString(),
-      text: newComment.trim(),
-      author: "Usuário", // Em uma implementação real, pegaria do contexto de autenticação
-      createdAt: new Date().toISOString(),
-    };
+    try {
+      setLoading(true);
+      const requestId = selectedRequest.requestId || selectedRequest.id;
 
-    const updatedRequest = {
-      ...selectedRequest,
-      comments: [...selectedRequest.comments, comment],
-      updatedAt: new Date().toISOString(),
-    };
+      await addServiceComment({
+        requestId,
+        text: newComment.trim(),
+        author: "Usuário", // TODO: Pegar do contexto de autenticação
+      });
 
-    const updatedRequests = serviceRequests.map((req) =>
-      req.id === selectedRequest.id ? updatedRequest : req
-    );
+      // Recarregar comentários
+      const comments = await getServiceCommentsByRequestId(requestId);
+      setSelectedRequest({
+        ...selectedRequest,
+        comments,
+      });
 
-    saveServiceRequests(updatedRequests);
-    setSelectedRequest(updatedRequest);
-    setNewComment("");
+      setNewComment("");
+      alert("Comentário adicionado com sucesso!");
+    } catch (error) {
+      console.error("Erro ao adicionar comentário:", error);
+      alert("Erro ao adicionar comentário. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDeleteComment = (commentId: string) => {
+  const handleDeleteComment = async (commentId: string) => {
     if (!selectedRequest) return;
 
-    const updatedRequest = {
-      ...selectedRequest,
-      comments: selectedRequest.comments.filter((c) => c.id !== commentId),
-      updatedAt: new Date().toISOString(),
-    };
+    try {
+      setLoading(true);
+      await deleteServiceComment(commentId);
 
-    const updatedRequests = serviceRequests.map((req) =>
-      req.id === selectedRequest.id ? updatedRequest : req
-    );
+      // Recarregar comentários
+      const requestId = selectedRequest.requestId || selectedRequest.id;
+      const comments = await getServiceCommentsByRequestId(requestId);
+      setSelectedRequest({
+        ...selectedRequest,
+        comments,
+      });
 
-    saveServiceRequests(updatedRequests);
-    setSelectedRequest(updatedRequest);
+      alert("Comentário excluído com sucesso!");
+    } catch (error) {
+      console.error("Erro ao excluir comentário:", error);
+      alert("Erro ao excluir comentário. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleBack = () => {
@@ -1497,6 +1611,37 @@ export default function SolicitacaoServicos() {
 
   return (
     <div className="solicitacao-container">
+      {/* Loading Indicator */}
+      {loading && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0, 0, 0, 0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999,
+          }}
+        >
+          <div
+            style={{
+              background: "white",
+              padding: "30px 50px",
+              borderRadius: "12px",
+              fontSize: "18px",
+              fontWeight: "600",
+              color: "#1e40af",
+            }}
+          >
+            Carregando...
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="solicitacao-header">
         <Button

@@ -78,8 +78,14 @@ export const createVisitRequest = async (
 ): Promise<string> => {
   try {
     const now = new Date().toISOString();
+    
+    // Remover campos undefined (Firebase não aceita)
+    const cleanData = Object.fromEntries(
+      Object.entries({ ...requestData }).filter(([_, value]) => value !== undefined)
+    );
+    
     const docRef = await addDoc(collection(db, REQUESTS_COLLECTION), {
-      ...requestData,
+      ...cleanData,
       createdAt: now,
       updatedAt: now,
     });
@@ -170,8 +176,14 @@ export const updateVisitRequest = async (
 ): Promise<void> => {
   try {
     const docRef = doc(db, REQUESTS_COLLECTION, id);
+    
+    // Remover campos undefined (Firebase não aceita)
+    const cleanUpdates = Object.fromEntries(
+      Object.entries({ ...updates }).filter(([_, value]) => value !== undefined)
+    );
+    
     await updateDoc(docRef, {
-      ...updates,
+      ...cleanUpdates,
       updatedAt: new Date().toISOString(),
     });
   } catch (error) {
@@ -203,8 +215,14 @@ export const createVisitReport = async (
 ): Promise<string> => {
   try {
     const now = new Date().toISOString();
+    
+    // Remover campos undefined (Firebase não aceita)
+    const cleanData = Object.fromEntries(
+      Object.entries({ ...reportData }).filter(([_, value]) => value !== undefined)
+    );
+    
     const docRef = await addDoc(collection(db, REPORTS_COLLECTION), {
-      ...reportData,
+      ...cleanData,
       createdAt: now,
       updatedAt: now,
     });
@@ -305,8 +323,14 @@ export const updateVisitReport = async (
 ): Promise<void> => {
   try {
     const docRef = doc(db, REPORTS_COLLECTION, id);
+    
+    // Remover campos undefined (Firebase não aceita)
+    const cleanUpdates = Object.fromEntries(
+      Object.entries({ ...updates }).filter(([_, value]) => value !== undefined)
+    );
+    
     await updateDoc(docRef, {
-      ...updates,
+      ...cleanUpdates,
       updatedAt: new Date().toISOString(),
     });
   } catch (error) {
