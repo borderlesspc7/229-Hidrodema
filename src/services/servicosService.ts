@@ -67,16 +67,12 @@ const COMMENTS_COLLECTION = "serviceComments";
 
 // ===== SOLICITAÇÕES DE SERVIÇOS =====
 
-/**
- * Criar uma nova solicitação de serviço
- */
 export const createServiceRequest = async (
   requestData: Omit<ServiceRequest, "id" | "createdAt" | "updatedAt">
 ): Promise<string> => {
   try {
     const now = new Date().toISOString();
 
-    // Remover campos undefined (Firebase não aceita)
     const cleanData = Object.fromEntries(
       Object.entries({ ...requestData }).filter(
         ([, value]) => value !== undefined
@@ -95,9 +91,6 @@ export const createServiceRequest = async (
   }
 };
 
-/**
- * Buscar solicitação de serviço por ID do documento
- */
 export const getServiceRequestById = async (
   id: string
 ): Promise<ServiceRequest | null> => {
@@ -215,9 +208,6 @@ export const updateServiceRequest = async (
   }
 };
 
-/**
- * Deletar solicitação de serviço
- */
 export const deleteServiceRequest = async (id: string): Promise<void> => {
   try {
     const docRef = doc(db, REQUESTS_COLLECTION, id);
@@ -228,11 +218,6 @@ export const deleteServiceRequest = async (id: string): Promise<void> => {
   }
 };
 
-// ===== COMENTÁRIOS =====
-
-/**
- * Adicionar comentário a uma solicitação
- */
 export const addServiceComment = async (
   commentData: Omit<ServiceComment, "id" | "createdAt">
 ): Promise<string> => {

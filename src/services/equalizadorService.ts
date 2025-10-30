@@ -77,18 +77,12 @@ const MDS_COLLECTION = "serviceMDS";
 const QUOTATIONS_COLLECTION = "mdsQuotations";
 const COMMENTS_COLLECTION = "mdsComments";
 
-// ===== MEMORANDOS DE SERVIÇOS (MDS) =====
-
-/**
- * Criar um novo MDS
- */
 export const createServiceMDS = async (
   mdsData: Omit<ServiceMDS, "id" | "createdAt" | "updatedAt">
 ): Promise<string> => {
   try {
     const now = new Date().toISOString();
 
-    // Remover campos undefined (Firebase não aceita)
     const cleanData = Object.fromEntries(
       Object.entries({ ...mdsData }).filter(([, value]) => value !== undefined)
     );
@@ -105,9 +99,6 @@ export const createServiceMDS = async (
   }
 };
 
-/**
- * Buscar MDS por ID do documento
- */
 export const getServiceMDSById = async (
   id: string
 ): Promise<ServiceMDS | null> => {
@@ -128,9 +119,6 @@ export const getServiceMDSById = async (
   }
 };
 
-/**
- * Buscar MDS por número único
- */
 export const getServiceMDSByNumber = async (
   mdsNumber: string
 ): Promise<ServiceMDS | null> => {
