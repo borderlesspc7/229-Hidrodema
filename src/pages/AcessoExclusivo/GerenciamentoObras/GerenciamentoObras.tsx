@@ -77,6 +77,7 @@ interface Project {
   progress: number;
   milestones: Milestone[];
   team: string[];
+  labor?: string;
   client: string;
   createdAt: string;
   updatedAt: string;
@@ -186,7 +187,6 @@ type ViewMode =
   | "suppliers"
   | "quality"
   | "reports"
-  | "new-project"
   | "new-inventory"
   | "new-budget"
   | "new-supplier"
@@ -216,6 +216,7 @@ export default function GerenciamentoObras() {
     client: "",
     budget: 0,
     team: [] as string[],
+    labor: "",
   });
 
   const [newInventoryItem, setNewInventoryItem] = useState({
@@ -268,6 +269,7 @@ export default function GerenciamentoObras() {
   const [weather, setWeather] = useState("");
   const [responsible, setResponsible] = useState("");
   const [status, setStatus] = useState<DiaryEntry["status"]>("em-andamento");
+  const [selectedProjectId, setSelectedProjectId] = useState("");
 
   // Material form
   const [materialName, setMaterialName] = useState("");
@@ -306,6 +308,14 @@ export default function GerenciamentoObras() {
       setQualityChecklists(JSON.parse(savedChecklists));
     }
   }, []);
+
+  useEffect(() => {
+    if (!selectedProjectId) return;
+    const exists = projects.some((project) => project.id === selectedProjectId);
+    if (!exists) {
+      setSelectedProjectId("");
+    }
+  }, [projects, selectedProjectId]);
 
   // Salvar no localStorage
   const saveDiaries = (entries: DiaryEntry[]) => {
@@ -349,6 +359,7 @@ export default function GerenciamentoObras() {
     setResponsible("");
     setStatus("em-andamento");
     setEditingEntry(null);
+    setSelectedProjectId("");
   };
 
   const resetNewProjectForm = () => {
@@ -360,6 +371,7 @@ export default function GerenciamentoObras() {
       client: "",
       budget: 0,
       team: [],
+      labor: "",
     });
   };
 
@@ -461,6 +473,20 @@ export default function GerenciamentoObras() {
     setPhotos(photos.map((p) => (p.id === id ? { ...p, description } : p)));
   };
 
+  const handleSelectProjectForEntry = (projectId: string) => {
+    if (!projectId) {
+      setSelectedProjectId("");
+      return;
+    }
+
+    const project = projects.find((p) => p.id === projectId);
+    setSelectedProjectId(projectId);
+
+    if (project) {
+      setObraName(project.name);
+    }
+  };
+
   const handleSaveDraft = () => {
     if (!obraName || !date) {
       alert("Preencha pelo menos o nome da obra e a data");
@@ -544,6 +570,8 @@ export default function GerenciamentoObras() {
     setWeather(entry.weather);
     setResponsible(entry.responsible);
     setStatus(entry.status);
+    const matchingProject = projects.find((p) => p.name === entry.obraName);
+    setSelectedProjectId(matchingProject ? matchingProject.id : "");
     setViewMode("edit");
   };
 
@@ -741,7 +769,7 @@ export default function GerenciamentoObras() {
   // Handle new item creation
   const handleCreateProject = () => {
     if (!newProject.name || !newProject.startDate || !newProject.endDate) {
-      alert("Preencha todos os campos obrigatórios");
+      alert("Preencha todos os campos obrigatórios da obra");
       return;
     }
 
@@ -756,10 +784,11 @@ export default function GerenciamentoObras() {
       progress: 0,
       milestones: [],
       team: newProject.team,
+      labor: newProject.labor,
       client: newProject.client,
     });
 
-    alert("Projeto criado com sucesso!");
+    alert("Obra cadastrada com sucesso!");
     resetNewProjectForm();
     setViewMode("projects");
   };
@@ -881,6 +910,24 @@ export default function GerenciamentoObras() {
       <div className="obras-menu-cards">
         <Card
           variant="service"
+          title="CRIAR OBRA"
+          textColor="#1e40af"
+          backgroundColor="#f0f9ff"
+          size="large"
+          className="obras-menu-card"
+          onClick={() => setViewMode("projects")}
+        >
+          <div className="obras-menu-card-content">
+            <div className="obras-menu-icon">
+              <FiTool size={48} />
+            </div>
+            <p>Cadastrar novas obras para gerenciamento</p>
+            <span className="obras-entry-count">{projects.length} obras</span>
+          </div>
+        </Card>
+
+        <Card
+          variant="service"
           title="NOVO REGISTRO"
           textColor="#1e40af"
           backgroundColor="#f0f9ff"
@@ -912,26 +959,6 @@ export default function GerenciamentoObras() {
             <p>Consultar registros anteriores</p>
             <span className="obras-entry-count">
               {diaryEntries.length} registros
-            </span>
-          </div>
-        </Card>
-
-        <Card
-          variant="service"
-          title="CRONOGRAMA"
-          textColor="#7c3aed"
-          backgroundColor="#faf5ff"
-          size="large"
-          className="obras-menu-card"
-          onClick={() => setViewMode("projects")}
-        >
-          <div className="obras-menu-card-content">
-            <div className="obras-menu-icon">
-              <FiTrendingUp size={48} />
-            </div>
-            <p>Cronograma de obras interativo</p>
-            <span className="obras-entry-count">
-              {projects.length} projetos
             </span>
           </div>
         </Card>
@@ -1059,6 +1086,26 @@ export default function GerenciamentoObras() {
             <h3 className="obras-section-title">
               <FiFileText /> Informações da Obra
             </h3>
+            {projects.length > 0 && (
+              <div className="obras-form-field obras-field-full">
+                <label>Selecionar Obra Cadastrada</label>
+                <select
+                  className="obras-select"
+                  value={selectedProjectId}
+                  onChange={(e) => handleSelectProjectForEntry(e.target.value)}
+                >
+                  <option value="">Informar manualmente</option>
+                  {projects.map((project) => (
+                    <option key={project.id} value={project.id}>
+                      {project.name}
+                    </option>
+                  ))}
+                </select>
+                <span className="obras-helper-text">
+                  Ao selecionar, o nome da obra é preenchido automaticamente.
+                </span>
+              </div>
+            )}
             <div className="obras-form-row">
               <div className="obras-form-field">
                 <label>Nome da Obra *</label>
@@ -1074,7 +1121,7 @@ export default function GerenciamentoObras() {
                 <label>Data *</label>
                 <Input
                   type="date"
-                  placeholder="Data"
+                  placeholder=""
                   value={date}
                   onChange={setDate}
                   required
@@ -1404,11 +1451,11 @@ export default function GerenciamentoObras() {
     </div>
   );
 
-  // Render Projects (Cronograma)
+  // Render Projects (Criar Obra)
   const renderProjects = () => (
     <div className="obras-projects-container">
       <div className="obras-projects-header">
-        <h2>Cronograma de Obras</h2>
+        <h2>Criar Obra</h2>
         <Button
           variant="primary"
           onClick={() => setViewMode("menu")}
@@ -1419,79 +1466,209 @@ export default function GerenciamentoObras() {
         </Button>
       </div>
 
-      <div className="obras-projects-grid">
-        <div className="obras-projects-actions">
-          <Button
-            variant="primary"
-            onClick={() => setViewMode("new-project")}
-            className="obras-create-btn"
-          >
-            <FiPlus size={20} />
-            Novo Projeto
-          </Button>
-        </div>
-
-        {projects.length === 0 ? (
-          <div className="obras-empty-state">
-            <div className="obras-empty-icon">
-              <FiTrendingUp size={64} />
-            </div>
-            <h3>Nenhum projeto encontrado</h3>
-            <p>Crie seu primeiro projeto para começar</p>
-            <Button
-              variant="primary"
-              onClick={() => setViewMode("new-project")}
-            >
-              Criar Primeiro Projeto
-            </Button>
+      <div className="obras-projects-form-section">
+        <Card
+          variant="service"
+          className="obras-form-card"
+          title=""
+          textColor="#1e293b"
+        >
+          <div className="obras-form-header">
+            <h2 className="obras-form-title">Cadastrar Nova Obra</h2>
+            <p className="obras-form-subtitle">
+              Registre uma obra para utilizá-la em relatórios e acompanhamentos
+            </p>
           </div>
-        ) : (
-          projects.map((project) => (
-            <div key={project.id} className="obras-project-card">
-              <div className="obras-project-header">
-                <h3>{project.name}</h3>
-                <span
-                  className={`obras-project-status obras-status-${project.status}`}
-                >
-                  {project.status}
-                </span>
-              </div>
-              <div className="obras-project-info">
-                <p>
-                  <strong>Cliente:</strong> {project.client}
-                </p>
-                <p>
-                  <strong>Orçamento:</strong> R${" "}
-                  {project.budget.toLocaleString()}
-                </p>
-                <p>
-                  <strong>Gasto:</strong> R$ {project.spent.toLocaleString()}
-                </p>
-                <p>
-                  <strong>Progresso:</strong> {project.progress}%
-                </p>
-              </div>
-              <div className="obras-project-progress">
-                <div className="obras-progress-bar">
-                  <div
-                    className="obras-progress-fill"
-                    style={{ width: `${project.progress}%` }}
-                  ></div>
+
+          <div className="obras-form-content">
+            <div className="obras-section">
+              <h3 className="obras-section-title">
+                <FiTool /> Informações da Obra
+              </h3>
+              <div className="obras-form-row">
+                <div className="obras-form-field">
+                  <label>Nome da Obra *</label>
+                  <Input
+                    type="text"
+                    placeholder="Nome da obra"
+                    value={newProject.name}
+                    onChange={(value) =>
+                      setNewProject({ ...newProject, name: value })
+                    }
+                    required
+                  />
+                </div>
+                <div className="obras-form-field">
+                  <label>Cliente *</label>
+                  <Input
+                    type="text"
+                    placeholder="Nome do cliente"
+                    value={newProject.client}
+                    onChange={(value) =>
+                      setNewProject({ ...newProject, client: value })
+                    }
+                    required
+                  />
                 </div>
               </div>
-              <div className="obras-project-actions">
-                <Button variant="secondary">
-                  <FiEdit3 size={16} />
-                  Editar
-                </Button>
-                <Button variant="primary">
-                  <FiBarChart size={16} />
-                  Relatório
-                </Button>
+
+              <div className="obras-form-row">
+                <div className="obras-form-field">
+                  <label>Data de Início *</label>
+                  <Input
+                    type="date"
+                    placeholder="Data de início"
+                    value={newProject.startDate}
+                    onChange={(value) =>
+                      setNewProject({ ...newProject, startDate: value })
+                    }
+                    required
+                  />
+                </div>
+                <div className="obras-form-field">
+                  <label>Data de Término *</label>
+                  <Input
+                    type="date"
+                    placeholder="Data de término"
+                    value={newProject.endDate}
+                    onChange={(value) =>
+                      setNewProject({ ...newProject, endDate: value })
+                    }
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="obras-form-row">
+                <div className="obras-form-field">
+                  <label>Orçamento (R$)</label>
+                  <Input
+                    type="number"
+                    placeholder="Valor do orçamento"
+                    value={newProject.budget.toString()}
+                    onChange={(value) =>
+                      setNewProject({
+                        ...newProject,
+                        budget: parseFloat(value) || 0,
+                      })
+                    }
+                  />
+                </div>
+                <div className="obras-form-field">
+                  <label>Mão de Obra</label>
+                  <Input
+                    type="text"
+                    placeholder="Equipe, empresa ou observações"
+                    value={newProject.labor}
+                    onChange={(value) =>
+                      setNewProject({ ...newProject, labor: value })
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="obras-form-field">
+                <label>Descrição</label>
+                <textarea
+                  className="obras-textarea"
+                  placeholder="Descrição do projeto..."
+                  value={newProject.description}
+                  onChange={(e) =>
+                    setNewProject({
+                      ...newProject,
+                      description: e.target.value,
+                    })
+                  }
+                  rows={4}
+                />
               </div>
             </div>
-          ))
-        )}
+
+            <div className="obras-form-actions">
+              <Button
+                variant="secondary"
+                onClick={() => resetNewProjectForm()}
+                className="obras-action-btn"
+              >
+                <FiRefreshCw size={16} />
+                Limpar
+              </Button>
+              <Button
+                variant="primary"
+                onClick={handleCreateProject}
+                className="obras-action-btn obras-submit-btn"
+              >
+                <FiCheckCircle size={16} />
+                Salvar Obra
+              </Button>
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      <div className="obras-projects-list-section">
+        <h3 className="obras-projects-list-title">Obras cadastradas</h3>
+        <div className="obras-projects-grid">
+          {projects.length === 0 ? (
+            <div className="obras-empty-state">
+              <div className="obras-empty-icon">
+                <FiTrendingUp size={64} />
+              </div>
+              <h3>Nenhuma obra cadastrada</h3>
+              <p>Utilize o formulário acima para registrar sua primeira obra</p>
+            </div>
+          ) : (
+            projects.map((project) => (
+              <div key={project.id} className="obras-project-card">
+                <div className="obras-project-header">
+                  <h3>{project.name}</h3>
+                  <span
+                    className={`obras-project-status obras-status-${project.status}`}
+                  >
+                    {project.status}
+                  </span>
+                </div>
+                <div className="obras-project-info">
+                  <p>
+                    <strong>Cliente:</strong> {project.client}
+                  </p>
+                  <p>
+                    <strong>Mão de Obra:</strong>{" "}
+                    {project.labor || "Não informado"}
+                  </p>
+                  <p>
+                    <strong>Orçamento:</strong> R${" "}
+                    {project.budget.toLocaleString()}
+                  </p>
+                  <p>
+                    <strong>Gasto:</strong> R$ {project.spent.toLocaleString()}
+                  </p>
+                  <p>
+                    <strong>Progresso:</strong> {project.progress}%
+                  </p>
+                </div>
+                <div className="obras-project-progress">
+                  <div className="obras-progress-bar">
+                    <div
+                      className="obras-progress-fill"
+                      style={{ width: `${project.progress}%` }}
+                    ></div>
+                  </div>
+                </div>
+                <div className="obras-project-actions">
+                  <Button variant="secondary">
+                    <FiEdit3 size={16} />
+                    Editar
+                  </Button>
+                  <Button variant="primary">
+                    <FiBarChart size={16} />
+                    Relatório
+                  </Button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </div>
   );
@@ -1860,132 +2037,6 @@ export default function GerenciamentoObras() {
           ))
         )}
       </div>
-    </div>
-  );
-
-  // Render New Project Form
-  const renderNewProjectForm = () => (
-    <div className="obras-form-container">
-      <Card
-        variant="service"
-        className="obras-form-card"
-        title=""
-        textColor="#1e293b"
-      >
-        <div className="obras-form-header">
-          <h2 className="obras-form-title">NOVO PROJETO</h2>
-          <p className="obras-form-subtitle">
-            Criar novo projeto no cronograma
-          </p>
-        </div>
-
-        <div className="obras-form-content">
-          <div className="obras-section">
-            <h3 className="obras-section-title">
-              <FiTrendingUp /> Informações do Projeto
-            </h3>
-            <div className="obras-form-row">
-              <div className="obras-form-field">
-                <label>Nome do Projeto *</label>
-                <Input
-                  type="text"
-                  placeholder="Nome do projeto"
-                  value={newProject.name}
-                  onChange={(value) =>
-                    setNewProject({ ...newProject, name: value })
-                  }
-                  required
-                />
-              </div>
-              <div className="obras-form-field">
-                <label>Cliente *</label>
-                <Input
-                  type="text"
-                  placeholder="Nome do cliente"
-                  value={newProject.client}
-                  onChange={(value) =>
-                    setNewProject({ ...newProject, client: value })
-                  }
-                  required
-                />
-              </div>
-            </div>
-            <div className="obras-form-row">
-              <div className="obras-form-field">
-                <label>Data de Início *</label>
-                <Input
-                  type="date"
-                  placeholder="Data de início"
-                  value={newProject.startDate}
-                  onChange={(value) =>
-                    setNewProject({ ...newProject, startDate: value })
-                  }
-                  required
-                />
-              </div>
-              <div className="obras-form-field">
-                <label>Data de Término *</label>
-                <Input
-                  type="date"
-                  placeholder="Data de término"
-                  value={newProject.endDate}
-                  onChange={(value) =>
-                    setNewProject({ ...newProject, endDate: value })
-                  }
-                  required
-                />
-              </div>
-            </div>
-            <div className="obras-form-row">
-              <div className="obras-form-field">
-                <label>Orçamento (R$)</label>
-                <Input
-                  type="number"
-                  placeholder="Valor do orçamento"
-                  value={newProject.budget.toString()}
-                  onChange={(value) =>
-                    setNewProject({
-                      ...newProject,
-                      budget: parseFloat(value) || 0,
-                    })
-                  }
-                />
-              </div>
-            </div>
-            <div className="obras-form-field">
-              <label>Descrição</label>
-              <textarea
-                className="obras-textarea"
-                placeholder="Descrição do projeto..."
-                value={newProject.description}
-                onChange={(e) =>
-                  setNewProject({ ...newProject, description: e.target.value })
-                }
-                rows={4}
-              />
-            </div>
-          </div>
-
-          <div className="obras-form-actions">
-            <Button
-              variant="secondary"
-              onClick={() => setViewMode("projects")}
-              className="obras-action-btn"
-            >
-              <FiArrowLeft size={16} />
-              Cancelar
-            </Button>
-            <Button
-              variant="primary"
-              onClick={handleCreateProject}
-              className="obras-action-btn obras-submit-btn"
-            >
-              <FiCheckCircle size={16} />
-              Criar Projeto
-            </Button>
-          </div>
-        </div>
-      </Card>
     </div>
   );
 
@@ -2758,7 +2809,6 @@ export default function GerenciamentoObras() {
       {viewMode === "suppliers" && renderSuppliers()}
       {viewMode === "quality" && renderQuality()}
       {viewMode === "reports" && renderReports()}
-      {viewMode === "new-project" && renderNewProjectForm()}
       {viewMode === "new-inventory" && renderNewInventoryForm()}
       {viewMode === "new-budget" && renderNewBudgetForm()}
       {viewMode === "new-supplier" && renderNewSupplierForm()}
