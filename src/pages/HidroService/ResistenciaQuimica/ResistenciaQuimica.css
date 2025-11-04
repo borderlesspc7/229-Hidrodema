@@ -347,7 +347,24 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.resistance-content {
+  display: flex;
+  align-items: center;
   gap: 8px;
+}
+
+.resistance-cell .resistance-icon {
+  flex-shrink: 0;
+  width: 20px;
+  text-align: center;
+}
+
+.resistance-cell .resistance-text {
+  display: inline-block;
+  width: 90px;
+  text-align: left;
 }
 
 .data-row:nth-child(even) {

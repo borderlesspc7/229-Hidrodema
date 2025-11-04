@@ -369,11 +369,13 @@ export default function ResistenciaQuimica() {
                       </span>
                     </td>
                     <td className="resistance-cell">
-                      {getResistanceIcon(item.resistance)}
-                      <span className="resistance-text">
-                        {item.resistance === "excellent" && "Excelente"}
-                        {item.resistance === "good" && "Bom"}
-                        {item.resistance === "limited" && "Limitado"}
+                      <span className="resistance-content">
+                        {getResistanceIcon(item.resistance)}
+                        <span className="resistance-text">
+                          {item.resistance === "excellent" && "Excelente"}
+                          {item.resistance === "good" && "Bom"}
+                          {item.resistance === "limited" && "Limitado"}
+                        </span>
                       </span>
                     </td>
                   </tr>
