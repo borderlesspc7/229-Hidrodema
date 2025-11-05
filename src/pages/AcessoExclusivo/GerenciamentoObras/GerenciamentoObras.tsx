@@ -31,23 +31,33 @@ import {
   FiDownload,
   FiRefreshCw,
 } from "react-icons/fi";
+import {
+  createProject,
+  getAllProjects,
+  createDiaryEntry,
+  getAllDiaryEntries,
+  updateDiaryEntry,
+  deleteDiaryEntry,
+  createInventoryItem,
+  getAllInventoryItems,
+  createBudget,
+  getAllBudgets,
+  createSupplier,
+  getAllSuppliers,
+  createQualityChecklist,
+  getAllQualityChecklists,
+} from "../../../services/obrasService";
+import type {
+  Project,
+  DiaryEntry,
+  InventoryItem,
+  Budget,
+  Supplier,
+  QualityChecklist,
+} from "../../../services/obrasService";
 import "./GerenciamentoObras.css";
 
-interface DiaryEntry {
-  id: string;
-  obraName: string;
-  date: string;
-  activities: string;
-  materials: Material[];
-  photos: Photo[];
-  observations: string;
-  weather: string;
-  responsible: string;
-  status: "em-andamento" | "concluida" | "pausada";
-  createdAt: string;
-  updatedAt: string;
-}
-
+// Interfaces locais (não exportadas pelo serviço)
 interface Material {
   id: string;
   name: string;
@@ -65,116 +75,7 @@ interface Photo {
   dataUrl: string;
 }
 
-interface Project {
-  id: string;
-  name: string;
-  description: string;
-  startDate: string;
-  endDate: string;
-  status: "planejamento" | "em-andamento" | "concluida" | "pausada";
-  budget: number;
-  spent: number;
-  progress: number;
-  milestones: Milestone[];
-  team: string[];
-  labor?: string;
-  client: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface Milestone {
-  id: string;
-  name: string;
-  description: string;
-  dueDate: string;
-  status: "pendente" | "em-andamento" | "concluida" | "atrasada";
-  progress: number;
-  dependencies: string[];
-}
-
-interface InventoryItem {
-  id: string;
-  name: string;
-  category: string;
-  quantity: number;
-  unit: string;
-  minStock: number;
-  maxStock: number;
-  price: number;
-  supplier: string;
-  location: string;
-  lastUpdated: string;
-  alerts: string[];
-}
-
-interface Budget {
-  id: string;
-  projectId: string;
-  name: string;
-  description: string;
-  totalAmount: number;
-  spentAmount: number;
-  categories: BudgetCategory[];
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface BudgetCategory {
-  id: string;
-  name: string;
-  allocated: number;
-  spent: number;
-  items: BudgetItem[];
-}
-
-interface BudgetItem {
-  id: string;
-  name: string;
-  description: string;
-  quantity: number;
-  unitPrice: number;
-  totalPrice: number;
-  supplier: string;
-  status: "pendente" | "aprovado" | "comprado" | "entregue";
-}
-
-interface Supplier {
-  id: string;
-  name: string;
-  contact: string;
-  email: string;
-  phone: string;
-  address: string;
-  category: string;
-  rating: number;
-  reliability: "excelente" | "bom" | "regular" | "ruim";
-  deliveryTime: number;
-  paymentTerms: string;
-  notes: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface QualityChecklist {
-  id: string;
-  name: string;
-  description: string;
-  projectId: string;
-  items: QualityItem[];
-  status: "pendente" | "em-andamento" | "concluida";
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface QualityItem {
-  id: string;
-  description: string;
-  status: "pendente" | "aprovado" | "reprovado";
-  notes: string;
-  responsible: string;
-  checkedAt: string;
-}
+// BudgetItem interface is defined in obrasService.ts and used via Budget interface
 
 type ViewMode =
   | "menu"
@@ -276,37 +177,39 @@ export default function GerenciamentoObras() {
   const [materialQuantity, setMaterialQuantity] = useState("");
   const [materialUnit, setMaterialUnit] = useState("un");
 
-  // Carregar dados do localStorage
+  // Carregar dados do Firebase
   useEffect(() => {
-    const savedDiaries = localStorage.getItem("obrasDiaries");
-    if (savedDiaries) {
-      setDiaryEntries(JSON.parse(savedDiaries));
-    }
+    const loadData = async () => {
+      try {
+        const [
+          diaries,
+          projectsData,
+          inventoryData,
+          budgetsData,
+          suppliersData,
+          checklistsData,
+        ] = await Promise.all([
+          getAllDiaryEntries(),
+          getAllProjects(),
+          getAllInventoryItems(),
+          getAllBudgets(),
+          getAllSuppliers(),
+          getAllQualityChecklists(),
+        ]);
 
-    const savedProjects = localStorage.getItem("obrasProjects");
-    if (savedProjects) {
-      setProjects(JSON.parse(savedProjects));
-    }
+        setDiaryEntries(diaries);
+        setProjects(projectsData);
+        setInventory(inventoryData);
+        setBudgets(budgetsData);
+        setSuppliers(suppliersData);
+        setQualityChecklists(checklistsData);
+      } catch (error) {
+        console.error("Erro ao carregar dados:", error);
+        alert("Erro ao carregar dados. Por favor, recarregue a página.");
+      }
+    };
 
-    const savedInventory = localStorage.getItem("obrasInventory");
-    if (savedInventory) {
-      setInventory(JSON.parse(savedInventory));
-    }
-
-    const savedBudgets = localStorage.getItem("obrasBudgets");
-    if (savedBudgets) {
-      setBudgets(JSON.parse(savedBudgets));
-    }
-
-    const savedSuppliers = localStorage.getItem("obrasSuppliers");
-    if (savedSuppliers) {
-      setSuppliers(JSON.parse(savedSuppliers));
-    }
-
-    const savedChecklists = localStorage.getItem("obrasQualityChecklists");
-    if (savedChecklists) {
-      setQualityChecklists(JSON.parse(savedChecklists));
-    }
+    loadData();
   }, []);
 
   useEffect(() => {
@@ -317,35 +220,34 @@ export default function GerenciamentoObras() {
     }
   }, [projects, selectedProjectId]);
 
-  // Salvar no localStorage
-  const saveDiaries = (entries: DiaryEntry[]) => {
-    localStorage.setItem("obrasDiaries", JSON.stringify(entries));
-    setDiaryEntries(entries);
-  };
+  // Funções auxiliares para atualizar estado local após operações do Firebase
+  const refreshData = async () => {
+    try {
+      const [
+        diaries,
+        projectsData,
+        inventoryData,
+        budgetsData,
+        suppliersData,
+        checklistsData,
+      ] = await Promise.all([
+        getAllDiaryEntries(),
+        getAllProjects(),
+        getAllInventoryItems(),
+        getAllBudgets(),
+        getAllSuppliers(),
+        getAllQualityChecklists(),
+      ]);
 
-  const saveProjects = (projects: Project[]) => {
-    localStorage.setItem("obrasProjects", JSON.stringify(projects));
-    setProjects(projects);
-  };
-
-  const saveInventory = (inventory: InventoryItem[]) => {
-    localStorage.setItem("obrasInventory", JSON.stringify(inventory));
-    setInventory(inventory);
-  };
-
-  const saveBudgets = (budgets: Budget[]) => {
-    localStorage.setItem("obrasBudgets", JSON.stringify(budgets));
-    setBudgets(budgets);
-  };
-
-  const saveSuppliers = (suppliers: Supplier[]) => {
-    localStorage.setItem("obrasSuppliers", JSON.stringify(suppliers));
-    setSuppliers(suppliers);
-  };
-
-  const saveQualityChecklists = (checklists: QualityChecklist[]) => {
-    localStorage.setItem("obrasQualityChecklists", JSON.stringify(checklists));
-    setQualityChecklists(checklists);
+      setDiaryEntries(diaries);
+      setProjects(projectsData);
+      setInventory(inventoryData);
+      setBudgets(budgetsData);
+      setSuppliers(suppliersData);
+      setQualityChecklists(checklistsData);
+    } catch (error) {
+      console.error("Erro ao atualizar dados:", error);
+    }
   };
 
   const resetForm = () => {
@@ -487,76 +389,78 @@ export default function GerenciamentoObras() {
     }
   };
 
-  const handleSaveDraft = () => {
+  const handleSaveDraft = async () => {
     if (!obraName || !date) {
       alert("Preencha pelo menos o nome da obra e a data");
       return;
     }
 
-    const entry: DiaryEntry = {
-      id: editingEntry?.id || Date.now().toString(),
-      obraName,
-      date,
-      activities,
-      materials,
-      photos,
-      observations,
-      weather,
-      responsible,
-      status,
-      createdAt: editingEntry?.createdAt || new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+    try {
+      const entryData: Omit<DiaryEntry, "id" | "createdAt" | "updatedAt"> = {
+        projectId: selectedProjectId || undefined,
+        obraName,
+        date,
+        activities,
+        materials,
+        photos,
+        observations,
+        weather,
+        responsible,
+        status,
+      };
 
-    if (editingEntry) {
-      const updated = diaryEntries.map((e) =>
-        e.id === editingEntry.id ? entry : e
-      );
-      saveDiaries(updated);
-      alert("Registro atualizado com sucesso!");
-    } else {
-      saveDiaries([...diaryEntries, entry]);
-      alert("Rascunho salvo com sucesso!");
+      if (editingEntry && editingEntry.id) {
+        await updateDiaryEntry(editingEntry.id, entryData);
+        alert("Registro atualizado com sucesso!");
+      } else {
+        await createDiaryEntry(entryData);
+        alert("Rascunho salvo com sucesso!");
+      }
+
+      await refreshData();
+      resetForm();
+      setViewMode("history");
+    } catch (error) {
+      console.error("Erro ao salvar registro:", error);
+      alert("Erro ao salvar registro. Tente novamente.");
     }
-
-    resetForm();
-    setViewMode("history");
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!obraName || !date || !activities) {
       alert("Preencha todos os campos obrigatórios");
       return;
     }
 
-    const entry: DiaryEntry = {
-      id: editingEntry?.id || Date.now().toString(),
-      obraName,
-      date,
-      activities,
-      materials,
-      photos,
-      observations,
-      weather,
-      responsible,
-      status,
-      createdAt: editingEntry?.createdAt || new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+    try {
+      const entryData: Omit<DiaryEntry, "id" | "createdAt" | "updatedAt"> = {
+        projectId: selectedProjectId || undefined,
+        obraName,
+        date,
+        activities,
+        materials,
+        photos,
+        observations,
+        weather,
+        responsible,
+        status,
+      };
 
-    if (editingEntry) {
-      const updated = diaryEntries.map((e) =>
-        e.id === editingEntry.id ? entry : e
-      );
-      saveDiaries(updated);
-      alert("Registro atualizado com sucesso!");
-    } else {
-      saveDiaries([...diaryEntries, entry]);
-      alert("Registro salvo com sucesso!");
+      if (editingEntry && editingEntry.id) {
+        await updateDiaryEntry(editingEntry.id, entryData);
+        alert("Registro atualizado com sucesso!");
+      } else {
+        await createDiaryEntry(entryData);
+        alert("Registro salvo com sucesso!");
+      }
+
+      await refreshData();
+      resetForm();
+      setViewMode("history");
+    } catch (error) {
+      console.error("Erro ao salvar registro:", error);
+      alert("Erro ao salvar registro. Tente novamente.");
     }
-
-    resetForm();
-    setViewMode("history");
   };
 
   const handleEdit = (entry: DiaryEntry) => {
@@ -571,13 +475,20 @@ export default function GerenciamentoObras() {
     setResponsible(entry.responsible);
     setStatus(entry.status);
     const matchingProject = projects.find((p) => p.name === entry.obraName);
-    setSelectedProjectId(matchingProject ? matchingProject.id : "");
+    setSelectedProjectId(matchingProject?.id || "");
     setViewMode("edit");
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm("Tem certeza que deseja excluir este registro?")) {
-      saveDiaries(diaryEntries.filter((e) => e.id !== id));
+      try {
+        await deleteDiaryEntry(id);
+        await refreshData();
+        alert("Registro excluído com sucesso!");
+      } catch (error) {
+        console.error("Erro ao excluir registro:", error);
+        alert("Erro ao excluir registro. Tente novamente.");
+      }
     }
   };
 
@@ -674,79 +585,9 @@ export default function GerenciamentoObras() {
     }
   };
 
-  // Project Management Functions
-  const createProject = (
-    project: Omit<Project, "id" | "createdAt" | "updatedAt">
-  ) => {
-    const newProject: Project = {
-      ...project,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    saveProjects([...projects, newProject]);
-    return newProject;
-  };
-
   // Inventory Management Functions
-  const addInventoryItem = (
-    item: Omit<InventoryItem, "id" | "lastUpdated" | "alerts">
-  ) => {
-    const newItem: InventoryItem = {
-      ...item,
-      id: Date.now().toString(),
-      lastUpdated: new Date().toISOString(),
-      alerts: [],
-    };
-    saveInventory([...inventory, newItem]);
-    return newItem;
-  };
-
   const checkInventoryAlerts = () => {
-    const alerts = inventory.filter((item) => item.quantity <= item.minStock);
-    return alerts;
-  };
-
-  // Budget Management Functions
-  const createBudget = (
-    budget: Omit<Budget, "id" | "createdAt" | "updatedAt">
-  ) => {
-    const newBudget: Budget = {
-      ...budget,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    saveBudgets([...budgets, newBudget]);
-    return newBudget;
-  };
-
-  // Supplier Management Functions
-  const addSupplier = (
-    supplier: Omit<Supplier, "id" | "createdAt" | "updatedAt">
-  ) => {
-    const newSupplier: Supplier = {
-      ...supplier,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    saveSuppliers([...suppliers, newSupplier]);
-    return newSupplier;
-  };
-
-  // Quality Management Functions
-  const createQualityChecklist = (
-    checklist: Omit<QualityChecklist, "id" | "createdAt" | "updatedAt">
-  ) => {
-    const newChecklist: QualityChecklist = {
-      ...checklist,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    saveQualityChecklists([...qualityChecklists, newChecklist]);
-    return newChecklist;
+    return inventory.filter((item) => item.quantity <= item.minStock);
   };
 
   const generateInventoryReport = () => {
@@ -767,124 +608,154 @@ export default function GerenciamentoObras() {
   };
 
   // Handle new item creation
-  const handleCreateProject = () => {
+  const handleCreateProject = async () => {
     if (!newProject.name || !newProject.startDate || !newProject.endDate) {
       alert("Preencha todos os campos obrigatórios da obra");
       return;
     }
 
-    createProject({
-      name: newProject.name,
-      description: newProject.description,
-      startDate: newProject.startDate,
-      endDate: newProject.endDate,
-      status: "planejamento",
-      budget: newProject.budget,
-      spent: 0,
-      progress: 0,
-      milestones: [],
-      team: newProject.team,
-      labor: newProject.labor,
-      client: newProject.client,
-    });
+    try {
+      await createProject({
+        name: newProject.name,
+        description: newProject.description,
+        startDate: newProject.startDate,
+        endDate: newProject.endDate,
+        status: "planejamento",
+        budget: newProject.budget,
+        spent: 0,
+        progress: 0,
+        milestones: [],
+        team: newProject.team,
+        labor: newProject.labor,
+        client: newProject.client,
+      });
 
-    alert("Obra cadastrada com sucesso!");
-    resetNewProjectForm();
-    setViewMode("projects");
+      alert("Obra cadastrada com sucesso!");
+      resetNewProjectForm();
+      await refreshData();
+      setViewMode("projects");
+    } catch (error) {
+      console.error("Erro ao criar projeto:", error);
+      alert("Erro ao cadastrar obra. Tente novamente.");
+    }
   };
 
-  const handleCreateInventoryItem = () => {
+  const handleCreateInventoryItem = async () => {
     if (!newInventoryItem.name || !newInventoryItem.category) {
       alert("Preencha todos os campos obrigatórios");
       return;
     }
 
-    addInventoryItem({
-      name: newInventoryItem.name,
-      category: newInventoryItem.category,
-      quantity: newInventoryItem.quantity,
-      unit: newInventoryItem.unit,
-      minStock: newInventoryItem.minStock,
-      maxStock: newInventoryItem.maxStock,
-      price: newInventoryItem.price,
-      supplier: newInventoryItem.supplier,
-      location: newInventoryItem.location,
-    });
+    try {
+      await createInventoryItem({
+        name: newInventoryItem.name,
+        category: newInventoryItem.category,
+        quantity: newInventoryItem.quantity,
+        unit: newInventoryItem.unit,
+        minStock: newInventoryItem.minStock,
+        maxStock: newInventoryItem.maxStock,
+        price: newInventoryItem.price,
+        supplier: newInventoryItem.supplier,
+        location: newInventoryItem.location,
+      });
 
-    alert("Item adicionado ao estoque com sucesso!");
-    resetNewInventoryForm();
-    setViewMode("inventory");
+      alert("Item adicionado ao estoque com sucesso!");
+      resetNewInventoryForm();
+      await refreshData();
+      setViewMode("inventory");
+    } catch (error) {
+      console.error("Erro ao criar item de inventário:", error);
+      alert("Erro ao adicionar item. Tente novamente.");
+    }
   };
 
-  const handleCreateBudget = () => {
+  const handleCreateBudget = async () => {
     if (!newBudget.name || !newBudget.totalAmount) {
       alert("Preencha todos os campos obrigatórios");
       return;
     }
 
-    createBudget({
-      projectId: newBudget.projectId,
-      name: newBudget.name,
-      description: newBudget.description,
-      totalAmount: newBudget.totalAmount,
-      spentAmount: 0,
-      categories: [],
-    });
+    try {
+      await createBudget({
+        projectId: newBudget.projectId,
+        name: newBudget.name,
+        description: newBudget.description,
+        totalAmount: newBudget.totalAmount,
+        spentAmount: 0,
+        categories: [],
+      });
 
-    alert("Orçamento criado com sucesso!");
-    resetNewBudgetForm();
-    setViewMode("budgets");
+      alert("Orçamento criado com sucesso!");
+      resetNewBudgetForm();
+      await refreshData();
+      setViewMode("budgets");
+    } catch (error) {
+      console.error("Erro ao criar orçamento:", error);
+      alert("Erro ao criar orçamento. Tente novamente.");
+    }
   };
 
-  const handleCreateSupplier = () => {
+  const handleCreateSupplier = async () => {
     if (!newSupplier.name || !newSupplier.contact || !newSupplier.email) {
       alert("Preencha todos os campos obrigatórios");
       return;
     }
 
-    addSupplier({
-      name: newSupplier.name,
-      contact: newSupplier.contact,
-      email: newSupplier.email,
-      phone: newSupplier.phone,
-      address: newSupplier.address,
-      category: newSupplier.category,
-      rating: newSupplier.rating,
-      reliability: newSupplier.reliability,
-      deliveryTime: newSupplier.deliveryTime,
-      paymentTerms: newSupplier.paymentTerms,
-      notes: newSupplier.notes,
-    });
+    try {
+      await createSupplier({
+        name: newSupplier.name,
+        contact: newSupplier.contact,
+        email: newSupplier.email,
+        phone: newSupplier.phone,
+        address: newSupplier.address,
+        category: newSupplier.category,
+        rating: newSupplier.rating,
+        reliability: newSupplier.reliability,
+        deliveryTime: newSupplier.deliveryTime,
+        paymentTerms: newSupplier.paymentTerms,
+        notes: newSupplier.notes,
+      });
 
-    alert("Fornecedor cadastrado com sucesso!");
-    resetNewSupplierForm();
-    setViewMode("suppliers");
+      alert("Fornecedor cadastrado com sucesso!");
+      resetNewSupplierForm();
+      await refreshData();
+      setViewMode("suppliers");
+    } catch (error) {
+      console.error("Erro ao criar fornecedor:", error);
+      alert("Erro ao cadastrar fornecedor. Tente novamente.");
+    }
   };
 
-  const handleCreateQualityChecklist = () => {
+  const handleCreateQualityChecklist = async () => {
     if (!newQualityChecklist.name || !newQualityChecklist.projectId) {
       alert("Preencha todos os campos obrigatórios");
       return;
     }
 
-    createQualityChecklist({
-      name: newQualityChecklist.name,
-      description: newQualityChecklist.description,
-      projectId: newQualityChecklist.projectId,
-      status: "pendente",
-      items: newQualityChecklist.items.map((item, index) => ({
-        id: (index + 1).toString(),
-        description: item.description,
-        status: "pendente" as const,
-        notes: "",
-        responsible: item.responsible,
-        checkedAt: "",
-      })),
-    });
+    try {
+      await createQualityChecklist({
+        name: newQualityChecklist.name,
+        description: newQualityChecklist.description,
+        projectId: newQualityChecklist.projectId,
+        status: "pendente",
+        items: newQualityChecklist.items.map((item, index) => ({
+          id: (index + 1).toString(),
+          description: item.description,
+          status: "pendente" as const,
+          notes: "",
+          responsible: item.responsible,
+          checkedAt: "",
+        })),
+      });
 
-    alert("Checklist de qualidade criado com sucesso!");
-    resetNewQualityForm();
-    setViewMode("quality");
+      alert("Checklist de qualidade criado com sucesso!");
+      resetNewQualityForm();
+      await refreshData();
+      setViewMode("quality");
+    } catch (error) {
+      console.error("Erro ao criar checklist:", error);
+      alert("Erro ao criar checklist. Tente novamente.");
+    }
   };
 
   const addQualityItem = () => {
@@ -1096,7 +967,7 @@ export default function GerenciamentoObras() {
                 >
                   <option value="">Informar manualmente</option>
                   {projects.map((project) => (
-                    <option key={project.id} value={project.id}>
+                    <option key={project.id} value={project.id || ""}>
                       {project.name}
                     </option>
                   ))}
@@ -1437,7 +1308,7 @@ export default function GerenciamentoObras() {
                 </Button>
                 <Button
                   variant="secondary"
-                  onClick={() => handleDelete(entry.id)}
+                  onClick={() => entry.id && handleDelete(entry.id)}
                   className="obras-action-button obras-delete"
                 >
                   <FiTrash2 size={16} />
@@ -1619,7 +1490,10 @@ export default function GerenciamentoObras() {
             </div>
           ) : (
             projects.map((project) => (
-              <div key={project.id} className="obras-project-card">
+              <div
+                key={project.id || `project-${project.name}`}
+                className="obras-project-card"
+              >
                 <div className="obras-project-header">
                   <h3>{project.name}</h3>
                   <span
@@ -2268,7 +2142,7 @@ export default function GerenciamentoObras() {
                 >
                   <option value="">Selecione um projeto</option>
                   {projects.map((project) => (
-                    <option key={project.id} value={project.id}>
+                    <option key={project.id} value={project.id || ""}>
                       {project.name}
                     </option>
                   ))}
@@ -2561,7 +2435,7 @@ export default function GerenciamentoObras() {
                 >
                   <option value="">Selecione um projeto</option>
                   {projects.map((project) => (
-                    <option key={project.id} value={project.id}>
+                    <option key={project.id} value={project.id || ""}>
                       {project.name}
                     </option>
                   ))}
