@@ -28,17 +28,10 @@ import {
   getAllServiceMDS,
   updateServiceMDS,
   deleteServiceMDS,
-  addMDSQuotation,
-  getQuotationsByMDSId,
-  updateMDSQuotation,
-  deleteMDSQuotation,
-  approveMDSQuotation,
   addMDSComment,
   getCommentsByMDSId,
   deleteMDSComment,
   generateMDSNumber,
-  getMDSStatistics,
-  type ServiceMDS as FirebaseServiceMDS,
   type MDSQuotation,
   type MDSComment,
 } from "../../../services/equalizadorService";
@@ -522,7 +515,7 @@ const EqualizadorServicos = () => {
     try {
       setLoading(true);
       const mdsServices = await getAllServiceMDS();
-      
+
       // Converter para formato local
       const displayServices: ServiceMDS[] = mdsServices.map((mds) => ({
         id: mds.id || "",
@@ -537,7 +530,7 @@ const EqualizadorServicos = () => {
         comments: [],
         quotations: [],
       }));
-      
+
       setServiceMDS(displayServices);
     } catch (error) {
       console.error("Erro ao carregar MDS:", error);
@@ -588,10 +581,15 @@ const EqualizadorServicos = () => {
         // Extrair matriz de responsabilidades do formData
         const responsibilityMatrix: { [key: string]: string } = {};
         Object.keys(formData).forEach((key) => {
-          if (key.startsWith("q16_") || key.startsWith("q17_") || 
-              key.startsWith("q18_") || key.startsWith("q19_") || 
-              key.startsWith("q20_") || key.startsWith("q21_") || 
-              key.startsWith("q22_")) {
+          if (
+            key.startsWith("q16_") ||
+            key.startsWith("q17_") ||
+            key.startsWith("q18_") ||
+            key.startsWith("q19_") ||
+            key.startsWith("q20_") ||
+            key.startsWith("q21_") ||
+            key.startsWith("q22_")
+          ) {
             responsibilityMatrix[key] = formData[key] as string;
           }
         });
@@ -601,19 +599,30 @@ const EqualizadorServicos = () => {
           mdsNumber,
           client: (formData.q1 as string) || "Cliente não informado",
           workLocation: (formData.q2 as string) || "Local não informado",
-          visitDate: (formData.q3 as string) || new Date().toISOString().split("T")[0],
+          visitDate:
+            (formData.q3 as string) || new Date().toISOString().split("T")[0],
           technicalResponsible: (formData.q4 as string) || "",
           serviceDescription: (formData.q5 as string) || "",
-          pipeMaterials: Array.isArray(formData.q6) ? formData.q6 : [formData.q6 as string],
-          pipeDiameters: Array.isArray(formData.q7) ? formData.q7 : [formData.q7 as string],
+          pipeMaterials: Array.isArray(formData.q6)
+            ? formData.q6
+            : [formData.q6 as string],
+          pipeDiameters: Array.isArray(formData.q7)
+            ? formData.q7
+            : [formData.q7 as string],
           pipeLength: (formData.q8 as string) || "",
           installationType: (formData.q9 as string) || "",
           installationArea: (formData.q10 as string) || "",
-          installationMethod: Array.isArray(formData.q11) ? formData.q11 : [formData.q11 as string],
-          pipeHeight: Array.isArray(formData.q12) ? formData.q12 : [formData.q12 as string],
+          installationMethod: Array.isArray(formData.q11)
+            ? formData.q11
+            : [formData.q11 as string],
+          pipeHeight: Array.isArray(formData.q12)
+            ? formData.q12
+            : [formData.q12 as string],
           installationPoints: (formData.q13 as string) || "",
           executionDeadline: (formData.q14 as string) || "",
-          workSchedule: Array.isArray(formData.q15) ? formData.q15 : [formData.q15 as string],
+          workSchedule: Array.isArray(formData.q15)
+            ? formData.q15
+            : [formData.q15 as string],
           responsibilityMatrix: responsibilityMatrix,
           status: "open",
           formData: { ...formData },
@@ -647,10 +656,15 @@ const EqualizadorServicos = () => {
         // Extrair matriz de responsabilidades do formData
         const responsibilityMatrix: { [key: string]: string } = {};
         Object.keys(formData).forEach((key) => {
-          if (key.startsWith("q16_") || key.startsWith("q17_") || 
-              key.startsWith("q18_") || key.startsWith("q19_") || 
-              key.startsWith("q20_") || key.startsWith("q21_") || 
-              key.startsWith("q22_")) {
+          if (
+            key.startsWith("q16_") ||
+            key.startsWith("q17_") ||
+            key.startsWith("q18_") ||
+            key.startsWith("q19_") ||
+            key.startsWith("q20_") ||
+            key.startsWith("q21_") ||
+            key.startsWith("q22_")
+          ) {
             responsibilityMatrix[key] = formData[key] as string;
           }
         });
@@ -660,19 +674,30 @@ const EqualizadorServicos = () => {
           mdsNumber,
           client: (formData.q1 as string) || "Cliente não informado",
           workLocation: (formData.q2 as string) || "Local não informado",
-          visitDate: (formData.q3 as string) || new Date().toISOString().split("T")[0],
+          visitDate:
+            (formData.q3 as string) || new Date().toISOString().split("T")[0],
           technicalResponsible: (formData.q4 as string) || "",
           serviceDescription: (formData.q5 as string) || "",
-          pipeMaterials: Array.isArray(formData.q6) ? formData.q6 : [formData.q6 as string],
-          pipeDiameters: Array.isArray(formData.q7) ? formData.q7 : [formData.q7 as string],
+          pipeMaterials: Array.isArray(formData.q6)
+            ? formData.q6
+            : [formData.q6 as string],
+          pipeDiameters: Array.isArray(formData.q7)
+            ? formData.q7
+            : [formData.q7 as string],
           pipeLength: (formData.q8 as string) || "",
           installationType: (formData.q9 as string) || "",
           installationArea: (formData.q10 as string) || "",
-          installationMethod: Array.isArray(formData.q11) ? formData.q11 : [formData.q11 as string],
-          pipeHeight: Array.isArray(formData.q12) ? formData.q12 : [formData.q12 as string],
+          installationMethod: Array.isArray(formData.q11)
+            ? formData.q11
+            : [formData.q11 as string],
+          pipeHeight: Array.isArray(formData.q12)
+            ? formData.q12
+            : [formData.q12 as string],
           installationPoints: (formData.q13 as string) || "",
           executionDeadline: (formData.q14 as string) || "",
-          workSchedule: Array.isArray(formData.q15) ? formData.q15 : [formData.q15 as string],
+          workSchedule: Array.isArray(formData.q15)
+            ? formData.q15
+            : [formData.q15 as string],
           responsibilityMatrix: responsibilityMatrix,
           status: "awaiting-quotes",
           formData: { ...formData },
@@ -719,7 +744,10 @@ const EqualizadorServicos = () => {
   };
 
   // Mudar status
-  const handleChangeStatus = async (id: string, status: ServiceMDS["status"]) => {
+  const handleChangeStatus = async (
+    id: string,
+    status: ServiceMDS["status"]
+  ) => {
     try {
       setLoading(true);
       await updateServiceMDS(id, { status });
@@ -858,7 +886,8 @@ const EqualizadorServicos = () => {
           question.question.toLowerCase().includes("telefone");
         const isCEFField = question.question.toLowerCase().includes("cep");
 
-        let mask: "phone" | "cnpj" | "cpf" | "cpfcnpj" | "cep" | undefined = undefined;
+        let mask: "phone" | "cnpj" | "cpf" | "cpfcnpj" | "cep" | undefined =
+          undefined;
         let placeholder = question.placeholder || "Digite sua resposta";
 
         if (isCNPJField) {
@@ -1442,7 +1471,9 @@ const EqualizadorServicos = () => {
                   </div>
                   <Button
                     variant="secondary"
-                    onClick={() => handleDeleteComment(comment.id)}
+                    onClick={() =>
+                      comment.id && handleDeleteComment(comment.id)
+                    }
                     className="equalizador-delete-comment-button"
                   >
                     <FiTrash2 size={16} />

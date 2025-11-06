@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import "./Input.css";
-import { applyMask, removeMask, type MaskType } from "../../../utils/masks";
+import { applyMask, type MaskType } from "../../../utils/masks";
 
 interface InputProps {
   type: string;
@@ -51,7 +51,12 @@ export default function Input({
     }
 
     // Para campos numéricos, valida min/max e remove negativos
-    if (type === "number" || mask === "number" || mask === "numberDecimal" || mask === "currency") {
+    if (
+      type === "number" ||
+      mask === "number" ||
+      mask === "numberDecimal" ||
+      mask === "currency"
+    ) {
       // Remove caracteres não numéricos (exceto ponto para decimais)
       if (mask === "numberDecimal") {
         newValue = newValue.replace(/[^\d.]/g, "");
@@ -65,9 +70,10 @@ export default function Input({
       }
 
       // Converte para número para validação
-      const numValue = mask === "currency" 
-        ? parseFloat(newValue.replace(/\D/g, "")) / 100
-        : parseFloat(newValue) || 0;
+      const numValue =
+        mask === "currency"
+          ? parseFloat(newValue.replace(/\D/g, "")) / 100
+          : parseFloat(newValue) || 0;
 
       // Valida mínimo (não permite negativos por padrão)
       if (min !== undefined && numValue < min) {
@@ -94,7 +100,12 @@ export default function Input({
       // Para currency, o valor já está em centavos, então retorna direto
       const numericValue = newValue.replace(/\D/g, "");
       onChange(numericValue);
-    } else if (mask && mask !== "none" && mask !== "number" && mask !== "numberDecimal") {
+    } else if (
+      mask &&
+      mask !== "none" &&
+      mask !== "number" &&
+      mask !== "numberDecimal"
+    ) {
       // Para outras máscaras, retorna apenas números
       onChange(newValue.replace(/\D/g, ""));
     } else {
@@ -104,9 +115,10 @@ export default function Input({
   };
 
   // Determina o tipo de input baseado na máscara
-  const inputType = mask === "currency" || mask === "number" || mask === "numberDecimal" 
-    ? "text" 
-    : type;
+  const inputType =
+    mask === "currency" || mask === "number" || mask === "numberDecimal"
+      ? "text"
+      : type;
 
   return (
     <div
