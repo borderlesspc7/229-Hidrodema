@@ -1117,9 +1117,12 @@ export default function SolicitacaoServicos() {
         const isPhoneField =
           question.question.toLowerCase().includes("celular") ||
           question.question.toLowerCase().includes("telefone");
+        const isCNPJField = question.question.toLowerCase().includes("cnpj");
+        const isCPFField = question.question.toLowerCase().includes("cpf");
 
         let inputType = "text";
         let placeholder = "Digite sua resposta";
+        let mask: "phone" | "cnpj" | "cpf" | "cpfcnpj" | undefined = undefined;
 
         if (isDateField) {
           inputType = "date";
@@ -1128,8 +1131,17 @@ export default function SolicitacaoServicos() {
           inputType = "email";
           placeholder = "exemplo@email.com";
         } else if (isPhoneField) {
-          inputType = "tel";
+          inputType = "text";
           placeholder = "(11) 99999-9999";
+          mask = "phone";
+        } else if (isCNPJField) {
+          inputType = "text";
+          placeholder = "00.000.000/0000-00";
+          mask = "cnpj";
+        } else if (isCPFField) {
+          inputType = "text";
+          placeholder = "000.000.000-00";
+          mask = "cpf";
         }
 
         return (
@@ -1144,6 +1156,7 @@ export default function SolicitacaoServicos() {
               value={value as string}
               onChange={(newValue) => handleInputChange(question.id, newValue)}
               required={question.required}
+              mask={mask}
             />
           </div>
         );

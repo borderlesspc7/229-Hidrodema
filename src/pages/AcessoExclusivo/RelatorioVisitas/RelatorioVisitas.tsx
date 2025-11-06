@@ -1119,6 +1119,27 @@ export default function RelatorioVisitas() {
           );
         }
 
+        // Detecta tipos especiais de campo
+        const isCNPJField = question.question.toLowerCase().includes("cnpj");
+        const isCPFField = question.question.toLowerCase().includes("cpf");
+        const isPhoneField =
+          question.question.toLowerCase().includes("celular") ||
+          question.question.toLowerCase().includes("telefone");
+
+        let mask: "phone" | "cnpj" | "cpf" | "cpfcnpj" | undefined = undefined;
+        let placeholder = question.placeholder || "Digite sua resposta";
+
+        if (isCNPJField) {
+          mask = "cnpj";
+          placeholder = "00.000.000/0000-00";
+        } else if (isCPFField) {
+          mask = "cpf";
+          placeholder = "000.000.000-00";
+        } else if (isPhoneField) {
+          mask = "phone";
+          placeholder = "(11) 99999-9999";
+        }
+
         // Para outros campos de texto, renderizar normalmente
         return (
           <div className="visitas-form-question" key={question.id}>
@@ -1133,10 +1154,11 @@ export default function RelatorioVisitas() {
             )}
             <Input
               type="text"
-              placeholder={question.placeholder || "Digite sua resposta"}
+              placeholder={placeholder}
               value={value as string}
               onChange={(newValue) => handleInputChange(question.id, newValue)}
               required={question.required}
+              mask={mask}
             />
           </div>
         );

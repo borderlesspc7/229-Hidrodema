@@ -1076,6 +1076,8 @@ export default function GerenciamentoObras() {
                     placeholder="Qtd"
                     value={materialQuantity}
                     onChange={setMaterialQuantity}
+                    mask="numberDecimal"
+                    min={0}
                   />
                 </div>
                 <div className="obras-form-field obras-field-small">
@@ -1414,15 +1416,17 @@ export default function GerenciamentoObras() {
                 <div className="obras-form-field">
                   <label>Orçamento (R$)</label>
                   <Input
-                    type="number"
+                    type="text"
                     placeholder="Valor do orçamento"
-                    value={newProject.budget.toString()}
+                    value={(newProject.budget * 100).toString()}
                     onChange={(value) =>
                       setNewProject({
                         ...newProject,
-                        budget: parseFloat(value) || 0,
+                        budget: (parseFloat(value) || 0) / 100,
                       })
                     }
+                    mask="currency"
+                    min={0}
                   />
                 </div>
                 <div className="obras-form-field">
@@ -1968,7 +1972,7 @@ export default function GerenciamentoObras() {
               <div className="obras-form-field">
                 <label>Quantidade Atual</label>
                 <Input
-                  type="number"
+                  type="text"
                   placeholder="Quantidade"
                   value={newInventoryItem.quantity.toString()}
                   onChange={(value) =>
@@ -1977,6 +1981,8 @@ export default function GerenciamentoObras() {
                       quantity: parseInt(value) || 0,
                     })
                   }
+                  mask="number"
+                  min={0}
                 />
               </div>
               <div className="obras-form-field">
@@ -2005,7 +2011,7 @@ export default function GerenciamentoObras() {
               <div className="obras-form-field">
                 <label>Estoque Mínimo</label>
                 <Input
-                  type="number"
+                  type="text"
                   placeholder="Estoque mínimo"
                   value={newInventoryItem.minStock.toString()}
                   onChange={(value) =>
@@ -2014,12 +2020,14 @@ export default function GerenciamentoObras() {
                       minStock: parseInt(value) || 0,
                     })
                   }
+                  mask="number"
+                  min={0}
                 />
               </div>
               <div className="obras-form-field">
                 <label>Estoque Máximo</label>
                 <Input
-                  type="number"
+                  type="text"
                   placeholder="Estoque máximo"
                   value={newInventoryItem.maxStock.toString()}
                   onChange={(value) =>
@@ -2028,6 +2036,8 @@ export default function GerenciamentoObras() {
                       maxStock: parseInt(value) || 0,
                     })
                   }
+                  mask="number"
+                  min={0}
                 />
               </div>
             </div>
@@ -2035,15 +2045,17 @@ export default function GerenciamentoObras() {
               <div className="obras-form-field">
                 <label>Preço Unitário (R$)</label>
                 <Input
-                  type="number"
+                  type="text"
                   placeholder="Preço por unidade"
-                  value={newInventoryItem.price.toString()}
+                  value={(newInventoryItem.price * 100).toString()}
                   onChange={(value) =>
                     setNewInventoryItem({
                       ...newInventoryItem,
-                      price: parseFloat(value) || 0,
+                      price: (parseFloat(value) || 0) / 100,
                     })
                   }
+                  mask="currency"
+                  min={0}
                 />
               </div>
               <div className="obras-form-field">
@@ -2153,15 +2165,17 @@ export default function GerenciamentoObras() {
               <div className="obras-form-field">
                 <label>Valor Total (R$) *</label>
                 <Input
-                  type="number"
+                  type="text"
                   placeholder="Valor total do orçamento"
-                  value={newBudget.totalAmount.toString()}
+                  value={(newBudget.totalAmount * 100).toString()}
                   onChange={(value) =>
                     setNewBudget({
                       ...newBudget,
-                      totalAmount: parseFloat(value) || 0,
+                      totalAmount: (parseFloat(value) || 0) / 100,
                     })
                   }
+                  mask="currency"
+                  min={0}
                   required
                 />
               </div>
@@ -2270,6 +2284,7 @@ export default function GerenciamentoObras() {
                   onChange={(value) =>
                     setNewSupplier({ ...newSupplier, phone: value })
                   }
+                  mask="phone"
                 />
               </div>
             </div>
@@ -2312,7 +2327,7 @@ export default function GerenciamentoObras() {
               <div className="obras-form-field">
                 <label>Prazo de Entrega (dias)</label>
                 <Input
-                  type="number"
+                  type="text"
                   placeholder="Dias para entrega"
                   value={newSupplier.deliveryTime.toString()}
                   onChange={(value) =>
@@ -2321,6 +2336,8 @@ export default function GerenciamentoObras() {
                       deliveryTime: parseInt(value) || 0,
                     })
                   }
+                  mask="number"
+                  min={0}
                 />
               </div>
               <div className="obras-form-field">
