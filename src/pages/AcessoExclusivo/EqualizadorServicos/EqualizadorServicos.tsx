@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import Button from "../../../components/ui/Button/Button";
 import Card from "../../../components/ui/Card/Card";
 import Input from "../../../components/ui/Input/Input";
+import LoadingScreen from "../../../components/ui/LoadingScreen/LoadingScreen";
+import Breadcrumb from "../../../components/ui/Breadcrumb/Breadcrumb";
 import {
   FiArrowLeft,
   FiPlus,
@@ -1610,35 +1612,10 @@ const EqualizadorServicos = () => {
   return (
     <div className="equalizador-container">
       {/* Loading Indicator */}
-      {loading && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: "rgba(0, 0, 0, 0.5)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 9999,
-          }}
-        >
-          <div
-            style={{
-              background: "white",
-              padding: "30px 50px",
-              borderRadius: "12px",
-              fontSize: "18px",
-              fontWeight: "600",
-              color: "#1e40af",
-            }}
-          >
-            Carregando...
-          </div>
-        </div>
-      )}
+      {loading && <LoadingScreen message="Processando..." />}
+
+      {/* Breadcrumb */}
+      <Breadcrumb />
 
       {/* Header */}
       <div className="equalizador-header">

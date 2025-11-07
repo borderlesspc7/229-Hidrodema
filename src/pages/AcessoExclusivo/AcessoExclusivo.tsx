@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { paths } from "../../routes/paths";
 import Button from "../../components/ui/Button/Button";
 import Card from "../../components/ui/Card/Card";
+import Breadcrumb from "../../components/ui/Breadcrumb/Breadcrumb";
 
 export default function AcessoExclusivo() {
   const { user } = useAuth();
@@ -20,6 +21,9 @@ export default function AcessoExclusivo() {
 
   return (
     <div className="acesso-exclusivo-container">
+      {/* Breadcrumb */}
+      <Breadcrumb />
+
       <div className="hidro-service-header">
         <Button
           variant="secondary"

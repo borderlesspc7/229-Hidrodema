@@ -1,6 +1,7 @@
 import "./EspacamentoSuportes.css";
 import { useNavigate } from "react-router-dom";
 import Button from "../../../components/ui/Button/Button";
+import Breadcrumb from "../../../components/ui/Breadcrumb/Breadcrumb";
 
 export default function EspacamentoSuportes() {
   const navigate = useNavigate();
@@ -155,6 +156,7 @@ export default function EspacamentoSuportes() {
 
   return (
     <div className="espacamento-suportes-container">
+      <Breadcrumb />
       <div className="espacamento-suportes-header">
         <Button
           variant="secondary"

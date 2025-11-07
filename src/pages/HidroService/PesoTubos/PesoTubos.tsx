@@ -2,6 +2,7 @@ import "./PesoTubos.css";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Button from "../../../components/ui/Button/Button";
+import Breadcrumb from "../../../components/ui/Breadcrumb/Breadcrumb";
 import {
   FaTruck,
   FaBolt,
@@ -183,6 +184,7 @@ export default function PesoTubos() {
 
   return (
     <div className="peso-tubos-container">
+      <Breadcrumb />
       <div className="peso-tubos-header">
         <Button
           variant="secondary"

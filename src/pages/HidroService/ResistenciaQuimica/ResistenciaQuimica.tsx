@@ -2,6 +2,7 @@ import "./ResistenciaQuimica.css";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Button from "../../../components/ui/Button/Button";
+import Breadcrumb from "../../../components/ui/Breadcrumb/Breadcrumb";
 import {
   FaFlask,
   FaSearch,
@@ -227,6 +228,7 @@ export default function ResistenciaQuimica() {
 
   return (
     <div className="resistencia-quimica-container">
+      <Breadcrumb />
       <div className="resistencia-quimica-header">
         <Button
           variant="secondary"

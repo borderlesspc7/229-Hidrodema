@@ -1,7 +1,13 @@
 import "./HidroService.css";
 import { useNavigate } from "react-router-dom";
 import { paths } from "../../routes/paths";
-import { Button, Container, Box, ThemeProvider, createTheme } from "@mui/material";
+import {
+  Button,
+  Container,
+  Box,
+  ThemeProvider,
+  createTheme,
+} from "@mui/material";
 import { ArrowBack } from "@mui/icons-material";
 import {
   Science,
@@ -11,6 +17,7 @@ import {
   School,
 } from "@mui/icons-material";
 import ServiceTile from "../../components/ServiceTile/ServiceTile";
+import Breadcrumb from "../../components/ui/Breadcrumb/Breadcrumb";
 
 // Tema escuro customizado para MUI
 const darkTheme = createTheme({
@@ -24,7 +31,8 @@ const darkTheme = createTheme({
     },
   },
   typography: {
-    fontFamily: '"Inter", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif',
+    fontFamily:
+      '"Inter", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif',
   },
 });
 
@@ -68,6 +76,9 @@ export default function HidroService() {
     <ThemeProvider theme={darkTheme}>
       <div className="hidro-service-container">
         <Container maxWidth="lg" sx={{ width: "100%", py: { xs: 3, sm: 4 } }}>
+          {/* Breadcrumb */}
+          <Breadcrumb />
+
           {/* Header */}
           <Box
             sx={{

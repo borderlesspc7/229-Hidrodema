@@ -2,6 +2,7 @@ import "./ConsumoAdesivo.css";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Button from "../../../components/ui/Button/Button";
+import Breadcrumb from "../../../components/ui/Breadcrumb/Breadcrumb";
 
 export default function ConsumoAdesivo() {
   const navigate = useNavigate();
@@ -144,6 +145,7 @@ export default function ConsumoAdesivo() {
 
   return (
     <div className="consumo-adesivo-container">
+      <Breadcrumb />
       <div className="consumo-adesivo-header">
         <Button
           variant="secondary"
