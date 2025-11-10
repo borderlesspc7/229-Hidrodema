@@ -1003,6 +1003,31 @@
   border-color: rgba(239, 68, 68, 0.5);
 }
 
+.visitas-create-report {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  font-weight: 700;
+  animation: pulseGreen 2s ease-in-out infinite;
+}
+
+.visitas-create-report:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+  transform: translateY(-2px);
+}
+
+@keyframes pulseGreen {
+  0%,
+  100% {
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  }
+  50% {
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+  }
+}
+
 /* Empty State - Relatório de Visitas */
 .visitas-empty-state {
   text-align: center;

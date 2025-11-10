@@ -11,7 +11,6 @@ import {
   FiChevronLeft,
   FiChevronRight,
   FiSave,
-  FiUpload,
   FiEdit3,
   FiMessageCircle,
   FiFile,
@@ -1002,6 +1001,30 @@ export default function RelatorioVisitas() {
     }
   };
 
+  const handleCreateReportFromRequest = (request: DisplayVisit) => {
+    // Preencher o formulário com os dados da solicitação
+    setFormData({
+      ...(request.formData || {}),
+      q6: "Fazer o relatório de uma visita realizada",
+      q19: request.requestId || "",
+      q21: request.requestId || "",
+      q22: request.client,
+      q23: request.scheduledDate,
+    });
+
+    // Definir a solicitação carregada
+    const visitRequest = availableRequests.find(
+      (req) => req.requestId === request.requestId
+    );
+    if (visitRequest) {
+      setLoadedRequest(visitRequest);
+    }
+
+    // Ir para o modo de criação de relatório, começando na seção de Instruções
+    setViewMode("new");
+    setCurrentSection(0); // Primeira seção do relatório
+  };
+
   const handleBack = () => {
     if (viewMode === "menu") {
       navigate("/acesso-exclusivo");
@@ -1021,7 +1044,7 @@ export default function RelatorioVisitas() {
     const value = formData[question.id] || "";
 
     switch (question.type) {
-      case "text":
+      case "text": {
         // Se for q19 ou q21 (seleção de solicitação), mostrar SELECT em vez de INPUT
         if (question.id === "q19" || question.id === "q21") {
           return (
@@ -1164,7 +1187,7 @@ export default function RelatorioVisitas() {
             />
           </div>
         );
-
+      }
       case "date":
         return (
           <div className="visitas-form-question" key={question.id}>
@@ -1513,7 +1536,50 @@ export default function RelatorioVisitas() {
           visitReports.map((report) => (
             <div key={report.id} className="visitas-request-item">
               <div className="visitas-request-info">
-                <h3>{report.title}</h3>
+                <div
+                  style={{ display: "flex", alignItems: "center", gap: "12px" }}
+                >
+                  <h3>{report.title}</h3>
+                  {/* Badge indicando se é solicitação ou relatório */}
+                  {report.isRequest && !report.hasReport && (
+                    <span
+                      style={{
+                        padding: "4px 12px",
+                        background: "rgba(251, 191, 36, 0.15)",
+                        border: "1px solid rgba(251, 191, 36, 0.3)",
+                        borderRadius: "6px",
+                        fontSize: "12px",
+                        fontWeight: "600",
+                        color: "#d97706",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "6px",
+                      }}
+                    >
+                      <FiClock size={14} />
+                      Aguardando Relatório
+                    </span>
+                  )}
+                  {report.isRequest && report.hasReport && (
+                    <span
+                      style={{
+                        padding: "4px 12px",
+                        background: "rgba(6, 214, 160, 0.15)",
+                        border: "1px solid rgba(6, 214, 160, 0.3)",
+                        borderRadius: "6px",
+                        fontSize: "12px",
+                        fontWeight: "600",
+                        color: "#059669",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "6px",
+                      }}
+                    >
+                      <FiCheck size={14} />
+                      Relatório Concluído
+                    </span>
+                  )}
+                </div>
                 <div className="visitas-request-meta">
                   <span
                     className={`visitas-status visitas-status-${report.status}`}
@@ -1553,6 +1619,17 @@ export default function RelatorioVisitas() {
                 </div>
               </div>
               <div className="visitas-request-actions">
+                {/* Mostrar botão "Fazer Relatório" apenas para solicitações sem relatório */}
+                {report.isRequest && !report.hasReport && (
+                  <Button
+                    variant="primary"
+                    onClick={() => handleCreateReportFromRequest(report)}
+                    className="visitas-action-button visitas-create-report"
+                  >
+                    <FiFile size={16} />
+                    Fazer Relatório
+                  </Button>
+                )}
                 <Button
                   variant="secondary"
                   onClick={() => handleEditReport(report)}
@@ -1797,8 +1874,20 @@ export default function RelatorioVisitas() {
                   }
                   className="visitas-nav-button visitas-submit-button"
                 >
-                  <FiUpload size={16} />
-                  {viewMode === "edit" ? "Atualizar" : "Agendar Visita"}
+                  {viewMode === "edit" ? (
+                    <FiSave size={16} />
+                  ) : formData.q6 ===
+                    "Fazer o relatório de uma visita realizada" ? (
+                    <FiCheck size={16} />
+                  ) : (
+                    <FiCalendar size={16} />
+                  )}
+                  {viewMode === "edit"
+                    ? "Atualizar"
+                    : formData.q6 ===
+                      "Fazer o relatório de uma visita realizada"
+                    ? "Enviar Relatório"
+                    : "Agendar Visita"}
                 </Button>
               ) : (
                 <Button
