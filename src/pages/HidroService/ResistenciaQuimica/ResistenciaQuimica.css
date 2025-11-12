@@ -665,3 +665,561 @@
     font-size: 0.85rem;
   }
 }
+
+/* ==================== COMPARADOR DE MATERIAIS ==================== */
+
+/* Header dos Filtros com Botão */
+.filters-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.comparator-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+  border: none;
+  border-radius: 8px;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.comparator-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(78, 205, 196, 0.4);
+}
+
+.comparator-icon {
+  font-size: 1.1em;
+}
+
+/* Seção do Comparador */
+.comparator-section {
+  background: transparent;
+  padding: 30px;
+  border-radius: 12px;
+  border: 2px solid rgba(78, 205, 196, 0.3);
+  margin-bottom: 30px;
+  animation: slideDown 0.5s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.comparator-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.comparator-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 10px 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.comparator-subtitle {
+  color: #e2e8f0;
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Cards de Especificações dos Materiais */
+.material-specs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 25px;
+  margin-bottom: 30px;
+}
+
+.material-spec-card {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 25px;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.material-spec-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.pvc-u-card {
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+.cpvc-card {
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+.material-name {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 20px 0;
+  text-align: center;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.spec-items {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.spec-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.spec-icon {
+  font-size: 1.5rem;
+  color: #4ecdc4;
+  flex-shrink: 0;
+}
+
+.spec-content {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.spec-label {
+  font-size: 0.8rem;
+  color: #a0aec0;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.spec-value {
+  font-size: 1rem;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.advantages-section,
+.limitations-section {
+  margin-top: 15px;
+}
+
+.advantages-section h4,
+.limitations-section h4 {
+  font-size: 0.9rem;
+  color: #4ecdc4;
+  margin: 0 0 10px 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 700;
+}
+
+.advantages-section ul,
+.limitations-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.advantages-section li,
+.limitations-section li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: #e2e8f0;
+  line-height: 1.4;
+}
+
+.advantages-section .list-icon {
+  color: #10b981;
+  font-size: 0.9rem;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.limitations-section .list-icon {
+  color: #f59e0b;
+  font-size: 0.9rem;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+/* Seleção de Substâncias */
+.substance-selection-section {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 25px;
+  margin-bottom: 25px;
+}
+
+.selection-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.selection-header h3 {
+  font-size: 1.2rem;
+  color: #ffffff;
+  margin: 0;
+  font-weight: 700;
+}
+
+.clear-selection-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  border-radius: 6px;
+  color: #fca5a5;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.clear-selection-btn:hover {
+  background: rgba(239, 68, 68, 0.3);
+  border-color: rgba(239, 68, 68, 0.7);
+}
+
+/* Empty State */
+.empty-selection {
+  text-align: center;
+  padding: 50px 20px;
+  color: #a0aec0;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  opacity: 0.3;
+  color: #4ecdc4;
+}
+
+.empty-selection p {
+  font-size: 1.1rem;
+  margin: 0;
+  color: #e2e8f0;
+}
+
+/* Tabela de Comparação */
+.comparison-table-container {
+  overflow-x: auto;
+  border-radius: 8px;
+}
+
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: rgba(255, 255, 255, 0.03);
+  min-width: 600px;
+}
+
+.comparison-table th {
+  background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+  color: #ffffff;
+  font-weight: 700;
+  padding: 15px 12px;
+  text-align: center;
+  font-size: 0.9rem;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.substance-col {
+  text-align: left;
+  min-width: 250px;
+}
+
+.material-col {
+  min-width: 120px;
+}
+
+.pvc-u-col {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
+.cpvc-col {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.winner-col {
+  min-width: 150px;
+}
+
+.action-col {
+  min-width: 80px;
+}
+
+.comparison-row {
+  transition: all 0.3s ease;
+}
+
+.comparison-row:nth-child(even) {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.comparison-row:hover {
+  background: rgba(78, 205, 196, 0.15);
+}
+
+.comparison-table td {
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.substance-name {
+  text-align: left;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.resistance-value {
+  transition: all 0.3s ease;
+}
+
+.winner-cell {
+  background: rgba(78, 205, 196, 0.1);
+  border: 2px solid rgba(78, 205, 196, 0.3);
+}
+
+.recommendation-cell {
+  color: #e2e8f0;
+}
+
+.winner-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border-radius: 6px;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+}
+
+.equivalent-badge {
+  padding: 6px 12px;
+  background: rgba(156, 163, 175, 0.3);
+  border-radius: 6px;
+  color: #e2e8f0;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.remove-btn {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.remove-btn:hover {
+  background: rgba(239, 68, 68, 0.3);
+  border-color: rgba(239, 68, 68, 0.6);
+  transform: scale(1.1);
+}
+
+/* Resumo da Comparação */
+.comparison-summary {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 25px;
+}
+
+.comparison-summary h3 {
+  font-size: 1.2rem;
+  color: #ffffff;
+  margin: 0 0 20px 0;
+  text-align: center;
+  font-weight: 700;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.summary-card {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 20px;
+  border-radius: 10px;
+  border: 2px solid rgba(78, 205, 196, 0.3);
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.summary-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.summary-card h4 {
+  font-size: 0.9rem;
+  color: #4ecdc4;
+  margin: 0 0 10px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+}
+
+.summary-count {
+  font-size: 1.8rem;
+  color: #ffffff;
+  margin: 0;
+  font-weight: 900;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Linhas clicáveis da tabela principal */
+.clickable-row {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clickable-row:hover {
+  background: rgba(78, 205, 196, 0.15) !important;
+  transform: scale(1.02);
+}
+
+.selected-row {
+  background: rgba(78, 205, 196, 0.2) !important;
+  border-left: 4px solid #4ecdc4;
+}
+
+.substance-checkbox {
+  margin-right: 10px;
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+  accent-color: #4ecdc4;
+}
+
+/* Responsividade do Comparador */
+@media (max-width: 768px) {
+  .filters-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .comparator-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .material-specs-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .comparator-title {
+    font-size: 1.4rem;
+  }
+
+  .comparator-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .selection-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .clear-selection-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .summary-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .comparison-table-container {
+    overflow-x: auto;
+  }
+
+  .comparison-table {
+    min-width: 700px;
+  }
+}
+
+@media (max-width: 480px) {
+  .comparator-section {
+    padding: 20px 15px;
+  }
+
+  .material-spec-card {
+    padding: 20px 15px;
+  }
+
+  .comparator-title {
+    font-size: 1.2rem;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .spec-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .advantages-section li,
+  .limitations-section li {
+    font-size: 0.8rem;
+  }
+
+  .summary-count {
+    font-size: 1.5rem;
+  }
+}
