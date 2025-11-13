@@ -194,7 +194,6 @@ export default function Login() {
                       placeholder="Digite seu email"
                       value={resetEmail}
                       onChange={setResetEmail}
-                      disabled={resetLoading}
                     />
 
                     {resetError && (
