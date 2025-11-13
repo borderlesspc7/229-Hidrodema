@@ -5,6 +5,7 @@ import Button from "../../components/ui/Button/Button";
 import { useAuth } from "../../hooks/useAuth";
 import { useNavigate, Link } from "react-router-dom";
 import { paths } from "../../routes/paths";
+import { authService } from "../../services/authService";
 
 export default function Login() {
   const { login, loading: authLoading, error: authError, user } = useAuth();
@@ -14,6 +15,13 @@ export default function Login() {
     email: "",
     password: "",
   });
+
+  // Estados do modal de recuperação de senha
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetSuccess, setResetSuccess] = useState(false);
+  const [resetError, setResetError] = useState("");
 
   // Redireciona para o menu se já estiver logado
   useEffect(() => {
@@ -37,6 +45,42 @@ export default function Login() {
 
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleForgotPassword = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    setShowResetModal(true);
+    setResetSuccess(false);
+    setResetError("");
+    setResetEmail(formData.email); // Preenche com o email do formulário se houver
+  };
+
+  const handleResetPassword = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setResetLoading(true);
+    setResetError("");
+    setResetSuccess(false);
+
+    try {
+      await authService.resetPassword(resetEmail);
+      setResetSuccess(true);
+      setTimeout(() => {
+        setShowResetModal(false);
+        setResetEmail("");
+        setResetSuccess(false);
+      }, 3000);
+    } catch (error) {
+      setResetError((error as Error).message);
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
+  const closeResetModal = () => {
+    setShowResetModal(false);
+    setResetEmail("");
+    setResetError("");
+    setResetSuccess(false);
   };
 
   return (
@@ -78,7 +122,11 @@ export default function Login() {
               <span className="checkmark"></span>
               <span>Lembrar-me</span>
             </label>
-            <a href="#" className="forgot-password">
+            <a
+              href="#"
+              className="forgot-password"
+              onClick={handleForgotPassword}
+            >
               Esqueceu sua senha?
             </a>
           </div>
@@ -116,6 +164,79 @@ export default function Login() {
           </Link>
         </div>
       </div>
+
+      {/* Modal de Recuperação de Senha */}
+      {showResetModal && (
+        <div className="modal-overlay" onClick={closeResetModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2 className="modal-title">Recuperar Senha</h2>
+              <button
+                className="modal-close-button"
+                onClick={closeResetModal}
+                aria-label="Fechar"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="modal-body">
+              {!resetSuccess ? (
+                <>
+                  <p className="modal-description">
+                    Digite seu email cadastrado e enviaremos um link para
+                    redefinir sua senha.
+                  </p>
+
+                  <form onSubmit={handleResetPassword} className="reset-form">
+                    <Input
+                      type="email"
+                      placeholder="Digite seu email"
+                      value={resetEmail}
+                      onChange={setResetEmail}
+                      disabled={resetLoading}
+                    />
+
+                    {resetError && (
+                      <p className="error-message">{resetError}</p>
+                    )}
+
+                    <div className="modal-actions">
+                      <Button
+                        variant="secondary"
+                        type="button"
+                        onClick={closeResetModal}
+                        disabled={resetLoading}
+                      >
+                        Cancelar
+                      </Button>
+                      <Button
+                        variant="primary"
+                        type="submit"
+                        disabled={resetLoading || !resetEmail}
+                      >
+                        {resetLoading ? "Enviando..." : "Enviar Email"}
+                      </Button>
+                    </div>
+                  </form>
+                </>
+              ) : (
+                <div className="success-message-container">
+                  <div className="success-icon">✓</div>
+                  <h3 className="success-title">Email Enviado!</h3>
+                  <p className="success-description">
+                    Verifique sua caixa de entrada e siga as instruções para
+                    redefinir sua senha.
+                  </p>
+                  <p className="success-note">
+                    Se não encontrar o email, verifique sua caixa de spam.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

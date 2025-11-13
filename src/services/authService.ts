@@ -3,6 +3,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
+  sendPasswordResetEmail,
   type Unsubscribe,
   onAuthStateChanged,
 } from "firebase/auth";
@@ -93,6 +94,25 @@ export const authService = {
       return userData;
     } catch (error) {
       console.error("Erro detalhado no registro:", error);
+      const message = getFirebaseErrorMessage(error as string | FirebaseError);
+      throw new Error(message);
+    }
+  },
+
+  async resetPassword(email: string): Promise<void> {
+    try {
+      if (!email) {
+        throw new Error("Por favor, informe um email válido");
+      }
+
+      // Validação básica de email
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        throw new Error("Por favor, informe um email válido");
+      }
+
+      await sendPasswordResetEmail(auth, email);
+    } catch (error) {
       const message = getFirebaseErrorMessage(error as string | FirebaseError);
       throw new Error(message);
     }
