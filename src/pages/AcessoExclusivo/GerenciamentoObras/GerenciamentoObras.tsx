@@ -30,6 +30,12 @@ import {
   FiPieChart,
   FiDownload,
   FiRefreshCw,
+  FiSettings,
+  FiShield,
+  FiAward,
+  FiArchive,
+  FiUserCheck,
+  FiSliders,
 } from "react-icons/fi";
 import {
   createProject,
@@ -75,6 +81,118 @@ interface Photo {
   dataUrl: string;
 }
 
+// Novas interfaces para funcionalidades adicionais
+interface TeamMember {
+  id: string;
+  name: string;
+  role: string;
+  cpf?: string;
+  phone?: string;
+  workHours?: number;
+  hourlyRate?: number;
+  attendance?: boolean;
+  checkInTime?: string;
+  checkOutTime?: string;
+}
+
+interface Equipment {
+  id: string;
+  name: string;
+  type: string;
+  code?: string;
+  status: "disponivel" | "em-uso" | "manutencao" | "quebrado";
+  projectId?: string;
+  lastMaintenance?: string;
+  nextMaintenance?: string;
+  operator?: string;
+  hoursUsed?: number;
+  notes?: string;
+}
+
+interface Schedule {
+  id: string;
+  projectId: string;
+  taskName: string;
+  startDate: string;
+  endDate: string;
+  progress: number;
+  responsible?: string;
+  dependencies?: string[];
+  status: "nao-iniciado" | "em-andamento" | "concluido" | "atrasado";
+  plannedCost?: number;
+  actualCost?: number;
+}
+
+interface SafetyRecord {
+  id: string;
+  projectId: string;
+  date: string;
+  type: "dds" | "inspecao" | "acidente" | "treinamento" | "epi";
+  title: string;
+  description: string;
+  participants?: string[];
+  responsible: string;
+  severity?: "baixa" | "media" | "alta";
+  correctedActions?: string;
+  status: "pendente" | "em-andamento" | "concluido";
+}
+
+interface Measurement {
+  id: string;
+  projectId: string;
+  date: string;
+  period: string;
+  description: string;
+  plannedPhysicalProgress: number;
+  actualPhysicalProgress: number;
+  plannedFinancialProgress: number;
+  actualFinancialProgress: number;
+  observations?: string;
+  approved?: boolean;
+  approvedBy?: string;
+  approvedDate?: string;
+}
+
+interface Issue {
+  id: string;
+  projectId: string;
+  date: string;
+  title: string;
+  description: string;
+  category:
+    | "tecnico"
+    | "financeiro"
+    | "prazo"
+    | "qualidade"
+    | "seguranca"
+    | "outro";
+  priority: "baixa" | "media" | "alta" | "critica";
+  status: "aberto" | "em-analise" | "resolvido" | "cancelado";
+  responsible?: string;
+  solution?: string;
+  solvedDate?: string;
+  attachments?: string[];
+}
+
+interface Document {
+  id: string;
+  projectId: string;
+  name: string;
+  type:
+    | "projeto"
+    | "art"
+    | "contrato"
+    | "licenca"
+    | "orcamento"
+    | "medicao"
+    | "outro";
+  uploadDate: string;
+  fileUrl?: string;
+  description?: string;
+  version?: string;
+  uploadedBy?: string;
+}
+
 // BudgetItem interface is defined in obrasService.ts and used via Budget interface
 
 type ViewMode =
@@ -91,7 +209,21 @@ type ViewMode =
   | "new-inventory"
   | "new-budget"
   | "new-supplier"
-  | "new-quality";
+  | "new-quality"
+  | "team"
+  | "new-team"
+  | "equipment"
+  | "new-equipment"
+  | "schedule"
+  | "new-schedule"
+  | "safety"
+  | "new-safety"
+  | "measurements"
+  | "new-measurement"
+  | "issues"
+  | "new-issue"
+  | "documents"
+  | "new-document";
 
 export default function GerenciamentoObras() {
   const navigate = useNavigate();
@@ -107,6 +239,15 @@ export default function GerenciamentoObras() {
   const [qualityChecklists, setQualityChecklists] = useState<
     QualityChecklist[]
   >([]);
+
+  // Estados para novas funcionalidades
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [equipment, setEquipment] = useState<Equipment[]>([]);
+  const [schedules, setSchedules] = useState<Schedule[]>([]);
+  const [safetyRecords, setSafetyRecords] = useState<SafetyRecord[]>([]);
+  const [measurements, setMeasurements] = useState<Measurement[]>([]);
+  const [issues, setIssues] = useState<Issue[]>([]);
+  const [documents, setDocuments] = useState<Document[]>([]);
 
   // Form states for new items
   const [newProject, setNewProject] = useState({
@@ -158,6 +299,75 @@ export default function GerenciamentoObras() {
     description: "",
     projectId: "",
     items: [] as { description: string; responsible: string }[],
+  });
+
+  // Form states para novas funcionalidades
+  const [newTeamMember, setNewTeamMember] = useState<Partial<TeamMember>>({
+    name: "",
+    role: "",
+    cpf: "",
+    phone: "",
+    workHours: 0,
+    hourlyRate: 0,
+    attendance: false,
+  });
+
+  const [newEquipment, setNewEquipment] = useState<Partial<Equipment>>({
+    name: "",
+    type: "",
+    code: "",
+    status: "disponivel",
+    projectId: "",
+  });
+
+  const [newSchedule, setNewSchedule] = useState<Partial<Schedule>>({
+    projectId: "",
+    taskName: "",
+    startDate: "",
+    endDate: "",
+    progress: 0,
+    status: "nao-iniciado",
+  });
+
+  const [newSafetyRecord, setNewSafetyRecord] = useState<Partial<SafetyRecord>>(
+    {
+      projectId: "",
+      date: "",
+      type: "dds",
+      title: "",
+      description: "",
+      responsible: "",
+      status: "pendente",
+    }
+  );
+
+  const [newMeasurement, setNewMeasurement] = useState<Partial<Measurement>>({
+    projectId: "",
+    date: "",
+    period: "",
+    description: "",
+    plannedPhysicalProgress: 0,
+    actualPhysicalProgress: 0,
+    plannedFinancialProgress: 0,
+    actualFinancialProgress: 0,
+  });
+
+  const [newIssue, setNewIssue] = useState<Partial<Issue>>({
+    projectId: "",
+    date: "",
+    title: "",
+    description: "",
+    category: "tecnico",
+    priority: "media",
+    status: "aberto",
+  });
+
+  const [newDocument, setNewDocument] = useState<Partial<Document>>({
+    projectId: "",
+    name: "",
+    type: "projeto",
+    uploadDate: "",
+    description: "",
   });
 
   // Form data
@@ -929,6 +1139,144 @@ export default function GerenciamentoObras() {
             <span className="obras-entry-count">Dashboard completo</span>
           </div>
         </Card>
+
+        <Card
+          variant="service"
+          title="EQUIPE"
+          textColor="#7c3aed"
+          backgroundColor="#faf5ff"
+          size="large"
+          className="obras-menu-card"
+          onClick={() => setViewMode("team")}
+        >
+          <div className="obras-menu-card-content">
+            <div className="obras-menu-icon">
+              <FiUserCheck size={48} />
+            </div>
+            <p>Gestão de equipe e mão de obra</p>
+            <span className="obras-entry-count">
+              {teamMembers.length} membros
+            </span>
+          </div>
+        </Card>
+
+        <Card
+          variant="service"
+          title="EQUIPAMENTOS"
+          textColor="#ea580c"
+          backgroundColor="#fff7ed"
+          size="large"
+          className="obras-menu-card"
+          onClick={() => setViewMode("equipment")}
+        >
+          <div className="obras-menu-card-content">
+            <div className="obras-menu-icon">
+              <FiSettings size={48} />
+            </div>
+            <p>Controle de equipamentos</p>
+            <span className="obras-entry-count">
+              {equipment.length} equipamentos
+            </span>
+          </div>
+        </Card>
+
+        <Card
+          variant="service"
+          title="CRONOGRAMA"
+          textColor="#0891b2"
+          backgroundColor="#ecfeff"
+          size="large"
+          className="obras-menu-card"
+          onClick={() => setViewMode("schedule")}
+        >
+          <div className="obras-menu-card-content">
+            <div className="obras-menu-icon">
+              <FiSliders size={48} />
+            </div>
+            <p>Planejamento e cronograma</p>
+            <span className="obras-entry-count">
+              {schedules.length} tarefas
+            </span>
+          </div>
+        </Card>
+
+        <Card
+          variant="service"
+          title="SEGURANÇA"
+          textColor="#dc2626"
+          backgroundColor="#fef2f2"
+          size="large"
+          className="obras-menu-card"
+          onClick={() => setViewMode("safety")}
+        >
+          <div className="obras-menu-card-content">
+            <div className="obras-menu-icon">
+              <FiShield size={48} />
+            </div>
+            <p>Segurança do trabalho</p>
+            <span className="obras-entry-count">
+              {safetyRecords.length} registros
+            </span>
+          </div>
+        </Card>
+
+        <Card
+          variant="service"
+          title="MEDIÇÕES"
+          textColor="#16a34a"
+          backgroundColor="#f0fdf4"
+          size="large"
+          className="obras-menu-card"
+          onClick={() => setViewMode("measurements")}
+        >
+          <div className="obras-menu-card-content">
+            <div className="obras-menu-icon">
+              <FiAward size={48} />
+            </div>
+            <p>Avanço físico-financeiro</p>
+            <span className="obras-entry-count">
+              {measurements.length} medições
+            </span>
+          </div>
+        </Card>
+
+        <Card
+          variant="service"
+          title="PROBLEMAS"
+          textColor="#f59e0b"
+          backgroundColor="#fffbeb"
+          size="large"
+          className="obras-menu-card"
+          onClick={() => setViewMode("issues")}
+        >
+          <div className="obras-menu-card-content">
+            <div className="obras-menu-icon">
+              <FiAlertTriangle size={48} />
+            </div>
+            <p>Não conformidades e problemas</p>
+            <span className="obras-entry-count">{issues.length} registros</span>
+          </div>
+        </Card>
+
+        <Card
+          variant="service"
+          title="DOCUMENTOS"
+          textColor="#1e40af"
+          backgroundColor="#eff6ff"
+          size="large"
+          className="obras-menu-card"
+          onClick={() => setViewMode("documents")}
+        >
+          <div className="obras-menu-card-content">
+            <div className="obras-menu-icon">
+              <FiArchive size={48} />
+            </div>
+            <p>Documentação técnica</p>
+            <span className="obras-entry-count">
+              {documents.length} documentos
+            </span>
+          </div>
+        </Card>
       </div>
     </div>
   );
@@ -1063,24 +1411,27 @@ export default function GerenciamentoObras() {
             <div className="obras-materials-form">
               <div className="obras-form-row">
                 <div className="obras-form-field">
-                  <Input
+                  <label className="obras-field-label">Nome do Material</label>
+                  <input
                     type="text"
-                    placeholder="Nome do material"
+                    className="obras-select"
+                    placeholder="Ex: Cimento, Areia, Tijolo"
                     value={materialName}
-                    onChange={setMaterialName}
+                    onChange={(e) => setMaterialName(e.target.value)}
                   />
                 </div>
                 <div className="obras-form-field obras-field-small">
-                  <Input
+                  <label className="obras-field-label">Quantidade</label>
+                  <input
                     type="text"
+                    className="obras-select"
                     placeholder="Qtd"
                     value={materialQuantity}
-                    onChange={setMaterialQuantity}
-                    mask="numberDecimal"
-                    min={0}
+                    onChange={(e) => setMaterialQuantity(e.target.value)}
                   />
                 </div>
                 <div className="obras-form-field obras-field-small">
+                  <label className="obras-field-label">Unidade</label>
                   <select
                     className="obras-select"
                     value={materialUnit}
@@ -2668,6 +3019,1152 @@ export default function GerenciamentoObras() {
     );
   };
 
+  // ==================== NOVAS FUNÇÕES DE RENDERIZAÇÃO ====================
+
+  // Render Team Management
+  const renderTeam = () => (
+    <div className="obras-section-container">
+      <div className="obras-section-header">
+        <h2 className="obras-section-title">
+          <FiUserCheck /> GESTÃO DE EQUIPE
+        </h2>
+        <Button variant="primary" onClick={() => setViewMode("new-team")}>
+          <FiPlus /> Novo Membro
+        </Button>
+      </div>
+
+      <div className="obras-grid">
+        {teamMembers.length === 0 ? (
+          <div className="obras-empty-state">
+            <FiUsers size={64} />
+            <p>Nenhum membro cadastrado</p>
+            <Button variant="primary" onClick={() => setViewMode("new-team")}>
+              Cadastrar Primeiro Membro
+            </Button>
+          </div>
+        ) : (
+          teamMembers.map((member) => (
+            <div key={member.id} className="obras-item-card">
+              <h3>{member.name}</h3>
+              <p>
+                <strong>Função:</strong> {member.role}
+              </p>
+              {member.phone && (
+                <p>
+                  <strong>Telefone:</strong> {member.phone}
+                </p>
+              )}
+              {member.hourlyRate && (
+                <p>
+                  <strong>Valor/hora:</strong> R$ {member.hourlyRate.toFixed(2)}
+                </p>
+              )}
+              <p>
+                <strong>Status:</strong>{" "}
+                {member.attendance ? "Presente" : "Ausente"}
+              </p>
+              <div className="obras-card-actions">
+                <Button variant="secondary">
+                  <FiEdit3 /> Editar
+                </Button>
+                <Button variant="secondary">
+                  <FiTrash2 /> Excluir
+                </Button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+
+  const renderNewTeamForm = () => (
+    <div className="obras-form-container">
+      <div className="obras-form-card">
+        <h2>
+          <FiUserCheck /> CADASTRAR MEMBRO DA EQUIPE
+        </h2>
+        <div className="obras-form-content">
+          <div className="obras-form-field">
+            <label className="obras-field-label">Nome Completo *</label>
+            <input
+              type="text"
+              className="obras-select"
+              placeholder="Ex: João da Silva"
+              value={newTeamMember.name || ""}
+              onChange={(e) =>
+                setNewTeamMember({ ...newTeamMember, name: e.target.value })
+              }
+            />
+          </div>
+          <div className="obras-form-field">
+            <label className="obras-field-label">Função/Cargo *</label>
+            <input
+              type="text"
+              className="obras-select"
+              placeholder="Ex: Pedreiro, Eletricista, Encarregado"
+              value={newTeamMember.role || ""}
+              onChange={(e) =>
+                setNewTeamMember({ ...newTeamMember, role: e.target.value })
+              }
+            />
+          </div>
+          <div className="obras-form-field">
+            <label className="obras-field-label">CPF</label>
+            <input
+              type="text"
+              className="obras-select"
+              placeholder="000.000.000-00"
+              value={newTeamMember.cpf || ""}
+              onChange={(e) =>
+                setNewTeamMember({ ...newTeamMember, cpf: e.target.value })
+              }
+            />
+          </div>
+          <div className="obras-form-field">
+            <label className="obras-field-label">Telefone</label>
+            <input
+              type="text"
+              className="obras-select"
+              placeholder="(00) 00000-0000"
+              value={newTeamMember.phone || ""}
+              onChange={(e) =>
+                setNewTeamMember({ ...newTeamMember, phone: e.target.value })
+              }
+            />
+          </div>
+          <div className="obras-form-field">
+            <label className="obras-field-label">Valor por Hora (R$)</label>
+            <input
+              type="number"
+              className="obras-select"
+              placeholder="Ex: 25.00"
+              step="0.01"
+              value={newTeamMember.hourlyRate?.toString() || ""}
+              onChange={(e) =>
+                setNewTeamMember({
+                  ...newTeamMember,
+                  hourlyRate: parseFloat(e.target.value) || 0,
+                })
+              }
+            />
+          </div>
+          <div className="obras-form-actions">
+            <Button variant="secondary" onClick={() => setViewMode("team")}>
+              Cancelar
+            </Button>
+            <Button
+              variant="primary"
+              onClick={() => {
+                const newMember: TeamMember = {
+                  id: Date.now().toString(),
+                  name: newTeamMember.name || "",
+                  role: newTeamMember.role || "",
+                  cpf: newTeamMember.cpf,
+                  phone: newTeamMember.phone,
+                  hourlyRate: newTeamMember.hourlyRate,
+                  attendance: false,
+                };
+                setTeamMembers([...teamMembers, newMember]);
+                setViewMode("team");
+              }}
+            >
+              Salvar
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Render Equipment Management
+  const renderEquipment = () => (
+    <div className="obras-section-container">
+      <div className="obras-section-header">
+        <h2 className="obras-section-title">
+          <FiSettings /> EQUIPAMENTOS
+        </h2>
+        <Button variant="primary" onClick={() => setViewMode("new-equipment")}>
+          <FiPlus /> Novo Equipamento
+        </Button>
+      </div>
+
+      <div className="obras-grid">
+        {equipment.length === 0 ? (
+          <div className="obras-empty-state">
+            <FiTool size={64} />
+            <p>Nenhum equipamento cadastrado</p>
+            <Button
+              variant="primary"
+              onClick={() => setViewMode("new-equipment")}
+            >
+              Cadastrar Primeiro Equipamento
+            </Button>
+          </div>
+        ) : (
+          equipment.map((equip) => (
+            <div key={equip.id} className="obras-item-card">
+              <h3>{equip.name}</h3>
+              <p>
+                <strong>Tipo:</strong> {equip.type}
+              </p>
+              {equip.code && (
+                <p>
+                  <strong>Código:</strong> {equip.code}
+                </p>
+              )}
+              <p>
+                <strong>Status:</strong>{" "}
+                <span className={`status-${equip.status}`}>{equip.status}</span>
+              </p>
+              {equip.operator && (
+                <p>
+                  <strong>Operador:</strong> {equip.operator}
+                </p>
+              )}
+              <div className="obras-card-actions">
+                <Button variant="secondary">
+                  <FiEdit3 /> Editar
+                </Button>
+                <Button variant="secondary">
+                  <FiTrash2 /> Excluir
+                </Button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+
+  const renderNewEquipmentForm = () => (
+    <div className="obras-form-container">
+      <div className="obras-form-card">
+        <h2>
+          <FiSettings /> CADASTRAR EQUIPAMENTO
+        </h2>
+        <div className="obras-form-content">
+          <div className="obras-form-field">
+            <label className="obras-field-label">Nome do Equipamento *</label>
+            <input
+              type="text"
+              className="obras-select"
+              placeholder="Ex: Betoneira 400L"
+              value={newEquipment.name || ""}
+              onChange={(e) =>
+                setNewEquipment({ ...newEquipment, name: e.target.value })
+              }
+            />
+          </div>
+          <div className="obras-form-field">
+            <label className="obras-field-label">Tipo *</label>
+            <input
+              type="text"
+              className="obras-select"
+              placeholder="Ex: Betoneira, Serra Circular, Furadeira"
+              value={newEquipment.type || ""}
+              onChange={(e) =>
+                setNewEquipment({ ...newEquipment, type: e.target.value })
+              }
+            />
+          </div>
+          <div className="obras-form-field">
+            <label className="obras-field-label">Código/Patrimônio</label>
+            <input
+              type="text"
+              className="obras-select"
+              placeholder="Ex: EQUIP-001"
+              value={newEquipment.code || ""}
+              onChange={(e) =>
+                setNewEquipment({ ...newEquipment, code: e.target.value })
+              }
+            />
+          </div>
+          <div className="obras-form-field">
+            <label className="obras-field-label">Status do Equipamento *</label>
+            <select
+              value={newEquipment.status || "disponivel"}
+              onChange={(e) =>
+                setNewEquipment({
+                  ...newEquipment,
+                  status: e.target.value as Equipment["status"],
+                })
+              }
+              className="obras-select"
+            >
+              <option value="disponivel">Disponível</option>
+              <option value="em-uso">Em Uso</option>
+              <option value="manutencao">Manutenção</option>
+              <option value="quebrado">Quebrado</option>
+            </select>
+          </div>
+          <div className="obras-form-actions">
+            <Button
+              variant="secondary"
+              onClick={() => setViewMode("equipment")}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="primary"
+              onClick={() => {
+                const newEquip: Equipment = {
+                  id: Date.now().toString(),
+                  name: newEquipment.name || "",
+                  type: newEquipment.type || "",
+                  code: newEquipment.code,
+                  status: newEquipment.status || "disponivel",
+                };
+                setEquipment([...equipment, newEquip]);
+                setViewMode("equipment");
+              }}
+            >
+              Salvar
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Render Schedule
+  const renderSchedule = () => (
+    <div className="obras-section-container">
+      <div className="obras-section-header">
+        <h2 className="obras-section-title">
+          <FiSliders /> CRONOGRAMA
+        </h2>
+        <Button variant="primary" onClick={() => setViewMode("new-schedule")}>
+          <FiPlus /> Nova Tarefa
+        </Button>
+      </div>
+
+      <div className="obras-list">
+        {schedules.length === 0 ? (
+          <div className="obras-empty-state">
+            <FiCalendar size={64} />
+            <p>Nenhuma tarefa cadastrada</p>
+            <Button
+              variant="primary"
+              onClick={() => setViewMode("new-schedule")}
+            >
+              Cadastrar Primeira Tarefa
+            </Button>
+          </div>
+        ) : (
+          schedules.map((schedule) => (
+            <div key={schedule.id} className="obras-list-item">
+              <h3>{schedule.taskName}</h3>
+              <p>
+                <strong>Início:</strong>{" "}
+                {new Date(schedule.startDate).toLocaleDateString()}
+              </p>
+              <p>
+                <strong>Fim:</strong>{" "}
+                {new Date(schedule.endDate).toLocaleDateString()}
+              </p>
+              <p>
+                <strong>Progresso:</strong> {schedule.progress}%
+              </p>
+              <p>
+                <strong>Status:</strong> {schedule.status}
+              </p>
+              <div className="obras-progress-bar">
+                <div
+                  className="obras-progress-fill"
+                  style={{ width: `${schedule.progress}%` }}
+                ></div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+
+  const renderNewScheduleForm = () => (
+    <div className="obras-form-container">
+      <div className="obras-form-card">
+        <h2>
+          <FiSliders /> NOVA TAREFA NO CRONOGRAMA
+        </h2>
+        <div className="obras-form-content">
+          <div className="obras-form-field">
+            <label className="obras-field-label">Obra *</label>
+            <select
+              value={newSchedule.projectId || ""}
+              onChange={(e) =>
+                setNewSchedule({ ...newSchedule, projectId: e.target.value })
+              }
+              className="obras-select"
+            >
+              <option value="">Selecione a Obra</option>
+              {projects.map((proj) => (
+                <option key={proj.id} value={proj.id}>
+                  {proj.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="obras-form-field">
+            <label className="obras-field-label">Nome da Tarefa *</label>
+            <input
+              type="text"
+              className="obras-select"
+              placeholder="Ex: Fundação, Alvenaria 1º Pavimento, Instalações Elétricas"
+              value={newSchedule.taskName || ""}
+              onChange={(e) =>
+                setNewSchedule({ ...newSchedule, taskName: e.target.value })
+              }
+            />
+          </div>
+          <div className="obras-form-field">
+            <label className="obras-field-label">Data de Início *</label>
+            <input
+              type="date"
+              className="obras-select"
+              value={newSchedule.startDate || ""}
+              onChange={(e) =>
+                setNewSchedule({ ...newSchedule, startDate: e.target.value })
+              }
+            />
+          </div>
+          <div className="obras-form-field">
+            <label className="obras-field-label">Data de Término *</label>
+            <input
+              type="date"
+              className="obras-select"
+              value={newSchedule.endDate || ""}
+              onChange={(e) =>
+                setNewSchedule({ ...newSchedule, endDate: e.target.value })
+              }
+            />
+          </div>
+          <div className="obras-form-field">
+            <label className="obras-field-label">Progresso (%)</label>
+            <input
+              type="number"
+              className="obras-select"
+              placeholder="0 a 100"
+              min="0"
+              max="100"
+              value={newSchedule.progress?.toString() || "0"}
+              onChange={(e) =>
+                setNewSchedule({
+                  ...newSchedule,
+                  progress: parseInt(e.target.value) || 0,
+                })
+              }
+            />
+          </div>
+          <div className="obras-form-actions">
+            <Button variant="secondary" onClick={() => setViewMode("schedule")}>
+              Cancelar
+            </Button>
+            <Button
+              variant="primary"
+              onClick={() => {
+                const newSched: Schedule = {
+                  id: Date.now().toString(),
+                  projectId: newSchedule.projectId || "",
+                  taskName: newSchedule.taskName || "",
+                  startDate: newSchedule.startDate || "",
+                  endDate: newSchedule.endDate || "",
+                  progress: newSchedule.progress || 0,
+                  status: "em-andamento",
+                };
+                setSchedules([...schedules, newSched]);
+                setViewMode("schedule");
+              }}
+            >
+              Salvar
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Render Safety
+  const renderSafety = () => (
+    <div className="obras-section-container">
+      <div className="obras-section-header">
+        <h2 className="obras-section-title">
+          <FiShield /> SEGURANÇA DO TRABALHO
+        </h2>
+        <Button variant="primary" onClick={() => setViewMode("new-safety")}>
+          <FiPlus /> Novo Registro
+        </Button>
+      </div>
+
+      <div className="obras-list">
+        {safetyRecords.length === 0 ? (
+          <div className="obras-empty-state">
+            <FiShield size={64} />
+            <p>Nenhum registro de segurança</p>
+            <Button variant="primary" onClick={() => setViewMode("new-safety")}>
+              Criar Primeiro Registro
+            </Button>
+          </div>
+        ) : (
+          safetyRecords.map((record) => (
+            <div key={record.id} className="obras-list-item">
+              <h3>{record.title}</h3>
+              <p>
+                <strong>Tipo:</strong> {record.type}
+              </p>
+              <p>
+                <strong>Data:</strong>{" "}
+                {new Date(record.date).toLocaleDateString()}
+              </p>
+              <p>
+                <strong>Responsável:</strong> {record.responsible}
+              </p>
+              <p>
+                <strong>Status:</strong> {record.status}
+              </p>
+              {record.severity && (
+                <p>
+                  <strong>Severidade:</strong> {record.severity}
+                </p>
+              )}
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+
+  const renderNewSafetyForm = () => (
+    <div className="obras-form-container">
+      <div className="obras-form-card">
+        <h2>
+          <FiShield /> NOVO REGISTRO DE SEGURANÇA
+        </h2>
+        <div className="obras-form-content">
+          <div className="obras-form-field">
+            <label className="obras-field-label">Tipo de Registro *</label>
+            <select
+              value={newSafetyRecord.type || "dds"}
+              onChange={(e) =>
+                setNewSafetyRecord({
+                  ...newSafetyRecord,
+                  type: e.target.value as SafetyRecord["type"],
+                })
+              }
+              className="obras-select"
+            >
+              <option value="dds">DDS - Diálogo Diário de Segurança</option>
+              <option value="inspecao">Inspeção</option>
+              <option value="acidente">Acidente</option>
+              <option value="treinamento">Treinamento</option>
+              <option value="epi">Entrega de EPI</option>
+            </select>
+          </div>
+          <div className="obras-form-field">
+            <label className="obras-field-label">Título *</label>
+            <input
+              type="text"
+              className="obras-select"
+              placeholder="Ex: DDS sobre uso de EPI em altura"
+              value={newSafetyRecord.title || ""}
+              onChange={(e) =>
+                setNewSafetyRecord({
+                  ...newSafetyRecord,
+                  title: e.target.value,
+                })
+              }
+            />
+          </div>
+          <div className="obras-form-field">
+            <label className="obras-field-label">Data *</label>
+            <input
+              type="date"
+              className="obras-select"
+              value={newSafetyRecord.date || ""}
+              onChange={(e) =>
+                setNewSafetyRecord({ ...newSafetyRecord, date: e.target.value })
+              }
+            />
+          </div>
+          <div className="obras-form-field">
+            <label className="obras-field-label">Responsável *</label>
+            <input
+              type="text"
+              className="obras-select"
+              placeholder="Nome do técnico de segurança ou responsável"
+              value={newSafetyRecord.responsible || ""}
+              onChange={(e) =>
+                setNewSafetyRecord({
+                  ...newSafetyRecord,
+                  responsible: e.target.value,
+                })
+              }
+            />
+          </div>
+          <div className="obras-form-field">
+            <label className="obras-field-label">Descrição Detalhada *</label>
+            <textarea
+              placeholder="Descreva o registro de segurança, participantes, ações tomadas, observações..."
+              value={newSafetyRecord.description || ""}
+              onChange={(e) =>
+                setNewSafetyRecord({
+                  ...newSafetyRecord,
+                  description: e.target.value,
+                })
+              }
+              className="obras-textarea"
+              rows={5}
+            />
+          </div>
+          <div className="obras-form-actions">
+            <Button variant="secondary" onClick={() => setViewMode("safety")}>
+              Cancelar
+            </Button>
+            <Button
+              variant="primary"
+              onClick={() => {
+                const newRecord: SafetyRecord = {
+                  id: Date.now().toString(),
+                  projectId: newSafetyRecord.projectId || "",
+                  date: newSafetyRecord.date || "",
+                  type: newSafetyRecord.type || "dds",
+                  title: newSafetyRecord.title || "",
+                  description: newSafetyRecord.description || "",
+                  responsible: newSafetyRecord.responsible || "",
+                  status: "pendente",
+                };
+                setSafetyRecords([...safetyRecords, newRecord]);
+                setViewMode("safety");
+              }}
+            >
+              Salvar
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Render Measurements
+  const renderMeasurements = () => (
+    <div className="obras-section-container">
+      <div className="obras-section-header">
+        <h2 className="obras-section-title">
+          <FiAward /> MEDIÇÕES E AVANÇO
+        </h2>
+        <Button
+          variant="primary"
+          onClick={() => setViewMode("new-measurement")}
+        >
+          <FiPlus /> Nova Medição
+        </Button>
+      </div>
+
+      <div className="obras-list">
+        {measurements.length === 0 ? (
+          <div className="obras-empty-state">
+            <FiTrendingUp size={64} />
+            <p>Nenhuma medição registrada</p>
+            <Button
+              variant="primary"
+              onClick={() => setViewMode("new-measurement")}
+            >
+              Registrar Primeira Medição
+            </Button>
+          </div>
+        ) : (
+          measurements.map((measurement) => (
+            <div key={measurement.id} className="obras-list-item">
+              <h3>{measurement.period}</h3>
+              <p>
+                <strong>Data:</strong>{" "}
+                {new Date(measurement.date).toLocaleDateString()}
+              </p>
+              <p>
+                <strong>Avanço Físico:</strong>{" "}
+                {measurement.actualPhysicalProgress}% (Previsto:{" "}
+                {measurement.plannedPhysicalProgress}%)
+              </p>
+              <p>
+                <strong>Avanço Financeiro:</strong>{" "}
+                {measurement.actualFinancialProgress}% (Previsto:{" "}
+                {measurement.plannedFinancialProgress}%)
+              </p>
+              {measurement.approved && (
+                <p className="obras-approved">✓ Aprovado</p>
+              )}
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+
+  const renderNewMeasurementForm = () => (
+    <div className="obras-form-container">
+      <div className="obras-form-card">
+        <h2>
+          <FiAward /> NOVA MEDIÇÃO
+        </h2>
+        <div className="obras-form-content">
+          <div className="obras-form-field">
+            <label className="obras-field-label">Período *</label>
+            <input
+              type="text"
+              className="obras-select"
+              placeholder="Ex: 1ª Medição - Janeiro/2024"
+              value={newMeasurement.period || ""}
+              onChange={(e) =>
+                setNewMeasurement({ ...newMeasurement, period: e.target.value })
+              }
+            />
+          </div>
+          <div className="obras-form-field">
+            <label className="obras-field-label">Data da Medição *</label>
+            <input
+              type="date"
+              className="obras-select"
+              value={newMeasurement.date || ""}
+              onChange={(e) =>
+                setNewMeasurement({ ...newMeasurement, date: e.target.value })
+              }
+            />
+          </div>
+          <div className="obras-form-group">
+            <h4 style={{ color: "#1e40af", marginBottom: "10px" }}>
+              Avanço Físico
+            </h4>
+            <div className="obras-form-field">
+              <label className="obras-field-label">Previsto (%)</label>
+              <input
+                type="number"
+                className="obras-select"
+                placeholder="Ex: 25"
+                min="0"
+                max="100"
+                value={newMeasurement.plannedPhysicalProgress?.toString() || ""}
+                onChange={(e) =>
+                  setNewMeasurement({
+                    ...newMeasurement,
+                    plannedPhysicalProgress: parseFloat(e.target.value) || 0,
+                  })
+                }
+              />
+            </div>
+            <div className="obras-form-field">
+              <label className="obras-field-label">Real/Executado (%)</label>
+              <input
+                type="number"
+                className="obras-select"
+                placeholder="Ex: 28"
+                min="0"
+                max="100"
+                value={newMeasurement.actualPhysicalProgress?.toString() || ""}
+                onChange={(e) =>
+                  setNewMeasurement({
+                    ...newMeasurement,
+                    actualPhysicalProgress: parseFloat(e.target.value) || 0,
+                  })
+                }
+              />
+            </div>
+          </div>
+          <div className="obras-form-group">
+            <h4 style={{ color: "#059669", marginBottom: "10px" }}>
+              Avanço Financeiro
+            </h4>
+            <div className="obras-form-field">
+              <label className="obras-field-label">Previsto (%)</label>
+              <input
+                type="number"
+                className="obras-select"
+                placeholder="Ex: 30"
+                min="0"
+                max="100"
+                value={
+                  newMeasurement.plannedFinancialProgress?.toString() || ""
+                }
+                onChange={(e) =>
+                  setNewMeasurement({
+                    ...newMeasurement,
+                    plannedFinancialProgress: parseFloat(e.target.value) || 0,
+                  })
+                }
+              />
+            </div>
+            <div className="obras-form-field">
+              <label className="obras-field-label">Real/Executado (%)</label>
+              <input
+                type="number"
+                className="obras-select"
+                placeholder="Ex: 32"
+                min="0"
+                max="100"
+                value={newMeasurement.actualFinancialProgress?.toString() || ""}
+                onChange={(e) =>
+                  setNewMeasurement({
+                    ...newMeasurement,
+                    actualFinancialProgress: parseFloat(e.target.value) || 0,
+                  })
+                }
+              />
+            </div>
+          </div>
+          <div className="obras-form-actions">
+            <Button
+              variant="secondary"
+              onClick={() => setViewMode("measurements")}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="primary"
+              onClick={() => {
+                const newMeas: Measurement = {
+                  id: Date.now().toString(),
+                  projectId: newMeasurement.projectId || "",
+                  date: newMeasurement.date || "",
+                  period: newMeasurement.period || "",
+                  description: newMeasurement.description || "",
+                  plannedPhysicalProgress:
+                    newMeasurement.plannedPhysicalProgress || 0,
+                  actualPhysicalProgress:
+                    newMeasurement.actualPhysicalProgress || 0,
+                  plannedFinancialProgress:
+                    newMeasurement.plannedFinancialProgress || 0,
+                  actualFinancialProgress:
+                    newMeasurement.actualFinancialProgress || 0,
+                };
+                setMeasurements([...measurements, newMeas]);
+                setViewMode("measurements");
+              }}
+            >
+              Salvar
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Render Issues
+  const renderIssues = () => (
+    <div className="obras-section-container">
+      <div className="obras-section-header">
+        <h2 className="obras-section-title">
+          <FiAlertTriangle /> PROBLEMAS E NÃO CONFORMIDADES
+        </h2>
+        <Button variant="primary" onClick={() => setViewMode("new-issue")}>
+          <FiPlus /> Novo Problema
+        </Button>
+      </div>
+
+      <div className="obras-list">
+        {issues.length === 0 ? (
+          <div className="obras-empty-state">
+            <FiAlertTriangle size={64} />
+            <p>Nenhum problema registrado</p>
+            <Button variant="primary" onClick={() => setViewMode("new-issue")}>
+              Registrar Primeiro Problema
+            </Button>
+          </div>
+        ) : (
+          issues.map((issue) => (
+            <div key={issue.id} className="obras-list-item">
+              <h3>{issue.title}</h3>
+              <p>
+                <strong>Categoria:</strong> {issue.category}
+              </p>
+              <p>
+                <strong>Prioridade:</strong>{" "}
+                <span className={`priority-${issue.priority}`}>
+                  {issue.priority}
+                </span>
+              </p>
+              <p>
+                <strong>Status:</strong> {issue.status}
+              </p>
+              <p>
+                <strong>Data:</strong>{" "}
+                {new Date(issue.date).toLocaleDateString()}
+              </p>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+
+  const renderNewIssueForm = () => (
+    <div className="obras-form-container">
+      <div className="obras-form-card">
+        <h2>
+          <FiAlertTriangle /> REGISTRAR PROBLEMA
+        </h2>
+        <div className="obras-form-content">
+          <div className="obras-form-field">
+            <label className="obras-field-label">Título do Problema *</label>
+            <input
+              type="text"
+              className="obras-select"
+              placeholder="Ex: Infiltração na laje do 2º pavimento"
+              value={newIssue.title || ""}
+              onChange={(e) =>
+                setNewIssue({ ...newIssue, title: e.target.value })
+              }
+            />
+          </div>
+          <div className="obras-form-field">
+            <label className="obras-field-label">Data de Identificação *</label>
+            <input
+              type="date"
+              className="obras-select"
+              value={newIssue.date || ""}
+              onChange={(e) =>
+                setNewIssue({ ...newIssue, date: e.target.value })
+              }
+            />
+          </div>
+          <div className="obras-form-field">
+            <label className="obras-field-label">Categoria *</label>
+            <select
+              value={newIssue.category || "tecnico"}
+              onChange={(e) =>
+                setNewIssue({
+                  ...newIssue,
+                  category: e.target.value as Issue["category"],
+                })
+              }
+              className="obras-select"
+            >
+              <option value="tecnico">Técnico</option>
+              <option value="financeiro">Financeiro</option>
+              <option value="prazo">Prazo</option>
+              <option value="qualidade">Qualidade</option>
+              <option value="seguranca">Segurança</option>
+              <option value="outro">Outro</option>
+            </select>
+          </div>
+          <div className="obras-form-field">
+            <label className="obras-field-label">Prioridade *</label>
+            <select
+              value={newIssue.priority || "media"}
+              onChange={(e) =>
+                setNewIssue({
+                  ...newIssue,
+                  priority: e.target.value as Issue["priority"],
+                })
+              }
+              className="obras-select"
+            >
+              <option value="baixa">Baixa</option>
+              <option value="media">Média</option>
+              <option value="alta">Alta</option>
+              <option value="critica">Crítica</option>
+            </select>
+          </div>
+          <div className="obras-form-field">
+            <label className="obras-field-label">Descrição Detalhada *</label>
+            <textarea
+              placeholder="Descreva o problema, causa identificada, impactos, ações necessárias..."
+              value={newIssue.description || ""}
+              onChange={(e) =>
+                setNewIssue({ ...newIssue, description: e.target.value })
+              }
+              className="obras-textarea"
+              rows={5}
+            />
+          </div>
+          <div className="obras-form-actions">
+            <Button variant="secondary" onClick={() => setViewMode("issues")}>
+              Cancelar
+            </Button>
+            <Button
+              variant="primary"
+              onClick={() => {
+                const newIss: Issue = {
+                  id: Date.now().toString(),
+                  projectId: newIssue.projectId || "",
+                  date: newIssue.date || "",
+                  title: newIssue.title || "",
+                  description: newIssue.description || "",
+                  category: newIssue.category || "tecnico",
+                  priority: newIssue.priority || "media",
+                  status: "aberto",
+                };
+                setIssues([...issues, newIss]);
+                setViewMode("issues");
+              }}
+            >
+              Salvar
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Render Documents
+  const renderDocuments = () => (
+    <div className="obras-section-container">
+      <div className="obras-section-header">
+        <h2 className="obras-section-title">
+          <FiArchive /> DOCUMENTOS TÉCNICOS
+        </h2>
+        <Button variant="primary" onClick={() => setViewMode("new-document")}>
+          <FiPlus /> Novo Documento
+        </Button>
+      </div>
+
+      <div className="obras-list">
+        {documents.length === 0 ? (
+          <div className="obras-empty-state">
+            <FiFile size={64} />
+            <p>Nenhum documento cadastrado</p>
+            <Button
+              variant="primary"
+              onClick={() => setViewMode("new-document")}
+            >
+              Cadastrar Primeiro Documento
+            </Button>
+          </div>
+        ) : (
+          documents.map((doc) => (
+            <div key={doc.id} className="obras-list-item">
+              <h3>{doc.name}</h3>
+              <p>
+                <strong>Tipo:</strong> {doc.type}
+              </p>
+              <p>
+                <strong>Data:</strong>{" "}
+                {new Date(doc.uploadDate).toLocaleDateString()}
+              </p>
+              {doc.version && (
+                <p>
+                  <strong>Versão:</strong> {doc.version}
+                </p>
+              )}
+              <div className="obras-card-actions">
+                <Button variant="primary">
+                  <FiDownload /> Download
+                </Button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+
+  const renderNewDocumentForm = () => (
+    <div className="obras-form-container">
+      <div className="obras-form-card">
+        <h2>
+          <FiArchive /> CADASTRAR DOCUMENTO
+        </h2>
+        <div className="obras-form-content">
+          <div className="obras-form-field">
+            <label className="obras-field-label">Nome do Documento *</label>
+            <input
+              type="text"
+              className="obras-select"
+              placeholder="Ex: Projeto Estrutural - Blocos Fundação"
+              value={newDocument.name || ""}
+              onChange={(e) =>
+                setNewDocument({ ...newDocument, name: e.target.value })
+              }
+            />
+          </div>
+          <div className="obras-form-field">
+            <label className="obras-field-label">Tipo de Documento *</label>
+            <select
+              value={newDocument.type || "projeto"}
+              onChange={(e) =>
+                setNewDocument({
+                  ...newDocument,
+                  type: e.target.value as Document["type"],
+                })
+              }
+              className="obras-select"
+            >
+              <option value="projeto">Projeto</option>
+              <option value="art">
+                ART - Anotação de Responsabilidade Técnica
+              </option>
+              <option value="contrato">Contrato</option>
+              <option value="licenca">Licença/Alvará</option>
+              <option value="orcamento">Orçamento</option>
+              <option value="medicao">Medição</option>
+              <option value="outro">Outro</option>
+            </select>
+          </div>
+          <div className="obras-form-field">
+            <label className="obras-field-label">Data de Upload *</label>
+            <input
+              type="date"
+              className="obras-select"
+              value={newDocument.uploadDate || ""}
+              onChange={(e) =>
+                setNewDocument({ ...newDocument, uploadDate: e.target.value })
+              }
+            />
+          </div>
+          <div className="obras-form-field">
+            <label className="obras-field-label">Versão</label>
+            <input
+              type="text"
+              className="obras-select"
+              placeholder="Ex: v1.0, Rev.A, Final"
+              value={newDocument.version || ""}
+              onChange={(e) =>
+                setNewDocument({ ...newDocument, version: e.target.value })
+              }
+            />
+          </div>
+          <div className="obras-form-field">
+            <label className="obras-field-label">Descrição</label>
+            <textarea
+              placeholder="Informações adicionais sobre o documento..."
+              value={newDocument.description || ""}
+              onChange={(e) =>
+                setNewDocument({ ...newDocument, description: e.target.value })
+              }
+              className="obras-textarea"
+              rows={4}
+            />
+          </div>
+          <div className="obras-form-actions">
+            <Button
+              variant="secondary"
+              onClick={() => setViewMode("documents")}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="primary"
+              onClick={() => {
+                const newDoc: Document = {
+                  id: Date.now().toString(),
+                  projectId: newDocument.projectId || "",
+                  name: newDocument.name || "",
+                  type: newDocument.type || "projeto",
+                  uploadDate: newDocument.uploadDate || "",
+                  description: newDocument.description,
+                  version: newDocument.version,
+                };
+                setDocuments([...documents, newDoc]);
+                setViewMode("documents");
+              }}
+            >
+              Salvar
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="obras-container">
       {/* Header */}
@@ -2704,6 +4201,20 @@ export default function GerenciamentoObras() {
       {viewMode === "new-budget" && renderNewBudgetForm()}
       {viewMode === "new-supplier" && renderNewSupplierForm()}
       {viewMode === "new-quality" && renderNewQualityForm()}
+      {viewMode === "team" && renderTeam()}
+      {viewMode === "new-team" && renderNewTeamForm()}
+      {viewMode === "equipment" && renderEquipment()}
+      {viewMode === "new-equipment" && renderNewEquipmentForm()}
+      {viewMode === "schedule" && renderSchedule()}
+      {viewMode === "new-schedule" && renderNewScheduleForm()}
+      {viewMode === "safety" && renderSafety()}
+      {viewMode === "new-safety" && renderNewSafetyForm()}
+      {viewMode === "measurements" && renderMeasurements()}
+      {viewMode === "new-measurement" && renderNewMeasurementForm()}
+      {viewMode === "issues" && renderIssues()}
+      {viewMode === "new-issue" && renderNewIssueForm()}
+      {viewMode === "documents" && renderDocuments()}
+      {viewMode === "new-document" && renderNewDocumentForm()}
 
       {/* Footer */}
       <div className="obras-footer">
