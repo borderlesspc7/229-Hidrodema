@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Button from "../../../components/ui/Button/Button";
 import Input from "../../../components/ui/Input/Input";
 import Card from "../../../components/ui/Card/Card";
+import Toast from "../../../components/ui/Toast/Toast";
 import {
   FiCalendar,
   FiSave,
@@ -40,18 +41,56 @@ import {
 import {
   createProject,
   getAllProjects,
+  updateProject,
+  deleteProject,
   createDiaryEntry,
   getAllDiaryEntries,
   updateDiaryEntry,
   deleteDiaryEntry,
   createInventoryItem,
   getAllInventoryItems,
+  updateInventoryItem,
+  deleteInventoryItem,
   createBudget,
   getAllBudgets,
+  updateBudget,
+  deleteBudget,
   createSupplier,
   getAllSuppliers,
+  updateSupplier,
+  deleteSupplier,
   createQualityChecklist,
   getAllQualityChecklists,
+  updateQualityChecklist,
+  deleteQualityChecklist,
+  createTeamMember,
+  getAllTeamMembers,
+  updateTeamMember,
+  deleteTeamMember,
+  createEquipment,
+  getAllEquipment,
+  updateEquipment,
+  deleteEquipment,
+  createSchedule,
+  getAllSchedules,
+  updateSchedule,
+  deleteSchedule,
+  createSafetyRecord,
+  getAllSafetyRecords,
+  updateSafetyRecord,
+  deleteSafetyRecord,
+  createMeasurement,
+  getAllMeasurements,
+  updateMeasurement,
+  deleteMeasurement,
+  createIssue,
+  getAllIssues,
+  updateIssue,
+  deleteIssue,
+  createDocument,
+  getAllDocuments,
+  updateDocument,
+  deleteDocument,
 } from "../../../services/obrasService";
 import type {
   Project,
@@ -60,6 +99,13 @@ import type {
   Budget,
   Supplier,
   QualityChecklist,
+  TeamMember,
+  Equipment,
+  Schedule,
+  SafetyRecord,
+  Measurement,
+  Issue,
+  DocumentRecord,
 } from "../../../services/obrasService";
 import "./GerenciamentoObras.css";
 
@@ -79,118 +125,6 @@ interface Photo {
   name: string;
   description: string;
   dataUrl: string;
-}
-
-// Novas interfaces para funcionalidades adicionais
-interface TeamMember {
-  id: string;
-  name: string;
-  role: string;
-  cpf?: string;
-  phone?: string;
-  workHours?: number;
-  hourlyRate?: number;
-  attendance?: boolean;
-  checkInTime?: string;
-  checkOutTime?: string;
-}
-
-interface Equipment {
-  id: string;
-  name: string;
-  type: string;
-  code?: string;
-  status: "disponivel" | "em-uso" | "manutencao" | "quebrado";
-  projectId?: string;
-  lastMaintenance?: string;
-  nextMaintenance?: string;
-  operator?: string;
-  hoursUsed?: number;
-  notes?: string;
-}
-
-interface Schedule {
-  id: string;
-  projectId: string;
-  taskName: string;
-  startDate: string;
-  endDate: string;
-  progress: number;
-  responsible?: string;
-  dependencies?: string[];
-  status: "nao-iniciado" | "em-andamento" | "concluido" | "atrasado";
-  plannedCost?: number;
-  actualCost?: number;
-}
-
-interface SafetyRecord {
-  id: string;
-  projectId: string;
-  date: string;
-  type: "dds" | "inspecao" | "acidente" | "treinamento" | "epi";
-  title: string;
-  description: string;
-  participants?: string[];
-  responsible: string;
-  severity?: "baixa" | "media" | "alta";
-  correctedActions?: string;
-  status: "pendente" | "em-andamento" | "concluido";
-}
-
-interface Measurement {
-  id: string;
-  projectId: string;
-  date: string;
-  period: string;
-  description: string;
-  plannedPhysicalProgress: number;
-  actualPhysicalProgress: number;
-  plannedFinancialProgress: number;
-  actualFinancialProgress: number;
-  observations?: string;
-  approved?: boolean;
-  approvedBy?: string;
-  approvedDate?: string;
-}
-
-interface Issue {
-  id: string;
-  projectId: string;
-  date: string;
-  title: string;
-  description: string;
-  category:
-    | "tecnico"
-    | "financeiro"
-    | "prazo"
-    | "qualidade"
-    | "seguranca"
-    | "outro";
-  priority: "baixa" | "media" | "alta" | "critica";
-  status: "aberto" | "em-analise" | "resolvido" | "cancelado";
-  responsible?: string;
-  solution?: string;
-  solvedDate?: string;
-  attachments?: string[];
-}
-
-interface Document {
-  id: string;
-  projectId: string;
-  name: string;
-  type:
-    | "projeto"
-    | "art"
-    | "contrato"
-    | "licenca"
-    | "orcamento"
-    | "medicao"
-    | "outro";
-  uploadDate: string;
-  fileUrl?: string;
-  description?: string;
-  version?: string;
-  uploadedBy?: string;
 }
 
 // BudgetItem interface is defined in obrasService.ts and used via Budget interface
@@ -247,7 +181,31 @@ export default function GerenciamentoObras() {
   const [safetyRecords, setSafetyRecords] = useState<SafetyRecord[]>([]);
   const [measurements, setMeasurements] = useState<Measurement[]>([]);
   const [issues, setIssues] = useState<Issue[]>([]);
-  const [documents, setDocuments] = useState<Document[]>([]);
+  const [documents, setDocuments] = useState<DocumentRecord[]>([]);
+
+  // Estados de edição
+  const [editingTeamMember, setEditingTeamMember] = useState<TeamMember | null>(
+    null
+  );
+  const [editingEquipment, setEditingEquipment] = useState<Equipment | null>(
+    null
+  );
+  const [editingSchedule, setEditingSchedule] = useState<Schedule | null>(null);
+  const [editingSafetyRecord, setEditingSafetyRecord] =
+    useState<SafetyRecord | null>(null);
+  const [editingMeasurement, setEditingMeasurement] =
+    useState<Measurement | null>(null);
+  const [editingIssue, setEditingIssue] = useState<Issue | null>(null);
+  const [editingDocument, setEditingDocument] = useState<DocumentRecord | null>(
+    null
+  );
+
+  // Estados para Toast
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState<
+    "success" | "error" | "warning" | "info"
+  >("success");
 
   // Form states for new items
   const [newProject, setNewProject] = useState({
@@ -260,6 +218,7 @@ export default function GerenciamentoObras() {
     team: [] as string[],
     labor: "",
   });
+  const [editingProject, setEditingProject] = useState<Project | null>(null);
 
   const [newInventoryItem, setNewInventoryItem] = useState({
     name: "",
@@ -272,6 +231,8 @@ export default function GerenciamentoObras() {
     supplier: "",
     location: "",
   });
+  const [editingInventoryItem, setEditingInventoryItem] =
+    useState<InventoryItem | null>(null);
 
   const [newBudget, setNewBudget] = useState({
     name: "",
@@ -279,6 +240,7 @@ export default function GerenciamentoObras() {
     totalAmount: 0,
     projectId: "",
   });
+  const [editingBudget, setEditingBudget] = useState<Budget | null>(null);
 
   const [newSupplier, setNewSupplier] = useState({
     name: "",
@@ -293,6 +255,7 @@ export default function GerenciamentoObras() {
     paymentTerms: "",
     notes: "",
   });
+  const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
 
   const [newQualityChecklist, setNewQualityChecklist] = useState({
     name: "",
@@ -300,6 +263,8 @@ export default function GerenciamentoObras() {
     projectId: "",
     items: [] as { description: string; responsible: string }[],
   });
+  const [editingQualityChecklist, setEditingQualityChecklist] =
+    useState<QualityChecklist | null>(null);
 
   // Form states para novas funcionalidades
   const [newTeamMember, setNewTeamMember] = useState<Partial<TeamMember>>({
@@ -362,7 +327,7 @@ export default function GerenciamentoObras() {
     status: "aberto",
   });
 
-  const [newDocument, setNewDocument] = useState<Partial<Document>>({
+  const [newDocument, setNewDocument] = useState<Partial<DocumentRecord>>({
     projectId: "",
     name: "",
     type: "projeto",
@@ -398,6 +363,13 @@ export default function GerenciamentoObras() {
           budgetsData,
           suppliersData,
           checklistsData,
+          teamMembersData,
+          equipmentData,
+          schedulesData,
+          safetyRecordsData,
+          measurementsData,
+          issuesData,
+          documentsData,
         ] = await Promise.all([
           getAllDiaryEntries(),
           getAllProjects(),
@@ -405,6 +377,13 @@ export default function GerenciamentoObras() {
           getAllBudgets(),
           getAllSuppliers(),
           getAllQualityChecklists(),
+          getAllTeamMembers(),
+          getAllEquipment(),
+          getAllSchedules(),
+          getAllSafetyRecords(),
+          getAllMeasurements(),
+          getAllIssues(),
+          getAllDocuments(),
         ]);
 
         setDiaryEntries(diaries);
@@ -413,9 +392,19 @@ export default function GerenciamentoObras() {
         setBudgets(budgetsData);
         setSuppliers(suppliersData);
         setQualityChecklists(checklistsData);
+        setTeamMembers(teamMembersData);
+        setEquipment(equipmentData);
+        setSchedules(schedulesData);
+        setSafetyRecords(safetyRecordsData);
+        setMeasurements(measurementsData);
+        setIssues(issuesData);
+        setDocuments(documentsData);
       } catch (error) {
         console.error("Erro ao carregar dados:", error);
-        alert("Erro ao carregar dados. Por favor, recarregue a página.");
+        showToastMessage(
+          "Erro ao carregar dados. Por favor, recarregue a página.",
+          "error"
+        );
       }
     };
 
@@ -430,6 +419,16 @@ export default function GerenciamentoObras() {
     }
   }, [projects, selectedProjectId]);
 
+  // Função para exibir Toast
+  const showToastMessage = (
+    message: string,
+    type: "success" | "error" | "warning" | "info"
+  ) => {
+    setToastMessage(message);
+    setToastType(type);
+    setShowToast(true);
+  };
+
   // Funções auxiliares para atualizar estado local após operações do Firebase
   const refreshData = async () => {
     try {
@@ -440,6 +439,13 @@ export default function GerenciamentoObras() {
         budgetsData,
         suppliersData,
         checklistsData,
+        teamMembersData,
+        equipmentData,
+        schedulesData,
+        safetyRecordsData,
+        measurementsData,
+        issuesData,
+        documentsData,
       ] = await Promise.all([
         getAllDiaryEntries(),
         getAllProjects(),
@@ -447,6 +453,13 @@ export default function GerenciamentoObras() {
         getAllBudgets(),
         getAllSuppliers(),
         getAllQualityChecklists(),
+        getAllTeamMembers(),
+        getAllEquipment(),
+        getAllSchedules(),
+        getAllSafetyRecords(),
+        getAllMeasurements(),
+        getAllIssues(),
+        getAllDocuments(),
       ]);
 
       setDiaryEntries(diaries);
@@ -455,6 +468,13 @@ export default function GerenciamentoObras() {
       setBudgets(budgetsData);
       setSuppliers(suppliersData);
       setQualityChecklists(checklistsData);
+      setTeamMembers(teamMembersData);
+      setEquipment(equipmentData);
+      setSchedules(schedulesData);
+      setSafetyRecords(safetyRecordsData);
+      setMeasurements(measurementsData);
+      setIssues(issuesData);
+      setDocuments(documentsData);
     } catch (error) {
       console.error("Erro ao atualizar dados:", error);
     }
@@ -485,6 +505,7 @@ export default function GerenciamentoObras() {
       team: [],
       labor: "",
     });
+    setEditingProject(null);
   };
 
   const resetNewInventoryForm = () => {
@@ -499,6 +520,7 @@ export default function GerenciamentoObras() {
       supplier: "",
       location: "",
     });
+    setEditingInventoryItem(null);
   };
 
   const resetNewBudgetForm = () => {
@@ -508,6 +530,7 @@ export default function GerenciamentoObras() {
       totalAmount: 0,
       projectId: "",
     });
+    setEditingBudget(null);
   };
 
   const resetNewSupplierForm = () => {
@@ -524,6 +547,7 @@ export default function GerenciamentoObras() {
       paymentTerms: "",
       notes: "",
     });
+    setEditingSupplier(null);
   };
 
   const resetNewQualityForm = () => {
@@ -533,11 +557,320 @@ export default function GerenciamentoObras() {
       projectId: "",
       items: [],
     });
+    setEditingQualityChecklist(null);
+  };
+
+  const resetNewTeamMemberForm = () => {
+    setNewTeamMember({
+      name: "",
+      role: "",
+      cpf: "",
+      phone: "",
+      workHours: 0,
+      hourlyRate: 0,
+      attendance: false,
+    });
+    setEditingTeamMember(null);
+  };
+
+  const resetNewEquipmentForm = () => {
+    setNewEquipment({
+      name: "",
+      type: "",
+      code: "",
+      status: "disponivel",
+      projectId: "",
+    });
+    setEditingEquipment(null);
+  };
+
+  const resetNewScheduleForm = () => {
+    setNewSchedule({
+      projectId: "",
+      taskName: "",
+      startDate: "",
+      endDate: "",
+      progress: 0,
+      status: "nao-iniciado",
+    });
+    setEditingSchedule(null);
+  };
+
+  const resetNewSafetyRecordForm = () => {
+    setNewSafetyRecord({
+      projectId: "",
+      date: "",
+      type: "dds",
+      title: "",
+      description: "",
+      responsible: "",
+      status: "pendente",
+    });
+    setEditingSafetyRecord(null);
+  };
+
+  const resetNewMeasurementForm = () => {
+    setNewMeasurement({
+      projectId: "",
+      date: "",
+      period: "",
+      description: "",
+      plannedPhysicalProgress: 0,
+      actualPhysicalProgress: 0,
+      plannedFinancialProgress: 0,
+      actualFinancialProgress: 0,
+    });
+    setEditingMeasurement(null);
+  };
+
+  const resetNewIssueForm = () => {
+    setNewIssue({
+      projectId: "",
+      date: "",
+      title: "",
+      description: "",
+      category: "tecnico",
+      priority: "media",
+      status: "aberto",
+    });
+    setEditingIssue(null);
+  };
+
+  const resetNewDocumentForm = () => {
+    setNewDocument({
+      projectId: "",
+      name: "",
+      type: "projeto",
+      uploadDate: "",
+      description: "",
+    });
+    setEditingDocument(null);
+  };
+
+  // Funções de edição e exclusão - Equipe
+  const handleEditTeamMember = (member: TeamMember) => {
+    setEditingTeamMember(member);
+    setNewTeamMember({
+      name: member.name,
+      role: member.role,
+      cpf: member.cpf,
+      phone: member.phone,
+      workHours: member.workHours,
+      hourlyRate: member.hourlyRate,
+      attendance: member.attendance,
+    });
+    setViewMode("new-team");
+  };
+
+  const handleDeleteTeamMember = async (id: string) => {
+    if (confirm("Tem certeza que deseja excluir este membro da equipe?")) {
+      try {
+        await deleteTeamMember(id);
+        showToastMessage("Membro da equipe excluído com sucesso!", "success");
+        await refreshData();
+      } catch (error) {
+        console.error("Erro ao excluir membro da equipe:", error);
+        showToastMessage(
+          "Erro ao excluir membro da equipe. Tente novamente.",
+          "error"
+        );
+      }
+    }
+  };
+
+  // Funções de edição e exclusão - Equipamentos
+  const handleEditEquipment = (equip: Equipment) => {
+    setEditingEquipment(equip);
+    setNewEquipment({
+      name: equip.name,
+      type: equip.type,
+      code: equip.code,
+      status: equip.status,
+      projectId: equip.projectId,
+    });
+    setViewMode("new-equipment");
+  };
+
+  const handleDeleteEquipment = async (id: string) => {
+    if (confirm("Tem certeza que deseja excluir este equipamento?")) {
+      try {
+        await deleteEquipment(id);
+        showToastMessage("Equipamento excluído com sucesso!", "success");
+        await refreshData();
+      } catch (error) {
+        console.error("Erro ao excluir equipamento:", error);
+        showToastMessage(
+          "Erro ao excluir equipamento. Tente novamente.",
+          "error"
+        );
+      }
+    }
+  };
+
+  // Funções de edição e exclusão - Cronograma
+  const handleEditSchedule = (schedule: Schedule) => {
+    setEditingSchedule(schedule);
+    setNewSchedule({
+      projectId: schedule.projectId,
+      taskName: schedule.taskName,
+      startDate: schedule.startDate,
+      endDate: schedule.endDate,
+      progress: schedule.progress,
+      status: schedule.status,
+      responsible: schedule.responsible,
+      dependencies: schedule.dependencies,
+      plannedCost: schedule.plannedCost,
+      actualCost: schedule.actualCost,
+    });
+    setViewMode("new-schedule");
+  };
+
+  const handleDeleteSchedule = async (id: string) => {
+    if (confirm("Tem certeza que deseja excluir esta tarefa do cronograma?")) {
+      try {
+        await deleteSchedule(id);
+        showToastMessage("Tarefa excluída com sucesso!", "success");
+        await refreshData();
+      } catch (error) {
+        console.error("Erro ao excluir tarefa:", error);
+        showToastMessage("Erro ao excluir tarefa. Tente novamente.", "error");
+      }
+    }
+  };
+
+  // Funções de edição e exclusão - Segurança
+  const handleEditSafetyRecord = (record: SafetyRecord) => {
+    setEditingSafetyRecord(record);
+    setNewSafetyRecord({
+      projectId: record.projectId,
+      date: record.date,
+      type: record.type,
+      title: record.title,
+      description: record.description,
+      responsible: record.responsible,
+      status: record.status,
+      severity: record.severity,
+      participants: record.participants,
+      correctedActions: record.correctedActions,
+    });
+    setViewMode("new-safety");
+  };
+
+  const handleDeleteSafetyRecord = async (id: string) => {
+    if (confirm("Tem certeza que deseja excluir este registro de segurança?")) {
+      try {
+        await deleteSafetyRecord(id);
+        showToastMessage(
+          "Registro de segurança excluído com sucesso!",
+          "success"
+        );
+        await refreshData();
+      } catch (error) {
+        console.error("Erro ao excluir registro de segurança:", error);
+        showToastMessage(
+          "Erro ao excluir registro de segurança. Tente novamente.",
+          "error"
+        );
+      }
+    }
+  };
+
+  // Funções de edição e exclusão - Medições
+  const handleEditMeasurement = (measurement: Measurement) => {
+    setEditingMeasurement(measurement);
+    setNewMeasurement({
+      projectId: measurement.projectId,
+      date: measurement.date,
+      period: measurement.period,
+      description: measurement.description,
+      plannedPhysicalProgress: measurement.plannedPhysicalProgress,
+      actualPhysicalProgress: measurement.actualPhysicalProgress,
+      plannedFinancialProgress: measurement.plannedFinancialProgress,
+      actualFinancialProgress: measurement.actualFinancialProgress,
+      observations: measurement.observations,
+      approved: measurement.approved,
+      approvedBy: measurement.approvedBy,
+    });
+    setViewMode("new-measurement");
+  };
+
+  const handleDeleteMeasurement = async (id: string) => {
+    if (confirm("Tem certeza que deseja excluir esta medição?")) {
+      try {
+        await deleteMeasurement(id);
+        showToastMessage("Medição excluída com sucesso!", "success");
+        await refreshData();
+      } catch (error) {
+        console.error("Erro ao excluir medição:", error);
+        showToastMessage("Erro ao excluir medição. Tente novamente.", "error");
+      }
+    }
+  };
+
+  // Funções de edição e exclusão - Problemas
+  const handleEditIssue = (issue: Issue) => {
+    setEditingIssue(issue);
+    setNewIssue({
+      projectId: issue.projectId,
+      date: issue.date,
+      title: issue.title,
+      description: issue.description,
+      category: issue.category,
+      priority: issue.priority,
+      status: issue.status,
+      responsible: issue.responsible,
+      solution: issue.solution,
+      attachments: issue.attachments,
+    });
+    setViewMode("new-issue");
+  };
+
+  const handleDeleteIssue = async (id: string) => {
+    if (confirm("Tem certeza que deseja excluir este problema?")) {
+      try {
+        await deleteIssue(id);
+        showToastMessage("Problema excluído com sucesso!", "success");
+        await refreshData();
+      } catch (error) {
+        console.error("Erro ao excluir problema:", error);
+        showToastMessage("Erro ao excluir problema. Tente novamente.", "error");
+      }
+    }
+  };
+
+  // Funções de edição e exclusão - Documentos
+  const handleEditDocument = (doc: DocumentRecord) => {
+    setEditingDocument(doc);
+    setNewDocument({
+      projectId: doc.projectId,
+      name: doc.name,
+      type: doc.type,
+      uploadDate: doc.uploadDate,
+      description: doc.description,
+      version: doc.version,
+    });
+    setViewMode("new-document");
+  };
+
+  const handleDeleteDocument = async (id: string) => {
+    if (confirm("Tem certeza que deseja excluir este documento?")) {
+      try {
+        await deleteDocument(id);
+        showToastMessage("Documento excluído com sucesso!", "success");
+        await refreshData();
+      } catch (error) {
+        console.error("Erro ao excluir documento:", error);
+        showToastMessage(
+          "Erro ao excluir documento. Tente novamente.",
+          "error"
+        );
+      }
+    }
   };
 
   const handleAddMaterial = () => {
     if (!materialName || !materialQuantity) {
-      alert("Preencha o nome e quantidade do material");
+      showToastMessage("Preencha o nome e quantidade do material", "warning");
       return;
     }
 
@@ -601,7 +934,10 @@ export default function GerenciamentoObras() {
 
   const handleSaveDraft = async () => {
     if (!obraName || !date) {
-      alert("Preencha pelo menos o nome da obra e a data");
+      showToastMessage(
+        "Preencha pelo menos o nome da obra e a data",
+        "warning"
+      );
       return;
     }
 
@@ -621,10 +957,10 @@ export default function GerenciamentoObras() {
 
       if (editingEntry && editingEntry.id) {
         await updateDiaryEntry(editingEntry.id, entryData);
-        alert("Registro atualizado com sucesso!");
+        showToastMessage("Registro atualizado com sucesso!", "success");
       } else {
         await createDiaryEntry(entryData);
-        alert("Rascunho salvo com sucesso!");
+        showToastMessage("Rascunho salvo com sucesso!", "success");
       }
 
       await refreshData();
@@ -632,13 +968,13 @@ export default function GerenciamentoObras() {
       setViewMode("history");
     } catch (error) {
       console.error("Erro ao salvar registro:", error);
-      alert("Erro ao salvar registro. Tente novamente.");
+      showToastMessage("Erro ao salvar registro. Tente novamente.", "error");
     }
   };
 
   const handleSubmit = async () => {
     if (!obraName || !date || !activities) {
-      alert("Preencha todos os campos obrigatórios");
+      showToastMessage("Preencha todos os campos obrigatórios", "warning");
       return;
     }
 
@@ -658,10 +994,10 @@ export default function GerenciamentoObras() {
 
       if (editingEntry && editingEntry.id) {
         await updateDiaryEntry(editingEntry.id, entryData);
-        alert("Registro atualizado com sucesso!");
+        showToastMessage("Registro atualizado com sucesso!", "success");
       } else {
         await createDiaryEntry(entryData);
-        alert("Registro salvo com sucesso!");
+        showToastMessage("Registro salvo com sucesso!", "success");
       }
 
       await refreshData();
@@ -669,7 +1005,7 @@ export default function GerenciamentoObras() {
       setViewMode("history");
     } catch (error) {
       console.error("Erro ao salvar registro:", error);
-      alert("Erro ao salvar registro. Tente novamente.");
+      showToastMessage("Erro ao salvar registro. Tente novamente.", "error");
     }
   };
 
@@ -694,10 +1030,10 @@ export default function GerenciamentoObras() {
       try {
         await deleteDiaryEntry(id);
         await refreshData();
-        alert("Registro excluído com sucesso!");
+        showToastMessage("Registro excluído com sucesso!", "success");
       } catch (error) {
         console.error("Erro ao excluir registro:", error);
-        alert("Erro ao excluir registro. Tente novamente.");
+        showToastMessage("Erro ao excluir registro. Tente novamente.", "error");
       }
     }
   };
@@ -820,151 +1156,231 @@ export default function GerenciamentoObras() {
   // Handle new item creation
   const handleCreateProject = async () => {
     if (!newProject.name || !newProject.startDate || !newProject.endDate) {
-      alert("Preencha todos os campos obrigatórios da obra");
+      showToastMessage(
+        "Preencha todos os campos obrigatórios da obra",
+        "warning"
+      );
       return;
     }
 
     try {
-      await createProject({
-        name: newProject.name,
-        description: newProject.description,
-        startDate: newProject.startDate,
-        endDate: newProject.endDate,
-        status: "planejamento",
-        budget: newProject.budget,
-        spent: 0,
-        progress: 0,
-        milestones: [],
-        team: newProject.team,
-        labor: newProject.labor,
-        client: newProject.client,
-      });
-
-      alert("Obra cadastrada com sucesso!");
+      if (editingProject && editingProject.id) {
+        await updateProject(editingProject.id, {
+          name: newProject.name,
+          description: newProject.description,
+          startDate: newProject.startDate,
+          endDate: newProject.endDate,
+          budget: newProject.budget,
+          team: newProject.team,
+          labor: newProject.labor,
+          client: newProject.client,
+        });
+        showToastMessage("Obra atualizada com sucesso!", "success");
+        setEditingProject(null);
+      } else {
+        await createProject({
+          name: newProject.name,
+          description: newProject.description,
+          startDate: newProject.startDate,
+          endDate: newProject.endDate,
+          status: "planejamento",
+          budget: newProject.budget,
+          spent: 0,
+          progress: 0,
+          milestones: [],
+          team: newProject.team,
+          labor: newProject.labor,
+          client: newProject.client,
+        });
+        showToastMessage("Obra cadastrada com sucesso!", "success");
+      }
       resetNewProjectForm();
       await refreshData();
       setViewMode("projects");
     } catch (error) {
-      console.error("Erro ao criar projeto:", error);
-      alert("Erro ao cadastrar obra. Tente novamente.");
+      console.error("Erro ao criar/atualizar projeto:", error);
+      showToastMessage("Erro ao cadastrar obra. Tente novamente.", "error");
     }
   };
 
   const handleCreateInventoryItem = async () => {
     if (!newInventoryItem.name || !newInventoryItem.category) {
-      alert("Preencha todos os campos obrigatórios");
+      showToastMessage("Preencha todos os campos obrigatórios", "warning");
       return;
     }
 
     try {
-      await createInventoryItem({
-        name: newInventoryItem.name,
-        category: newInventoryItem.category,
-        quantity: newInventoryItem.quantity,
-        unit: newInventoryItem.unit,
-        minStock: newInventoryItem.minStock,
-        maxStock: newInventoryItem.maxStock,
-        price: newInventoryItem.price,
-        supplier: newInventoryItem.supplier,
-        location: newInventoryItem.location,
-      });
-
-      alert("Item adicionado ao estoque com sucesso!");
+      if (editingInventoryItem && editingInventoryItem.id) {
+        await updateInventoryItem(editingInventoryItem.id, {
+          name: newInventoryItem.name,
+          category: newInventoryItem.category,
+          quantity: newInventoryItem.quantity,
+          unit: newInventoryItem.unit,
+          minStock: newInventoryItem.minStock,
+          maxStock: newInventoryItem.maxStock,
+          price: newInventoryItem.price,
+          supplier: newInventoryItem.supplier,
+          location: newInventoryItem.location,
+        });
+        showToastMessage("Item atualizado com sucesso!", "success");
+        setEditingInventoryItem(null);
+      } else {
+        await createInventoryItem({
+          name: newInventoryItem.name,
+          category: newInventoryItem.category,
+          quantity: newInventoryItem.quantity,
+          unit: newInventoryItem.unit,
+          minStock: newInventoryItem.minStock,
+          maxStock: newInventoryItem.maxStock,
+          price: newInventoryItem.price,
+          supplier: newInventoryItem.supplier,
+          location: newInventoryItem.location,
+        });
+        showToastMessage("Item adicionado ao estoque com sucesso!", "success");
+      }
       resetNewInventoryForm();
       await refreshData();
       setViewMode("inventory");
     } catch (error) {
-      console.error("Erro ao criar item de inventário:", error);
-      alert("Erro ao adicionar item. Tente novamente.");
+      console.error("Erro ao criar/atualizar item de inventário:", error);
+      showToastMessage("Erro ao adicionar item. Tente novamente.", "error");
     }
   };
 
   const handleCreateBudget = async () => {
     if (!newBudget.name || !newBudget.totalAmount) {
-      alert("Preencha todos os campos obrigatórios");
+      showToastMessage("Preencha todos os campos obrigatórios", "warning");
       return;
     }
 
     try {
-      await createBudget({
-        projectId: newBudget.projectId,
-        name: newBudget.name,
-        description: newBudget.description,
-        totalAmount: newBudget.totalAmount,
-        spentAmount: 0,
-        categories: [],
-      });
-
-      alert("Orçamento criado com sucesso!");
+      if (editingBudget && editingBudget.id) {
+        await updateBudget(editingBudget.id, {
+          projectId: newBudget.projectId,
+          name: newBudget.name,
+          description: newBudget.description,
+          totalAmount: newBudget.totalAmount,
+        });
+        showToastMessage("Orçamento atualizado com sucesso!", "success");
+        setEditingBudget(null);
+      } else {
+        await createBudget({
+          projectId: newBudget.projectId,
+          name: newBudget.name,
+          description: newBudget.description,
+          totalAmount: newBudget.totalAmount,
+          spentAmount: 0,
+          categories: [],
+        });
+        showToastMessage("Orçamento criado com sucesso!", "success");
+      }
       resetNewBudgetForm();
       await refreshData();
       setViewMode("budgets");
     } catch (error) {
-      console.error("Erro ao criar orçamento:", error);
-      alert("Erro ao criar orçamento. Tente novamente.");
+      console.error("Erro ao criar/atualizar orçamento:", error);
+      showToastMessage("Erro ao criar orçamento. Tente novamente.", "error");
     }
   };
 
   const handleCreateSupplier = async () => {
     if (!newSupplier.name || !newSupplier.contact || !newSupplier.email) {
-      alert("Preencha todos os campos obrigatórios");
+      showToastMessage("Preencha todos os campos obrigatórios", "warning");
       return;
     }
 
     try {
-      await createSupplier({
-        name: newSupplier.name,
-        contact: newSupplier.contact,
-        email: newSupplier.email,
-        phone: newSupplier.phone,
-        address: newSupplier.address,
-        category: newSupplier.category,
-        rating: newSupplier.rating,
-        reliability: newSupplier.reliability,
-        deliveryTime: newSupplier.deliveryTime,
-        paymentTerms: newSupplier.paymentTerms,
-        notes: newSupplier.notes,
-      });
-
-      alert("Fornecedor cadastrado com sucesso!");
+      if (editingSupplier && editingSupplier.id) {
+        await updateSupplier(editingSupplier.id, {
+          name: newSupplier.name,
+          contact: newSupplier.contact,
+          email: newSupplier.email,
+          phone: newSupplier.phone,
+          address: newSupplier.address,
+          category: newSupplier.category,
+          rating: newSupplier.rating,
+          reliability: newSupplier.reliability,
+          deliveryTime: newSupplier.deliveryTime,
+          paymentTerms: newSupplier.paymentTerms,
+          notes: newSupplier.notes,
+        });
+        showToastMessage("Fornecedor atualizado com sucesso!", "success");
+        setEditingSupplier(null);
+      } else {
+        await createSupplier({
+          name: newSupplier.name,
+          contact: newSupplier.contact,
+          email: newSupplier.email,
+          phone: newSupplier.phone,
+          address: newSupplier.address,
+          category: newSupplier.category,
+          rating: newSupplier.rating,
+          reliability: newSupplier.reliability,
+          deliveryTime: newSupplier.deliveryTime,
+          paymentTerms: newSupplier.paymentTerms,
+          notes: newSupplier.notes,
+        });
+        showToastMessage("Fornecedor cadastrado com sucesso!", "success");
+      }
       resetNewSupplierForm();
       await refreshData();
       setViewMode("suppliers");
     } catch (error) {
-      console.error("Erro ao criar fornecedor:", error);
-      alert("Erro ao cadastrar fornecedor. Tente novamente.");
+      console.error("Erro ao criar/atualizar fornecedor:", error);
+      showToastMessage(
+        "Erro ao cadastrar fornecedor. Tente novamente.",
+        "error"
+      );
     }
   };
 
   const handleCreateQualityChecklist = async () => {
     if (!newQualityChecklist.name || !newQualityChecklist.projectId) {
-      alert("Preencha todos os campos obrigatórios");
+      showToastMessage("Preencha todos os campos obrigatórios", "warning");
       return;
     }
 
     try {
-      await createQualityChecklist({
-        name: newQualityChecklist.name,
-        description: newQualityChecklist.description,
-        projectId: newQualityChecklist.projectId,
-        status: "pendente",
-        items: newQualityChecklist.items.map((item, index) => ({
-          id: (index + 1).toString(),
-          description: item.description,
-          status: "pendente" as const,
-          notes: "",
-          responsible: item.responsible,
-          checkedAt: "",
-        })),
-      });
+      const items = newQualityChecklist.items.map((item, index) => ({
+        id: (index + 1).toString(),
+        description: item.description,
+        status: "pendente" as const,
+        notes: "",
+        responsible: item.responsible,
+        checkedAt: "",
+      }));
 
-      alert("Checklist de qualidade criado com sucesso!");
+      if (editingQualityChecklist && editingQualityChecklist.id) {
+        await updateQualityChecklist(editingQualityChecklist.id, {
+          name: newQualityChecklist.name,
+          description: newQualityChecklist.description,
+          projectId: newQualityChecklist.projectId,
+          items: items,
+        });
+        showToastMessage(
+          "Checklist de qualidade atualizado com sucesso!",
+          "success"
+        );
+        setEditingQualityChecklist(null);
+      } else {
+        await createQualityChecklist({
+          name: newQualityChecklist.name,
+          description: newQualityChecklist.description,
+          projectId: newQualityChecklist.projectId,
+          status: "pendente",
+          items: items,
+        });
+        showToastMessage(
+          "Checklist de qualidade criado com sucesso!",
+          "success"
+        );
+      }
       resetNewQualityForm();
       await refreshData();
       setViewMode("quality");
     } catch (error) {
-      console.error("Erro ao criar checklist:", error);
-      alert("Erro ao criar checklist. Tente novamente.");
+      console.error("Erro ao criar/atualizar checklist:", error);
+      showToastMessage("Erro ao criar checklist. Tente novamente.", "error");
     }
   };
 
@@ -983,6 +1399,165 @@ export default function GerenciamentoObras() {
       ...newQualityChecklist,
       items: newQualityChecklist.items.filter((_, i) => i !== index),
     });
+  };
+
+  // Handle Edit and Delete for Projects
+  const handleEditProject = (project: Project) => {
+    setEditingProject(project);
+    setNewProject({
+      name: project.name,
+      description: project.description,
+      startDate: project.startDate,
+      endDate: project.endDate,
+      client: project.client,
+      budget: project.budget,
+      team: project.team,
+      labor: project.labor || "",
+    });
+    setViewMode("new-project");
+  };
+
+  const handleDeleteProject = async (id: string) => {
+    if (
+      confirm(
+        "Tem certeza que deseja excluir este projeto? Esta ação também excluirá todos os registros relacionados (diários, orçamentos, checklists)."
+      )
+    ) {
+      try {
+        await deleteProject(id);
+        showToastMessage("Projeto excluído com sucesso!", "success");
+        await refreshData();
+      } catch (error) {
+        console.error("Erro ao excluir projeto:", error);
+        showToastMessage("Erro ao excluir projeto. Tente novamente.", "error");
+      }
+    }
+  };
+
+  // Handle Edit and Delete for Inventory
+  const handleEditInventoryItem = (item: InventoryItem) => {
+    setEditingInventoryItem(item);
+    setNewInventoryItem({
+      name: item.name,
+      category: item.category,
+      quantity: item.quantity,
+      unit: item.unit,
+      minStock: item.minStock,
+      maxStock: item.maxStock,
+      price: item.price,
+      supplier: item.supplier,
+      location: item.location,
+    });
+    setViewMode("new-inventory");
+  };
+
+  const handleDeleteInventoryItem = async (id: string) => {
+    if (confirm("Tem certeza que deseja excluir este item do inventário?")) {
+      try {
+        await deleteInventoryItem(id);
+        showToastMessage("Item excluído com sucesso!", "success");
+        await refreshData();
+      } catch (error) {
+        console.error("Erro ao excluir item:", error);
+        showToastMessage("Erro ao excluir item. Tente novamente.", "error");
+      }
+    }
+  };
+
+  // Handle Edit and Delete for Budgets
+  const handleEditBudget = (budget: Budget) => {
+    setEditingBudget(budget);
+    setNewBudget({
+      name: budget.name,
+      description: budget.description,
+      totalAmount: budget.totalAmount,
+      projectId: budget.projectId,
+    });
+    setViewMode("new-budget");
+  };
+
+  const handleDeleteBudget = async (id: string) => {
+    if (confirm("Tem certeza que deseja excluir este orçamento?")) {
+      try {
+        await deleteBudget(id);
+        showToastMessage("Orçamento excluído com sucesso!", "success");
+        await refreshData();
+      } catch (error) {
+        console.error("Erro ao excluir orçamento:", error);
+        showToastMessage(
+          "Erro ao excluir orçamento. Tente novamente.",
+          "error"
+        );
+      }
+    }
+  };
+
+  // Handle Edit and Delete for Suppliers
+  const handleEditSupplier = (supplier: Supplier) => {
+    setEditingSupplier(supplier);
+    setNewSupplier({
+      name: supplier.name,
+      contact: supplier.contact,
+      email: supplier.email,
+      phone: supplier.phone || "",
+      address: supplier.address || "",
+      category: supplier.category || "",
+      rating: supplier.rating || 5,
+      reliability: supplier.reliability || "excelente",
+      deliveryTime: supplier.deliveryTime || 0,
+      paymentTerms: supplier.paymentTerms || "",
+      notes: supplier.notes || "",
+    });
+    setViewMode("new-supplier");
+  };
+
+  const handleDeleteSupplier = async (id: string) => {
+    if (confirm("Tem certeza que deseja excluir este fornecedor?")) {
+      try {
+        await deleteSupplier(id);
+        showToastMessage("Fornecedor excluído com sucesso!", "success");
+        await refreshData();
+      } catch (error) {
+        console.error("Erro ao excluir fornecedor:", error);
+        showToastMessage(
+          "Erro ao excluir fornecedor. Tente novamente.",
+          "error"
+        );
+      }
+    }
+  };
+
+  // Handle Edit and Delete for Quality Checklists
+  const handleEditQualityChecklist = (checklist: QualityChecklist) => {
+    setEditingQualityChecklist(checklist);
+    setNewQualityChecklist({
+      name: checklist.name,
+      description: checklist.description,
+      projectId: checklist.projectId,
+      items: checklist.items.map((item) => ({
+        description: item.description,
+        responsible: item.responsible || "",
+      })),
+    });
+    setViewMode("new-quality");
+  };
+
+  const handleDeleteQualityChecklist = async (id: string) => {
+    if (
+      confirm("Tem certeza que deseja excluir este checklist de qualidade?")
+    ) {
+      try {
+        await deleteQualityChecklist(id);
+        showToastMessage("Checklist excluído com sucesso!", "success");
+        await refreshData();
+      } catch (error) {
+        console.error("Erro ao excluir checklist:", error);
+        showToastMessage(
+          "Erro ao excluir checklist. Tente novamente.",
+          "error"
+        );
+      }
+    }
   };
 
   // Render Menu
@@ -1698,7 +2273,9 @@ export default function GerenciamentoObras() {
           textColor="#1e293b"
         >
           <div className="obras-form-header">
-            <h2 className="obras-form-title">Cadastrar Nova Obra</h2>
+            <h2 className="obras-form-title">
+              {editingProject ? "EDITAR OBRA" : "CADASTRAR NOVA OBRA"}
+            </h2>
             <p className="obras-form-subtitle">
               Registre uma obra para utilizá-la em relatórios e acompanhamentos
             </p>
@@ -1825,7 +2402,7 @@ export default function GerenciamentoObras() {
                 className="obras-action-btn obras-submit-btn"
               >
                 <FiCheckCircle size={16} />
-                Salvar Obra
+                {editingProject ? "Atualizar Obra" : "Salvar Obra"}
               </Button>
             </div>
           </div>
@@ -1885,9 +2462,22 @@ export default function GerenciamentoObras() {
                   </div>
                 </div>
                 <div className="obras-project-actions">
-                  <Button variant="secondary">
+                  <Button
+                    variant="secondary"
+                    onClick={() => project.id && handleEditProject(project)}
+                  >
                     <FiEdit3 size={16} />
                     Editar
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    onClick={() =>
+                      project.id && handleDeleteProject(project.id)
+                    }
+                    className="obras-delete"
+                  >
+                    <FiTrash2 size={16} />
+                    Excluir
                   </Button>
                   <Button variant="primary">
                     <FiBarChart size={16} />
@@ -1985,9 +2575,22 @@ export default function GerenciamentoObras() {
                   </p>
                 </div>
                 <div className="obras-item-actions">
-                  <Button variant="secondary">
+                  <Button
+                    variant="secondary"
+                    onClick={() => item.id && handleEditInventoryItem(item)}
+                  >
                     <FiEdit3 size={16} />
                     Editar
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    onClick={() =>
+                      item.id && handleDeleteInventoryItem(item.id)
+                    }
+                    className="obras-delete"
+                  >
+                    <FiTrash2 size={16} />
+                    Excluir
                   </Button>
                   <Button variant="primary">
                     <FiShoppingCart size={16} />
@@ -2077,9 +2680,20 @@ export default function GerenciamentoObras() {
                 </div>
               </div>
               <div className="obras-budget-actions">
-                <Button variant="secondary">
+                <Button
+                  variant="secondary"
+                  onClick={() => budget.id && handleEditBudget(budget)}
+                >
                   <FiEdit3 size={16} />
                   Editar
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => budget.id && handleDeleteBudget(budget.id)}
+                  className="obras-delete"
+                >
+                  <FiTrash2 size={16} />
+                  Excluir
                 </Button>
                 <Button variant="primary">
                   <FiPieChart size={16} />
@@ -2171,9 +2785,22 @@ export default function GerenciamentoObras() {
                 </p>
               </div>
               <div className="obras-supplier-actions">
-                <Button variant="secondary">
+                <Button
+                  variant="secondary"
+                  onClick={() => supplier.id && handleEditSupplier(supplier)}
+                >
                   <FiEdit3 size={16} />
                   Editar
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() =>
+                    supplier.id && handleDeleteSupplier(supplier.id)
+                  }
+                  className="obras-delete"
+                >
+                  <FiTrash2 size={16} />
+                  Excluir
                 </Button>
                 <Button variant="primary">
                   <FiUsers size={16} />
@@ -2253,9 +2880,24 @@ export default function GerenciamentoObras() {
                 </p>
               </div>
               <div className="obras-quality-actions">
-                <Button variant="secondary">
+                <Button
+                  variant="secondary"
+                  onClick={() =>
+                    checklist.id && handleEditQualityChecklist(checklist)
+                  }
+                >
                   <FiEdit3 size={16} />
                   Editar
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() =>
+                    checklist.id && handleDeleteQualityChecklist(checklist.id)
+                  }
+                  className="obras-delete"
+                >
+                  <FiTrash2 size={16} />
+                  Excluir
                 </Button>
                 <Button variant="primary">
                   <FiTarget size={16} />
@@ -2279,7 +2921,11 @@ export default function GerenciamentoObras() {
         textColor="#1e293b"
       >
         <div className="obras-form-header">
-          <h2 className="obras-form-title">NOVO ITEM DE ESTOQUE</h2>
+          <h2 className="obras-form-title">
+            {editingInventoryItem
+              ? "EDITAR ITEM DE ESTOQUE"
+              : "NOVO ITEM DE ESTOQUE"}
+          </h2>
           <p className="obras-form-subtitle">
             Adicionar item ao controle de estoque
           </p>
@@ -2440,7 +3086,10 @@ export default function GerenciamentoObras() {
           <div className="obras-form-actions">
             <Button
               variant="secondary"
-              onClick={() => setViewMode("inventory")}
+              onClick={() => {
+                resetNewInventoryForm();
+                setViewMode("inventory");
+              }}
               className="obras-action-btn"
             >
               <FiArrowLeft size={16} />
@@ -2452,7 +3101,7 @@ export default function GerenciamentoObras() {
               className="obras-action-btn obras-submit-btn"
             >
               <FiCheckCircle size={16} />
-              Adicionar Item
+              {editingInventoryItem ? "Atualizar Item" : "Adicionar Item"}
             </Button>
           </div>
         </div>
@@ -2470,7 +3119,9 @@ export default function GerenciamentoObras() {
         textColor="#1e293b"
       >
         <div className="obras-form-header">
-          <h2 className="obras-form-title">NOVO ORÇAMENTO</h2>
+          <h2 className="obras-form-title">
+            {editingBudget ? "EDITAR ORÇAMENTO" : "NOVO ORÇAMENTO"}
+          </h2>
           <p className="obras-form-subtitle">
             Criar novo orçamento para projeto
           </p>
@@ -2548,7 +3199,10 @@ export default function GerenciamentoObras() {
           <div className="obras-form-actions">
             <Button
               variant="secondary"
-              onClick={() => setViewMode("budgets")}
+              onClick={() => {
+                resetNewBudgetForm();
+                setViewMode("budgets");
+              }}
               className="obras-action-btn"
             >
               <FiArrowLeft size={16} />
@@ -2560,7 +3214,7 @@ export default function GerenciamentoObras() {
               className="obras-action-btn obras-submit-btn"
             >
               <FiCheckCircle size={16} />
-              Criar Orçamento
+              {editingBudget ? "Atualizar Orçamento" : "Criar Orçamento"}
             </Button>
           </div>
         </div>
@@ -2578,7 +3232,9 @@ export default function GerenciamentoObras() {
         textColor="#1e293b"
       >
         <div className="obras-form-header">
-          <h2 className="obras-form-title">NOVO FORNECEDOR</h2>
+          <h2 className="obras-form-title">
+            {editingSupplier ? "EDITAR FORNECEDOR" : "NOVO FORNECEDOR"}
+          </h2>
           <p className="obras-form-subtitle">Cadastrar novo fornecedor</p>
         </div>
 
@@ -2731,7 +3387,10 @@ export default function GerenciamentoObras() {
           <div className="obras-form-actions">
             <Button
               variant="secondary"
-              onClick={() => setViewMode("suppliers")}
+              onClick={() => {
+                resetNewSupplierForm();
+                setViewMode("suppliers");
+              }}
               className="obras-action-btn"
             >
               <FiArrowLeft size={16} />
@@ -2743,7 +3402,9 @@ export default function GerenciamentoObras() {
               className="obras-action-btn obras-submit-btn"
             >
               <FiCheckCircle size={16} />
-              Cadastrar Fornecedor
+              {editingSupplier
+                ? "Atualizar Fornecedor"
+                : "Cadastrar Fornecedor"}
             </Button>
           </div>
         </div>
@@ -2761,7 +3422,11 @@ export default function GerenciamentoObras() {
         textColor="#1e293b"
       >
         <div className="obras-form-header">
-          <h2 className="obras-form-title">NOVO CHECKLIST DE QUALIDADE</h2>
+          <h2 className="obras-form-title">
+            {editingQualityChecklist
+              ? "EDITAR CHECKLIST DE QUALIDADE"
+              : "NOVO CHECKLIST DE QUALIDADE"}
+          </h2>
           <p className="obras-form-subtitle">
             Criar checklist de controle de qualidade
           </p>
@@ -2891,7 +3556,10 @@ export default function GerenciamentoObras() {
           <div className="obras-form-actions">
             <Button
               variant="secondary"
-              onClick={() => setViewMode("quality")}
+              onClick={() => {
+                resetNewQualityForm();
+                setViewMode("quality");
+              }}
               className="obras-action-btn"
             >
               <FiArrowLeft size={16} />
@@ -2903,7 +3571,9 @@ export default function GerenciamentoObras() {
               className="obras-action-btn obras-submit-btn"
             >
               <FiCheckCircle size={16} />
-              Criar Checklist
+              {editingQualityChecklist
+                ? "Atualizar Checklist"
+                : "Criar Checklist"}
             </Button>
           </div>
         </div>
@@ -3064,10 +3734,16 @@ export default function GerenciamentoObras() {
                 {member.attendance ? "Presente" : "Ausente"}
               </p>
               <div className="obras-card-actions">
-                <Button variant="secondary">
+                <Button
+                  variant="secondary"
+                  onClick={() => member.id && handleEditTeamMember(member)}
+                >
                   <FiEdit3 /> Editar
                 </Button>
-                <Button variant="secondary">
+                <Button
+                  variant="secondary"
+                  onClick={() => member.id && handleDeleteTeamMember(member.id)}
+                >
                   <FiTrash2 /> Excluir
                 </Button>
               </div>
@@ -3082,7 +3758,10 @@ export default function GerenciamentoObras() {
     <div className="obras-form-container">
       <div className="obras-form-card">
         <h2>
-          <FiUserCheck /> CADASTRAR MEMBRO DA EQUIPE
+          <FiUserCheck />{" "}
+          {editingTeamMember
+            ? "EDITAR MEMBRO DA EQUIPE"
+            : "CADASTRAR MEMBRO DA EQUIPE"}
         </h2>
         <div className="obras-form-content">
           <div className="obras-form-field">
@@ -3150,26 +3829,68 @@ export default function GerenciamentoObras() {
             />
           </div>
           <div className="obras-form-actions">
-            <Button variant="secondary" onClick={() => setViewMode("team")}>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setViewMode("team");
+                setEditingTeamMember(null);
+                resetNewTeamMemberForm();
+              }}
+            >
               Cancelar
             </Button>
             <Button
               variant="primary"
-              onClick={() => {
-                const newMember: TeamMember = {
-                  id: Date.now().toString(),
-                  name: newTeamMember.name || "",
-                  role: newTeamMember.role || "",
-                  cpf: newTeamMember.cpf,
-                  phone: newTeamMember.phone,
-                  hourlyRate: newTeamMember.hourlyRate,
-                  attendance: false,
-                };
-                setTeamMembers([...teamMembers, newMember]);
-                setViewMode("team");
+              onClick={async () => {
+                if (!newTeamMember.name || !newTeamMember.role) {
+                  showToastMessage(
+                    "Preencha todos os campos obrigatórios",
+                    "warning"
+                  );
+                  return;
+                }
+                try {
+                  if (editingTeamMember && editingTeamMember.id) {
+                    await updateTeamMember(editingTeamMember.id, {
+                      name: newTeamMember.name,
+                      role: newTeamMember.role,
+                      cpf: newTeamMember.cpf,
+                      phone: newTeamMember.phone,
+                      hourlyRate: newTeamMember.hourlyRate,
+                      attendance: editingTeamMember.attendance ?? false,
+                    });
+                    showToastMessage(
+                      "Membro da equipe atualizado com sucesso!",
+                      "success"
+                    );
+                  } else {
+                    await createTeamMember({
+                      name: newTeamMember.name,
+                      role: newTeamMember.role,
+                      cpf: newTeamMember.cpf,
+                      phone: newTeamMember.phone,
+                      hourlyRate: newTeamMember.hourlyRate,
+                      attendance: false,
+                    });
+                    showToastMessage(
+                      "Membro da equipe cadastrado com sucesso!",
+                      "success"
+                    );
+                  }
+                  setEditingTeamMember(null);
+                  resetNewTeamMemberForm();
+                  await refreshData();
+                  setViewMode("team");
+                } catch (error) {
+                  console.error("Erro ao salvar membro da equipe:", error);
+                  showToastMessage(
+                    "Erro ao salvar membro da equipe. Tente novamente.",
+                    "error"
+                  );
+                }
               }}
             >
-              Salvar
+              {editingTeamMember ? "Atualizar" : "Salvar"}
             </Button>
           </div>
         </div>
@@ -3223,10 +3944,16 @@ export default function GerenciamentoObras() {
                 </p>
               )}
               <div className="obras-card-actions">
-                <Button variant="secondary">
+                <Button
+                  variant="secondary"
+                  onClick={() => equip.id && handleEditEquipment(equip)}
+                >
                   <FiEdit3 /> Editar
                 </Button>
-                <Button variant="secondary">
+                <Button
+                  variant="secondary"
+                  onClick={() => equip.id && handleDeleteEquipment(equip.id)}
+                >
                   <FiTrash2 /> Excluir
                 </Button>
               </div>
@@ -3241,7 +3968,8 @@ export default function GerenciamentoObras() {
     <div className="obras-form-container">
       <div className="obras-form-card">
         <h2>
-          <FiSettings /> CADASTRAR EQUIPAMENTO
+          <FiSettings />{" "}
+          {editingEquipment ? "EDITAR EQUIPAMENTO" : "CADASTRAR EQUIPAMENTO"}
         </h2>
         <div className="obras-form-content">
           <div className="obras-form-field">
@@ -3301,25 +4029,62 @@ export default function GerenciamentoObras() {
           <div className="obras-form-actions">
             <Button
               variant="secondary"
-              onClick={() => setViewMode("equipment")}
+              onClick={() => {
+                setViewMode("equipment");
+                setEditingEquipment(null);
+                resetNewEquipmentForm();
+              }}
             >
               Cancelar
             </Button>
             <Button
               variant="primary"
-              onClick={() => {
-                const newEquip: Equipment = {
-                  id: Date.now().toString(),
-                  name: newEquipment.name || "",
-                  type: newEquipment.type || "",
-                  code: newEquipment.code,
-                  status: newEquipment.status || "disponivel",
-                };
-                setEquipment([...equipment, newEquip]);
-                setViewMode("equipment");
+              onClick={async () => {
+                if (!newEquipment.name || !newEquipment.type) {
+                  showToastMessage(
+                    "Preencha todos os campos obrigatórios",
+                    "warning"
+                  );
+                  return;
+                }
+                try {
+                  if (editingEquipment && editingEquipment.id) {
+                    await updateEquipment(editingEquipment.id, {
+                      name: newEquipment.name,
+                      type: newEquipment.type,
+                      code: newEquipment.code,
+                      status: newEquipment.status || "disponivel",
+                    });
+                    showToastMessage(
+                      "Equipamento atualizado com sucesso!",
+                      "success"
+                    );
+                  } else {
+                    await createEquipment({
+                      name: newEquipment.name,
+                      type: newEquipment.type,
+                      code: newEquipment.code,
+                      status: newEquipment.status || "disponivel",
+                    });
+                    showToastMessage(
+                      "Equipamento cadastrado com sucesso!",
+                      "success"
+                    );
+                  }
+                  setEditingEquipment(null);
+                  resetNewEquipmentForm();
+                  await refreshData();
+                  setViewMode("equipment");
+                } catch (error) {
+                  console.error("Erro ao salvar equipamento:", error);
+                  showToastMessage(
+                    "Erro ao salvar equipamento. Tente novamente.",
+                    "error"
+                  );
+                }
               }}
             >
-              Salvar
+              {editingEquipment ? "Atualizar" : "Salvar"}
             </Button>
           </div>
         </div>
@@ -3375,6 +4140,23 @@ export default function GerenciamentoObras() {
                   style={{ width: `${schedule.progress}%` }}
                 ></div>
               </div>
+              <div className="obras-card-actions">
+                <Button
+                  variant="secondary"
+                  onClick={() => schedule.id && handleEditSchedule(schedule)}
+                >
+                  <FiEdit3 /> Editar
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() =>
+                    schedule.id && handleDeleteSchedule(schedule.id)
+                  }
+                  className="obras-delete"
+                >
+                  <FiTrash2 /> Excluir
+                </Button>
+              </div>
             </div>
           ))
         )}
@@ -3386,7 +4168,10 @@ export default function GerenciamentoObras() {
     <div className="obras-form-container">
       <div className="obras-form-card">
         <h2>
-          <FiSliders /> NOVA TAREFA NO CRONOGRAMA
+          <FiSliders />{" "}
+          {editingSchedule
+            ? "EDITAR TAREFA DO CRONOGRAMA"
+            : "NOVA TAREFA NO CRONOGRAMA"}
         </h2>
         <div className="obras-form-content">
           <div className="obras-form-field">
@@ -3458,26 +4243,76 @@ export default function GerenciamentoObras() {
             />
           </div>
           <div className="obras-form-actions">
-            <Button variant="secondary" onClick={() => setViewMode("schedule")}>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                resetNewScheduleForm();
+                setViewMode("schedule");
+              }}
+            >
               Cancelar
             </Button>
             <Button
               variant="primary"
-              onClick={() => {
-                const newSched: Schedule = {
-                  id: Date.now().toString(),
-                  projectId: newSchedule.projectId || "",
-                  taskName: newSchedule.taskName || "",
-                  startDate: newSchedule.startDate || "",
-                  endDate: newSchedule.endDate || "",
-                  progress: newSchedule.progress || 0,
-                  status: "em-andamento",
-                };
-                setSchedules([...schedules, newSched]);
-                setViewMode("schedule");
+              onClick={async () => {
+                if (
+                  !newSchedule.projectId ||
+                  !newSchedule.taskName ||
+                  !newSchedule.startDate ||
+                  !newSchedule.endDate
+                ) {
+                  showToastMessage(
+                    "Preencha todos os campos obrigatórios",
+                    "warning"
+                  );
+                  return;
+                }
+                try {
+                  if (editingSchedule && editingSchedule.id) {
+                    await updateSchedule(editingSchedule.id, {
+                      projectId: newSchedule.projectId,
+                      taskName: newSchedule.taskName,
+                      startDate: newSchedule.startDate,
+                      endDate: newSchedule.endDate,
+                      progress: newSchedule.progress || 0,
+                      status: newSchedule.status || "em-andamento",
+                      responsible: newSchedule.responsible,
+                      dependencies: newSchedule.dependencies,
+                      plannedCost: newSchedule.plannedCost,
+                      actualCost: newSchedule.actualCost,
+                    });
+                    showToastMessage(
+                      "Tarefa atualizada com sucesso!",
+                      "success"
+                    );
+                    setEditingSchedule(null);
+                  } else {
+                    await createSchedule({
+                      projectId: newSchedule.projectId,
+                      taskName: newSchedule.taskName,
+                      startDate: newSchedule.startDate,
+                      endDate: newSchedule.endDate,
+                      progress: newSchedule.progress || 0,
+                      status: "em-andamento",
+                    });
+                    showToastMessage(
+                      "Tarefa cadastrada com sucesso!",
+                      "success"
+                    );
+                  }
+                  resetNewScheduleForm();
+                  await refreshData();
+                  setViewMode("schedule");
+                } catch (error) {
+                  console.error("Erro ao criar/atualizar tarefa:", error);
+                  showToastMessage(
+                    "Erro ao cadastrar tarefa. Tente novamente.",
+                    "error"
+                  );
+                }
               }}
             >
-              Salvar
+              {editingSchedule ? "Atualizar Tarefa" : "Salvar"}
             </Button>
           </div>
         </div>
@@ -3528,6 +4363,23 @@ export default function GerenciamentoObras() {
                   <strong>Severidade:</strong> {record.severity}
                 </p>
               )}
+              <div className="obras-card-actions">
+                <Button
+                  variant="secondary"
+                  onClick={() => record.id && handleEditSafetyRecord(record)}
+                >
+                  <FiEdit3 /> Editar
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() =>
+                    record.id && handleDeleteSafetyRecord(record.id)
+                  }
+                  className="obras-delete"
+                >
+                  <FiTrash2 /> Excluir
+                </Button>
+              </div>
             </div>
           ))
         )}
@@ -3539,7 +4391,10 @@ export default function GerenciamentoObras() {
     <div className="obras-form-container">
       <div className="obras-form-card">
         <h2>
-          <FiShield /> NOVO REGISTRO DE SEGURANÇA
+          <FiShield />{" "}
+          {editingSafetyRecord
+            ? "EDITAR REGISTRO DE SEGURANÇA"
+            : "NOVO REGISTRO DE SEGURANÇA"}
         </h2>
         <div className="obras-form-content">
           <div className="obras-form-field">
@@ -3618,27 +4473,80 @@ export default function GerenciamentoObras() {
             />
           </div>
           <div className="obras-form-actions">
-            <Button variant="secondary" onClick={() => setViewMode("safety")}>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                resetNewSafetyRecordForm();
+                setViewMode("safety");
+              }}
+            >
               Cancelar
             </Button>
             <Button
               variant="primary"
-              onClick={() => {
-                const newRecord: SafetyRecord = {
-                  id: Date.now().toString(),
-                  projectId: newSafetyRecord.projectId || "",
-                  date: newSafetyRecord.date || "",
-                  type: newSafetyRecord.type || "dds",
-                  title: newSafetyRecord.title || "",
-                  description: newSafetyRecord.description || "",
-                  responsible: newSafetyRecord.responsible || "",
-                  status: "pendente",
-                };
-                setSafetyRecords([...safetyRecords, newRecord]);
-                setViewMode("safety");
+              onClick={async () => {
+                if (
+                  !newSafetyRecord.title ||
+                  !newSafetyRecord.date ||
+                  !newSafetyRecord.responsible ||
+                  !newSafetyRecord.description
+                ) {
+                  showToastMessage(
+                    "Preencha todos os campos obrigatórios",
+                    "warning"
+                  );
+                  return;
+                }
+                try {
+                  if (editingSafetyRecord && editingSafetyRecord.id) {
+                    await updateSafetyRecord(editingSafetyRecord.id, {
+                      projectId: newSafetyRecord.projectId || "",
+                      date: newSafetyRecord.date,
+                      type: newSafetyRecord.type || "dds",
+                      title: newSafetyRecord.title,
+                      description: newSafetyRecord.description,
+                      responsible: newSafetyRecord.responsible,
+                      status: newSafetyRecord.status || "pendente",
+                      severity: newSafetyRecord.severity,
+                      participants: newSafetyRecord.participants,
+                      correctedActions: newSafetyRecord.correctedActions,
+                    });
+                    showToastMessage(
+                      "Registro de segurança atualizado com sucesso!",
+                      "success"
+                    );
+                    setEditingSafetyRecord(null);
+                  } else {
+                    await createSafetyRecord({
+                      projectId: newSafetyRecord.projectId || "",
+                      date: newSafetyRecord.date,
+                      type: newSafetyRecord.type || "dds",
+                      title: newSafetyRecord.title,
+                      description: newSafetyRecord.description,
+                      responsible: newSafetyRecord.responsible,
+                      status: "pendente",
+                    });
+                    showToastMessage(
+                      "Registro de segurança cadastrado com sucesso!",
+                      "success"
+                    );
+                  }
+                  resetNewSafetyRecordForm();
+                  await refreshData();
+                  setViewMode("safety");
+                } catch (error) {
+                  console.error(
+                    "Erro ao criar/atualizar registro de segurança:",
+                    error
+                  );
+                  showToastMessage(
+                    "Erro ao cadastrar registro de segurança. Tente novamente.",
+                    "error"
+                  );
+                }
               }}
             >
-              Salvar
+              {editingSafetyRecord ? "Atualizar Registro" : "Salvar"}
             </Button>
           </div>
         </div>
@@ -3694,6 +4602,25 @@ export default function GerenciamentoObras() {
               {measurement.approved && (
                 <p className="obras-approved">✓ Aprovado</p>
               )}
+              <div className="obras-card-actions">
+                <Button
+                  variant="secondary"
+                  onClick={() =>
+                    measurement.id && handleEditMeasurement(measurement)
+                  }
+                >
+                  <FiEdit3 /> Editar
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() =>
+                    measurement.id && handleDeleteMeasurement(measurement.id)
+                  }
+                  className="obras-delete"
+                >
+                  <FiTrash2 /> Excluir
+                </Button>
+              </div>
             </div>
           ))
         )}
@@ -3705,7 +4632,7 @@ export default function GerenciamentoObras() {
     <div className="obras-form-container">
       <div className="obras-form-card">
         <h2>
-          <FiAward /> NOVA MEDIÇÃO
+          <FiAward /> {editingMeasurement ? "EDITAR MEDIÇÃO" : "NOVA MEDIÇÃO"}
         </h2>
         <div className="obras-form-content">
           <div className="obras-form-field">
@@ -3814,33 +4741,80 @@ export default function GerenciamentoObras() {
           <div className="obras-form-actions">
             <Button
               variant="secondary"
-              onClick={() => setViewMode("measurements")}
+              onClick={() => {
+                resetNewMeasurementForm();
+                setViewMode("measurements");
+              }}
             >
               Cancelar
             </Button>
             <Button
               variant="primary"
-              onClick={() => {
-                const newMeas: Measurement = {
-                  id: Date.now().toString(),
-                  projectId: newMeasurement.projectId || "",
-                  date: newMeasurement.date || "",
-                  period: newMeasurement.period || "",
-                  description: newMeasurement.description || "",
-                  plannedPhysicalProgress:
-                    newMeasurement.plannedPhysicalProgress || 0,
-                  actualPhysicalProgress:
-                    newMeasurement.actualPhysicalProgress || 0,
-                  plannedFinancialProgress:
-                    newMeasurement.plannedFinancialProgress || 0,
-                  actualFinancialProgress:
-                    newMeasurement.actualFinancialProgress || 0,
-                };
-                setMeasurements([...measurements, newMeas]);
-                setViewMode("measurements");
+              onClick={async () => {
+                if (!newMeasurement.period || !newMeasurement.date) {
+                  showToastMessage(
+                    "Preencha todos os campos obrigatórios",
+                    "warning"
+                  );
+                  return;
+                }
+                try {
+                  if (editingMeasurement && editingMeasurement.id) {
+                    await updateMeasurement(editingMeasurement.id, {
+                      projectId: newMeasurement.projectId || "",
+                      date: newMeasurement.date,
+                      period: newMeasurement.period,
+                      description: newMeasurement.description || "",
+                      plannedPhysicalProgress:
+                        newMeasurement.plannedPhysicalProgress || 0,
+                      actualPhysicalProgress:
+                        newMeasurement.actualPhysicalProgress || 0,
+                      plannedFinancialProgress:
+                        newMeasurement.plannedFinancialProgress || 0,
+                      actualFinancialProgress:
+                        newMeasurement.actualFinancialProgress || 0,
+                      observations: newMeasurement.observations,
+                      approved: newMeasurement.approved,
+                      approvedBy: newMeasurement.approvedBy,
+                    });
+                    showToastMessage(
+                      "Medição atualizada com sucesso!",
+                      "success"
+                    );
+                    setEditingMeasurement(null);
+                  } else {
+                    await createMeasurement({
+                      projectId: newMeasurement.projectId || "",
+                      date: newMeasurement.date,
+                      period: newMeasurement.period,
+                      description: newMeasurement.description || "",
+                      plannedPhysicalProgress:
+                        newMeasurement.plannedPhysicalProgress || 0,
+                      actualPhysicalProgress:
+                        newMeasurement.actualPhysicalProgress || 0,
+                      plannedFinancialProgress:
+                        newMeasurement.plannedFinancialProgress || 0,
+                      actualFinancialProgress:
+                        newMeasurement.actualFinancialProgress || 0,
+                    });
+                    showToastMessage(
+                      "Medição cadastrada com sucesso!",
+                      "success"
+                    );
+                  }
+                  resetNewMeasurementForm();
+                  await refreshData();
+                  setViewMode("measurements");
+                } catch (error) {
+                  console.error("Erro ao criar/atualizar medição:", error);
+                  showToastMessage(
+                    "Erro ao cadastrar medição. Tente novamente.",
+                    "error"
+                  );
+                }
               }}
             >
-              Salvar
+              {editingMeasurement ? "Atualizar Medição" : "Salvar"}
             </Button>
           </div>
         </div>
@@ -3889,6 +4863,21 @@ export default function GerenciamentoObras() {
                 <strong>Data:</strong>{" "}
                 {new Date(issue.date).toLocaleDateString()}
               </p>
+              <div className="obras-card-actions">
+                <Button
+                  variant="secondary"
+                  onClick={() => issue.id && handleEditIssue(issue)}
+                >
+                  <FiEdit3 /> Editar
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => issue.id && handleDeleteIssue(issue.id)}
+                  className="obras-delete"
+                >
+                  <FiTrash2 /> Excluir
+                </Button>
+              </div>
             </div>
           ))
         )}
@@ -3900,7 +4889,8 @@ export default function GerenciamentoObras() {
     <div className="obras-form-container">
       <div className="obras-form-card">
         <h2>
-          <FiAlertTriangle /> REGISTRAR PROBLEMA
+          <FiAlertTriangle />{" "}
+          {editingIssue ? "EDITAR PROBLEMA" : "REGISTRAR PROBLEMA"}
         </h2>
         <div className="obras-form-content">
           <div className="obras-form-field">
@@ -3977,27 +4967,76 @@ export default function GerenciamentoObras() {
             />
           </div>
           <div className="obras-form-actions">
-            <Button variant="secondary" onClick={() => setViewMode("issues")}>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                resetNewIssueForm();
+                setViewMode("issues");
+              }}
+            >
               Cancelar
             </Button>
             <Button
               variant="primary"
-              onClick={() => {
-                const newIss: Issue = {
-                  id: Date.now().toString(),
-                  projectId: newIssue.projectId || "",
-                  date: newIssue.date || "",
-                  title: newIssue.title || "",
-                  description: newIssue.description || "",
-                  category: newIssue.category || "tecnico",
-                  priority: newIssue.priority || "media",
-                  status: "aberto",
-                };
-                setIssues([...issues, newIss]);
-                setViewMode("issues");
+              onClick={async () => {
+                if (
+                  !newIssue.title ||
+                  !newIssue.date ||
+                  !newIssue.description
+                ) {
+                  showToastMessage(
+                    "Preencha todos os campos obrigatórios",
+                    "warning"
+                  );
+                  return;
+                }
+                try {
+                  if (editingIssue && editingIssue.id) {
+                    await updateIssue(editingIssue.id, {
+                      projectId: newIssue.projectId || "",
+                      date: newIssue.date,
+                      title: newIssue.title,
+                      description: newIssue.description,
+                      category: newIssue.category || "tecnico",
+                      priority: newIssue.priority || "media",
+                      status: newIssue.status || "aberto",
+                      responsible: newIssue.responsible,
+                      solution: newIssue.solution,
+                      attachments: newIssue.attachments,
+                    });
+                    showToastMessage(
+                      "Problema atualizado com sucesso!",
+                      "success"
+                    );
+                    setEditingIssue(null);
+                  } else {
+                    await createIssue({
+                      projectId: newIssue.projectId || "",
+                      date: newIssue.date,
+                      title: newIssue.title,
+                      description: newIssue.description,
+                      category: newIssue.category || "tecnico",
+                      priority: newIssue.priority || "media",
+                      status: "aberto",
+                    });
+                    showToastMessage(
+                      "Problema registrado com sucesso!",
+                      "success"
+                    );
+                  }
+                  resetNewIssueForm();
+                  await refreshData();
+                  setViewMode("issues");
+                } catch (error) {
+                  console.error("Erro ao criar/atualizar problema:", error);
+                  showToastMessage(
+                    "Erro ao registrar problema. Tente novamente.",
+                    "error"
+                  );
+                }
               }}
             >
-              Salvar
+              {editingIssue ? "Atualizar Problema" : "Salvar"}
             </Button>
           </div>
         </div>
@@ -4046,6 +5085,19 @@ export default function GerenciamentoObras() {
                 </p>
               )}
               <div className="obras-card-actions">
+                <Button
+                  variant="secondary"
+                  onClick={() => doc.id && handleEditDocument(doc)}
+                >
+                  <FiEdit3 /> Editar
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => doc.id && handleDeleteDocument(doc.id)}
+                  className="obras-delete"
+                >
+                  <FiTrash2 /> Excluir
+                </Button>
                 <Button variant="primary">
                   <FiDownload /> Download
                 </Button>
@@ -4061,7 +5113,8 @@ export default function GerenciamentoObras() {
     <div className="obras-form-container">
       <div className="obras-form-card">
         <h2>
-          <FiArchive /> CADASTRAR DOCUMENTO
+          <FiArchive />{" "}
+          {editingDocument ? "EDITAR DOCUMENTO" : "CADASTRAR DOCUMENTO"}
         </h2>
         <div className="obras-form-content">
           <div className="obras-form-field">
@@ -4137,27 +5190,67 @@ export default function GerenciamentoObras() {
           <div className="obras-form-actions">
             <Button
               variant="secondary"
-              onClick={() => setViewMode("documents")}
+              onClick={() => {
+                resetNewDocumentForm();
+                setViewMode("documents");
+              }}
             >
               Cancelar
             </Button>
             <Button
               variant="primary"
-              onClick={() => {
-                const newDoc: Document = {
-                  id: Date.now().toString(),
-                  projectId: newDocument.projectId || "",
-                  name: newDocument.name || "",
-                  type: newDocument.type || "projeto",
-                  uploadDate: newDocument.uploadDate || "",
-                  description: newDocument.description,
-                  version: newDocument.version,
-                };
-                setDocuments([...documents, newDoc]);
-                setViewMode("documents");
+              onClick={async () => {
+                if (!newDocument.name || !newDocument.uploadDate) {
+                  showToastMessage(
+                    "Preencha todos os campos obrigatórios",
+                    "warning"
+                  );
+                  return;
+                }
+                try {
+                  if (editingDocument && editingDocument.id) {
+                    await updateDocument(editingDocument.id, {
+                      projectId: newDocument.projectId || "",
+                      name: newDocument.name,
+                      type: newDocument.type || "projeto",
+                      uploadDate: newDocument.uploadDate,
+                      description: newDocument.description,
+                      version: newDocument.version,
+                      fileUrl: newDocument.fileUrl,
+                      uploadedBy: newDocument.uploadedBy,
+                    });
+                    showToastMessage(
+                      "Documento atualizado com sucesso!",
+                      "success"
+                    );
+                    setEditingDocument(null);
+                  } else {
+                    await createDocument({
+                      projectId: newDocument.projectId || "",
+                      name: newDocument.name,
+                      type: newDocument.type || "projeto",
+                      uploadDate: newDocument.uploadDate,
+                      description: newDocument.description,
+                      version: newDocument.version,
+                    });
+                    showToastMessage(
+                      "Documento cadastrado com sucesso!",
+                      "success"
+                    );
+                  }
+                  resetNewDocumentForm();
+                  await refreshData();
+                  setViewMode("documents");
+                } catch (error) {
+                  console.error("Erro ao criar/atualizar documento:", error);
+                  showToastMessage(
+                    "Erro ao cadastrar documento. Tente novamente.",
+                    "error"
+                  );
+                }
               }}
             >
-              Salvar
+              {editingDocument ? "Atualizar Documento" : "Salvar"}
             </Button>
           </div>
         </div>
@@ -4224,6 +5317,15 @@ export default function GerenciamentoObras() {
           className="obras-footer-logo"
         />
       </div>
+
+      {showToast && (
+        <Toast
+          message={toastMessage}
+          type={toastType}
+          duration={3000}
+          onClose={() => setShowToast(false)}
+        />
+      )}
     </div>
   );
 }

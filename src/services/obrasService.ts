@@ -168,6 +168,118 @@ export interface QualityItem {
   checkedAt: string;
 }
 
+export interface TeamMember {
+  id?: string;
+  name: string;
+  role: string;
+  cpf?: string;
+  phone?: string;
+  workHours?: number;
+  hourlyRate?: number;
+  attendance?: boolean;
+  checkInTime?: string;
+  checkOutTime?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Equipment {
+  id?: string;
+  name: string;
+  type: string;
+  code?: string;
+  status: "disponivel" | "em-uso" | "manutencao" | "quebrado";
+  projectId?: string;
+  lastMaintenance?: string;
+  nextMaintenance?: string;
+  operator?: string;
+  hoursUsed?: number;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Schedule {
+  id?: string;
+  projectId: string;
+  taskName: string;
+  startDate: string;
+  endDate: string;
+  progress: number;
+  responsible?: string;
+  dependencies?: string[];
+  status: "nao-iniciado" | "em-andamento" | "concluido" | "atrasado";
+  plannedCost?: number;
+  actualCost?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SafetyRecord {
+  id?: string;
+  projectId: string;
+  date: string;
+  type: "dds" | "inspecao" | "acidente" | "treinamento" | "epi";
+  title: string;
+  description: string;
+  participants?: string[];
+  responsible: string;
+  severity?: "baixa" | "media" | "alta";
+  correctedActions?: string;
+  status: "pendente" | "em-andamento" | "concluido";
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Measurement {
+  id?: string;
+  projectId: string;
+  date: string;
+  period: string;
+  description: string;
+  plannedPhysicalProgress: number;
+  actualPhysicalProgress: number;
+  plannedFinancialProgress: number;
+  actualFinancialProgress: number;
+  observations?: string;
+  approved?: boolean;
+  approvedBy?: string;
+  approvedDate?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Issue {
+  id?: string;
+  projectId: string;
+  date: string;
+  title: string;
+  description: string;
+  category: "tecnico" | "financeiro" | "prazo" | "qualidade" | "seguranca" | "outro";
+  priority: "baixa" | "media" | "alta" | "critica";
+  status: "aberto" | "em-analise" | "resolvido" | "cancelado";
+  responsible?: string;
+  solution?: string;
+  solvedDate?: string;
+  attachments?: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DocumentRecord {
+  id?: string;
+  projectId: string;
+  name: string;
+  type: "projeto" | "art" | "contrato" | "licenca" | "orcamento" | "medicao" | "outro";
+  uploadDate: string;
+  fileUrl?: string;
+  description?: string;
+  version?: string;
+  uploadedBy?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // ===== CONSTANTES DE COLLECTIONS =====
 
 const PROJECTS_COLLECTION = "obrasProjects";
@@ -176,6 +288,13 @@ const INVENTORY_COLLECTION = "obrasInventory";
 const BUDGETS_COLLECTION = "obrasBudgets";
 const SUPPLIERS_COLLECTION = "obrasSuppliers";
 const QUALITY_CHECKLISTS_COLLECTION = "obrasQualityChecklists";
+const TEAM_MEMBERS_COLLECTION = "obrasTeamMembers";
+const EQUIPMENT_COLLECTION = "obrasEquipment";
+const SCHEDULES_COLLECTION = "obrasSchedules";
+const SAFETY_RECORDS_COLLECTION = "obrasSafetyRecords";
+const MEASUREMENTS_COLLECTION = "obrasMeasurements";
+const ISSUES_COLLECTION = "obrasIssues";
+const DOCUMENTS_COLLECTION = "obrasDocuments";
 
 // ===== PROJETOS (OBRAS) =====
 
@@ -946,6 +1065,622 @@ export const deleteQualityChecklist = async (id: string): Promise<void> => {
     await deleteDoc(docRef);
   } catch (error) {
     console.error("Erro ao deletar checklist de qualidade:", error);
+    throw error;
+  }
+};
+
+// ===== EQUIPE (TEAM MEMBERS) =====
+
+export const createTeamMember = async (
+  memberData: Omit<TeamMember, "id" | "createdAt" | "updatedAt">
+): Promise<string> => {
+  try {
+    const now = new Date().toISOString();
+    const cleanData = Object.fromEntries(
+      Object.entries({ ...memberData }).filter(
+        ([, value]) => value !== undefined
+      )
+    );
+
+    const docRef = await addDoc(collection(db, TEAM_MEMBERS_COLLECTION), {
+      ...cleanData,
+      createdAt: now,
+      updatedAt: now,
+    });
+    return docRef.id;
+  } catch (error) {
+    console.error("Erro ao criar membro da equipe:", error);
+    throw error;
+  }
+};
+
+export const getAllTeamMembers = async (): Promise<TeamMember[]> => {
+  try {
+    const q = query(
+      collection(db, TEAM_MEMBERS_COLLECTION),
+      orderBy("createdAt", "desc")
+    );
+    const querySnapshot = await getDocs(q);
+
+    return querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as TeamMember[];
+  } catch (error) {
+    console.error("Erro ao listar membros da equipe:", error);
+    throw error;
+  }
+};
+
+export const updateTeamMember = async (
+  id: string,
+  updates: Partial<TeamMember>
+): Promise<void> => {
+  try {
+    const docRef = doc(db, TEAM_MEMBERS_COLLECTION, id);
+    const cleanUpdates = Object.fromEntries(
+      Object.entries({ ...updates }).filter(([, value]) => value !== undefined)
+    );
+
+    await updateDoc(docRef, {
+      ...cleanUpdates,
+      updatedAt: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error("Erro ao atualizar membro da equipe:", error);
+    throw error;
+  }
+};
+
+export const deleteTeamMember = async (id: string): Promise<void> => {
+  try {
+    const docRef = doc(db, TEAM_MEMBERS_COLLECTION, id);
+    await deleteDoc(docRef);
+  } catch (error) {
+    console.error("Erro ao deletar membro da equipe:", error);
+    throw error;
+  }
+};
+
+// ===== EQUIPAMENTOS (EQUIPMENT) =====
+
+export const createEquipment = async (
+  equipmentData: Omit<Equipment, "id" | "createdAt" | "updatedAt">
+): Promise<string> => {
+  try {
+    const now = new Date().toISOString();
+    const cleanData = Object.fromEntries(
+      Object.entries({ ...equipmentData }).filter(
+        ([, value]) => value !== undefined
+      )
+    );
+
+    const docRef = await addDoc(collection(db, EQUIPMENT_COLLECTION), {
+      ...cleanData,
+      createdAt: now,
+      updatedAt: now,
+    });
+    return docRef.id;
+  } catch (error) {
+    console.error("Erro ao criar equipamento:", error);
+    throw error;
+  }
+};
+
+export const getAllEquipment = async (): Promise<Equipment[]> => {
+  try {
+    const q = query(
+      collection(db, EQUIPMENT_COLLECTION),
+      orderBy("createdAt", "desc")
+    );
+    const querySnapshot = await getDocs(q);
+
+    return querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as Equipment[];
+  } catch (error) {
+    console.error("Erro ao listar equipamentos:", error);
+    throw error;
+  }
+};
+
+export const updateEquipment = async (
+  id: string,
+  updates: Partial<Equipment>
+): Promise<void> => {
+  try {
+    const docRef = doc(db, EQUIPMENT_COLLECTION, id);
+    const cleanUpdates = Object.fromEntries(
+      Object.entries({ ...updates }).filter(([, value]) => value !== undefined)
+    );
+
+    await updateDoc(docRef, {
+      ...cleanUpdates,
+      updatedAt: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error("Erro ao atualizar equipamento:", error);
+    throw error;
+  }
+};
+
+export const deleteEquipment = async (id: string): Promise<void> => {
+  try {
+    const docRef = doc(db, EQUIPMENT_COLLECTION, id);
+    await deleteDoc(docRef);
+  } catch (error) {
+    console.error("Erro ao deletar equipamento:", error);
+    throw error;
+  }
+};
+
+// ===== CRONOGRAMA (SCHEDULES) =====
+
+export const createSchedule = async (
+  scheduleData: Omit<Schedule, "id" | "createdAt" | "updatedAt">
+): Promise<string> => {
+  try {
+    const now = new Date().toISOString();
+    const cleanData = Object.fromEntries(
+      Object.entries({ ...scheduleData }).filter(
+        ([, value]) => value !== undefined
+      )
+    );
+
+    const docRef = await addDoc(collection(db, SCHEDULES_COLLECTION), {
+      ...cleanData,
+      createdAt: now,
+      updatedAt: now,
+    });
+    return docRef.id;
+  } catch (error) {
+    console.error("Erro ao criar tarefa no cronograma:", error);
+    throw error;
+  }
+};
+
+export const getAllSchedules = async (): Promise<Schedule[]> => {
+  try {
+    const q = query(
+      collection(db, SCHEDULES_COLLECTION),
+      orderBy("startDate", "desc")
+    );
+    const querySnapshot = await getDocs(q);
+
+    return querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as Schedule[];
+  } catch (error) {
+    console.error("Erro ao listar tarefas do cronograma:", error);
+    throw error;
+  }
+};
+
+export const getSchedulesByProject = async (
+  projectId: string
+): Promise<Schedule[]> => {
+  try {
+    const q = query(
+      collection(db, SCHEDULES_COLLECTION),
+      where("projectId", "==", projectId),
+      orderBy("startDate", "desc")
+    );
+    const querySnapshot = await getDocs(q);
+
+    return querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as Schedule[];
+  } catch (error) {
+    console.error("Erro ao listar tarefas por projeto:", error);
+    throw error;
+  }
+};
+
+export const updateSchedule = async (
+  id: string,
+  updates: Partial<Schedule>
+): Promise<void> => {
+  try {
+    const docRef = doc(db, SCHEDULES_COLLECTION, id);
+    const cleanUpdates = Object.fromEntries(
+      Object.entries({ ...updates }).filter(([, value]) => value !== undefined)
+    );
+
+    await updateDoc(docRef, {
+      ...cleanUpdates,
+      updatedAt: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error("Erro ao atualizar tarefa do cronograma:", error);
+    throw error;
+  }
+};
+
+export const deleteSchedule = async (id: string): Promise<void> => {
+  try {
+    const docRef = doc(db, SCHEDULES_COLLECTION, id);
+    await deleteDoc(docRef);
+  } catch (error) {
+    console.error("Erro ao deletar tarefa do cronograma:", error);
+    throw error;
+  }
+};
+
+// ===== SEGURANÇA (SAFETY RECORDS) =====
+
+export const createSafetyRecord = async (
+  recordData: Omit<SafetyRecord, "id" | "createdAt" | "updatedAt">
+): Promise<string> => {
+  try {
+    const now = new Date().toISOString();
+    const cleanData = Object.fromEntries(
+      Object.entries({ ...recordData }).filter(
+        ([, value]) => value !== undefined
+      )
+    );
+
+    const docRef = await addDoc(collection(db, SAFETY_RECORDS_COLLECTION), {
+      ...cleanData,
+      createdAt: now,
+      updatedAt: now,
+    });
+    return docRef.id;
+  } catch (error) {
+    console.error("Erro ao criar registro de segurança:", error);
+    throw error;
+  }
+};
+
+export const getAllSafetyRecords = async (): Promise<SafetyRecord[]> => {
+  try {
+    const q = query(
+      collection(db, SAFETY_RECORDS_COLLECTION),
+      orderBy("date", "desc")
+    );
+    const querySnapshot = await getDocs(q);
+
+    return querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as SafetyRecord[];
+  } catch (error) {
+    console.error("Erro ao listar registros de segurança:", error);
+    throw error;
+  }
+};
+
+export const getSafetyRecordsByProject = async (
+  projectId: string
+): Promise<SafetyRecord[]> => {
+  try {
+    const q = query(
+      collection(db, SAFETY_RECORDS_COLLECTION),
+      where("projectId", "==", projectId),
+      orderBy("date", "desc")
+    );
+    const querySnapshot = await getDocs(q);
+
+    return querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as SafetyRecord[];
+  } catch (error) {
+    console.error("Erro ao listar registros de segurança por projeto:", error);
+    throw error;
+  }
+};
+
+export const updateSafetyRecord = async (
+  id: string,
+  updates: Partial<SafetyRecord>
+): Promise<void> => {
+  try {
+    const docRef = doc(db, SAFETY_RECORDS_COLLECTION, id);
+    const cleanUpdates = Object.fromEntries(
+      Object.entries({ ...updates }).filter(([, value]) => value !== undefined)
+    );
+
+    await updateDoc(docRef, {
+      ...cleanUpdates,
+      updatedAt: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error("Erro ao atualizar registro de segurança:", error);
+    throw error;
+  }
+};
+
+export const deleteSafetyRecord = async (id: string): Promise<void> => {
+  try {
+    const docRef = doc(db, SAFETY_RECORDS_COLLECTION, id);
+    await deleteDoc(docRef);
+  } catch (error) {
+    console.error("Erro ao deletar registro de segurança:", error);
+    throw error;
+  }
+};
+
+// ===== MEDIÇÕES (MEASUREMENTS) =====
+
+export const createMeasurement = async (
+  measurementData: Omit<Measurement, "id" | "createdAt" | "updatedAt">
+): Promise<string> => {
+  try {
+    const now = new Date().toISOString();
+    const cleanData = Object.fromEntries(
+      Object.entries({ ...measurementData }).filter(
+        ([, value]) => value !== undefined
+      )
+    );
+
+    const docRef = await addDoc(collection(db, MEASUREMENTS_COLLECTION), {
+      ...cleanData,
+      createdAt: now,
+      updatedAt: now,
+    });
+    return docRef.id;
+  } catch (error) {
+    console.error("Erro ao criar medição:", error);
+    throw error;
+  }
+};
+
+export const getAllMeasurements = async (): Promise<Measurement[]> => {
+  try {
+    const q = query(
+      collection(db, MEASUREMENTS_COLLECTION),
+      orderBy("date", "desc")
+    );
+    const querySnapshot = await getDocs(q);
+
+    return querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as Measurement[];
+  } catch (error) {
+    console.error("Erro ao listar medições:", error);
+    throw error;
+  }
+};
+
+export const getMeasurementsByProject = async (
+  projectId: string
+): Promise<Measurement[]> => {
+  try {
+    const q = query(
+      collection(db, MEASUREMENTS_COLLECTION),
+      where("projectId", "==", projectId),
+      orderBy("date", "desc")
+    );
+    const querySnapshot = await getDocs(q);
+
+    return querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as Measurement[];
+  } catch (error) {
+    console.error("Erro ao listar medições por projeto:", error);
+    throw error;
+  }
+};
+
+export const updateMeasurement = async (
+  id: string,
+  updates: Partial<Measurement>
+): Promise<void> => {
+  try {
+    const docRef = doc(db, MEASUREMENTS_COLLECTION, id);
+    const cleanUpdates = Object.fromEntries(
+      Object.entries({ ...updates }).filter(([, value]) => value !== undefined)
+    );
+
+    await updateDoc(docRef, {
+      ...cleanUpdates,
+      updatedAt: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error("Erro ao atualizar medição:", error);
+    throw error;
+  }
+};
+
+export const deleteMeasurement = async (id: string): Promise<void> => {
+  try {
+    const docRef = doc(db, MEASUREMENTS_COLLECTION, id);
+    await deleteDoc(docRef);
+  } catch (error) {
+    console.error("Erro ao deletar medição:", error);
+    throw error;
+  }
+};
+
+// ===== PROBLEMAS (ISSUES) =====
+
+export const createIssue = async (
+  issueData: Omit<Issue, "id" | "createdAt" | "updatedAt">
+): Promise<string> => {
+  try {
+    const now = new Date().toISOString();
+    const cleanData = Object.fromEntries(
+      Object.entries({ ...issueData }).filter(
+        ([, value]) => value !== undefined
+      )
+    );
+
+    const docRef = await addDoc(collection(db, ISSUES_COLLECTION), {
+      ...cleanData,
+      createdAt: now,
+      updatedAt: now,
+    });
+    return docRef.id;
+  } catch (error) {
+    console.error("Erro ao criar problema:", error);
+    throw error;
+  }
+};
+
+export const getAllIssues = async (): Promise<Issue[]> => {
+  try {
+    const q = query(
+      collection(db, ISSUES_COLLECTION),
+      orderBy("date", "desc")
+    );
+    const querySnapshot = await getDocs(q);
+
+    return querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as Issue[];
+  } catch (error) {
+    console.error("Erro ao listar problemas:", error);
+    throw error;
+  }
+};
+
+export const getIssuesByProject = async (
+  projectId: string
+): Promise<Issue[]> => {
+  try {
+    const q = query(
+      collection(db, ISSUES_COLLECTION),
+      where("projectId", "==", projectId),
+      orderBy("date", "desc")
+    );
+    const querySnapshot = await getDocs(q);
+
+    return querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as Issue[];
+  } catch (error) {
+    console.error("Erro ao listar problemas por projeto:", error);
+    throw error;
+  }
+};
+
+export const updateIssue = async (
+  id: string,
+  updates: Partial<Issue>
+): Promise<void> => {
+  try {
+    const docRef = doc(db, ISSUES_COLLECTION, id);
+    const cleanUpdates = Object.fromEntries(
+      Object.entries({ ...updates }).filter(([, value]) => value !== undefined)
+    );
+
+    await updateDoc(docRef, {
+      ...cleanUpdates,
+      updatedAt: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error("Erro ao atualizar problema:", error);
+    throw error;
+  }
+};
+
+export const deleteIssue = async (id: string): Promise<void> => {
+  try {
+    const docRef = doc(db, ISSUES_COLLECTION, id);
+    await deleteDoc(docRef);
+  } catch (error) {
+    console.error("Erro ao deletar problema:", error);
+    throw error;
+  }
+};
+
+// ===== DOCUMENTOS (DOCUMENTS) =====
+
+export const createDocument = async (
+  documentData: Omit<DocumentRecord, "id" | "createdAt" | "updatedAt">
+): Promise<string> => {
+  try {
+    const now = new Date().toISOString();
+    const cleanData = Object.fromEntries(
+      Object.entries({ ...documentData }).filter(
+        ([, value]) => value !== undefined
+      )
+    );
+
+    const docRef = await addDoc(collection(db, DOCUMENTS_COLLECTION), {
+      ...cleanData,
+      createdAt: now,
+      updatedAt: now,
+    });
+    return docRef.id;
+  } catch (error) {
+    console.error("Erro ao criar documento:", error);
+    throw error;
+  }
+};
+
+export const getAllDocuments = async (): Promise<DocumentRecord[]> => {
+  try {
+    const q = query(
+      collection(db, DOCUMENTS_COLLECTION),
+      orderBy("uploadDate", "desc")
+    );
+    const querySnapshot = await getDocs(q);
+
+    return querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as DocumentRecord[];
+  } catch (error) {
+    console.error("Erro ao listar documentos:", error);
+    throw error;
+  }
+};
+
+export const getDocumentsByProject = async (
+  projectId: string
+): Promise<DocumentRecord[]> => {
+  try {
+    const q = query(
+      collection(db, DOCUMENTS_COLLECTION),
+      where("projectId", "==", projectId),
+      orderBy("uploadDate", "desc")
+    );
+    const querySnapshot = await getDocs(q);
+
+    return querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as DocumentRecord[];
+  } catch (error) {
+    console.error("Erro ao listar documentos por projeto:", error);
+    throw error;
+  }
+};
+
+export const updateDocument = async (
+  id: string,
+  updates: Partial<DocumentRecord>
+): Promise<void> => {
+  try {
+    const docRef = doc(db, DOCUMENTS_COLLECTION, id);
+    const cleanUpdates = Object.fromEntries(
+      Object.entries({ ...updates }).filter(([, value]) => value !== undefined)
+    );
+
+    await updateDoc(docRef, {
+      ...cleanUpdates,
+      updatedAt: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error("Erro ao atualizar documento:", error);
+    throw error;
+  }
+};
+
+export const deleteDocument = async (id: string): Promise<void> => {
+  try {
+    const docRef = doc(db, DOCUMENTS_COLLECTION, id);
+    await deleteDoc(docRef);
+  } catch (error) {
+    console.error("Erro ao deletar documento:", error);
     throw error;
   }
 };
