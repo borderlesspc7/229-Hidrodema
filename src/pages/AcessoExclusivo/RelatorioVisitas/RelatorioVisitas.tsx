@@ -208,10 +208,7 @@ export default function RelatorioVisitas() {
       question: "6 - Selecione a ação que deseja realizar",
       section: "Geral",
       required: true,
-      options: [
-        "Solicitar uma nova visita",
-        "Fazer o relatório de uma visita realizada",
-      ],
+      options: ["Solicitar uma nova visita"],
     },
     // Seção 3: Dados do Cliente
     {
@@ -359,14 +356,6 @@ export default function RelatorioVisitas() {
       placeholder: "Insira o ID da solicitação prévia",
     },
     // Seção 7: Dados da Visita
-    {
-      id: "q20",
-      type: "radio",
-      question: "20 - Possui o número de solicitação da visita (ID)",
-      section: "Dados da Visita",
-      required: true,
-      options: ["Sim", "Não"],
-    },
     {
       id: "q21",
       type: "text",
@@ -1361,7 +1350,7 @@ export default function RelatorioVisitas() {
       <div className="visitas-menu-cards">
         <Card
           variant="service"
-          title="NOVA VISITA"
+          title="NOVA SOLICITAÇÃO"
           textColor="#1e40af"
           backgroundColor="#f0f9ff"
           size="large"
