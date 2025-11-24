@@ -1,21 +1,23 @@
 import Button from "../../../../../components/ui/Button/Button";
 import Input from "../../../../../components/ui/Input/Input";
 import Card from "../../../../../components/ui/Card/Card";
+import ProjectSelector from "../shared/ProjectSelector";
 import {
   FiTool,
   FiRefreshCw,
   FiCheckCircle,
   FiArrowLeft,
 } from "react-icons/fi";
-import type { Equipment } from "../../../../../services/obrasService";
+import type { Equipment, Project } from "../../../../../services/obrasService";
 
 interface EquipmentFormProps {
+  projects: Project[];
   formData: {
     name: string;
     type: string;
     code: string;
     status: "disponivel" | "em-uso" | "manutencao" | "quebrado";
-    projectId: string;
+    projectId?: string;
     lastMaintenance: string;
     nextMaintenance: string;
     operator: string;
@@ -30,6 +32,7 @@ interface EquipmentFormProps {
 }
 
 export default function EquipmentForm({
+  projects,
   formData,
   editingItem,
   onChange,
@@ -61,6 +64,13 @@ export default function EquipmentForm({
             <h3 className="obras-section-title">
               <FiTool /> Informações do Equipamento
             </h3>
+            <ProjectSelector
+              projects={projects}
+              value={formData.projectId || ""}
+              onChange={(value) => onChange("projectId", value)}
+              required={false}
+              label="Obra Relacionada (opcional)"
+            />
             <div className="obras-form-row">
               <div className="obras-form-field">
                 <label>Nome do Equipamento *</label>

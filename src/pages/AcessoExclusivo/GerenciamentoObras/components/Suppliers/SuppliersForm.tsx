@@ -1,16 +1,19 @@
 import Button from "../../../../../components/ui/Button/Button";
 import Input from "../../../../../components/ui/Input/Input";
 import Card from "../../../../../components/ui/Card/Card";
+import ProjectSelector from "../shared/ProjectSelector";
 import {
   FiTruck,
   FiRefreshCw,
   FiCheckCircle,
   FiArrowLeft,
 } from "react-icons/fi";
-import type { Supplier } from "../../../../../services/obrasService";
+import type { Supplier, Project } from "../../../../../services/obrasService";
 
 interface SuppliersFormProps {
+  projects: Project[];
   formData: {
+    projectId?: string;
     name: string;
     contact: string;
     email: string;
@@ -31,6 +34,7 @@ interface SuppliersFormProps {
 }
 
 export default function SuppliersForm({
+  projects,
   formData,
   editingItem,
   onChange,
@@ -62,6 +66,13 @@ export default function SuppliersForm({
             <h3 className="obras-section-title">
               <FiTruck /> Informações do Fornecedor
             </h3>
+            <ProjectSelector
+              projects={projects}
+              value={formData.projectId || ""}
+              onChange={(value) => onChange("projectId", value)}
+              required={false}
+              label="Obra Relacionada (opcional)"
+            />
             <div className="obras-form-row">
               <div className="obras-form-field">
                 <label>Nome do Fornecedor *</label>

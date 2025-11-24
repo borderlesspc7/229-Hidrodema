@@ -45,7 +45,7 @@ export interface Milestone {
 
 export interface DiaryEntry {
   id?: string;
-  projectId?: string; // ID do projeto relacionado
+  projectId: string; // ID do projeto relacionado (obrigatório)
   obraName: string;
   date: string;
   activities: string;
@@ -80,6 +80,7 @@ export interface Photo {
 
 export interface InventoryItem {
   id?: string;
+  projectId?: string; // ID do projeto relacionado (opcional - pode ser compartilhado)
   name: string;
   category: string;
   quantity: number;
@@ -131,6 +132,7 @@ export interface BudgetItem {
 
 export interface Supplier {
   id?: string;
+  projectId?: string; // ID do projeto relacionado (opcional - pode ser compartilhado)
   name: string;
   contact: string;
   email: string;
@@ -170,6 +172,7 @@ export interface QualityItem {
 
 export interface TeamMember {
   id?: string;
+  projectId?: string; // ID do projeto relacionado (opcional - pode trabalhar em múltiplas obras)
   name: string;
   role: string;
   cpf?: string;

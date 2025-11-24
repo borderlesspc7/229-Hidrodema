@@ -29,6 +29,7 @@ import {
   DocumentsForm,
   QualityList,
   QualityForm,
+  ReportsDashboard,
 } from "./components";
 import {
   createProject,
@@ -184,6 +185,7 @@ export default function GerenciamentoObras() {
 
   // Form states for Inventory
   const [newInventoryItem, setNewInventoryItem] = useState({
+    projectId: "",
     name: "",
     category: "",
     quantity: 0,
@@ -205,6 +207,7 @@ export default function GerenciamentoObras() {
 
   // Form states for Suppliers
   const [newSupplier, setNewSupplier] = useState({
+    projectId: "",
     name: "",
     contact: "",
     email: "",
@@ -220,6 +223,7 @@ export default function GerenciamentoObras() {
 
   // Form states for Team
   const [newTeamMember, setNewTeamMember] = useState({
+    projectId: "",
     name: "",
     role: "",
     cpf: "",
@@ -739,6 +743,7 @@ export default function GerenciamentoObras() {
 
   const resetNewInventoryForm = () => {
     setNewInventoryItem({
+      projectId: "",
       name: "",
       category: "",
       quantity: 0,
@@ -785,6 +790,7 @@ export default function GerenciamentoObras() {
   const handleEditInventoryItem = (item: InventoryItem) => {
     setEditingInventoryItem(item);
     setNewInventoryItem({
+      projectId: item.projectId || "",
       name: item.name,
       category: item.category,
       quantity: item.quantity,
@@ -1158,6 +1164,7 @@ export default function GerenciamentoObras() {
       case "new-inventory":
         return (
           <InventoryForm
+            projects={projects}
             formData={newInventoryItem}
             editingItem={editingInventoryItem}
             onChange={handleInventoryChange}
@@ -1198,6 +1205,7 @@ export default function GerenciamentoObras() {
             onEdit={(supplier) => {
               setEditingSupplier(supplier);
               setNewSupplier({
+                projectId: supplier.projectId || "",
                 name: supplier.name,
                 contact: supplier.contact,
                 email: supplier.email,
@@ -1219,6 +1227,7 @@ export default function GerenciamentoObras() {
       case "new-supplier":
         return (
           <SuppliersForm
+            projects={projects}
             formData={newSupplier}
             editingItem={editingSupplier}
             onChange={handleSupplierChange}
@@ -1236,6 +1245,7 @@ export default function GerenciamentoObras() {
               );
               if (success) {
                 setNewSupplier({
+                  projectId: "",
                   name: "",
                   contact: "",
                   email: "",
@@ -1280,6 +1290,7 @@ export default function GerenciamentoObras() {
             onEdit={(member) => {
               setEditingTeamMember(member);
               setNewTeamMember({
+                projectId: member.projectId || "",
                 name: member.name,
                 role: member.role,
                 cpf: member.cpf || "",
@@ -1299,6 +1310,7 @@ export default function GerenciamentoObras() {
       case "new-team":
         return (
           <TeamForm
+            projects={projects}
             formData={newTeamMember}
             editingItem={editingTeamMember}
             onChange={handleTeamChange}
@@ -1316,6 +1328,7 @@ export default function GerenciamentoObras() {
               );
               if (success) {
                 setNewTeamMember({
+                  projectId: "",
                   name: "",
                   role: "",
                   cpf: "",
@@ -1376,6 +1389,7 @@ export default function GerenciamentoObras() {
       case "new-equipment":
         return (
           <EquipmentForm
+            projects={projects}
             formData={newEquipment}
             editingItem={editingEquipment}
             onChange={handleEquipmentChange}
@@ -1905,11 +1919,22 @@ export default function GerenciamentoObras() {
 
       case "reports":
         return (
-          <div style={{ padding: "40px", textAlign: "center" }}>
-            <h2>Relatórios</h2>
-            <p>Funcionalidade em desenvolvimento</p>
-            <Button onClick={() => setViewMode("menu")}>Voltar ao Menu</Button>
-          </div>
+          <ReportsDashboard
+            projects={projects}
+            diaryEntries={diaryEntries}
+            inventory={inventory}
+            budgets={budgets}
+            suppliers={suppliers}
+            qualityChecklists={qualityChecklists}
+            teamMembers={teamMembers}
+            equipment={equipment}
+            schedules={schedules}
+            safetyRecords={safetyRecords}
+            measurements={measurements}
+            issues={issues}
+            documents={documents}
+            onViewChange={setViewMode}
+          />
         );
 
       default:

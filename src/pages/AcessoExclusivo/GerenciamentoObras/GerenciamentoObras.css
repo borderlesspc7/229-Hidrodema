@@ -1395,12 +1395,30 @@
 .obras-reports-dashboard {
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  gap: 40px;
+}
+
+.obras-dashboard-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.obras-dashboard-section-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
 }
 
 .obras-dashboard-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 20px;
 }
 
@@ -1415,6 +1433,7 @@
   display: flex;
   align-items: center;
   gap: 20px;
+  border-left: 4px solid;
 }
 
 .obras-dashboard-card:hover {
@@ -1422,10 +1441,99 @@
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
 }
 
+/* Card color variants */
+.obras-card-primary {
+  border-left-color: #3b82f6;
+}
+
+.obras-card-primary .obras-card-icon {
+  color: #3b82f6;
+}
+
+.obras-card-success {
+  border-left-color: #10b981;
+}
+
+.obras-card-success .obras-card-icon {
+  color: #10b981;
+}
+
+.obras-card-info {
+  border-left-color: #06b6d4;
+}
+
+.obras-card-info .obras-card-icon {
+  color: #06b6d4;
+}
+
+.obras-card-warning {
+  border-left-color: #f59e0b;
+}
+
+.obras-card-warning .obras-card-icon {
+  color: #f59e0b;
+}
+
+.obras-card-danger {
+  border-left-color: #ef4444;
+}
+
+.obras-card-danger .obras-card-icon {
+  color: #ef4444;
+}
+
 .obras-card-icon {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+}
+
+.obras-card-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.obras-card-content h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.obras-card-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1e40af;
+  margin: 0;
+  line-height: 1;
+}
+
+.obras-card-detail {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.obras-progress-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.obras-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #06b6d4);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
   width: 60px;
   height: 60px;
   background: linear-gradient(135deg, #3b82f6, #1e40af);

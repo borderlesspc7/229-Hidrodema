@@ -40,6 +40,10 @@ export { DocumentsList, DocumentsForm } from "./Documents";
 // Quality
 export { QualityList, QualityForm } from "./Quality";
 
+// Reports
+export { ReportsDashboard } from "./Reports";
+
 // Shared components
 export { default as SectionHeader } from "./shared/SectionHeader";
+export { default as ProjectSelector } from "./shared/ProjectSelector";
 export { default as SimpleListView } from "./SimpleListView";

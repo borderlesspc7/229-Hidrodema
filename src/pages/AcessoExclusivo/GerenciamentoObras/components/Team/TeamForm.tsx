@@ -1,16 +1,19 @@
 import Button from "../../../../../components/ui/Button/Button";
 import Input from "../../../../../components/ui/Input/Input";
 import Card from "../../../../../components/ui/Card/Card";
+import ProjectSelector from "../shared/ProjectSelector";
 import {
   FiUsers,
   FiRefreshCw,
   FiCheckCircle,
   FiArrowLeft,
 } from "react-icons/fi";
-import type { TeamMember } from "../../../../../services/obrasService";
+import type { TeamMember, Project } from "../../../../../services/obrasService";
 
 interface TeamFormProps {
+  projects: Project[];
   formData: {
+    projectId?: string;
     name: string;
     role: string;
     cpf: string;
@@ -29,6 +32,7 @@ interface TeamFormProps {
 }
 
 export default function TeamForm({
+  projects,
   formData,
   editingItem,
   onChange,
@@ -62,6 +66,13 @@ export default function TeamForm({
             <h3 className="obras-section-title">
               <FiUsers /> Informações do Membro
             </h3>
+            <ProjectSelector
+              projects={projects}
+              value={formData.projectId || ""}
+              onChange={(value) => onChange("projectId", value)}
+              required={false}
+              label="Obra Relacionada (opcional)"
+            />
             <div className="obras-form-row">
               <div className="obras-form-field">
                 <label>Nome Completo *</label>

@@ -1,16 +1,19 @@
 import Button from "../../../../../components/ui/Button/Button";
 import Input from "../../../../../components/ui/Input/Input";
 import Card from "../../../../../components/ui/Card/Card";
+import ProjectSelector from "../shared/ProjectSelector";
 import {
   FiPackage,
   FiRefreshCw,
   FiCheckCircle,
   FiArrowLeft,
 } from "react-icons/fi";
-import type { InventoryItem } from "../../../../../services/obrasService";
+import type { InventoryItem, Project } from "../../../../../services/obrasService";
 
 interface InventoryFormProps {
+  projects: Project[];
   formData: {
+    projectId?: string;
     name: string;
     category: string;
     quantity: number;
@@ -29,6 +32,7 @@ interface InventoryFormProps {
 }
 
 export default function InventoryForm({
+  projects,
   formData,
   editingItem,
   onChange,
@@ -62,6 +66,13 @@ export default function InventoryForm({
             <h3 className="obras-section-title">
               <FiPackage /> Informações do Item
             </h3>
+            <ProjectSelector
+              projects={projects}
+              value={formData.projectId || ""}
+              onChange={(value) => onChange("projectId", value)}
+              required={false}
+              label="Obra Relacionada (opcional)"
+            />
             <div className="obras-form-row">
               <div className="obras-form-field">
                 <label>Nome do Item *</label>
