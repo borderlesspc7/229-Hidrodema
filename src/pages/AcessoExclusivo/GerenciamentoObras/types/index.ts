@@ -19,6 +19,9 @@ export interface Photo {
 export type ViewMode =
   | "menu"
   | "new"
+  | "select-report-type"
+  | "new-rdo"
+  | "new-expense"
   | "history"
   | "edit"
   | "projects"

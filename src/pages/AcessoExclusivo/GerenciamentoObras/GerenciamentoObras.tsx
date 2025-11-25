@@ -6,6 +6,9 @@ import {
   Menu,
   DiarioObrasForm,
   DiarioObrasHistory,
+  ReportTypeSelector,
+  RDOForm,
+  ExpenseForm,
   ProjectsManagement,
   InventoryList,
   InventoryForm,
@@ -1085,6 +1088,70 @@ export default function GerenciamentoObras() {
         );
 
       case "new":
+        // Mostrar seletor de tipo de relatório
+        return (
+          <ReportTypeSelector
+            onSelectType={(type) => {
+              if (type === "rdo") {
+                setViewMode("new-rdo");
+              } else if (type === "lancamento-gastos") {
+                setViewMode("new-expense");
+              }
+            }}
+            onBack={() => setViewMode("menu")}
+          />
+        );
+
+      case "new-rdo":
+        return (
+          <RDOForm
+            projects={projects}
+            editingEntry={editingEntry}
+            onSave={async (data) => {
+              try {
+                if (editingEntry && editingEntry.id) {
+                  await updateDiaryEntry(editingEntry.id, data as Parameters<typeof updateDiaryEntry>[1]);
+                  showToastMessage("Relatório atualizado com sucesso!", "success");
+                } else {
+                  await createDiaryEntry(data as Parameters<typeof createDiaryEntry>[0]);
+                  showToastMessage("Relatório criado com sucesso!", "success");
+                }
+                await refreshData();
+                setViewMode("history");
+              } catch (error) {
+                console.error("Erro ao salvar relatório:", error);
+                showToastMessage("Erro ao salvar relatório. Tente novamente.", "error");
+              }
+            }}
+            onBack={() => setViewMode("new")}
+          />
+        );
+
+      case "new-expense":
+        return (
+          <ExpenseForm
+            projects={projects}
+            editingEntry={editingEntry}
+            onSave={async (data) => {
+              try {
+                if (editingEntry && editingEntry.id) {
+                  await updateDiaryEntry(editingEntry.id, data as Parameters<typeof updateDiaryEntry>[1]);
+                  showToastMessage("Lançamento atualizado com sucesso!", "success");
+                } else {
+                  await createDiaryEntry(data as Parameters<typeof createDiaryEntry>[0]);
+                  showToastMessage("Lançamento criado com sucesso!", "success");
+                }
+                await refreshData();
+                setViewMode("history");
+              } catch (error) {
+                console.error("Erro ao salvar lançamento:", error);
+                showToastMessage("Erro ao salvar lançamento. Tente novamente.", "error");
+              }
+            }}
+            onBack={() => setViewMode("new")}
+          />
+        );
+
       case "edit":
         return (
           <DiarioObrasForm

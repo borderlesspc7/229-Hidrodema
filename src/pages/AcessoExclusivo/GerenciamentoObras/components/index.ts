@@ -2,7 +2,13 @@
 export { default as Menu } from "./Menu";
 
 // Diario de Obras
-export { DiarioObrasForm, DiarioObrasHistory } from "./DiarioObras";
+export {
+  DiarioObrasForm,
+  DiarioObrasHistory,
+  ReportTypeSelector,
+  RDOForm,
+  ExpenseForm,
+} from "./DiarioObras";
 
 // Projects
 export { ProjectsManagement } from "./Projects";

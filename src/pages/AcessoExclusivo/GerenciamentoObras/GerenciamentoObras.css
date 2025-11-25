@@ -2219,3 +2219,883 @@
     opacity: 1;
   }
 }
+
+/* ========================================
+   SELETOR DE TIPO DE RELATÓRIO
+   ======================================== */
+
+.obras-report-selector-container {
+  position: relative;
+  z-index: 2;
+  max-width: 1200px;
+  width: 100%;
+}
+
+.obras-report-selector-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.obras-report-selector-header h2 {
+  font-size: 32px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 12px 0;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.obras-report-selector-header p {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0;
+}
+
+.obras-report-selector-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.obras-report-type-card {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.obras-report-type-card:hover {
+  transform: translateY(-8px);
+}
+
+.obras-report-type-disabled {
+  cursor: not-allowed !important;
+}
+
+.obras-report-type-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+  gap: 16px;
+}
+
+.obras-report-type-icon {
+  width: 100px;
+  height: 100px;
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.obras-report-type-card:hover .obras-report-type-icon {
+  transform: scale(1.1);
+}
+
+.obras-report-type-content h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.obras-report-type-content p {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.obras-coming-soon-badge {
+  background: #e2e8f0;
+  color: #64748b;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ========================================
+   FORMULÁRIO RDO / LANÇAMENTO DE GASTOS
+   ======================================== */
+
+.obras-rdo-container {
+  position: relative;
+  z-index: 2;
+  max-width: 1400px;
+  width: 100%;
+  display: flex;
+  gap: 24px;
+}
+
+.obras-rdo-sidebar {
+  width: 240px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  height: fit-content;
+  position: sticky;
+  top: 20px;
+}
+
+.obras-rdo-nav-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border: none;
+  background: transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 4px;
+}
+
+.obras-rdo-nav-item:hover {
+  background: #f1f5f9;
+}
+
+.obras-rdo-nav-item.active {
+  background: #3b82f6;
+  color: white;
+}
+
+.obras-rdo-nav-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.obras-rdo-nav-count {
+  background: rgba(0, 0, 0, 0.1);
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.obras-rdo-nav-item.active .obras-rdo-nav-count {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.obras-rdo-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.obras-rdo-card {
+  background: rgba(255, 255, 255, 0.98) !important;
+  border-radius: 16px !important;
+  padding: 32px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+}
+
+.obras-rdo-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  padding-bottom: 24px;
+  border-bottom: 2px solid #e2e8f0;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.obras-rdo-logo {
+  flex-shrink: 0;
+}
+
+.obras-rdo-header-info {
+  flex: 1;
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.obras-rdo-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.obras-rdo-field label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.obras-rdo-weekday {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1e293b;
+  padding: 10px 0;
+}
+
+.obras-rdo-status-badge {
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: white;
+}
+
+.obras-status-preenchendo {
+  background: #6b7280;
+}
+
+.obras-status-revisao {
+  background: #f59e0b;
+}
+
+.obras-status-aprovado {
+  background: #10b981;
+}
+
+.obras-rdo-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: #1e293b;
+  text-align: center;
+  margin: 0 0 24px 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.obras-rdo-section {
+  margin-bottom: 32px;
+}
+
+.obras-rdo-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.obras-rdo-schedule-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 20px;
+}
+
+.obras-rdo-total-hours {
+  background: #f0fdf4;
+  padding: 16px;
+  border-radius: 12px;
+  border: 2px solid #10b981;
+}
+
+.obras-rdo-hours-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #10b981;
+}
+
+.obras-rdo-add-form {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.obras-rdo-add-form > * {
+  flex: 1;
+  min-width: 150px;
+}
+
+.obras-rdo-add-form-vertical {
+  flex-direction: column;
+}
+
+.obras-rdo-add-form-row {
+  display: flex;
+  gap: 12px;
+}
+
+.obras-rdo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.obras-rdo-list-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.obras-rdo-item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.obras-rdo-item-info strong {
+  font-size: 14px;
+  color: #1e293b;
+}
+
+.obras-rdo-item-info span {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.obras-rdo-item-quantity {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.obras-rdo-item-quantity button {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.obras-rdo-item-quantity button:hover {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
+
+.obras-rdo-item-quantity span {
+  min-width: 30px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.obras-rdo-remove-btn,
+.obras-rdo-edit-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.obras-rdo-remove-btn:hover {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.obras-rdo-edit-btn:hover {
+  background: #dbeafe;
+  color: #3b82f6;
+}
+
+.obras-rdo-activities-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.obras-rdo-activity-item {
+  padding: 20px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.obras-rdo-activity-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.obras-rdo-activity-header strong {
+  font-size: 15px;
+  color: #1e293b;
+}
+
+.obras-rdo-progress {
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.obras-progress-em-andamento {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.obras-progress-concluido {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.obras-progress-pausado {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.obras-rdo-activity-details {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.obras-rdo-activity-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  justify-content: flex-end;
+}
+
+.obras-rdo-activity-actions button {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.obras-rdo-activity-actions button:hover {
+  background: #e2e8f0;
+}
+
+.obras-rdo-empty {
+  text-align: center;
+  padding: 40px;
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.obras-textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.obras-textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.obras-textarea-small {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 12px;
+  resize: none;
+  font-family: inherit;
+  height: 60px;
+}
+
+.obras-rdo-comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.obras-rdo-comment-item {
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.obras-rdo-comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.obras-rdo-comment-header strong {
+  font-size: 14px;
+  color: #1e293b;
+}
+
+.obras-rdo-comment-header span {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.obras-rdo-comment-item p {
+  font-size: 14px;
+  color: #475569;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.obras-rdo-comment-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  justify-content: flex-end;
+}
+
+.obras-rdo-comment-actions button {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.obras-rdo-comment-actions button:hover {
+  background: #e2e8f0;
+}
+
+.obras-rdo-photos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.obras-rdo-photo-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.obras-rdo-photo-preview {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4/3;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f1f5f9;
+}
+
+.obras-rdo-photo-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.obras-rdo-photo-remove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.obras-upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: #3b82f6;
+  color: white;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.obras-upload-btn:hover {
+  background: #2563eb;
+}
+
+.obras-rdo-approval {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.obras-rdo-approval-badge {
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: white;
+  width: fit-content;
+}
+
+.obras-rdo-approval-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.obras-rdo-approval-options label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #f8fafc;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.obras-rdo-approval-options label:hover {
+  background: #e2e8f0;
+}
+
+.obras-rdo-approval-options input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #3b82f6;
+}
+
+.obras-rdo-signature-area {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.obras-rdo-signature-box {
+  flex: 1;
+  max-width: 300px;
+  height: 120px;
+  border: 2px dashed #cbd5e1;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+}
+
+.obras-rdo-signature-box span {
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+.obras-rdo-signature-box img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.obras-rdo-instructions {
+  text-align: center;
+  padding: 40px;
+  color: #64748b;
+  font-size: 15px;
+  line-height: 1.6;
+  background: #f8fafc;
+  border-radius: 12px;
+}
+
+.obras-rdo-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 2px solid #e2e8f0;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.obras-rdo-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.obras-rdo-meta span {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.obras-save-btn {
+  padding: 12px 32px !important;
+  font-size: 16px !important;
+  background: #10b981 !important;
+}
+
+.obras-save-btn:hover {
+  background: #059669 !important;
+}
+
+/* Estilos específicos para Lançamento de Gastos */
+.obras-expense-form {
+  background: #f8fafc;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+
+.obras-expense-form h4 {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0 0 16px 0;
+}
+
+.obras-expense-value-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  padding: 0 12px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.obras-expense-value-input span {
+  color: #64748b;
+  font-weight: 600;
+}
+
+.obras-expense-value-input input {
+  border: none !important;
+  padding-left: 0 !important;
+}
+
+.obras-expense-pending {
+  background: #fefce8;
+  padding: 16px;
+  border-radius: 8px;
+  margin-top: 16px;
+  border: 1px solid #fef08a;
+}
+
+.obras-expense-pending h5 {
+  font-size: 12px;
+  color: #a16207;
+  margin: 0 0 12px 0;
+  text-transform: uppercase;
+}
+
+.obras-expense-pending-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #fef08a;
+}
+
+.obras-expense-pending-item:last-child {
+  border-bottom: none;
+}
+
+.obras-expense-pending-item button {
+  background: transparent;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.obras-expense-item {
+  background: #f0fdf4 !important;
+  border-color: #86efac !important;
+}
+
+.obras-expense-details p {
+  margin: 4px 0;
+  font-size: 14px;
+}
+
+.obras-expense-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background: linear-gradient(135deg, #3b82f6, #1e40af);
+  border-radius: 12px;
+  color: white;
+  margin-top: 24px;
+}
+
+.obras-expense-total strong {
+  font-size: 16px;
+}
+
+.obras-expense-total span {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+/* Responsividade para RDO */
+@media (max-width: 1024px) {
+  .obras-rdo-container {
+    flex-direction: column;
+  }
+
+  .obras-rdo-sidebar {
+    width: 100%;
+    position: static;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .obras-rdo-nav-item {
+    flex: 1;
+    min-width: 140px;
+    margin-bottom: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .obras-rdo-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .obras-rdo-header-info {
+    flex-direction: column;
+  }
+
+  .obras-rdo-schedule-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .obras-rdo-photos-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .obras-report-selector-grid {
+    grid-template-columns: 1fr;
+  }
+}

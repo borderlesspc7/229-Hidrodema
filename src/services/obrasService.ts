@@ -43,21 +43,131 @@ export interface Milestone {
   dependencies: string[];
 }
 
+// Tipos de relatório disponíveis
+export type ReportType = "rdo" | "lancamento-gastos" | "tipo3" | "tipo4";
+
 export interface DiaryEntry {
   id?: string;
   projectId: string; // ID do projeto relacionado (obrigatório)
+  reportType: ReportType; // Tipo do relatório
+  reportNumber?: number; // Número sequencial do relatório
   obraName: string;
   date: string;
+  dayOfWeek?: string; // Dia da semana
+
+  // Campos específicos do RDO
+  workSchedule?: WorkSchedule; // Horário de trabalho
+  workforce?: WorkforceEntry[]; // Mão de obra
+  equipmentUsed?: EquipmentUsage[]; // Equipamentos utilizados
   activities: string;
+  activitiesList?: ActivityEntry[]; // Lista de atividades detalhadas
+  occurrences?: OccurrenceEntry[]; // Ocorrências
+  comments?: CommentEntry[]; // Comentários
+
+  // Campos específicos de Lançamento de Gastos
+  expenses?: ExpenseEntry[]; // Lista de gastos
+
+  // Campos comuns
   materials: Material[];
   photos: Photo[];
+  videos?: VideoEntry[]; // Vídeos
   observations: string;
   weather: string;
   responsible: string;
+
+  // Aprovação e assinatura
+  approvalStatus: "preenchendo" | "revisao" | "aprovado";
+  signature?: string; // Assinatura digital (base64)
+  signedBy?: string;
+  signedAt?: string;
+
   status: "em-andamento" | "concluida" | "pausada";
   createdAt: string;
   updatedAt: string;
   createdBy?: string;
+  lastModifiedBy?: string;
+  viewCount?: number;
+  editLog?: EditLogEntry[];
+}
+
+// Horário de trabalho
+export interface WorkSchedule {
+  entryTime: string; // Entrada (ex: 08:00)
+  exitTime: string; // Saída (ex: 18:00)
+  breakStart: string; // Intervalo entrada (ex: 12:00)
+  breakEnd: string; // Intervalo saída (ex: 13:00)
+  totalHours?: string; // Calculado automaticamente
+}
+
+// Entrada de mão de obra
+export interface WorkforceEntry {
+  id: string;
+  name: string;
+  company: string;
+  quantity: number;
+}
+
+// Uso de equipamento
+export interface EquipmentUsage {
+  id: string;
+  name: string;
+  code: string;
+  quantity: number;
+}
+
+// Entrada de atividade detalhada
+export interface ActivityEntry {
+  id: string;
+  description: string;
+  progress: number; // Porcentagem (0-100)
+  status: "em-andamento" | "concluido" | "pausado";
+  details?: string; // Detalhes adicionais
+  quantity?: number; // Quantidade feita
+}
+
+// Entrada de ocorrência
+export interface OccurrenceEntry {
+  id: string;
+  description: string;
+  type: "acidente" | "atraso" | "falta-material" | "clima" | "outro";
+  severity: "baixa" | "media" | "alta";
+  date: string;
+}
+
+// Entrada de comentário
+export interface CommentEntry {
+  id: string;
+  author: string;
+  text: string;
+  date: string;
+}
+
+// Entrada de gasto (para Lançamento de Gastos)
+export interface ExpenseEntry {
+  id: string;
+  description: string;
+  value: number;
+  category: string;
+  date: string;
+  receipt?: string; // URL ou base64 do comprovante
+}
+
+// Entrada de vídeo
+export interface VideoEntry {
+  id: string;
+  name: string;
+  description: string;
+  dataUrl: string;
+  duration?: number; // em segundos
+  size?: number; // em bytes
+}
+
+// Log de edições
+export interface EditLogEntry {
+  id: string;
+  action: string;
+  user: string;
+  date: string;
 }
 
 export interface Material {
@@ -258,7 +368,13 @@ export interface Issue {
   date: string;
   title: string;
   description: string;
-  category: "tecnico" | "financeiro" | "prazo" | "qualidade" | "seguranca" | "outro";
+  category:
+    | "tecnico"
+    | "financeiro"
+    | "prazo"
+    | "qualidade"
+    | "seguranca"
+    | "outro";
   priority: "baixa" | "media" | "alta" | "critica";
   status: "aberto" | "em-analise" | "resolvido" | "cancelado";
   responsible?: string;
@@ -273,7 +389,14 @@ export interface DocumentRecord {
   id?: string;
   projectId: string;
   name: string;
-  type: "projeto" | "art" | "contrato" | "licenca" | "orcamento" | "medicao" | "outro";
+  type:
+    | "projeto"
+    | "art"
+    | "contrato"
+    | "licenca"
+    | "orcamento"
+    | "medicao"
+    | "outro";
   uploadDate: string;
   fileUrl?: string;
   description?: string;
@@ -601,14 +724,15 @@ export const deleteDiaryEntry = async (id: string): Promise<void> => {
 // ===== INVENTÁRIO =====
 
 export const createInventoryItem = async (
-  itemData: Omit<InventoryItem, "id" | "lastUpdated" | "createdAt" | "updatedAt" | "alerts">
+  itemData: Omit<
+    InventoryItem,
+    "id" | "lastUpdated" | "createdAt" | "updatedAt" | "alerts"
+  >
 ): Promise<string> => {
   try {
     const now = new Date().toISOString();
     const cleanData = Object.fromEntries(
-      Object.entries({ ...itemData }).filter(
-        ([, value]) => value !== undefined
-      )
+      Object.entries({ ...itemData }).filter(([, value]) => value !== undefined)
     );
 
     const docRef = await addDoc(collection(db, INVENTORY_COLLECTION), {
@@ -687,9 +811,7 @@ export const getInventoryItemsByCategory = async (
 export const getLowStockItems = async (): Promise<InventoryItem[]> => {
   try {
     const allItems = await getAllInventoryItems();
-    return allItems.filter(
-      (item) => item.quantity <= item.minStock
-    );
+    return allItems.filter((item) => item.quantity <= item.minStock);
   } catch (error) {
     console.error("Erro ao buscar itens com estoque baixo:", error);
     throw error;
@@ -864,9 +986,7 @@ export const createSupplier = async (
   }
 };
 
-export const getSupplierById = async (
-  id: string
-): Promise<Supplier | null> => {
+export const getSupplierById = async (id: string): Promise<Supplier | null> => {
   try {
     const docRef = doc(db, SUPPLIERS_COLLECTION, id);
     const docSnap = await getDoc(docRef);
@@ -966,14 +1086,11 @@ export const createQualityChecklist = async (
       )
     );
 
-    const docRef = await addDoc(
-      collection(db, QUALITY_CHECKLISTS_COLLECTION),
-      {
-        ...cleanData,
-        createdAt: now,
-        updatedAt: now,
-      }
-    );
+    const docRef = await addDoc(collection(db, QUALITY_CHECKLISTS_COLLECTION), {
+      ...cleanData,
+      createdAt: now,
+      updatedAt: now,
+    });
     return docRef.id;
   } catch (error) {
     console.error("Erro ao criar checklist de qualidade:", error);
@@ -1527,10 +1644,7 @@ export const createIssue = async (
 
 export const getAllIssues = async (): Promise<Issue[]> => {
   try {
-    const q = query(
-      collection(db, ISSUES_COLLECTION),
-      orderBy("date", "desc")
-    );
+    const q = query(collection(db, ISSUES_COLLECTION), orderBy("date", "desc"));
     const querySnapshot = await getDocs(q);
 
     return querySnapshot.docs.map((doc) => ({
@@ -1746,4 +1860,3 @@ export const getInventoryStatistics = async () => {
     throw error;
   }
 };
-
