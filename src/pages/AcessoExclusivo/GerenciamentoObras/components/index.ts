@@ -8,6 +8,8 @@ export {
   ReportTypeSelector,
   RDOForm,
   ExpenseForm,
+  HydrostaticTestForm,
+  WorkConclusionForm,
 } from "./DiarioObras";
 
 // Projects

@@ -22,6 +22,8 @@ export type ViewMode =
   | "select-report-type"
   | "new-rdo"
   | "new-expense"
+  | "new-hydrostatic"
+  | "new-conclusion"
   | "history"
   | "edit"
   | "projects"
@@ -48,4 +50,3 @@ export type ViewMode =
   | "new-issues"
   | "documents"
   | "new-documents";
-

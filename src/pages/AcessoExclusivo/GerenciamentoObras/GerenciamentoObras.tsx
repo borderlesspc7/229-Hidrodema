@@ -9,6 +9,8 @@ import {
   ReportTypeSelector,
   RDOForm,
   ExpenseForm,
+  HydrostaticTestForm,
+  WorkConclusionForm,
   ProjectsManagement,
   InventoryList,
   InventoryForm,
@@ -1096,6 +1098,10 @@ export default function GerenciamentoObras() {
                 setViewMode("new-rdo");
               } else if (type === "lancamento-gastos") {
                 setViewMode("new-expense");
+              } else if (type === "teste-hidrostatico") {
+                setViewMode("new-hydrostatic");
+              } else if (type === "conclusao-obra") {
+                setViewMode("new-conclusion");
               }
             }}
             onBack={() => setViewMode("menu")}
@@ -1146,6 +1152,56 @@ export default function GerenciamentoObras() {
               } catch (error) {
                 console.error("Erro ao salvar lançamento:", error);
                 showToastMessage("Erro ao salvar lançamento. Tente novamente.", "error");
+              }
+            }}
+            onBack={() => setViewMode("new")}
+          />
+        );
+
+      case "new-hydrostatic":
+        return (
+          <HydrostaticTestForm
+            projects={projects}
+            editingEntry={editingEntry}
+            onSave={async (data) => {
+              try {
+                if (editingEntry && editingEntry.id) {
+                  await updateDiaryEntry(editingEntry.id, data as Parameters<typeof updateDiaryEntry>[1]);
+                  showToastMessage("Relatório de teste hidrostático atualizado com sucesso!", "success");
+                } else {
+                  await createDiaryEntry(data as Parameters<typeof createDiaryEntry>[0]);
+                  showToastMessage("Relatório de teste hidrostático criado com sucesso!", "success");
+                }
+                await refreshData();
+                setViewMode("history");
+              } catch (error) {
+                console.error("Erro ao salvar relatório:", error);
+                showToastMessage("Erro ao salvar relatório. Tente novamente.", "error");
+              }
+            }}
+            onBack={() => setViewMode("new")}
+          />
+        );
+
+      case "new-conclusion":
+        return (
+          <WorkConclusionForm
+            projects={projects}
+            editingEntry={editingEntry}
+            onSave={async (data) => {
+              try {
+                if (editingEntry && editingEntry.id) {
+                  await updateDiaryEntry(editingEntry.id, data as Parameters<typeof updateDiaryEntry>[1]);
+                  showToastMessage("Relatório de conclusão atualizado com sucesso!", "success");
+                } else {
+                  await createDiaryEntry(data as Parameters<typeof createDiaryEntry>[0]);
+                  showToastMessage("Relatório de conclusão criado com sucesso!", "success");
+                }
+                await refreshData();
+                setViewMode("history");
+              } catch (error) {
+                console.error("Erro ao salvar relatório:", error);
+                showToastMessage("Erro ao salvar relatório. Tente novamente.", "error");
               }
             }}
             onBack={() => setViewMode("new")}

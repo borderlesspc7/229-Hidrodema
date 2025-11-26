@@ -44,7 +44,11 @@ export interface Milestone {
 }
 
 // Tipos de relatório disponíveis
-export type ReportType = "rdo" | "lancamento-gastos" | "tipo3" | "tipo4";
+export type ReportType =
+  | "rdo"
+  | "lancamento-gastos"
+  | "teste-hidrostatico"
+  | "conclusao-obra";
 
 export interface DiaryEntry {
   id?: string;
@@ -67,6 +71,15 @@ export interface DiaryEntry {
   // Campos específicos de Lançamento de Gastos
   expenses?: ExpenseEntry[]; // Lista de gastos
 
+  // Campos específicos de Teste Hidrostático
+  testItems?: HydrostaticTestItem[]; // Itens testados
+  testParameters?: TestParameter[]; // Parâmetros de teste (pressão, horários)
+
+  // Campos específicos de Conclusão de Obra
+  conclusionActivities?: ConclusionActivityEntry[]; // Atividades com status específicos
+  conclusionOccurrences?: ConclusionOccurrenceEntry[]; // Ocorrências com tags
+  signatures?: SignatureEntry[]; // Múltiplas assinaturas (empresa e cliente)
+
   // Campos comuns
   materials: Material[];
   photos: Photo[];
@@ -77,7 +90,7 @@ export interface DiaryEntry {
 
   // Aprovação e assinatura
   approvalStatus: "preenchendo" | "revisao" | "aprovado";
-  signature?: string; // Assinatura digital (base64)
+  signature?: string; // Assinatura digital (base64) - mantido para compatibilidade
   signedBy?: string;
   signedAt?: string;
 
@@ -169,6 +182,69 @@ export interface EditLogEntry {
   user: string;
   date: string;
 }
+
+// Item de teste hidrostático
+export interface HydrostaticTestItem {
+  id: string;
+  itemName: string; // Ex: "Spool: ACQUASAN 8" x 2.1/2" - 53""
+  testParameters: TestParameter[]; // Parâmetros de teste (pressão, horários)
+  result: "aprovado" | "reprovado" | "pendente";
+  notes?: string; // Observações adicionais
+}
+
+// Parâmetro de teste (pressão e horário)
+export interface TestParameter {
+  id: string;
+  pressure: number; // Pressão em bar
+  startTime: string; // Horário de início (ex: "08:00")
+  endTime: string; // Horário de fim (ex: "08:10")
+}
+
+// Atividade para Relatório de Conclusão de Obra
+export interface ConclusionActivityEntry {
+  id: string;
+  description: string;
+  progress: number; // Porcentagem (0-100)
+  status:
+    | "iniciada"
+    | "em-andamento"
+    | "concluida"
+    | "nao-iniciada"
+    | "paralisada"
+    | "nao-executada";
+  details?: string; // Detalhes adicionais
+}
+
+// Ocorrência para Relatório de Conclusão de Obra (com tags)
+export interface ConclusionOccurrenceEntry {
+  id: string;
+  description: string;
+  tags: string[]; // Tags selecionadas
+  date: string;
+}
+
+// Assinatura múltipla (empresa e cliente)
+export interface SignatureEntry {
+  id: string;
+  name: string;
+  company: string;
+  signature?: string; // Assinatura digital (base64)
+  signedAt?: string;
+  role: "empresa" | "cliente"; // Tipo de assinatura
+}
+
+// Tags disponíveis para ocorrências
+export const OCCURRENCE_TAGS = [
+  "Acidente de trabalho",
+  "Alteração de projeto",
+  "Dia Chuvoso",
+  "Falta de equipamento",
+  "Falta de material",
+  "Falta de mão de obra",
+  "Retrabalho",
+  "Solicitação fora do escopo",
+  "Solicitações do cliente",
+] as const;
 
 export interface Material {
   id: string;

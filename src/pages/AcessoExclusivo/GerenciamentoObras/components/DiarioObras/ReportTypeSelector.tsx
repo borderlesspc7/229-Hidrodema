@@ -3,7 +3,7 @@ import Button from "../../../../../components/ui/Button/Button";
 import {
   FiFileText,
   FiDollarSign,
-  FiClipboard,
+  FiDroplet,
   FiTool,
   FiArrowLeft,
 } from "react-icons/fi";
@@ -36,22 +36,24 @@ const reportTypes = [
     available: true,
   },
   {
-    type: "tipo3" as ReportType,
-    title: "Em Breve",
-    description: "Novo tipo de relatório será adicionado em breve.",
-    icon: FiClipboard,
-    color: "#6b7280",
-    bgColor: "#f3f4f6",
-    available: false,
+    type: "teste-hidrostatico" as ReportType,
+    title: "RTH - Relatório de Teste Hidrostático",
+    description:
+      "Registro de testes hidrostáticos com parâmetros de pressão, horários, resultados, fotos, vídeos e aprovação.",
+    icon: FiDroplet,
+    color: "#0ea5e9",
+    bgColor: "#e0f2fe",
+    available: true,
   },
   {
-    type: "tipo4" as ReportType,
-    title: "Em Breve",
-    description: "Novo tipo de relatório será adicionado em breve.",
-    icon: FiTool,
-    color: "#6b7280",
-    bgColor: "#f3f4f6",
-    available: false,
+    type: "conclusao-obra" as ReportType,
+    title: "RCO - Relatório de Conclusão de Obra",
+    description:
+      "Relatório final de conclusão com atividades, ocorrências, comentários, fotos, vídeos e assinaturas múltiplas.",
+    icon: FiFileText,
+    color: "#8b5cf6",
+    bgColor: "#f3e8ff",
+    available: true,
   },
 ];
 
