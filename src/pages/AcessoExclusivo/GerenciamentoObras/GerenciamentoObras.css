@@ -2328,6 +2328,15 @@
 
 .obras-report-type-disabled {
   cursor: not-allowed !important;
+  opacity: 0.6;
+}
+
+.obras-report-type-button {
+  width: 100%;
+}
+
+.obras-report-type-card.obras-report-type-disabled .obras-report-type-button {
+  pointer-events: none;
 }
 
 .obras-report-type-content {

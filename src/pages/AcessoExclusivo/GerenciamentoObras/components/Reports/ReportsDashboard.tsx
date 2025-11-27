@@ -95,9 +95,6 @@ export default function ReportsDashboard({
     (e) => e.status === "disponivel"
   ).length;
   const inUseEquipment = equipment.filter((e) => e.status === "em-uso").length;
-  const maintenanceEquipment = equipment.filter(
-    (e) => e.status === "manutencao"
-  ).length;
 
   // Problemas por prioridade
   const openIssues = issues.filter((i) => i.status === "aberto").length;

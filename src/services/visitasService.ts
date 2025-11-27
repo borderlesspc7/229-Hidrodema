@@ -81,7 +81,7 @@ export const createVisitRequest = async (
     
     // Remover campos undefined (Firebase não aceita)
     const cleanData = Object.fromEntries(
-      Object.entries({ ...requestData }).filter(([_, value]) => value !== undefined)
+      Object.entries({ ...requestData }).filter(([, value]) => value !== undefined)
     );
     
     const docRef = await addDoc(collection(db, REQUESTS_COLLECTION), {
@@ -179,7 +179,7 @@ export const updateVisitRequest = async (
     
     // Remover campos undefined (Firebase não aceita)
     const cleanUpdates = Object.fromEntries(
-      Object.entries({ ...updates }).filter(([_, value]) => value !== undefined)
+      Object.entries({ ...updates }).filter(([, value]) => value !== undefined)
     );
     
     await updateDoc(docRef, {
@@ -218,7 +218,7 @@ export const createVisitReport = async (
     
     // Remover campos undefined (Firebase não aceita)
     const cleanData = Object.fromEntries(
-      Object.entries({ ...reportData }).filter(([_, value]) => value !== undefined)
+      Object.entries({ ...reportData }).filter(([, value]) => value !== undefined)
     );
     
     const docRef = await addDoc(collection(db, REPORTS_COLLECTION), {
@@ -326,7 +326,7 @@ export const updateVisitReport = async (
     
     // Remover campos undefined (Firebase não aceita)
     const cleanUpdates = Object.fromEntries(
-      Object.entries({ ...updates }).filter(([_, value]) => value !== undefined)
+      Object.entries({ ...updates }).filter(([, value]) => value !== undefined)
     );
     
     await updateDoc(docRef, {

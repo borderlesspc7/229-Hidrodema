@@ -27,7 +27,6 @@ import type {
   ConclusionActivityEntry,
   ConclusionOccurrenceEntry,
   SignatureEntry,
-  OCCURRENCE_TAGS,
 } from "../../../../../services/obrasService";
 import { OCCURRENCE_TAGS as TAGS } from "../../../../../services/obrasService";
 
@@ -230,7 +229,11 @@ export default function WorkConclusionForm({
     }
   };
 
-  const handleUpdateSignature = (id: string, field: "name" | "company", value: string) => {
+  const handleUpdateSignature = (
+    id: string,
+    field: "name" | "company",
+    value: string
+  ) => {
     setSignatures(
       signatures.map((sig) =>
         sig.id === id ? { ...sig, [field]: value } : sig
@@ -394,9 +397,7 @@ export default function WorkConclusionForm({
             </span>
           </div>
 
-          <h2 className="obras-rdo-title">
-            RELATÓRIO DE CONCLUSÃO DE OBRA
-          </h2>
+          <h2 className="obras-rdo-title">RELATÓRIO DE CONCLUSÃO DE OBRA</h2>
 
           {/* Seleção de obra */}
           <div className="obras-rdo-section">
@@ -444,7 +445,8 @@ export default function WorkConclusionForm({
                       onChange={(e) =>
                         setNewActivity({
                           ...newActivity,
-                          status: e.target.value as ConclusionActivityEntry["status"],
+                          status: e.target
+                            .value as ConclusionActivityEntry["status"],
                         })
                       }
                       className="obras-select"
@@ -487,11 +489,19 @@ export default function WorkConclusionForm({
                   <div key={activity.id} className="obras-rdo-activity-item">
                     <div className="obras-rdo-activity-header">
                       <strong>{activity.description}</strong>
-                      <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "12px",
+                          alignItems: "center",
+                        }}
+                      >
                         <span
                           className="obras-rdo-progress"
                           style={{
-                            backgroundColor: `${getStatusColor(activity.status)}20`,
+                            backgroundColor: `${getStatusColor(
+                              activity.status
+                            )}20`,
                             color: getStatusColor(activity.status),
                             padding: "6px 12px",
                             borderRadius: "16px",
@@ -559,7 +569,10 @@ export default function WorkConclusionForm({
                     placeholder=""
                   />
                 </div>
-                <div className="obras-rdo-field" style={{ position: "relative" }}>
+                <div
+                  className="obras-rdo-field"
+                  style={{ position: "relative" }}
+                >
                   <label>Tipos de ocorrência (tags)</label>
                   <div
                     className="obras-tag-selector"
@@ -574,6 +587,9 @@ export default function WorkConclusionForm({
                           : ""
                       }
                       readOnly
+                      onChange={() => {
+                        /* campo apenas para exibir seleção */
+                      }}
                     />
                     <span className="obras-tag-selector-arrow">▼</span>
                   </div>
@@ -616,7 +632,9 @@ export default function WorkConclusionForm({
                   <div key={occurrence.id} className="obras-rdo-list-item">
                     <div className="obras-rdo-item-info">
                       <strong>{occurrence.description}</strong>
-                      <span>{new Date(occurrence.date).toLocaleDateString("pt-BR")}</span>
+                      <span>
+                        {new Date(occurrence.date).toLocaleDateString("pt-BR")}
+                      </span>
                       {occurrence.tags.length > 0 && (
                         <div className="obras-occurrence-tags">
                           {occurrence.tags.map((tag) => (
@@ -808,10 +826,7 @@ export default function WorkConclusionForm({
           {/* Seção: Aprovação */}
           {activeSection === "approval" && (
             <div className="obras-rdo-section">
-              <h3
-                className="obras-section-title"
-                style={{ color: "#ea580c" }}
-              >
+              <h3 className="obras-section-title" style={{ color: "#ea580c" }}>
                 <FiCheck /> Assinatura manual
               </h3>
               <div className="obras-rdo-approval">
@@ -935,4 +950,3 @@ export default function WorkConclusionForm({
     </div>
   );
 }
-

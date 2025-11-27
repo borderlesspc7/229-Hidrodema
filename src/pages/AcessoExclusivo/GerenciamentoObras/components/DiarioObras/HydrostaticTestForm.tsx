@@ -101,7 +101,7 @@ export default function HydrostaticTestForm({
   });
 
   // Ocorrências
-  const [occurrences, setOccurrences] = useState<OccurrenceEntry[]>(
+  const [occurrences] = useState<OccurrenceEntry[]>(
     editingEntry?.occurrences || []
   );
 
@@ -138,7 +138,7 @@ export default function HydrostaticTestForm({
   const [approvalStatus, setApprovalStatus] = useState<
     DiaryEntry["approvalStatus"]
   >(editingEntry?.approvalStatus || "preenchendo");
-  const [signature, setSignature] = useState(editingEntry?.signature || "");
+  const [signature] = useState(editingEntry?.signature || "");
 
   // Seção ativa para navegação
   const [activeSection, setActiveSection] = useState("details");

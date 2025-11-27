@@ -5,7 +5,6 @@ import Card from "../../../../../components/ui/Card/Card";
 import ProjectSelector from "../shared/ProjectSelector";
 import {
   FiFileText,
-  FiDollarSign,
   FiMessageSquare,
   FiCamera,
   FiCheck,
@@ -56,24 +55,37 @@ export default function ExpenseForm({
 
   // Comentários/Gastos
   const [comments, setComments] = useState<ExpenseComment[]>([]);
-  const [newExpenseItem, setNewExpenseItem] = useState({ description: "", value: 0 });
-  const [currentExpenseItems, setCurrentExpenseItems] = useState<{ description: string; value: number }[]>([]);
+  const [newExpenseItem, setNewExpenseItem] = useState({
+    description: "",
+    value: 0,
+  });
+  const [currentExpenseItems, setCurrentExpenseItems] = useState<
+    { description: string; value: number }[]
+  >([]);
 
   // Fotos
   const [photos, setPhotos] = useState<Photo[]>(editingEntry?.photos || []);
 
   // Aprovação
-  const [approvalStatus, setApprovalStatus] = useState<DiaryEntry["approvalStatus"]>(
-    editingEntry?.approvalStatus || "preenchendo"
-  );
-  const [signature, setSignature] = useState(editingEntry?.signature || "");
+  const [approvalStatus, setApprovalStatus] = useState<
+    DiaryEntry["approvalStatus"]
+  >(editingEntry?.approvalStatus || "preenchendo");
+  const [signature] = useState(editingEntry?.signature || "");
 
   // Seção ativa
   const [activeSection, setActiveSection] = useState("details");
 
   // Obter dia da semana
   const getDayOfWeek = (dateStr: string) => {
-    const days = ["Domingo", "Segunda-Feira", "Terça-Feira", "Quarta-Feira", "Quinta-Feira", "Sexta-Feira", "Sábado"];
+    const days = [
+      "Domingo",
+      "Segunda-Feira",
+      "Terça-Feira",
+      "Quarta-Feira",
+      "Quinta-Feira",
+      "Sexta-Feira",
+      "Sábado",
+    ];
     const d = new Date(dateStr + "T12:00:00");
     return days[d.getDay()];
   };
@@ -89,9 +101,14 @@ export default function ExpenseForm({
   const handleSaveExpense = () => {
     if (currentExpenseItems.length > 0) {
       const totalText = currentExpenseItems
-        .map((item) => `${item.description} - R$ ${item.value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`)
+        .map(
+          (item) =>
+            `${item.description} - R$ ${item.value.toLocaleString("pt-BR", {
+              minimumFractionDigits: 2,
+            })}`
+        )
         .join("\n");
-      
+
       setComments([
         ...comments,
         {
@@ -166,7 +183,12 @@ export default function ExpenseForm({
   // Seções do menu lateral
   const sections = [
     { id: "details", label: "Detalhes do relatório", icon: FiFileText },
-    { id: "expenses", label: "Comentários", icon: FiMessageSquare, count: comments.length },
+    {
+      id: "expenses",
+      label: "Comentários",
+      icon: FiMessageSquare,
+      count: comments.length,
+    },
     { id: "photos", label: "Fotos", icon: FiCamera, count: photos.length },
     { id: "approval", label: "Aprovação", icon: FiCheck },
   ];
@@ -180,7 +202,9 @@ export default function ExpenseForm({
           return (
             <button
               key={section.id}
-              className={`obras-rdo-nav-item ${activeSection === section.id ? "active" : ""}`}
+              className={`obras-rdo-nav-item ${
+                activeSection === section.id ? "active" : ""
+              }`}
               onClick={() => setActiveSection(section.id)}
             >
               <span className="obras-rdo-nav-label">
@@ -206,7 +230,11 @@ export default function ExpenseForm({
           {/* Header com status */}
           <div className="obras-rdo-header">
             <div className="obras-rdo-logo">
-              <img src="/HIDRODEMA_LogoNovo_Azul.png" alt="HIDRODEMA" style={{ maxHeight: 60 }} />
+              <img
+                src="/HIDRODEMA_LogoNovo_Azul.png"
+                alt="HIDRODEMA"
+                style={{ maxHeight: 60 }}
+              />
             </div>
             <div className="obras-rdo-header-info">
               <div className="obras-rdo-field">
@@ -232,7 +260,9 @@ export default function ExpenseForm({
                 <span className="obras-rdo-weekday">{getDayOfWeek(date)}</span>
               </div>
             </div>
-            <span className={`obras-rdo-status-badge obras-status-${approvalStatus}`}>
+            <span
+              className={`obras-rdo-status-badge obras-status-${approvalStatus}`}
+            >
               {approvalStatus === "preenchendo" && "Preenchendo"}
               {approvalStatus === "revisao" && "Em Revisão"}
               {approvalStatus === "aprovado" && "Aprovado"}
@@ -260,10 +290,17 @@ export default function ExpenseForm({
           {activeSection === "expenses" && (
             <div className="obras-rdo-section">
               <div className="obras-rdo-section-header">
-                <h3 className="obras-section-title" style={{ color: "#ea580c" }}>
+                <h3
+                  className="obras-section-title"
+                  style={{ color: "#ea580c" }}
+                >
                   <FiMessageSquare /> Comentários ({comments.length})
                 </h3>
-                <Button variant="primary" onClick={handleSaveExpense} disabled={currentExpenseItems.length === 0}>
+                <Button
+                  variant="primary"
+                  onClick={handleSaveExpense}
+                  disabled={currentExpenseItems.length === 0}
+                >
                   <FiPlus size={16} /> Adicionar
                 </Button>
               </div>
@@ -276,15 +313,26 @@ export default function ExpenseForm({
                     type="text"
                     placeholder="Descrição do gasto"
                     value={newExpenseItem.description}
-                    onChange={(v) => setNewExpenseItem({ ...newExpenseItem, description: v })}
+                    onChange={(v) =>
+                      setNewExpenseItem({ ...newExpenseItem, description: v })
+                    }
                   />
                   <div className="obras-expense-value-input">
                     <span>R$</span>
                     <Input
                       type="text"
                       placeholder="0,00"
-                      value={newExpenseItem.value > 0 ? newExpenseItem.value.toString() : ""}
-                      onChange={(v) => setNewExpenseItem({ ...newExpenseItem, value: parseFloat(v.replace(",", ".")) || 0 })}
+                      value={
+                        newExpenseItem.value > 0
+                          ? newExpenseItem.value.toString()
+                          : ""
+                      }
+                      onChange={(v) =>
+                        setNewExpenseItem({
+                          ...newExpenseItem,
+                          value: parseFloat(v.replace(",", ".")) || 0,
+                        })
+                      }
                     />
                   </div>
                   <Button variant="secondary" onClick={handleAddExpenseItem}>
@@ -299,8 +347,19 @@ export default function ExpenseForm({
                     {currentExpenseItems.map((item, index) => (
                       <div key={index} className="obras-expense-pending-item">
                         <span>{item.description}</span>
-                        <span>R$ {item.value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
-                        <button onClick={() => setCurrentExpenseItems(currentExpenseItems.filter((_, i) => i !== index))}>
+                        <span>
+                          R${" "}
+                          {item.value.toLocaleString("pt-BR", {
+                            minimumFractionDigits: 2,
+                          })}
+                        </span>
+                        <button
+                          onClick={() =>
+                            setCurrentExpenseItems(
+                              currentExpenseItems.filter((_, i) => i !== index)
+                            )
+                          }
+                        >
                           <FiTrash2 size={14} />
                         </button>
                       </div>
@@ -312,7 +371,10 @@ export default function ExpenseForm({
               {/* Lista de gastos registrados */}
               <div className="obras-rdo-comments-list">
                 {comments.map((comment) => (
-                  <div key={comment.id} className="obras-rdo-comment-item obras-expense-item">
+                  <div
+                    key={comment.id}
+                    className="obras-rdo-comment-item obras-expense-item"
+                  >
                     <div className="obras-rdo-comment-header">
                       <strong>{comment.author}</strong>
                       <span>{new Date(comment.date).toLocaleString()}</span>
@@ -320,7 +382,13 @@ export default function ExpenseForm({
                     <div className="obras-expense-details">
                       {comment.items.map((item, index) => (
                         <p key={index}>
-                          {item.description} - <strong>R$ {item.value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</strong>
+                          {item.description} -{" "}
+                          <strong>
+                            R${" "}
+                            {item.value.toLocaleString("pt-BR", {
+                              minimumFractionDigits: 2,
+                            })}
+                          </strong>
                         </p>
                       ))}
                     </div>
@@ -328,7 +396,13 @@ export default function ExpenseForm({
                       <button onClick={() => {}}>
                         <FiEdit2 size={16} />
                       </button>
-                      <button onClick={() => setComments(comments.filter((c) => c.id !== comment.id))}>
+                      <button
+                        onClick={() =>
+                          setComments(
+                            comments.filter((c) => c.id !== comment.id)
+                          )
+                        }
+                      >
                         <FiTrash2 size={16} />
                       </button>
                     </div>
@@ -340,7 +414,12 @@ export default function ExpenseForm({
               {comments.length > 0 && (
                 <div className="obras-expense-total">
                   <strong>Total de Gastos:</strong>
-                  <span>R$ {calculateTotal().toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                  <span>
+                    R${" "}
+                    {calculateTotal().toLocaleString("pt-BR", {
+                      minimumFractionDigits: 2,
+                    })}
+                  </span>
                 </div>
               )}
             </div>
@@ -350,7 +429,10 @@ export default function ExpenseForm({
           {activeSection === "photos" && (
             <div className="obras-rdo-section">
               <div className="obras-rdo-section-header">
-                <h3 className="obras-section-title" style={{ color: "#ea580c" }}>
+                <h3
+                  className="obras-section-title"
+                  style={{ color: "#ea580c" }}
+                >
                   <FiCamera /> Fotos ({photos.length})
                 </h3>
                 <label className="obras-upload-btn">
@@ -371,7 +453,9 @@ export default function ExpenseForm({
                       <img src={photo.dataUrl} alt={photo.name} />
                       <button
                         className="obras-rdo-photo-remove"
-                        onClick={() => setPhotos(photos.filter((p) => p.id !== photo.id))}
+                        onClick={() =>
+                          setPhotos(photos.filter((p) => p.id !== photo.id))
+                        }
                       >
                         <FiTrash2 size={14} />
                       </button>
@@ -383,7 +467,9 @@ export default function ExpenseForm({
                       onChange={(e) =>
                         setPhotos(
                           photos.map((p) =>
-                            p.id === photo.id ? { ...p, description: e.target.value } : p
+                            p.id === photo.id
+                              ? { ...p, description: e.target.value }
+                              : p
                           )
                         )
                       }
@@ -401,8 +487,14 @@ export default function ExpenseForm({
                 <FiCheck /> Assinatura manual
               </h3>
               <div className="obras-rdo-approval">
-                <span className={`obras-rdo-approval-badge obras-status-${approvalStatus}`}>
-                  {approvalStatus === "aprovado" ? "Aprovado" : approvalStatus === "revisao" ? "Em Revisão" : "Pendente"}
+                <span
+                  className={`obras-rdo-approval-badge obras-status-${approvalStatus}`}
+                >
+                  {approvalStatus === "aprovado"
+                    ? "Aprovado"
+                    : approvalStatus === "revisao"
+                    ? "Em Revisão"
+                    : "Pendente"}
                 </span>
                 <div className="obras-rdo-approval-options">
                   <label>
@@ -454,7 +546,8 @@ export default function ExpenseForm({
             <div className="obras-rdo-section">
               <p className="obras-rdo-instructions">
                 Use o menu lateral para navegar entre as seções do relatório.
-                Registre os gastos na seção "Comentários" e anexe comprovantes na seção "Fotos".
+                Registre os gastos na seção "Comentários" e anexe comprovantes
+                na seção "Fotos".
               </p>
             </div>
           )}
@@ -464,12 +557,22 @@ export default function ExpenseForm({
             <div className="obras-rdo-meta">
               {editingEntry && (
                 <>
-                  <span>Criado por: {editingEntry.createdBy} ({new Date(editingEntry.createdAt).toLocaleString()})</span>
-                  <span>Última modificação: {editingEntry.lastModifiedBy} ({new Date(editingEntry.updatedAt).toLocaleString()})</span>
+                  <span>
+                    Criado por: {editingEntry.createdBy} (
+                    {new Date(editingEntry.createdAt).toLocaleString()})
+                  </span>
+                  <span>
+                    Última modificação: {editingEntry.lastModifiedBy} (
+                    {new Date(editingEntry.updatedAt).toLocaleString()})
+                  </span>
                 </>
               )}
             </div>
-            <Button variant="primary" onClick={handleSave} className="obras-save-btn">
+            <Button
+              variant="primary"
+              onClick={handleSave}
+              className="obras-save-btn"
+            >
               <FiSave size={16} /> Salvar
             </Button>
           </div>
@@ -478,4 +581,3 @@ export default function ExpenseForm({
     </div>
   );
 }
-

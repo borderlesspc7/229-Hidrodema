@@ -4,7 +4,6 @@ import {
   FiFileText,
   FiDollarSign,
   FiDroplet,
-  FiTool,
   FiArrowLeft,
 } from "react-icons/fi";
 import type { ReportType } from "../../../../../services/obrasService";
@@ -85,15 +84,14 @@ export default function ReportTypeSelector({
                 !report.available ? "obras-report-type-disabled" : ""
               }`}
               onClick={() => report.available && onSelectType(report.type)}
-              style={{
-                cursor: report.available ? "pointer" : "not-allowed",
-                opacity: report.available ? 1 : 0.6,
-              }}
             >
               <div className="obras-report-type-content">
                 <div
                   className="obras-report-type-icon"
-                  style={{ backgroundColor: report.bgColor, color: report.color }}
+                  style={{
+                    backgroundColor: report.bgColor,
+                    color: report.color,
+                  }}
                 >
                   <IconComponent size={48} />
                 </div>
@@ -102,11 +100,8 @@ export default function ReportTypeSelector({
                 {report.available ? (
                   <Button
                     variant="primary"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onSelectType(report.type);
-                    }}
-                    style={{ backgroundColor: report.color }}
+                    onClick={() => onSelectType(report.type)}
+                    className="obras-report-type-button"
                   >
                     Criar Relatório
                   </Button>
@@ -121,4 +116,3 @@ export default function ReportTypeSelector({
     </div>
   );
 }
-

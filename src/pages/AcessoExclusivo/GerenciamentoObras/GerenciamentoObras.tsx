@@ -496,9 +496,17 @@ export default function GerenciamentoObras() {
       return;
     }
 
+    if (!selectedProjectId) {
+      showToastMessage(
+        "Selecione uma obra para vincular o registro",
+        "warning"
+      );
+      return;
+    }
+
     try {
       const entryData: Omit<DiaryEntry, "id" | "createdAt" | "updatedAt"> = {
-        projectId: selectedProjectId || undefined,
+        projectId: selectedProjectId,
         obraName,
         date,
         activities,
@@ -508,6 +516,8 @@ export default function GerenciamentoObras() {
         weather,
         responsible,
         status,
+        reportType: editingEntry?.reportType || "rdo",
+        approvalStatus: editingEntry?.approvalStatus || "preenchendo",
       };
 
       if (editingEntry && editingEntry.id) {
@@ -533,9 +543,17 @@ export default function GerenciamentoObras() {
       return;
     }
 
+    if (!selectedProjectId) {
+      showToastMessage(
+        "Selecione uma obra para vincular o registro",
+        "warning"
+      );
+      return;
+    }
+
     try {
       const entryData: Omit<DiaryEntry, "id" | "createdAt" | "updatedAt"> = {
-        projectId: selectedProjectId || undefined,
+        projectId: selectedProjectId,
         obraName,
         date,
         activities,
@@ -545,6 +563,8 @@ export default function GerenciamentoObras() {
         weather,
         responsible,
         status,
+        reportType: editingEntry?.reportType || "rdo",
+        approvalStatus: editingEntry?.approvalStatus || "preenchendo",
       };
 
       if (editingEntry && editingEntry.id) {
@@ -577,7 +597,7 @@ export default function GerenciamentoObras() {
     setStatus(entry.status);
     const matchingProject = projects.find((p) => p.name === entry.obraName);
     setSelectedProjectId(matchingProject?.id || "");
-    
+
     // Redirecionar para o formulário correto baseado no tipo de relatório
     switch (entry.reportType) {
       case "rdo":
@@ -1135,10 +1155,18 @@ export default function GerenciamentoObras() {
             onSave={async (data) => {
               try {
                 if (editingEntry && editingEntry.id) {
-                  await updateDiaryEntry(editingEntry.id, data as Parameters<typeof updateDiaryEntry>[1]);
-                  showToastMessage("Relatório atualizado com sucesso!", "success");
+                  await updateDiaryEntry(
+                    editingEntry.id,
+                    data as Parameters<typeof updateDiaryEntry>[1]
+                  );
+                  showToastMessage(
+                    "Relatório atualizado com sucesso!",
+                    "success"
+                  );
                 } else {
-                  await createDiaryEntry(data as Parameters<typeof createDiaryEntry>[0]);
+                  await createDiaryEntry(
+                    data as Parameters<typeof createDiaryEntry>[0]
+                  );
                   showToastMessage("Relatório criado com sucesso!", "success");
                 }
                 await refreshData();
@@ -1146,7 +1174,10 @@ export default function GerenciamentoObras() {
                 setViewMode("history");
               } catch (error) {
                 console.error("Erro ao salvar relatório:", error);
-                showToastMessage("Erro ao salvar relatório. Tente novamente.", "error");
+                showToastMessage(
+                  "Erro ao salvar relatório. Tente novamente.",
+                  "error"
+                );
               }
             }}
             onBack={() => {
@@ -1165,10 +1196,18 @@ export default function GerenciamentoObras() {
             onSave={async (data) => {
               try {
                 if (editingEntry && editingEntry.id) {
-                  await updateDiaryEntry(editingEntry.id, data as Parameters<typeof updateDiaryEntry>[1]);
-                  showToastMessage("Lançamento atualizado com sucesso!", "success");
+                  await updateDiaryEntry(
+                    editingEntry.id,
+                    data as Parameters<typeof updateDiaryEntry>[1]
+                  );
+                  showToastMessage(
+                    "Lançamento atualizado com sucesso!",
+                    "success"
+                  );
                 } else {
-                  await createDiaryEntry(data as Parameters<typeof createDiaryEntry>[0]);
+                  await createDiaryEntry(
+                    data as Parameters<typeof createDiaryEntry>[0]
+                  );
                   showToastMessage("Lançamento criado com sucesso!", "success");
                 }
                 await refreshData();
@@ -1176,7 +1215,10 @@ export default function GerenciamentoObras() {
                 setViewMode("history");
               } catch (error) {
                 console.error("Erro ao salvar lançamento:", error);
-                showToastMessage("Erro ao salvar lançamento. Tente novamente.", "error");
+                showToastMessage(
+                  "Erro ao salvar lançamento. Tente novamente.",
+                  "error"
+                );
               }
             }}
             onBack={() => {
@@ -1195,18 +1237,32 @@ export default function GerenciamentoObras() {
             onSave={async (data) => {
               try {
                 if (editingEntry && editingEntry.id) {
-                  await updateDiaryEntry(editingEntry.id, data as Parameters<typeof updateDiaryEntry>[1]);
-                  showToastMessage("Relatório de teste hidrostático atualizado com sucesso!", "success");
+                  await updateDiaryEntry(
+                    editingEntry.id,
+                    data as Parameters<typeof updateDiaryEntry>[1]
+                  );
+                  showToastMessage(
+                    "Relatório de teste hidrostático atualizado com sucesso!",
+                    "success"
+                  );
                 } else {
-                  await createDiaryEntry(data as Parameters<typeof createDiaryEntry>[0]);
-                  showToastMessage("Relatório de teste hidrostático criado com sucesso!", "success");
+                  await createDiaryEntry(
+                    data as Parameters<typeof createDiaryEntry>[0]
+                  );
+                  showToastMessage(
+                    "Relatório de teste hidrostático criado com sucesso!",
+                    "success"
+                  );
                 }
                 await refreshData();
                 setEditingEntry(null);
                 setViewMode("history");
               } catch (error) {
                 console.error("Erro ao salvar relatório:", error);
-                showToastMessage("Erro ao salvar relatório. Tente novamente.", "error");
+                showToastMessage(
+                  "Erro ao salvar relatório. Tente novamente.",
+                  "error"
+                );
               }
             }}
             onBack={() => {
@@ -1225,18 +1281,32 @@ export default function GerenciamentoObras() {
             onSave={async (data) => {
               try {
                 if (editingEntry && editingEntry.id) {
-                  await updateDiaryEntry(editingEntry.id, data as Parameters<typeof updateDiaryEntry>[1]);
-                  showToastMessage("Relatório de conclusão atualizado com sucesso!", "success");
+                  await updateDiaryEntry(
+                    editingEntry.id,
+                    data as Parameters<typeof updateDiaryEntry>[1]
+                  );
+                  showToastMessage(
+                    "Relatório de conclusão atualizado com sucesso!",
+                    "success"
+                  );
                 } else {
-                  await createDiaryEntry(data as Parameters<typeof createDiaryEntry>[0]);
-                  showToastMessage("Relatório de conclusão criado com sucesso!", "success");
+                  await createDiaryEntry(
+                    data as Parameters<typeof createDiaryEntry>[0]
+                  );
+                  showToastMessage(
+                    "Relatório de conclusão criado com sucesso!",
+                    "success"
+                  );
                 }
                 await refreshData();
                 setEditingEntry(null);
                 setViewMode("history");
               } catch (error) {
                 console.error("Erro ao salvar relatório:", error);
-                showToastMessage("Erro ao salvar relatório. Tente novamente.", "error");
+                showToastMessage(
+                  "Erro ao salvar relatório. Tente novamente.",
+                  "error"
+                );
               }
             }}
             onBack={() => {
@@ -1426,6 +1496,7 @@ export default function GerenciamentoObras() {
             }}
             onReset={() => {
               setNewSupplier({
+                projectId: "",
                 name: "",
                 contact: "",
                 email: "",
@@ -1507,6 +1578,7 @@ export default function GerenciamentoObras() {
             }}
             onReset={() => {
               setNewTeamMember({
+                projectId: "",
                 name: "",
                 role: "",
                 cpf: "",

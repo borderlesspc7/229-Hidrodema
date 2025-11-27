@@ -13,6 +13,7 @@ interface InputProps {
   mask?: MaskType;
   min?: number;
   max?: number;
+  readOnly?: boolean;
 }
 
 export default function Input({
@@ -24,6 +25,7 @@ export default function Input({
   mask,
   min,
   max,
+  readOnly = false,
 }: InputProps) {
   const [isFocused, setIsFocused] = useState(false);
   const [displayValue, setDisplayValue] = useState(value);
@@ -136,6 +138,7 @@ export default function Input({
         className="input-field"
         min={min !== undefined && type === "number" ? min : undefined}
         max={max !== undefined && type === "number" ? max : undefined}
+        readOnly={readOnly}
       />
       <label className="input-label">{placeholder}</label>
     </div>

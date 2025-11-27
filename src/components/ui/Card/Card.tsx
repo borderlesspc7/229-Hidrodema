@@ -6,7 +6,7 @@ interface CardProps {
   subtitle?: string;
   description?: string;
   backgroundColor?: string;
-  textColor: string;
+  textColor?: string;
   onClick?: () => void;
   image?: string;
   children?: React.ReactNode;

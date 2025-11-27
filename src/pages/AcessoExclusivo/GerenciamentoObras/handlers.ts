@@ -1,26 +1,20 @@
 // Este arquivo contém todos os handlers CRUD para os módulos do Gerenciamento de Obras
 // Importado e usado no componente principal
 
-import type {
-  Supplier,
-  TeamMember,
-  Equipment,
-  Schedule,
-  SafetyRecord,
-  Measurement,
-  Issue,
-  DocumentRecord,
-  QualityChecklist,
-} from "../../../services/obrasService";
-
 // Helper para criar handlers genéricos
 export const createGenericHandlers = <T extends { id?: string }>(
   service: {
     create: (data: Omit<T, "id" | "createdAt" | "updatedAt">) => Promise<T>;
-    update: (id: string, data: Omit<T, "id" | "createdAt" | "updatedAt">) => Promise<void>;
+    update: (
+      id: string,
+      data: Omit<T, "id" | "createdAt" | "updatedAt">
+    ) => Promise<void>;
     delete: (id: string) => Promise<void>;
   },
-  showToast: (message: string, type: "success" | "error" | "warning" | "info") => void,
+  showToast: (
+    message: string,
+    type: "success" | "error" | "warning" | "info"
+  ) => void,
   refreshData: () => Promise<void>,
   entityName: string
 ) => {
@@ -63,4 +57,3 @@ export const createGenericHandlers = <T extends { id?: string }>(
     handleDelete,
   };
 };
-

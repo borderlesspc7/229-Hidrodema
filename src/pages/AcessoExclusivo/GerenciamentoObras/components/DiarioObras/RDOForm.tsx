@@ -12,7 +12,6 @@ import {
   FiAlertTriangle,
   FiMessageSquare,
   FiCamera,
-  FiVideo,
   FiCheck,
   FiPlus,
   FiTrash2,
@@ -70,13 +69,21 @@ export default function RDOForm({
   const [workforce, setWorkforce] = useState<WorkforceEntry[]>(
     editingEntry?.workforce || []
   );
-  const [newWorker, setNewWorker] = useState({ name: "", company: "", quantity: 1 });
+  const [newWorker, setNewWorker] = useState({
+    name: "",
+    company: "",
+    quantity: 1,
+  });
 
   // Equipamentos
   const [equipmentUsed, setEquipmentUsed] = useState<EquipmentUsage[]>(
     editingEntry?.equipmentUsed || []
   );
-  const [newEquipment, setNewEquipment] = useState({ name: "", code: "", quantity: 1 });
+  const [newEquipment, setNewEquipment] = useState({
+    name: "",
+    code: "",
+    quantity: 1,
+  });
 
   // Atividades
   const [activitiesList, setActivitiesList] = useState<ActivityEntry[]>(
@@ -90,7 +97,7 @@ export default function RDOForm({
   });
 
   // Ocorrências
-  const [occurrences, setOccurrences] = useState<OccurrenceEntry[]>(
+  const [occurrences] = useState<OccurrenceEntry[]>(
     editingEntry?.occurrences || []
   );
 
@@ -104,10 +111,10 @@ export default function RDOForm({
   const [photos, setPhotos] = useState<Photo[]>(editingEntry?.photos || []);
 
   // Aprovação
-  const [approvalStatus, setApprovalStatus] = useState<DiaryEntry["approvalStatus"]>(
-    editingEntry?.approvalStatus || "preenchendo"
-  );
-  const [signature, setSignature] = useState(editingEntry?.signature || "");
+  const [approvalStatus, setApprovalStatus] = useState<
+    DiaryEntry["approvalStatus"]
+  >(editingEntry?.approvalStatus || "preenchendo");
+  const [signature] = useState(editingEntry?.signature || "");
 
   // Seção ativa para navegação
   const [activeSection, setActiveSection] = useState("details");
@@ -117,12 +124,17 @@ export default function RDOForm({
     const calculateHours = () => {
       const [entryH, entryM] = workSchedule.entryTime.split(":").map(Number);
       const [exitH, exitM] = workSchedule.exitTime.split(":").map(Number);
-      const [breakStartH, breakStartM] = workSchedule.breakStart.split(":").map(Number);
-      const [breakEndH, breakEndM] = workSchedule.breakEnd.split(":").map(Number);
+      const [breakStartH, breakStartM] = workSchedule.breakStart
+        .split(":")
+        .map(Number);
+      const [breakEndH, breakEndM] = workSchedule.breakEnd
+        .split(":")
+        .map(Number);
 
       const entryMinutes = entryH * 60 + entryM;
       const exitMinutes = exitH * 60 + exitM;
-      const breakMinutes = (breakEndH * 60 + breakEndM) - (breakStartH * 60 + breakStartM);
+      const breakMinutes =
+        breakEndH * 60 + breakEndM - (breakStartH * 60 + breakStartM);
 
       const totalMinutes = exitMinutes - entryMinutes - breakMinutes;
       const hours = Math.floor(totalMinutes / 60);
@@ -130,16 +142,31 @@ export default function RDOForm({
 
       setWorkSchedule((prev) => ({
         ...prev,
-        totalHours: `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`,
+        totalHours: `${hours.toString().padStart(2, "0")}:${minutes
+          .toString()
+          .padStart(2, "0")}`,
       }));
     };
 
     calculateHours();
-  }, [workSchedule.entryTime, workSchedule.exitTime, workSchedule.breakStart, workSchedule.breakEnd]);
+  }, [
+    workSchedule.entryTime,
+    workSchedule.exitTime,
+    workSchedule.breakStart,
+    workSchedule.breakEnd,
+  ]);
 
   // Obter dia da semana
   const getDayOfWeek = (dateStr: string) => {
-    const days = ["Domingo", "Segunda-Feira", "Terça-Feira", "Quarta-Feira", "Quinta-Feira", "Sexta-Feira", "Sábado"];
+    const days = [
+      "Domingo",
+      "Segunda-Feira",
+      "Terça-Feira",
+      "Quarta-Feira",
+      "Quinta-Feira",
+      "Sexta-Feira",
+      "Sábado",
+    ];
     const d = new Date(dateStr + "T12:00:00");
     return days[d.getDay()];
   };
@@ -147,10 +174,7 @@ export default function RDOForm({
   // Handlers
   const handleAddWorker = () => {
     if (newWorker.name) {
-      setWorkforce([
-        ...workforce,
-        { id: Date.now().toString(), ...newWorker },
-      ]);
+      setWorkforce([...workforce, { id: Date.now().toString(), ...newWorker }]);
       setNewWorker({ name: "", company: "", quantity: 1 });
     }
   };
@@ -171,7 +195,12 @@ export default function RDOForm({
         ...activitiesList,
         { id: Date.now().toString(), ...newActivity },
       ]);
-      setNewActivity({ description: "", progress: 0, status: "em-andamento", details: "" });
+      setNewActivity({
+        description: "",
+        progress: 0,
+        status: "em-andamento",
+        details: "",
+      });
     }
   };
 
@@ -242,11 +271,36 @@ export default function RDOForm({
   const sections = [
     { id: "details", label: "Detalhes do relatório", icon: FiFileText },
     { id: "schedule", label: "Horário de trabalho", icon: FiClock },
-    { id: "workforce", label: "Mão de obra", icon: FiUsers, count: workforce.length },
-    { id: "equipment", label: "Equipamentos", icon: FiTool, count: equipmentUsed.length },
-    { id: "activities", label: "Atividades", icon: FiActivity, count: activitiesList.length },
-    { id: "occurrences", label: "Ocorrências", icon: FiAlertTriangle, count: occurrences.length },
-    { id: "comments", label: "Comentários", icon: FiMessageSquare, count: comments.length },
+    {
+      id: "workforce",
+      label: "Mão de obra",
+      icon: FiUsers,
+      count: workforce.length,
+    },
+    {
+      id: "equipment",
+      label: "Equipamentos",
+      icon: FiTool,
+      count: equipmentUsed.length,
+    },
+    {
+      id: "activities",
+      label: "Atividades",
+      icon: FiActivity,
+      count: activitiesList.length,
+    },
+    {
+      id: "occurrences",
+      label: "Ocorrências",
+      icon: FiAlertTriangle,
+      count: occurrences.length,
+    },
+    {
+      id: "comments",
+      label: "Comentários",
+      icon: FiMessageSquare,
+      count: comments.length,
+    },
     { id: "photos", label: "Fotos", icon: FiCamera, count: photos.length },
     { id: "approval", label: "Aprovação", icon: FiCheck },
   ];
@@ -260,7 +314,9 @@ export default function RDOForm({
           return (
             <button
               key={section.id}
-              className={`obras-rdo-nav-item ${activeSection === section.id ? "active" : ""}`}
+              className={`obras-rdo-nav-item ${
+                activeSection === section.id ? "active" : ""
+              }`}
               onClick={() => setActiveSection(section.id)}
             >
               <span className="obras-rdo-nav-label">
@@ -286,7 +342,11 @@ export default function RDOForm({
           {/* Header com status */}
           <div className="obras-rdo-header">
             <div className="obras-rdo-logo">
-              <img src="/HIDRODEMA_LogoNovo_Azul.png" alt="HIDRODEMA" style={{ maxHeight: 60 }} />
+              <img
+                src="/HIDRODEMA_LogoNovo_Azul.png"
+                alt="HIDRODEMA"
+                style={{ maxHeight: 60 }}
+              />
             </div>
             <div className="obras-rdo-header-info">
               <div className="obras-rdo-field">
@@ -312,7 +372,9 @@ export default function RDOForm({
                 <span className="obras-rdo-weekday">{getDayOfWeek(date)}</span>
               </div>
             </div>
-            <span className={`obras-rdo-status-badge obras-status-${approvalStatus}`}>
+            <span
+              className={`obras-rdo-status-badge obras-status-${approvalStatus}`}
+            >
               {approvalStatus === "preenchendo" && "Preenchendo"}
               {approvalStatus === "revisao" && "Em Revisão"}
               {approvalStatus === "aprovado" && "Aprovado"}
@@ -348,7 +410,9 @@ export default function RDOForm({
                   <Input
                     type="time"
                     value={workSchedule.entryTime}
-                    onChange={(v) => setWorkSchedule({ ...workSchedule, entryTime: v })}
+                    onChange={(v) =>
+                      setWorkSchedule({ ...workSchedule, entryTime: v })
+                    }
                     placeholder=""
                   />
                   <small>Jornada de trabalho</small>
@@ -358,7 +422,9 @@ export default function RDOForm({
                   <Input
                     type="time"
                     value={workSchedule.exitTime}
-                    onChange={(v) => setWorkSchedule({ ...workSchedule, exitTime: v })}
+                    onChange={(v) =>
+                      setWorkSchedule({ ...workSchedule, exitTime: v })
+                    }
                     placeholder=""
                   />
                 </div>
@@ -367,7 +433,9 @@ export default function RDOForm({
                   <Input
                     type="time"
                     value={workSchedule.breakStart}
-                    onChange={(v) => setWorkSchedule({ ...workSchedule, breakStart: v })}
+                    onChange={(v) =>
+                      setWorkSchedule({ ...workSchedule, breakStart: v })
+                    }
                     placeholder=""
                   />
                   <small>Horário de almoço / janta / intervalo / pausa</small>
@@ -377,13 +445,17 @@ export default function RDOForm({
                   <Input
                     type="time"
                     value={workSchedule.breakEnd}
-                    onChange={(v) => setWorkSchedule({ ...workSchedule, breakEnd: v })}
+                    onChange={(v) =>
+                      setWorkSchedule({ ...workSchedule, breakEnd: v })
+                    }
                     placeholder=""
                   />
                 </div>
                 <div className="obras-rdo-field obras-rdo-total-hours">
                   <label>Hs. trabalhadas</label>
-                  <span className="obras-rdo-hours-value">{workSchedule.totalHours}</span>
+                  <span className="obras-rdo-hours-value">
+                    {workSchedule.totalHours}
+                  </span>
                 </div>
               </div>
             </div>
@@ -393,7 +465,10 @@ export default function RDOForm({
           {activeSection === "workforce" && (
             <div className="obras-rdo-section">
               <div className="obras-rdo-section-header">
-                <h3 className="obras-section-title" style={{ color: "#ea580c" }}>
+                <h3
+                  className="obras-section-title"
+                  style={{ color: "#ea580c" }}
+                >
                   <FiUsers /> Mão de obra ({workforce.length})
                 </h3>
                 <Button variant="primary" onClick={handleAddWorker}>
@@ -417,7 +492,9 @@ export default function RDOForm({
                   type="text"
                   placeholder="Qtd"
                   value={newWorker.quantity.toString()}
-                  onChange={(v) => setNewWorker({ ...newWorker, quantity: parseInt(v) || 1 })}
+                  onChange={(v) =>
+                    setNewWorker({ ...newWorker, quantity: parseInt(v) || 1 })
+                  }
                   mask="number"
                 />
               </div>
@@ -429,11 +506,45 @@ export default function RDOForm({
                       <span>{worker.company}</span>
                     </div>
                     <div className="obras-rdo-item-quantity">
-                      <button onClick={() => setWorkforce(workforce.map((w) => w.id === worker.id ? { ...w, quantity: Math.max(1, w.quantity - 1) } : w))}>-</button>
+                      <button
+                        onClick={() =>
+                          setWorkforce(
+                            workforce.map((w) =>
+                              w.id === worker.id
+                                ? {
+                                    ...w,
+                                    quantity: Math.max(1, w.quantity - 1),
+                                  }
+                                : w
+                            )
+                          )
+                        }
+                      >
+                        -
+                      </button>
                       <span>{worker.quantity}</span>
-                      <button onClick={() => setWorkforce(workforce.map((w) => w.id === worker.id ? { ...w, quantity: w.quantity + 1 } : w))}>+</button>
+                      <button
+                        onClick={() =>
+                          setWorkforce(
+                            workforce.map((w) =>
+                              w.id === worker.id
+                                ? { ...w, quantity: w.quantity + 1 }
+                                : w
+                            )
+                          )
+                        }
+                      >
+                        +
+                      </button>
                     </div>
-                    <button className="obras-rdo-remove-btn" onClick={() => setWorkforce(workforce.filter((w) => w.id !== worker.id))}>
+                    <button
+                      className="obras-rdo-remove-btn"
+                      onClick={() =>
+                        setWorkforce(
+                          workforce.filter((w) => w.id !== worker.id)
+                        )
+                      }
+                    >
                       <FiTrash2 size={16} />
                     </button>
                   </div>
@@ -446,7 +557,10 @@ export default function RDOForm({
           {activeSection === "equipment" && (
             <div className="obras-rdo-section">
               <div className="obras-rdo-section-header">
-                <h3 className="obras-section-title" style={{ color: "#ea580c" }}>
+                <h3
+                  className="obras-section-title"
+                  style={{ color: "#ea580c" }}
+                >
                   <FiTool /> Equipamentos ({equipmentUsed.length})
                 </h3>
                 <Button variant="primary" onClick={handleAddEquipment}>
@@ -458,19 +572,28 @@ export default function RDOForm({
                   type="text"
                   placeholder="Nome do equipamento"
                   value={newEquipment.name}
-                  onChange={(v) => setNewEquipment({ ...newEquipment, name: v })}
+                  onChange={(v) =>
+                    setNewEquipment({ ...newEquipment, name: v })
+                  }
                 />
                 <Input
                   type="text"
                   placeholder="Código"
                   value={newEquipment.code}
-                  onChange={(v) => setNewEquipment({ ...newEquipment, code: v })}
+                  onChange={(v) =>
+                    setNewEquipment({ ...newEquipment, code: v })
+                  }
                 />
                 <Input
                   type="text"
                   placeholder="Qtd"
                   value={newEquipment.quantity.toString()}
-                  onChange={(v) => setNewEquipment({ ...newEquipment, quantity: parseInt(v) || 1 })}
+                  onChange={(v) =>
+                    setNewEquipment({
+                      ...newEquipment,
+                      quantity: parseInt(v) || 1,
+                    })
+                  }
                   mask="number"
                 />
               </div>
@@ -487,7 +610,14 @@ export default function RDOForm({
                     <button className="obras-rdo-edit-btn" onClick={() => {}}>
                       <FiEdit2 size={16} />
                     </button>
-                    <button className="obras-rdo-remove-btn" onClick={() => setEquipmentUsed(equipmentUsed.filter((e) => e.id !== eq.id))}>
+                    <button
+                      className="obras-rdo-remove-btn"
+                      onClick={() =>
+                        setEquipmentUsed(
+                          equipmentUsed.filter((e) => e.id !== eq.id)
+                        )
+                      }
+                    >
                       <FiTrash2 size={16} />
                     </button>
                   </div>
@@ -500,7 +630,10 @@ export default function RDOForm({
           {activeSection === "activities" && (
             <div className="obras-rdo-section">
               <div className="obras-rdo-section-header">
-                <h3 className="obras-section-title" style={{ color: "#ea580c" }}>
+                <h3
+                  className="obras-section-title"
+                  style={{ color: "#ea580c" }}
+                >
                   <FiActivity /> Atividades ({activitiesList.length})
                 </h3>
                 <Button variant="primary" onClick={handleAddActivity}>
@@ -512,7 +645,9 @@ export default function RDOForm({
                   type="text"
                   placeholder="Descrição da atividade"
                   value={newActivity.description}
-                  onChange={(v) => setNewActivity({ ...newActivity, description: v })}
+                  onChange={(v) =>
+                    setNewActivity({ ...newActivity, description: v })
+                  }
                 />
                 <div className="obras-rdo-add-form-row">
                   <div className="obras-rdo-field">
@@ -521,7 +656,12 @@ export default function RDOForm({
                       type="text"
                       placeholder="0-100"
                       value={newActivity.progress.toString()}
-                      onChange={(v) => setNewActivity({ ...newActivity, progress: parseInt(v) || 0 })}
+                      onChange={(v) =>
+                        setNewActivity({
+                          ...newActivity,
+                          progress: parseInt(v) || 0,
+                        })
+                      }
                       mask="number"
                     />
                   </div>
@@ -529,7 +669,12 @@ export default function RDOForm({
                     <label>Status</label>
                     <select
                       value={newActivity.status}
-                      onChange={(e) => setNewActivity({ ...newActivity, status: e.target.value as ActivityEntry["status"] })}
+                      onChange={(e) =>
+                        setNewActivity({
+                          ...newActivity,
+                          status: e.target.value as ActivityEntry["status"],
+                        })
+                      }
                       className="obras-select"
                     >
                       <option value="em-andamento">Em andamento</option>
@@ -542,7 +687,9 @@ export default function RDOForm({
                   type="text"
                   placeholder="Detalhes adicionais (opcional)"
                   value={newActivity.details || ""}
-                  onChange={(v) => setNewActivity({ ...newActivity, details: v })}
+                  onChange={(v) =>
+                    setNewActivity({ ...newActivity, details: v })
+                  }
                 />
               </div>
               <div className="obras-rdo-activities-list">
@@ -550,16 +697,33 @@ export default function RDOForm({
                   <div key={activity.id} className="obras-rdo-activity-item">
                     <div className="obras-rdo-activity-header">
                       <strong>{activity.description}</strong>
-                      <span className={`obras-rdo-progress obras-progress-${activity.status}`}>
-                        {activity.progress}% {activity.status === "em-andamento" ? "Em andamento" : activity.status === "concluido" ? "Concluído" : "Pausado"}
+                      <span
+                        className={`obras-rdo-progress obras-progress-${activity.status}`}
+                      >
+                        {activity.progress}%{" "}
+                        {activity.status === "em-andamento"
+                          ? "Em andamento"
+                          : activity.status === "concluido"
+                          ? "Concluído"
+                          : "Pausado"}
                       </span>
                     </div>
-                    {activity.details && <p className="obras-rdo-activity-details">{activity.details}</p>}
+                    {activity.details && (
+                      <p className="obras-rdo-activity-details">
+                        {activity.details}
+                      </p>
+                    )}
                     <div className="obras-rdo-activity-actions">
                       <button onClick={() => {}}>
                         <FiEdit2 size={16} />
                       </button>
-                      <button onClick={() => setActivitiesList(activitiesList.filter((a) => a.id !== activity.id))}>
+                      <button
+                        onClick={() =>
+                          setActivitiesList(
+                            activitiesList.filter((a) => a.id !== activity.id)
+                          )
+                        }
+                      >
                         <FiTrash2 size={16} />
                       </button>
                     </div>
@@ -573,7 +737,10 @@ export default function RDOForm({
           {activeSection === "occurrences" && (
             <div className="obras-rdo-section">
               <div className="obras-rdo-section-header">
-                <h3 className="obras-section-title" style={{ color: "#ea580c" }}>
+                <h3
+                  className="obras-section-title"
+                  style={{ color: "#ea580c" }}
+                >
                   <FiAlertTriangle /> Ocorrências ({occurrences.length})
                 </h3>
                 <Button variant="primary" onClick={() => {}}>
@@ -590,7 +757,10 @@ export default function RDOForm({
           {activeSection === "comments" && (
             <div className="obras-rdo-section">
               <div className="obras-rdo-section-header">
-                <h3 className="obras-section-title" style={{ color: "#ea580c" }}>
+                <h3
+                  className="obras-section-title"
+                  style={{ color: "#ea580c" }}
+                >
                   <FiMessageSquare /> Comentários ({comments.length})
                 </h3>
                 <Button variant="primary" onClick={handleAddComment}>
@@ -618,7 +788,13 @@ export default function RDOForm({
                       <button onClick={() => {}}>
                         <FiEdit2 size={16} />
                       </button>
-                      <button onClick={() => setComments(comments.filter((c) => c.id !== comment.id))}>
+                      <button
+                        onClick={() =>
+                          setComments(
+                            comments.filter((c) => c.id !== comment.id)
+                          )
+                        }
+                      >
                         <FiTrash2 size={16} />
                       </button>
                     </div>
@@ -632,7 +808,10 @@ export default function RDOForm({
           {activeSection === "photos" && (
             <div className="obras-rdo-section">
               <div className="obras-rdo-section-header">
-                <h3 className="obras-section-title" style={{ color: "#ea580c" }}>
+                <h3
+                  className="obras-section-title"
+                  style={{ color: "#ea580c" }}
+                >
                   <FiCamera /> Fotos ({photos.length})
                 </h3>
                 <label className="obras-upload-btn">
@@ -653,7 +832,9 @@ export default function RDOForm({
                       <img src={photo.dataUrl} alt={photo.name} />
                       <button
                         className="obras-rdo-photo-remove"
-                        onClick={() => setPhotos(photos.filter((p) => p.id !== photo.id))}
+                        onClick={() =>
+                          setPhotos(photos.filter((p) => p.id !== photo.id))
+                        }
                       >
                         <FiTrash2 size={14} />
                       </button>
@@ -665,7 +846,9 @@ export default function RDOForm({
                       onChange={(e) =>
                         setPhotos(
                           photos.map((p) =>
-                            p.id === photo.id ? { ...p, description: e.target.value } : p
+                            p.id === photo.id
+                              ? { ...p, description: e.target.value }
+                              : p
                           )
                         )
                       }
@@ -683,8 +866,14 @@ export default function RDOForm({
                 <FiCheck /> Assinatura manual
               </h3>
               <div className="obras-rdo-approval">
-                <span className={`obras-rdo-approval-badge obras-status-${approvalStatus}`}>
-                  {approvalStatus === "aprovado" ? "Aprovado" : approvalStatus === "revisao" ? "Em Revisão" : "Pendente"}
+                <span
+                  className={`obras-rdo-approval-badge obras-status-${approvalStatus}`}
+                >
+                  {approvalStatus === "aprovado"
+                    ? "Aprovado"
+                    : approvalStatus === "revisao"
+                    ? "Em Revisão"
+                    : "Pendente"}
                 </span>
                 <div className="obras-rdo-approval-options">
                   <label>
@@ -736,7 +925,8 @@ export default function RDOForm({
             <div className="obras-rdo-section">
               <p className="obras-rdo-instructions">
                 Use o menu lateral para navegar entre as seções do relatório.
-                Preencha todas as informações necessárias e salve quando terminar.
+                Preencha todas as informações necessárias e salve quando
+                terminar.
               </p>
             </div>
           )}
@@ -746,12 +936,22 @@ export default function RDOForm({
             <div className="obras-rdo-meta">
               {editingEntry && (
                 <>
-                  <span>Criado por: {editingEntry.createdBy} ({new Date(editingEntry.createdAt).toLocaleString()})</span>
-                  <span>Última modificação: {editingEntry.lastModifiedBy} ({new Date(editingEntry.updatedAt).toLocaleString()})</span>
+                  <span>
+                    Criado por: {editingEntry.createdBy} (
+                    {new Date(editingEntry.createdAt).toLocaleString()})
+                  </span>
+                  <span>
+                    Última modificação: {editingEntry.lastModifiedBy} (
+                    {new Date(editingEntry.updatedAt).toLocaleString()})
+                  </span>
                 </>
               )}
             </div>
-            <Button variant="primary" onClick={handleSave} className="obras-save-btn">
+            <Button
+              variant="primary"
+              onClick={handleSave}
+              className="obras-save-btn"
+            >
               <FiSave size={16} /> Salvar
             </Button>
           </div>
@@ -760,4 +960,3 @@ export default function RDOForm({
     </div>
   );
 }
-
