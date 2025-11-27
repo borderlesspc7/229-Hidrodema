@@ -574,6 +574,37 @@
   border-color: rgba(255, 255, 255, 0.3);
 }
 
+.obras-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 22px;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #ffffff, #f8fafc);
+  color: #0f172a;
+  border: 1px solid rgba(15, 23, 42, 0.15);
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+  transition: all 0.2s ease;
+}
+
+.obras-back-btn svg {
+  transition: transform 0.2s ease;
+}
+
+.obras-back-btn:hover {
+  background: linear-gradient(135deg, #e0ecff, #f8fbff);
+  color: #0b3fa8;
+  border-color: rgba(14, 116, 144, 0.25);
+  box-shadow: 0 12px 30px rgba(14, 116, 144, 0.18);
+  transform: translateY(-1px);
+}
+
+.obras-back-btn:hover svg {
+  transform: translateX(-4px);
+}
+
 /* Entries List */
 .obras-entries-list {
   display: flex;
@@ -600,11 +631,40 @@
   background: rgba(255, 255, 255, 0.98);
 }
 
+.obras-entry-header-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
 .obras-entry-info h3 {
   font-size: 20px;
   font-weight: 700;
   color: #1e40af;
-  margin: 0 0 12px 0;
+  margin: 0;
+}
+
+.obras-report-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid;
+  white-space: nowrap;
+}
+
+.obras-report-number {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #64748b;
+  font-weight: 500;
 }
 
 .obras-entry-meta {

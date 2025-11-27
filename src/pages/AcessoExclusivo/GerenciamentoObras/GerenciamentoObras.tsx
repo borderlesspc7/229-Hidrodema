@@ -577,7 +577,26 @@ export default function GerenciamentoObras() {
     setStatus(entry.status);
     const matchingProject = projects.find((p) => p.name === entry.obraName);
     setSelectedProjectId(matchingProject?.id || "");
-    setViewMode("edit");
+    
+    // Redirecionar para o formulário correto baseado no tipo de relatório
+    switch (entry.reportType) {
+      case "rdo":
+        setViewMode("new-rdo");
+        break;
+      case "lancamento-gastos":
+        setViewMode("new-expense");
+        break;
+      case "teste-hidrostatico":
+        setViewMode("new-hydrostatic");
+        break;
+      case "conclusao-obra":
+        setViewMode("new-conclusion");
+        break;
+      default:
+        // Fallback para o formulário antigo para registros sem tipo definido
+        setViewMode("edit");
+        break;
+    }
   };
 
   const handleDeleteDiary = async (id: string) => {
@@ -1123,13 +1142,18 @@ export default function GerenciamentoObras() {
                   showToastMessage("Relatório criado com sucesso!", "success");
                 }
                 await refreshData();
+                setEditingEntry(null);
                 setViewMode("history");
               } catch (error) {
                 console.error("Erro ao salvar relatório:", error);
                 showToastMessage("Erro ao salvar relatório. Tente novamente.", "error");
               }
             }}
-            onBack={() => setViewMode("new")}
+            onBack={() => {
+              const wasEditing = !!editingEntry;
+              setEditingEntry(null);
+              setViewMode(wasEditing ? "history" : "new");
+            }}
           />
         );
 
@@ -1148,13 +1172,18 @@ export default function GerenciamentoObras() {
                   showToastMessage("Lançamento criado com sucesso!", "success");
                 }
                 await refreshData();
+                setEditingEntry(null);
                 setViewMode("history");
               } catch (error) {
                 console.error("Erro ao salvar lançamento:", error);
                 showToastMessage("Erro ao salvar lançamento. Tente novamente.", "error");
               }
             }}
-            onBack={() => setViewMode("new")}
+            onBack={() => {
+              const wasEditing = !!editingEntry;
+              setEditingEntry(null);
+              setViewMode(wasEditing ? "history" : "new");
+            }}
           />
         );
 
@@ -1173,13 +1202,18 @@ export default function GerenciamentoObras() {
                   showToastMessage("Relatório de teste hidrostático criado com sucesso!", "success");
                 }
                 await refreshData();
+                setEditingEntry(null);
                 setViewMode("history");
               } catch (error) {
                 console.error("Erro ao salvar relatório:", error);
                 showToastMessage("Erro ao salvar relatório. Tente novamente.", "error");
               }
             }}
-            onBack={() => setViewMode("new")}
+            onBack={() => {
+              const wasEditing = !!editingEntry;
+              setEditingEntry(null);
+              setViewMode(wasEditing ? "history" : "new");
+            }}
           />
         );
 
@@ -1198,13 +1232,18 @@ export default function GerenciamentoObras() {
                   showToastMessage("Relatório de conclusão criado com sucesso!", "success");
                 }
                 await refreshData();
+                setEditingEntry(null);
                 setViewMode("history");
               } catch (error) {
                 console.error("Erro ao salvar relatório:", error);
                 showToastMessage("Erro ao salvar relatório. Tente novamente.", "error");
               }
             }}
-            onBack={() => setViewMode("new")}
+            onBack={() => {
+              const wasEditing = !!editingEntry;
+              setEditingEntry(null);
+              setViewMode(wasEditing ? "history" : "new");
+            }}
           />
         );
 
