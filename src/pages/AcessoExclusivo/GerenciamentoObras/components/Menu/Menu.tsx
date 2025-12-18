@@ -106,20 +106,20 @@ export default function Menu({
 
         <Card
           variant="service"
-          title="HISTÓRICO"
+          title="RELATÓRIOS"
           textColor="#059669"
           backgroundColor="#f0fdf4"
           size="large"
           className="obras-menu-card"
-          onClick={() => onViewChange("history")}
+          onClick={() => onViewChange("unified-reports")}
         >
           <div className="obras-menu-card-content">
             <div className="obras-menu-icon">
               <FiFileText size={48} />
             </div>
-            <p>Consultar registros anteriores</p>
+            <p>Todos os relatórios em um único lugar</p>
             <span className="obras-entry-count">
-              {diaryEntries.length} registros
+              {diaryEntries.length} relatórios
             </span>
           </div>
         </Card>

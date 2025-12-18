@@ -223,16 +223,21 @@ export default function ProjectsManagement({
                   </p>
                   <p>
                     <strong>Orçamento:</strong> R${" "}
-                    {project.budget.toLocaleString()}
+                    {project.budget.toLocaleString("pt-BR", {
+                      minimumFractionDigits: 2,
+                    })}
                   </p>
                   <p>
-                    <strong>Gasto:</strong> R$ {project.spent.toLocaleString()}
-                  </p>
-                  <p>
-                    <strong>Progresso:</strong> {project.progress}%
+                    <strong>Gasto:</strong> R${" "}
+                    {project.spent.toLocaleString("pt-BR", {
+                      minimumFractionDigits: 2,
+                    })}
                   </p>
                 </div>
                 <div className="obras-project-progress">
+                  <p>
+                    <strong>Progresso</strong> <span>{project.progress}%</span>
+                  </p>
                   <div className="obras-progress-bar">
                     <div
                       className="obras-progress-fill"

@@ -91,15 +91,25 @@ export default function SuppliersList({
               <div className="obras-item-header">
                 <h3>{supplier.name}</h3>
                 <span
-                  className="obras-item-badge"
+                  className="reliability-badge"
                   style={{
-                    backgroundColor: getReliabilityColor(supplier.reliability),
+                    color: "#ffffff",
+                    background: getReliabilityColor(supplier.reliability),
+                    padding: "8px 16px",
+                    borderRadius: "24px",
+                    fontSize: "11px",
+                    fontWeight: "700",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.8px",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
                   }}
                 >
                   {getReliabilityLabel(supplier.reliability)}
                 </span>
               </div>
-              <div className="obras-item-details">
+              <div className="obras-item-info">
                 <p>
                   <strong>Categoria:</strong> {supplier.category}
                 </p>

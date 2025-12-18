@@ -16,21 +16,6 @@ export default function EquipmentList({
   onEdit,
   onDelete,
 }: EquipmentListProps) {
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "disponivel":
-        return "#10b981";
-      case "em-uso":
-        return "#3b82f6";
-      case "manutencao":
-        return "#f59e0b";
-      case "quebrado":
-        return "#ef4444";
-      default:
-        return "#6b7280";
-    }
-  };
-
   const getStatusLabel = (status: string) => {
     switch (status) {
       case "disponivel":
@@ -90,14 +75,11 @@ export default function EquipmentList({
             <div key={item.id} className="obras-inventory-item">
               <div className="obras-item-header">
                 <h3>{item.name}</h3>
-                <span
-                  className="obras-item-badge"
-                  style={{ backgroundColor: getStatusColor(item.status) }}
-                >
+                <span className={`status-${item.status}`}>
                   {getStatusLabel(item.status)}
                 </span>
               </div>
-              <div className="obras-item-details">
+              <div className="obras-item-info">
                 <p>
                   <strong>Tipo:</strong> {item.type}
                 </p>
@@ -119,13 +101,13 @@ export default function EquipmentList({
                 {item.lastMaintenance && (
                   <p>
                     <strong>Última Manutenção:</strong>{" "}
-                    {new Date(item.lastMaintenance).toLocaleDateString()}
+                    {new Date(item.lastMaintenance).toLocaleDateString("pt-BR")}
                   </p>
                 )}
                 {item.nextMaintenance && (
                   <p>
                     <strong>Próxima Manutenção:</strong>{" "}
-                    {new Date(item.nextMaintenance).toLocaleDateString()}
+                    {new Date(item.nextMaintenance).toLocaleDateString("pt-BR")}
                   </p>
                 )}
               </div>

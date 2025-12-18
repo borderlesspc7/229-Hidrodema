@@ -22,21 +22,6 @@ export default function ScheduleList({
   onEdit,
   onDelete,
 }: ScheduleListProps) {
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "nao-iniciado":
-        return "#6b7280";
-      case "em-andamento":
-        return "#3b82f6";
-      case "concluido":
-        return "#10b981";
-      case "atrasado":
-        return "#ef4444";
-      default:
-        return "#6b7280";
-    }
-  };
-
   const getStatusLabel = (status: string) => {
     switch (status) {
       case "nao-iniciado":
@@ -49,6 +34,21 @@ export default function ScheduleList({
         return "Atrasado";
       default:
         return status;
+    }
+  };
+
+  const getStatusClass = (status: string) => {
+    switch (status) {
+      case "nao-iniciado":
+        return "status-nao-iniciado";
+      case "em-andamento":
+        return "status-em-andamento";
+      case "concluido":
+        return "status-concluido";
+      case "atrasado":
+        return "status-atrasado";
+      default:
+        return "";
     }
   };
 
@@ -96,21 +96,18 @@ export default function ScheduleList({
             <div key={schedule.id} className="obras-inventory-item">
               <div className="obras-item-header">
                 <h3>{schedule.taskName}</h3>
-                <span
-                  className="obras-item-badge"
-                  style={{ backgroundColor: getStatusColor(schedule.status) }}
-                >
+                <span className={getStatusClass(schedule.status)}>
                   {getStatusLabel(schedule.status)}
                 </span>
               </div>
-              <div className="obras-item-details">
+              <div className="obras-item-info">
                 <p>
                   <strong>Início:</strong>{" "}
-                  {new Date(schedule.startDate).toLocaleDateString()}
+                  {new Date(schedule.startDate).toLocaleDateString("pt-BR")}
                 </p>
                 <p>
                   <strong>Término:</strong>{" "}
-                  {new Date(schedule.endDate).toLocaleDateString()}
+                  {new Date(schedule.endDate).toLocaleDateString("pt-BR")}
                 </p>
                 <p>
                   <strong>Progresso:</strong> {schedule.progress}%
@@ -123,7 +120,9 @@ export default function ScheduleList({
                 {schedule.plannedCost && (
                   <p>
                     <strong>Custo Planejado:</strong> R${" "}
-                    {schedule.plannedCost.toFixed(2)}
+                    {schedule.plannedCost.toLocaleString("pt-BR", {
+                      minimumFractionDigits: 2,
+                    })}
                   </p>
                 )}
               </div>

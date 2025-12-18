@@ -35,6 +35,8 @@ import {
   QualityList,
   QualityForm,
   ReportsDashboard,
+  UnifiedReportsList,
+  ReportViewer,
 } from "./components";
 import {
   createProject,
@@ -153,6 +155,9 @@ export default function GerenciamentoObras() {
   );
   const [editingQualityChecklist, setEditingQualityChecklist] =
     useState<QualityChecklist | null>(null);
+
+  // Viewing report state
+  const [viewingReport, setViewingReport] = useState<DiaryEntry | null>(null);
 
   // Toast states
   const [showToast, setShowToast] = useState(false);
@@ -2170,6 +2175,42 @@ export default function GerenciamentoObras() {
             onViewChange={setViewMode}
           />
         );
+
+      case "unified-reports":
+        return (
+          <UnifiedReportsList
+            diaryEntries={diaryEntries}
+            projects={projects}
+            onViewChange={setViewMode}
+            onEdit={handleEditDiary}
+            onDelete={handleDeleteDiary}
+            onView={(entry) => {
+              setViewingReport(entry);
+              setViewMode("view-report");
+            }}
+          />
+        );
+
+      case "view-report":
+        return viewingReport ? (
+          <ReportViewer
+            entry={viewingReport}
+            onBack={() => {
+              setViewingReport(null);
+              setViewMode("unified-reports");
+            }}
+            onEdit={() => {
+              handleEditDiary(viewingReport);
+            }}
+            onDelete={async () => {
+              if (viewingReport.id) {
+                await handleDeleteDiary(viewingReport.id);
+                setViewingReport(null);
+                setViewMode("unified-reports");
+              }
+            }}
+          />
+        ) : null;
 
       default:
         return (

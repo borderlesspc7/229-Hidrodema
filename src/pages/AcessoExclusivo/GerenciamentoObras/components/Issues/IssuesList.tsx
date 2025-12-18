@@ -145,25 +145,47 @@ export default function IssuesList({
             <div key={issue.id} className="obras-inventory-item">
               <div className="obras-item-header">
                 <h3>{issue.title}</h3>
-                <div style={{ display: "flex", gap: "8px" }}>
+                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
                   <span
-                    className="obras-item-badge"
-                    style={{ backgroundColor: getPriorityColor(issue.priority) }}
+                    style={{
+                      color: "#ffffff",
+                      background: getPriorityColor(issue.priority),
+                      padding: "8px 16px",
+                      borderRadius: "24px",
+                      fontSize: "11px",
+                      fontWeight: "700",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.8px",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
+                    }}
                   >
                     {getPriorityLabel(issue.priority)}
                   </span>
                   <span
-                    className="obras-item-badge"
-                    style={{ backgroundColor: getStatusColor(issue.status) }}
+                    style={{
+                      color: "#ffffff",
+                      background: getStatusColor(issue.status),
+                      padding: "8px 16px",
+                      borderRadius: "24px",
+                      fontSize: "11px",
+                      fontWeight: "700",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.8px",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
+                    }}
                   >
                     {getStatusLabel(issue.status)}
                   </span>
                 </div>
               </div>
-              <div className="obras-item-details">
+              <div className="obras-item-info">
                 <p>
                   <strong>Data:</strong>{" "}
-                  {new Date(issue.date).toLocaleDateString()}
+                  {new Date(issue.date).toLocaleDateString("pt-BR")}
                 </p>
                 <p>
                   <strong>Categoria:</strong> {getCategoryLabel(issue.category)}
@@ -179,7 +201,7 @@ export default function IssuesList({
                 {issue.solvedDate && (
                   <p>
                     <strong>Resolvido em:</strong>{" "}
-                    {new Date(issue.solvedDate).toLocaleDateString()}
+                    {new Date(issue.solvedDate).toLocaleDateString("pt-BR")}
                   </p>
                 )}
               </div>

@@ -61,64 +61,77 @@ export default function BudgetsList({
             </Button>
           </div>
         ) : (
-          budgets.map((budget) => (
-            <div key={budget.id} className="obras-budget-card">
-              <div className="obras-budget-header">
-                <h3>{budget.name}</h3>
-                <span className="obras-budget-status">
-                  {((budget.spentAmount / budget.totalAmount) * 100).toFixed(1)}
-                  % gasto
-                </span>
-              </div>
-              <div className="obras-budget-info">
-                <p>
-                  <strong>Total:</strong> R${" "}
-                  {budget.totalAmount.toLocaleString()}
-                </p>
-                <p>
-                  <strong>Gasto:</strong> R${" "}
-                  {budget.spentAmount.toLocaleString()}
-                </p>
-                <p>
-                  <strong>Restante:</strong> R${" "}
-                  {(budget.totalAmount - budget.spentAmount).toLocaleString()}
-                </p>
-              </div>
-              <div className="obras-budget-progress">
-                <div className="obras-progress-bar">
-                  <div
-                    className="obras-progress-fill"
-                    style={{
-                      width: `${
-                        (budget.spentAmount / budget.totalAmount) * 100
-                      }%`,
-                    }}
-                  ></div>
+          budgets.map((budget) => {
+            const percentage = (budget.spentAmount / budget.totalAmount) * 100;
+            return (
+              <div key={budget.id} className="obras-budget-card">
+                <div className="obras-budget-header">
+                  <h3>{budget.name}</h3>
+                  <span className="obras-gasto-badge">
+                    {percentage.toFixed(1)}% gasto
+                  </span>
+                </div>
+                <div className="obras-budget-info">
+                  <p>
+                    <strong>Total:</strong> R${" "}
+                    {budget.totalAmount.toLocaleString("pt-BR", {
+                      minimumFractionDigits: 2,
+                    })}
+                  </p>
+                  <p>
+                    <strong>Gasto:</strong> R${" "}
+                    {budget.spentAmount.toLocaleString("pt-BR", {
+                      minimumFractionDigits: 2,
+                    })}
+                  </p>
+                  <p>
+                    <strong>Restante:</strong> R${" "}
+                    {(budget.totalAmount - budget.spentAmount).toLocaleString(
+                      "pt-BR",
+                      {
+                        minimumFractionDigits: 2,
+                      }
+                    )}
+                  </p>
+                </div>
+                <div className="obras-budget-progress">
+                  <p>
+                    <strong>Execução do Orçamento</strong>{" "}
+                    <span>{percentage.toFixed(1)}%</span>
+                  </p>
+                  <div className="obras-progress-bar">
+                    <div
+                      className="obras-progress-fill"
+                      style={{
+                        width: `${percentage}%`,
+                      }}
+                    ></div>
+                  </div>
+                </div>
+                <div className="obras-budget-actions">
+                  <Button
+                    variant="secondary"
+                    onClick={() => budget.id && onEdit(budget)}
+                  >
+                    <FiEdit3 size={16} />
+                    Editar
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    onClick={() => budget.id && onDelete(budget.id)}
+                    className="obras-delete"
+                  >
+                    <FiTrash2 size={16} />
+                    Excluir
+                  </Button>
+                  <Button variant="primary">
+                    <FiPieChart size={16} />
+                    Detalhes
+                  </Button>
                 </div>
               </div>
-              <div className="obras-budget-actions">
-                <Button
-                  variant="secondary"
-                  onClick={() => budget.id && onEdit(budget)}
-                >
-                  <FiEdit3 size={16} />
-                  Editar
-                </Button>
-                <Button
-                  variant="secondary"
-                  onClick={() => budget.id && onDelete(budget.id)}
-                  className="obras-delete"
-                >
-                  <FiTrash2 size={16} />
-                  Excluir
-                </Button>
-                <Button variant="primary">
-                  <FiPieChart size={16} />
-                  Detalhes
-                </Button>
-              </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>

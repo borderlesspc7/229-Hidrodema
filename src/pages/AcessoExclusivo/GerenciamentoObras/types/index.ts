@@ -32,6 +32,8 @@ export type ViewMode =
   | "suppliers"
   | "quality"
   | "reports"
+  | "unified-reports"
+  | "view-report"
   | "new-inventory"
   | "new-budget"
   | "new-supplier"

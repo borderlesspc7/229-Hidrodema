@@ -58,15 +58,12 @@ export default function TeamList({
               <div className="obras-item-header">
                 <h3>{member.name}</h3>
                 {member.attendance && (
-                  <span
-                    className="obras-item-badge"
-                    style={{ backgroundColor: "#10b981" }}
-                  >
+                  <span className="obras-item-status normal">
                     Presente
                   </span>
                 )}
               </div>
-              <div className="obras-item-details">
+              <div className="obras-item-info">
                 <p>
                   <strong>Função:</strong> {member.role}
                 </p>
@@ -83,7 +80,9 @@ export default function TeamList({
                 {member.hourlyRate && (
                   <p>
                     <strong>Valor/Hora:</strong> R${" "}
-                    {member.hourlyRate.toFixed(2)}
+                    {member.hourlyRate.toLocaleString("pt-BR", {
+                      minimumFractionDigits: 2,
+                    })}
                   </p>
                 )}
                 {member.workHours && (
@@ -94,6 +93,11 @@ export default function TeamList({
                 {member.checkInTime && (
                   <p>
                     <strong>Entrada:</strong> {member.checkInTime}
+                  </p>
+                )}
+                {member.checkOutTime && (
+                  <p>
+                    <strong>Saída:</strong> {member.checkOutTime}
                   </p>
                 )}
               </div>

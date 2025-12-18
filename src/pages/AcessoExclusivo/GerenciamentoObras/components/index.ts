@@ -49,7 +49,7 @@ export { DocumentsList, DocumentsForm } from "./Documents";
 export { QualityList, QualityForm } from "./Quality";
 
 // Reports
-export { ReportsDashboard } from "./Reports";
+export { ReportsDashboard, UnifiedReportsList, ReportViewer } from "./Reports";
 
 // Shared components
 export { default as SectionHeader } from "./shared/SectionHeader";

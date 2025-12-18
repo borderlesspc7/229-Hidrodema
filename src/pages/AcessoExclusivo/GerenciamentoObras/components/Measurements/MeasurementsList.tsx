@@ -67,25 +67,15 @@ export default function MeasurementsList({
               <div className="obras-item-header">
                 <h3>{measurement.period}</h3>
                 {measurement.approved ? (
-                  <span
-                    className="obras-item-badge"
-                    style={{ backgroundColor: "#10b981" }}
-                  >
-                    Aprovada
-                  </span>
+                  <span className="status-concluido">Aprovada</span>
                 ) : (
-                  <span
-                    className="obras-item-badge"
-                    style={{ backgroundColor: "#6b7280" }}
-                  >
-                    Pendente
-                  </span>
+                  <span className="status-pendente">Pendente</span>
                 )}
               </div>
-              <div className="obras-item-details">
+              <div className="obras-item-info">
                 <p>
                   <strong>Data:</strong>{" "}
-                  {new Date(measurement.date).toLocaleDateString()}
+                  {new Date(measurement.date).toLocaleDateString("pt-BR")}
                 </p>
                 <p>
                   <strong>Descrição:</strong> {measurement.description}

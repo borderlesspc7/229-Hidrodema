@@ -93,7 +93,10 @@ export default function InventoryList({
                   <strong>Quantidade:</strong> {item.quantity} {item.unit}
                 </p>
                 <p>
-                  <strong>Preço:</strong> R$ {item.price.toFixed(2)}
+                  <strong>Preço:</strong> R${" "}
+                  {item.price.toLocaleString("pt-BR", {
+                    minimumFractionDigits: 2,
+                  })}
                 </p>
                 <p>
                   <strong>Fornecedor:</strong> {item.supplier}

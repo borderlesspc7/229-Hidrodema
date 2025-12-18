@@ -103,18 +103,25 @@ export default function SafetyList({
             <div key={record.id} className="obras-inventory-item">
               <div className="obras-item-header">
                 <h3>{record.title}</h3>
-                <div style={{ display: "flex", gap: "8px" }}>
-                  <span
-                    className="obras-item-badge"
-                    style={{ backgroundColor: "#3b82f6" }}
-                  >
+                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                  <span className="status-em-andamento">
                     {getTypeLabel(record.type)}
                   </span>
                   {record.severity && (
                     <span
-                      className="obras-item-badge"
+                      className={`severity-${record.severity}`}
                       style={{
-                        backgroundColor: getSeverityColor(record.severity),
+                        color: "#ffffff",
+                        background: getSeverityColor(record.severity),
+                        padding: "8px 16px",
+                        borderRadius: "24px",
+                        fontSize: "11px",
+                        fontWeight: "700",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.8px",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
                       }}
                     >
                       {getSeverityLabel(record.severity)}
@@ -122,10 +129,10 @@ export default function SafetyList({
                   )}
                 </div>
               </div>
-              <div className="obras-item-details">
+              <div className="obras-item-info">
                 <p>
                   <strong>Data:</strong>{" "}
-                  {new Date(record.date).toLocaleDateString()}
+                  {new Date(record.date).toLocaleDateString("pt-BR")}
                 </p>
                 <p>
                   <strong>Responsável:</strong> {record.responsible}

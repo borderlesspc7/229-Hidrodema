@@ -93,16 +93,27 @@ export default function DocumentsList({
               <div className="obras-item-header">
                 <h3>{doc.name}</h3>
                 <span
-                  className="obras-item-badge"
-                  style={{ backgroundColor: getTypeColor(doc.type) }}
+                  style={{
+                    color: "#ffffff",
+                    background: getTypeColor(doc.type),
+                    padding: "8px 16px",
+                    borderRadius: "24px",
+                    fontSize: "11px",
+                    fontWeight: "700",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.8px",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
+                  }}
                 >
                   {getTypeLabel(doc.type)}
                 </span>
               </div>
-              <div className="obras-item-details">
+              <div className="obras-item-info">
                 <p>
                   <strong>Data de Upload:</strong>{" "}
-                  {new Date(doc.uploadDate).toLocaleDateString()}
+                  {new Date(doc.uploadDate).toLocaleDateString("pt-BR")}
                 </p>
                 {doc.description && (
                   <p>
