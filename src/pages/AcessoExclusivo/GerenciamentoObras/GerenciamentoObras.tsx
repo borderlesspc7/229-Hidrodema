@@ -12,6 +12,7 @@ import {
   HydrostaticTestForm,
   WorkConclusionForm,
   ProjectsManagement,
+  ProjectDetailView,
   InventoryList,
   InventoryForm,
   BudgetsList,
@@ -177,6 +178,8 @@ export default function GerenciamentoObras() {
   const [responsible, setResponsible] = useState("");
   const [status, setStatus] = useState<DiaryEntry["status"]>("em-andamento");
   const [selectedProjectId, setSelectedProjectId] = useState("");
+  const [selectedProjectForDetail, setSelectedProjectForDetail] =
+    useState<Project | null>(null);
   const [materialName, setMaterialName] = useState("");
   const [materialQuantity, setMaterialQuantity] = useState("");
   const [materialUnit, setMaterialUnit] = useState("un");
@@ -770,6 +773,11 @@ export default function GerenciamentoObras() {
       team: project.team || [],
       labor: project.labor || "",
     });
+  };
+
+  const handleViewProjectDetail = (project: Project) => {
+    setSelectedProjectForDetail(project);
+    setViewMode("project-detail");
   };
 
   const handleDeleteProject = async (id: string) => {
@@ -1384,8 +1392,31 @@ export default function GerenciamentoObras() {
             onCreateProject={handleCreateProject}
             onEditProject={handleEditProject}
             onDeleteProject={handleDeleteProject}
+            onViewProjectDetail={handleViewProjectDetail}
           />
         );
+
+      case "project-detail":
+        return selectedProjectForDetail ? (
+          <ProjectDetailView
+            project={selectedProjectForDetail}
+            diaryEntries={diaryEntries}
+            inventory={inventory}
+            suppliers={suppliers}
+            teamMembers={teamMembers}
+            equipment={equipment}
+            schedules={schedules}
+            safetyRecords={safetyRecords}
+            onBack={() => {
+              setSelectedProjectForDetail(null);
+              setViewMode("projects");
+            }}
+            onEditProject={(project) => {
+              handleEditProject(project);
+              setViewMode("projects");
+            }}
+          />
+        ) : null;
 
       case "inventory":
         return (

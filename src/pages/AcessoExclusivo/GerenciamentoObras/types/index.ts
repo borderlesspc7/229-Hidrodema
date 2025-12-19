@@ -27,6 +27,7 @@ export type ViewMode =
   | "history"
   | "edit"
   | "projects"
+  | "project-detail"
   | "inventory"
   | "budgets"
   | "suppliers"

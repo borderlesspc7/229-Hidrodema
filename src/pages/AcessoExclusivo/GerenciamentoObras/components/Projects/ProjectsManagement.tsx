@@ -33,6 +33,7 @@ interface ProjectsManagementProps {
   onCreateProject: () => void;
   onEditProject: (project: Project) => void;
   onDeleteProject: (id: string) => void;
+  onViewProjectDetail: (project: Project) => void;
 }
 
 export default function ProjectsManagement({
@@ -45,6 +46,7 @@ export default function ProjectsManagement({
   onCreateProject,
   onEditProject,
   onDeleteProject,
+  onViewProjectDetail,
 }: ProjectsManagementProps) {
   return (
     <div className="obras-projects-container">
@@ -261,9 +263,12 @@ export default function ProjectsManagement({
                     <FiTrash2 size={16} />
                     Excluir
                   </Button>
-                  <Button variant="primary">
+                  <Button
+                    variant="primary"
+                    onClick={() => onViewProjectDetail(project)}
+                  >
                     <FiBarChart size={16} />
-                    Relatório
+                    Ver Detalhes
                   </Button>
                 </div>
               </div>

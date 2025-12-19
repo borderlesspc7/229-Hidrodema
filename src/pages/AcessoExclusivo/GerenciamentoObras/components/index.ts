@@ -13,7 +13,7 @@ export {
 } from "./DiarioObras";
 
 // Projects
-export { ProjectsManagement } from "./Projects";
+export { ProjectsManagement, ProjectDetailView } from "./Projects";
 
 // Inventory
 export { InventoryList, InventoryForm } from "./Inventory";
