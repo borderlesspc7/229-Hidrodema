@@ -33,6 +33,14 @@ import {
   generateServiceRequestId,
   type ServiceComment,
 } from "../../../services/servicosService";
+import {
+  validateRequired,
+  validateEmail,
+  validatePhone,
+  validateCNPJ,
+  validateDate,
+  sanitizeForDatabase,
+} from "../../../utils/validation";
 
 interface FormData {
   [key: string]: string | string[];
@@ -799,9 +807,42 @@ export default function SolicitacaoServicos() {
   const handleSaveDraft = async () => {
     try {
       setLoading(true);
+      
+      // Validações básicas para rascunho (menos rigorosas)
+      const warnings: string[] = [];
+
+      // Validar email se fornecido
+      if (formData.q4) {
+        const emailValidation = validateEmail(formData.q4 as string, false);
+        if (!emailValidation.valid) warnings.push(emailValidation.error!);
+      }
+
+      // Validar telefone se fornecido
+      if (formData.q5) {
+        const phoneValidation = validatePhone(formData.q5 as string, false);
+        if (!phoneValidation.valid) warnings.push(phoneValidation.error!);
+      }
+
+      // Validar CNPJ se fornecido
+      if (formData.q18) {
+        const cnpjValidation = validateCNPJ(formData.q18 as string, false);
+        if (!cnpjValidation.valid) warnings.push(cnpjValidation.error!);
+      }
+
+      // Se houver avisos, mostrar mas continuar
+      if (warnings.length > 0) {
+        const continuar = confirm(
+          `Avisos encontrados:\n\n${warnings.join("\n")}\n\nDeseja continuar mesmo assim?`
+        );
+        if (!continuar) {
+          setLoading(false);
+          return;
+        }
+      }
+
       const requestId = generateServiceRequestId();
 
-      await createServiceRequest({
+      await createServiceRequest(sanitizeForDatabase({
         requestId,
         category: (formData.q1 as string) || "Não informado",
         requestDate:
@@ -835,7 +876,7 @@ export default function SolicitacaoServicos() {
         }`,
         status: "draft",
         formData: { ...formData },
-      });
+      }));
 
       await loadServiceRequests();
       alert(
@@ -852,9 +893,59 @@ export default function SolicitacaoServicos() {
   const handleSubmit = async () => {
     try {
       setLoading(true);
+      
+      // Validações dos campos obrigatórios
+      const errors: string[] = [];
+
+      // Validar categoria (q1)
+      const categoryValue = Array.isArray(formData.q1) ? formData.q1[0] : formData.q1;
+      const categoryValidation = validateRequired(categoryValue, "Categoria");
+      if (!categoryValidation.valid) errors.push(categoryValidation.error!);
+
+      // Validar data (q2)
+      const dateValidation = validateDate(
+        formData.q2 as string,
+        "Data da solicitação",
+        true
+      );
+      if (!dateValidation.valid) errors.push(dateValidation.error!);
+
+      // Validar nome do solicitante (q3)
+      const nameValue = Array.isArray(formData.q3) ? formData.q3[0] : formData.q3;
+      const nameValidation = validateRequired(nameValue, "Nome do solicitante");
+      if (!nameValidation.valid) errors.push(nameValidation.error!);
+
+      // Validar email do solicitante (q4)
+      const emailValidation = validateEmail(formData.q4 as string, true);
+      if (!emailValidation.valid) errors.push(emailValidation.error!);
+
+      // Validar telefone do solicitante (q5)
+      const phoneValidation = validatePhone(formData.q5 as string, true);
+      if (!phoneValidation.valid) errors.push(phoneValidation.error!);
+
+      // Validar email interno se fornecido (q7)
+      if (formData.q7) {
+        const internalEmailValidation = validateEmail(formData.q7 as string, false);
+        if (!internalEmailValidation.valid) errors.push(internalEmailValidation.error!);
+      }
+
+      // Validar CNPJ se fornecido (q18)
+      if (formData.q18) {
+        const cnpjValidation = validateCNPJ(formData.q18 as string, false);
+        if (!cnpjValidation.valid) errors.push(cnpjValidation.error!);
+      }
+
+      // Se houver erros, mostrar e parar
+      if (errors.length > 0) {
+        alert(`Erros de validação:\n\n${errors.join("\n")}`);
+        setLoading(false);
+        return;
+      }
+
       const requestId = generateServiceRequestId();
 
-      await createServiceRequest({
+      // Sanitizar dados antes de enviar
+      const sanitizedData = sanitizeForDatabase({
         requestId,
         category: (formData.q1 as string) || "Não informado",
         requestDate:
@@ -886,9 +977,11 @@ export default function SolicitacaoServicos() {
         serviceDescription: `Serviço: ${
           (formData.q20 as string) || "Não especificado"
         }`,
-        status: "submitted",
+        status: "submitted" as const,
         formData: { ...formData },
       });
+
+      await createServiceRequest(sanitizedData as Parameters<typeof createServiceRequest>[0]);
 
       await loadServiceRequests();
       alert(

@@ -40,6 +40,12 @@ import {
   type VisitRequest,
   type VisitComment,
 } from "../../../services/visitasService";
+import {
+  validateRequired,
+  validateCNPJ,
+  validateDate,
+  sanitizeForDatabase,
+} from "../../../utils/validation";
 
 interface FormData {
   [key: string]: string | string[];
@@ -652,31 +658,34 @@ export default function RelatorioVisitas() {
         // Salvar rascunho de solicitação
         const requestId = generateRequestId();
 
-        await createVisitRequest({
-          requestId,
-          regional: (formData.q1 as string) || "",
-          vendedor:
-            (formData.q2 as string) ||
-            (formData.q3 as string) ||
-            (formData.q4 as string) ||
-            (formData.q5 as string) ||
-            "",
-          clientName: (formData.q7 as string) || "Cliente não informado",
-          clientCNPJ: formData.q8 as string,
-          clientCode: formData.q9 as string,
-          municipality: (formData.q10 as string) || "",
-          clientContact: (formData.q11 as string) || "",
-          visitType: (formData.q12 as string) || "",
-          visitReason: (formData.q13 as string) || "",
-          visitAddress: (formData.q14 as string) || "",
-          visitDate:
-            (formData.q15 as string) || new Date().toISOString().split("T")[0],
-          visitPeriod: (formData.q16 as string) || "",
-          responsibleSalesperson: (formData.q17 as string) || "",
-          status: "pending",
-          hasReport: false,
-          formData: { ...formData },
-        });
+        await createVisitRequest(
+          sanitizeForDatabase({
+            requestId,
+            regional: (formData.q1 as string) || "",
+            vendedor:
+              (formData.q2 as string) ||
+              (formData.q3 as string) ||
+              (formData.q4 as string) ||
+              (formData.q5 as string) ||
+              "",
+            clientName: (formData.q7 as string) || "Cliente não informado",
+            clientCNPJ: formData.q8 as string,
+            clientCode: formData.q9 as string,
+            municipality: (formData.q10 as string) || "",
+            clientContact: (formData.q11 as string) || "",
+            visitType: (formData.q12 as string) || "",
+            visitReason: (formData.q13 as string) || "",
+            visitAddress: (formData.q14 as string) || "",
+            visitDate:
+              (formData.q15 as string) ||
+              new Date().toISOString().split("T")[0],
+            visitPeriod: (formData.q16 as string) || "",
+            responsibleSalesperson: (formData.q17 as string) || "",
+            status: "pending",
+            hasReport: false,
+            formData: { ...formData },
+          })
+        );
 
         alert(
           `Rascunho de solicitação salvo com sucesso!\nID da Solicitação: ${requestId}\n\nGuarde este ID para fazer o relatório posteriormente.`
@@ -697,35 +706,82 @@ export default function RelatorioVisitas() {
       setLoading(true);
       const selectedAction = formData.q6 as string;
 
+      // Validações
+      const errors: string[] = [];
+
+      // Validar ação selecionada
+      if (!selectedAction) {
+        errors.push(
+          "Selecione uma ação (Solicitar visita ou Registrar relatório)"
+        );
+      }
+
+      if (selectedAction === "Solicitar uma nova visita") {
+        // Validações específicas para solicitação
+        const clientNameValue = Array.isArray(formData.q7)
+          ? formData.q7[0]
+          : formData.q7;
+        const clientNameValidation = validateRequired(
+          clientNameValue,
+          "Nome do cliente"
+        );
+        if (!clientNameValidation.valid)
+          errors.push(clientNameValidation.error!);
+
+        if (formData.q8) {
+          const cnpjValidation = validateCNPJ(formData.q8 as string, false);
+          if (!cnpjValidation.valid) errors.push(cnpjValidation.error!);
+        }
+
+        if (formData.q15) {
+          const dateValidation = validateDate(
+            formData.q15 as string,
+            "Data da visita",
+            false
+          );
+          if (!dateValidation.valid) errors.push(dateValidation.error!);
+        }
+      }
+
+      // Se houver erros, mostrar e parar
+      if (errors.length > 0) {
+        alert(`Erros de validação:\n\n${errors.join("\n")}`);
+        setLoading(false);
+        return;
+      }
+
       if (selectedAction === "Solicitar uma nova visita") {
         // Criar nova solicitação
         const requestId = generateRequestId();
 
-        await createVisitRequest({
-          requestId,
-          regional: (formData.q1 as string) || "",
-          vendedor:
-            (formData.q2 as string) ||
-            (formData.q3 as string) ||
-            (formData.q4 as string) ||
-            (formData.q5 as string) ||
-            "",
-          clientName: (formData.q7 as string) || "Cliente não informado",
-          clientCNPJ: formData.q8 as string,
-          clientCode: formData.q9 as string,
-          municipality: (formData.q10 as string) || "",
-          clientContact: (formData.q11 as string) || "",
-          visitType: (formData.q12 as string) || "",
-          visitReason: (formData.q13 as string) || "",
-          visitAddress: (formData.q14 as string) || "",
-          visitDate:
-            (formData.q15 as string) || new Date().toISOString().split("T")[0],
-          visitPeriod: (formData.q16 as string) || "",
-          responsibleSalesperson: (formData.q17 as string) || "",
-          status: "scheduled",
-          hasReport: false,
-          formData: { ...formData },
-        });
+        await createVisitRequest(
+          sanitizeForDatabase({
+            requestId,
+            regional: (formData.q1 as string) || "",
+            vendedor:
+              (formData.q2 as string) ||
+              (formData.q3 as string) ||
+              (formData.q4 as string) ||
+              (formData.q5 as string) ||
+              "",
+            clientName: (formData.q7 as string) || "Cliente não informado",
+            clientCNPJ: formData.q8 as string,
+            clientCode: formData.q9 as string,
+            municipality: (formData.q10 as string) || "",
+            clientContact: (formData.q11 as string) || "",
+            visitType: (formData.q12 as string) || "",
+            visitReason: (formData.q13 as string) || "",
+            visitAddress: (formData.q14 as string) || "",
+            visitDate:
+              (formData.q15 as string) ||
+              new Date().toISOString().split("T")[0],
+            visitPeriod: (formData.q16 as string) || "",
+            responsibleSalesperson: (formData.q17 as string) || "",
+            status: "scheduled",
+            hasReport: false,
+            formData: { ...formData },
+          })
+        );
 
         alert(
           `Solicitação de visita criada com sucesso!\nID da Solicitação: ${requestId}\n\nGuarde este ID para fazer o relatório posteriormente.`

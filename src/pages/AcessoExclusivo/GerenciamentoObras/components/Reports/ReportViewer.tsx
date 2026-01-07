@@ -388,20 +388,20 @@ export default function ReportViewer({ entry, onBack, onEdit, onDelete }: Report
         )}
 
         {/* Multiple Signatures (for conclusion reports) */}
-        {entry.multipleSignatures && entry.multipleSignatures.length > 0 && (
+        {entry.signatures && entry.signatures.length > 0 && (
           <div className="obras-report-viewer-section">
             <h3>
-              <FiCheck size={20} /> Assinaturas ({entry.multipleSignatures.length})
+              <FiCheck size={20} /> Assinaturas ({entry.signatures.length})
             </h3>
             <div className="obras-report-viewer-signatures">
-              {entry.multipleSignatures.map((sig) => (
+              {entry.signatures.map((sig) => (
                 <div key={sig.id} className="obras-report-viewer-signature-item">
                   <strong>
                     {sig.name} - {sig.role}
                   </strong>
                   {sig.company && <span>{sig.company}</span>}
-                  {sig.date && <span>{new Date(sig.date).toLocaleDateString("pt-BR")}</span>}
-                  {sig.signatureImage && <img src={sig.signatureImage} alt={`Assinatura de ${sig.name}`} />}
+                  {sig.signedAt && <span>{new Date(sig.signedAt).toLocaleDateString("pt-BR")}</span>}
+                  {sig.signature && <img src={sig.signature} alt={`Assinatura de ${sig.name}`} />}
                 </div>
               ))}
             </div>

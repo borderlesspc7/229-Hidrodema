@@ -37,6 +37,11 @@ import {
   type MDSQuotation,
   type MDSComment,
 } from "../../../services/equalizadorService";
+import {
+  validateRequired,
+  validateDate,
+  sanitizeForDatabase,
+} from "../../../utils/validation";
 
 // Interfaces
 interface FormData {
@@ -645,6 +650,33 @@ const EqualizadorServicos = () => {
   const handleSubmit = async () => {
     try {
       setLoading(true);
+      
+      // Validações
+      const errors: string[] = [];
+
+      // Validar cliente
+      const clientValue = Array.isArray(formData.q1) ? formData.q1[0] : formData.q1;
+      const clientValidation = validateRequired(clientValue, "Cliente");
+      if (!clientValidation.valid) errors.push(clientValidation.error!);
+
+      // Validar local da obra
+      const locationValue = Array.isArray(formData.q2) ? formData.q2[0] : formData.q2;
+      const locationValidation = validateRequired(locationValue, "Local da obra");
+      if (!locationValidation.valid) errors.push(locationValidation.error!);
+
+      // Validar data da visita
+      if (formData.q3) {
+        const dateValidation = validateDate(formData.q3 as string, "Data da visita", false);
+        if (!dateValidation.valid) errors.push(dateValidation.error!);
+      }
+
+      // Se houver erros, mostrar e parar
+      if (errors.length > 0) {
+        alert(`Erros de validação:\n\n${errors.join("\n")}`);
+        setLoading(false);
+        return;
+      }
+
       const mdsNumber = generateMDSNumber();
 
       if (editingService) {
@@ -672,7 +704,7 @@ const EqualizadorServicos = () => {
         });
 
         // Criar novo MDS
-        await createServiceMDS({
+        await createServiceMDS(sanitizeForDatabase({
           mdsNumber,
           client: (formData.q1 as string) || "Cliente não informado",
           workLocation: (formData.q2 as string) || "Local não informado",
@@ -703,7 +735,7 @@ const EqualizadorServicos = () => {
           responsibilityMatrix: responsibilityMatrix,
           status: "awaiting-quotes",
           formData: { ...formData },
-        });
+        }));
         alert(`MDS criado com sucesso!\nMDS: ${mdsNumber}`);
       }
 
