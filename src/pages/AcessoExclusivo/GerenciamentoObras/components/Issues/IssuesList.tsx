@@ -1,3 +1,4 @@
+import { useState } from "react";
 import Button from "../../../../../components/ui/Button/Button";
 import {
   FiAlertTriangle,
@@ -6,11 +7,14 @@ import {
   FiEdit3,
   FiTrash2,
 } from "react-icons/fi";
-import type { Issue } from "../../../../../services/obrasService";
+import type { Issue, Project } from "../../../../../services/obrasService";
 import type { ViewMode } from "../../types";
+import ProjectFilter from "../shared/ProjectFilter";
+import ProjectBadge from "../shared/ProjectBadge";
 
 interface IssuesListProps {
   issues: Issue[];
+  projects: Project[];
   onViewChange: (mode: ViewMode) => void;
   onEdit: (issue: Issue) => void;
   onDelete: (id: string) => void;
@@ -18,10 +22,17 @@ interface IssuesListProps {
 
 export default function IssuesList({
   issues,
+  projects,
   onViewChange,
   onEdit,
   onDelete,
 }: IssuesListProps) {
+  const [selectedProjectId, setSelectedProjectId] = useState<string>("");
+
+  const filteredIssues =
+    selectedProjectId === "" || selectedProjectId === "all"
+      ? issues
+      : issues.filter((issue) => issue.projectId === selectedProjectId);
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case "baixa":
@@ -115,19 +126,26 @@ export default function IssuesList({
         </Button>
       </div>
 
-      <div className="obras-inventory-actions">
-        <Button
-          variant="primary"
-          onClick={() => onViewChange("new-issues")}
-          className="obras-create-btn"
-        >
-          <FiPlus size={20} />
-          Novo Problema
-        </Button>
+      <div className="obras-inventory-controls">
+        <div className="obras-inventory-actions">
+          <Button
+            variant="primary"
+            onClick={() => onViewChange("new-issues")}
+            className="obras-create-btn"
+          >
+            <FiPlus size={20} />
+            Novo Problema
+          </Button>
+        </div>
+        <ProjectFilter
+          projects={projects}
+          selectedProjectId={selectedProjectId}
+          onProjectChange={setSelectedProjectId}
+        />
       </div>
 
       <div className="obras-inventory-grid">
-        {issues.length === 0 ? (
+        {filteredIssues.length === 0 ? (
           <div className="obras-empty-state">
             <div className="obras-empty-icon">
               <FiAlertTriangle size={64} />
@@ -141,7 +159,7 @@ export default function IssuesList({
             </Button>
           </div>
         ) : (
-          issues.map((issue) => (
+          filteredIssues.map((issue) => (
             <div key={issue.id} className="obras-inventory-item">
               <div className="obras-item-header">
                 <h3>{issue.title}</h3>
@@ -181,6 +199,13 @@ export default function IssuesList({
                     {getStatusLabel(issue.status)}
                   </span>
                 </div>
+              </div>
+              <div className="obras-badge-container">
+                <ProjectBadge
+                  projectId={issue.projectId}
+                  projects={projects}
+                  size="medium"
+                />
               </div>
               <div className="obras-item-info">
                 <p>

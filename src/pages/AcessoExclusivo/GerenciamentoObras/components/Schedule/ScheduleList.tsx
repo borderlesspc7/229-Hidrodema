@@ -1,3 +1,4 @@
+import { useState } from "react";
 import Button from "../../../../../components/ui/Button/Button";
 import {
   FiCalendar,
@@ -6,11 +7,14 @@ import {
   FiEdit3,
   FiTrash2,
 } from "react-icons/fi";
-import type { Schedule } from "../../../../../services/obrasService";
+import type { Schedule, Project } from "../../../../../services/obrasService";
 import type { ViewMode } from "../../types";
+import ProjectFilter from "../shared/ProjectFilter";
+import ProjectBadge from "../shared/ProjectBadge";
 
 interface ScheduleListProps {
   schedules: Schedule[];
+  projects: Project[];
   onViewChange: (mode: ViewMode) => void;
   onEdit: (schedule: Schedule) => void;
   onDelete: (id: string) => void;
@@ -18,10 +22,19 @@ interface ScheduleListProps {
 
 export default function ScheduleList({
   schedules,
+  projects,
   onViewChange,
   onEdit,
   onDelete,
 }: ScheduleListProps) {
+  const [selectedProjectId, setSelectedProjectId] = useState<string>("");
+
+  // Filtrar cronograma por obra
+  const filteredSchedules =
+    selectedProjectId === "" || selectedProjectId === "all"
+      ? schedules
+      : schedules.filter((schedule) => schedule.projectId === selectedProjectId);
+
   const getStatusLabel = (status: string) => {
     switch (status) {
       case "nao-iniciado":
@@ -66,19 +79,26 @@ export default function ScheduleList({
         </Button>
       </div>
 
-      <div className="obras-inventory-actions">
-        <Button
-          variant="primary"
-          onClick={() => onViewChange("new-schedule")}
-          className="obras-create-btn"
-        >
-          <FiPlus size={20} />
-          Nova Tarefa
-        </Button>
+      <div className="obras-inventory-controls">
+        <div className="obras-inventory-actions">
+          <Button
+            variant="primary"
+            onClick={() => onViewChange("new-schedule")}
+            className="obras-create-btn"
+          >
+            <FiPlus size={20} />
+            Nova Tarefa
+          </Button>
+        </div>
+        <ProjectFilter
+          projects={projects}
+          selectedProjectId={selectedProjectId}
+          onProjectChange={setSelectedProjectId}
+        />
       </div>
 
       <div className="obras-inventory-grid">
-        {schedules.length === 0 ? (
+        {filteredSchedules.length === 0 ? (
           <div className="obras-empty-state">
             <div className="obras-empty-icon">
               <FiCalendar size={64} />
@@ -92,13 +112,20 @@ export default function ScheduleList({
             </Button>
           </div>
         ) : (
-          schedules.map((schedule) => (
+          filteredSchedules.map((schedule) => (
             <div key={schedule.id} className="obras-inventory-item">
               <div className="obras-item-header">
                 <h3>{schedule.taskName}</h3>
                 <span className={getStatusClass(schedule.status)}>
                   {getStatusLabel(schedule.status)}
                 </span>
+              </div>
+              <div className="obras-badge-container">
+                <ProjectBadge
+                  projectId={schedule.projectId}
+                  projects={projects}
+                  size="medium"
+                />
               </div>
               <div className="obras-item-info">
                 <p>

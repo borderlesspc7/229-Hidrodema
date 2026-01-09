@@ -1,10 +1,14 @@
+import { useState } from "react";
 import Button from "../../../../../components/ui/Button/Button";
 import { FiUsers, FiArrowLeft, FiPlus, FiEdit3, FiTrash2 } from "react-icons/fi";
-import type { TeamMember } from "../../../../../services/obrasService";
+import type { TeamMember, Project } from "../../../../../services/obrasService";
 import type { ViewMode } from "../../types";
+import ProjectFilter from "../shared/ProjectFilter";
+import ProjectBadge from "../shared/ProjectBadge";
 
 interface TeamListProps {
   teamMembers: TeamMember[];
+  projects: Project[];
   onViewChange: (mode: ViewMode) => void;
   onEdit: (member: TeamMember) => void;
   onDelete: (id: string) => void;
@@ -12,10 +16,19 @@ interface TeamListProps {
 
 export default function TeamList({
   teamMembers,
+  projects,
   onViewChange,
   onEdit,
   onDelete,
 }: TeamListProps) {
+  const [selectedProjectId, setSelectedProjectId] = useState<string>("");
+
+  // Filtrar membros por obra
+  const filteredTeamMembers =
+    selectedProjectId === "" || selectedProjectId === "all"
+      ? teamMembers
+      : teamMembers.filter((member) => member.projectId === selectedProjectId);
+
   return (
     <div className="obras-inventory-container">
       <div className="obras-inventory-header">
@@ -30,19 +43,26 @@ export default function TeamList({
         </Button>
       </div>
 
-      <div className="obras-inventory-actions">
-        <Button
-          variant="primary"
-          onClick={() => onViewChange("new-team")}
-          className="obras-create-btn"
-        >
-          <FiPlus size={20} />
-          Novo Membro
-        </Button>
+      <div className="obras-inventory-controls">
+        <div className="obras-inventory-actions">
+          <Button
+            variant="primary"
+            onClick={() => onViewChange("new-team")}
+            className="obras-create-btn"
+          >
+            <FiPlus size={20} />
+            Novo Membro
+          </Button>
+        </div>
+        <ProjectFilter
+          projects={projects}
+          selectedProjectId={selectedProjectId}
+          onProjectChange={setSelectedProjectId}
+        />
       </div>
 
       <div className="obras-inventory-grid">
-        {teamMembers.length === 0 ? (
+        {filteredTeamMembers.length === 0 ? (
           <div className="obras-empty-state">
             <div className="obras-empty-icon">
               <FiUsers size={64} />
@@ -53,7 +73,7 @@ export default function TeamList({
             </Button>
           </div>
         ) : (
-          teamMembers.map((member) => (
+          filteredTeamMembers.map((member) => (
             <div key={member.id} className="obras-inventory-item">
               <div className="obras-item-header">
                 <h3>{member.name}</h3>
@@ -62,6 +82,13 @@ export default function TeamList({
                     Presente
                   </span>
                 )}
+              </div>
+              <div className="obras-badge-container">
+                <ProjectBadge
+                  projectId={member.projectId}
+                  projects={projects}
+                  size="medium"
+                />
               </div>
               <div className="obras-item-info">
                 <p>

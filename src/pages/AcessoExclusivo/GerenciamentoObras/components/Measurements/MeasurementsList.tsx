@@ -1,3 +1,4 @@
+import { useState } from "react";
 import Button from "../../../../../components/ui/Button/Button";
 import {
   FiActivity,
@@ -6,11 +7,14 @@ import {
   FiEdit3,
   FiTrash2,
 } from "react-icons/fi";
-import type { Measurement } from "../../../../../services/obrasService";
+import type { Measurement, Project } from "../../../../../services/obrasService";
 import type { ViewMode } from "../../types";
+import ProjectFilter from "../shared/ProjectFilter";
+import ProjectBadge from "../shared/ProjectBadge";
 
 interface MeasurementsListProps {
   measurements: Measurement[];
+  projects: Project[];
   onViewChange: (mode: ViewMode) => void;
   onEdit: (measurement: Measurement) => void;
   onDelete: (id: string) => void;
@@ -18,10 +22,18 @@ interface MeasurementsListProps {
 
 export default function MeasurementsList({
   measurements,
+  projects,
   onViewChange,
   onEdit,
   onDelete,
 }: MeasurementsListProps) {
+  const [selectedProjectId, setSelectedProjectId] = useState<string>("");
+
+  const filteredMeasurements =
+    selectedProjectId === "" || selectedProjectId === "all"
+      ? measurements
+      : measurements.filter((m) => m.projectId === selectedProjectId);
+
   return (
     <div className="obras-inventory-container">
       <div className="obras-inventory-header">
@@ -36,19 +48,26 @@ export default function MeasurementsList({
         </Button>
       </div>
 
-      <div className="obras-inventory-actions">
-        <Button
-          variant="primary"
-          onClick={() => onViewChange("new-measurements")}
-          className="obras-create-btn"
-        >
-          <FiPlus size={20} />
-          Nova Medição
-        </Button>
+      <div className="obras-inventory-controls">
+        <div className="obras-inventory-actions">
+          <Button
+            variant="primary"
+            onClick={() => onViewChange("new-measurements")}
+            className="obras-create-btn"
+          >
+            <FiPlus size={20} />
+            Nova Medição
+          </Button>
+        </div>
+        <ProjectFilter
+          projects={projects}
+          selectedProjectId={selectedProjectId}
+          onProjectChange={setSelectedProjectId}
+        />
       </div>
 
       <div className="obras-inventory-grid">
-        {measurements.length === 0 ? (
+        {filteredMeasurements.length === 0 ? (
           <div className="obras-empty-state">
             <div className="obras-empty-icon">
               <FiActivity size={64} />
@@ -62,7 +81,7 @@ export default function MeasurementsList({
             </Button>
           </div>
         ) : (
-          measurements.map((measurement) => (
+          filteredMeasurements.map((measurement) => (
             <div key={measurement.id} className="obras-inventory-item">
               <div className="obras-item-header">
                 <h3>{measurement.period}</h3>
@@ -71,6 +90,13 @@ export default function MeasurementsList({
                 ) : (
                   <span className="status-pendente">Pendente</span>
                 )}
+              </div>
+              <div className="obras-badge-container">
+                <ProjectBadge
+                  projectId={measurement.projectId}
+                  projects={projects}
+                  size="medium"
+                />
               </div>
               <div className="obras-item-info">
                 <p>

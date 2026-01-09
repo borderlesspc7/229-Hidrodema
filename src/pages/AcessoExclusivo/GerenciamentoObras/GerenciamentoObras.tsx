@@ -1582,6 +1582,7 @@ export default function GerenciamentoObras() {
         return (
           <InventoryList
             inventory={inventory}
+            projects={projects}
             alerts={checkInventoryAlerts()}
             onViewChange={setViewMode}
             onEdit={handleEditInventoryItem}
@@ -1606,6 +1607,7 @@ export default function GerenciamentoObras() {
         return (
           <BudgetsList
             budgets={budgets}
+            projects={projects}
             onViewChange={setViewMode}
             onEdit={handleEditBudget}
             onDelete={handleDeleteBudget}
@@ -1629,6 +1631,7 @@ export default function GerenciamentoObras() {
         return (
           <SuppliersList
             suppliers={suppliers}
+            projects={projects}
             onViewChange={setViewMode}
             onEdit={(supplier) => {
               setEditingSupplier(supplier);
@@ -1715,6 +1718,7 @@ export default function GerenciamentoObras() {
         return (
           <TeamList
             teamMembers={teamMembers}
+            projects={projects}
             onViewChange={setViewMode}
             onEdit={(member) => {
               setEditingTeamMember(member);
@@ -1795,6 +1799,7 @@ export default function GerenciamentoObras() {
         return (
           <EquipmentList
             equipment={equipment}
+            projects={projects}
             onViewChange={setViewMode}
             onEdit={(item) => {
               setEditingEquipment(item);
@@ -1875,6 +1880,7 @@ export default function GerenciamentoObras() {
         return (
           <ScheduleList
             schedules={schedules}
+            projects={projects}
             onViewChange={setViewMode}
             onEdit={(schedule) => {
               setEditingSchedule(schedule);
@@ -1956,6 +1962,7 @@ export default function GerenciamentoObras() {
         return (
           <SafetyList
             safetyRecords={safetyRecords}
+            projects={projects}
             onViewChange={setViewMode}
             onEdit={(record) => {
               setEditingSafetyRecord(record);
@@ -2038,6 +2045,7 @@ export default function GerenciamentoObras() {
         return (
           <MeasurementsList
             measurements={measurements}
+            projects={projects}
             onViewChange={setViewMode}
             onEdit={(measurement) => {
               setEditingMeasurement(measurement);
@@ -2125,6 +2133,7 @@ export default function GerenciamentoObras() {
         return (
           <IssuesList
             issues={issues}
+            projects={projects}
             onViewChange={setViewMode}
             onEdit={(issue) => {
               setEditingIssue(issue);
@@ -2205,6 +2214,7 @@ export default function GerenciamentoObras() {
         return (
           <DocumentsList
             documents={documents}
+            projects={projects}
             onViewChange={setViewMode}
             onEdit={(doc) => {
               setEditingDocument(doc);
@@ -2283,6 +2293,7 @@ export default function GerenciamentoObras() {
         return (
           <QualityList
             qualityChecklists={qualityChecklists}
+            projects={projects}
             onViewChange={setViewMode}
             onEdit={(checklist) => {
               setEditingQualityChecklist(checklist);

@@ -5420,3 +5420,132 @@ textarea {
     grid-template-columns: 1fr;
   }
 }
+
+/* ========== ESTILOS PARA VINCULAÇÃO DE OBRAS ========== */
+
+/* Controls container with filter */
+.obras-inventory-controls,
+.obras-budgets-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+
+.obras-inventory-controls .obras-inventory-actions,
+.obras-budgets-controls .obras-budgets-actions {
+  flex: 1;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* Project filter styles */
+.obras-project-filter {
+  min-width: 280px;
+  flex: 0 1 auto;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.obras-filter-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #94a3b8;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+/* Project badge styles */
+.obras-project-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 300px;
+}
+
+.obras-project-badge:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+}
+
+.obras-project-badge-small {
+  padding: 4px 10px;
+  font-size: 11px;
+  gap: 4px;
+  max-width: 200px;
+}
+
+.obras-project-badge-medium {
+  padding: 6px 14px;
+  font-size: 13px;
+  gap: 6px;
+  max-width: 300px;
+}
+
+.obras-project-badge-large {
+  padding: 8px 18px;
+  font-size: 15px;
+  gap: 8px;
+  max-width: 400px;
+}
+
+.obras-project-badge-none {
+  background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+  box-shadow: 0 2px 8px rgba(100, 116, 139, 0.3);
+  opacity: 0.7;
+}
+
+.obras-project-badge-none:hover {
+  background: linear-gradient(135deg, #475569 0%, #334155 100%);
+  opacity: 1;
+}
+
+.obras-badge-container {
+  margin: 12px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Responsive adjustments for project filters */
+@media (max-width: 768px) {
+  .obras-inventory-controls,
+  .obras-budgets-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .obras-project-filter {
+    min-width: 100%;
+    width: 100%;
+  }
+
+  .obras-inventory-controls .obras-inventory-actions,
+  .obras-budgets-controls .obras-budgets-actions {
+    width: 100%;
+  }
+
+  .obras-project-badge {
+    max-width: 100%;
+  }
+}

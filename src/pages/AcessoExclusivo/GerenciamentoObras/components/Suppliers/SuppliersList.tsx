@@ -1,10 +1,14 @@
+import { useState } from "react";
 import Button from "../../../../../components/ui/Button/Button";
 import { FiTruck, FiArrowLeft, FiPlus, FiEdit3, FiTrash2 } from "react-icons/fi";
-import type { Supplier } from "../../../../../services/obrasService";
+import type { Supplier, Project } from "../../../../../services/obrasService";
 import type { ViewMode } from "../../types";
+import ProjectFilter from "../shared/ProjectFilter";
+import ProjectBadge from "../shared/ProjectBadge";
 
 interface SuppliersListProps {
   suppliers: Supplier[];
+  projects: Project[];
   onViewChange: (mode: ViewMode) => void;
   onEdit: (supplier: Supplier) => void;
   onDelete: (id: string) => void;
@@ -12,10 +16,19 @@ interface SuppliersListProps {
 
 export default function SuppliersList({
   suppliers,
+  projects,
   onViewChange,
   onEdit,
   onDelete,
 }: SuppliersListProps) {
+  const [selectedProjectId, setSelectedProjectId] = useState<string>("");
+
+  // Filtrar fornecedores por obra
+  const filteredSuppliers =
+    selectedProjectId === "" || selectedProjectId === "all"
+      ? suppliers
+      : suppliers.filter((supplier) => supplier.projectId === selectedProjectId);
+
   const getReliabilityColor = (reliability: string) => {
     switch (reliability) {
       case "excelente":
@@ -60,19 +73,26 @@ export default function SuppliersList({
         </Button>
       </div>
 
-      <div className="obras-inventory-actions">
-        <Button
-          variant="primary"
-          onClick={() => onViewChange("new-supplier")}
-          className="obras-create-btn"
-        >
-          <FiPlus size={20} />
-          Novo Fornecedor
-        </Button>
+      <div className="obras-inventory-controls">
+        <div className="obras-inventory-actions">
+          <Button
+            variant="primary"
+            onClick={() => onViewChange("new-supplier")}
+            className="obras-create-btn"
+          >
+            <FiPlus size={20} />
+            Novo Fornecedor
+          </Button>
+        </div>
+        <ProjectFilter
+          projects={projects}
+          selectedProjectId={selectedProjectId}
+          onProjectChange={setSelectedProjectId}
+        />
       </div>
 
       <div className="obras-inventory-grid">
-        {suppliers.length === 0 ? (
+        {filteredSuppliers.length === 0 ? (
           <div className="obras-empty-state">
             <div className="obras-empty-icon">
               <FiTruck size={64} />
@@ -86,7 +106,7 @@ export default function SuppliersList({
             </Button>
           </div>
         ) : (
-          suppliers.map((supplier) => (
+          filteredSuppliers.map((supplier) => (
             <div key={supplier.id} className="obras-inventory-item">
               <div className="obras-item-header">
                 <h3>{supplier.name}</h3>
@@ -108,6 +128,13 @@ export default function SuppliersList({
                 >
                   {getReliabilityLabel(supplier.reliability)}
                 </span>
+              </div>
+              <div className="obras-badge-container">
+                <ProjectBadge
+                  projectId={supplier.projectId}
+                  projects={projects}
+                  size="medium"
+                />
               </div>
               <div className="obras-item-info">
                 <p>

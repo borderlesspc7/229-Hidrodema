@@ -1,10 +1,14 @@
+import { useState } from "react";
 import Button from "../../../../../components/ui/Button/Button";
 import { FiTool, FiArrowLeft, FiPlus, FiEdit3, FiTrash2 } from "react-icons/fi";
-import type { Equipment } from "../../../../../services/obrasService";
+import type { Equipment, Project } from "../../../../../services/obrasService";
 import type { ViewMode } from "../../types";
+import ProjectFilter from "../shared/ProjectFilter";
+import ProjectBadge from "../shared/ProjectBadge";
 
 interface EquipmentListProps {
   equipment: Equipment[];
+  projects: Project[];
   onViewChange: (mode: ViewMode) => void;
   onEdit: (item: Equipment) => void;
   onDelete: (id: string) => void;
@@ -12,10 +16,19 @@ interface EquipmentListProps {
 
 export default function EquipmentList({
   equipment,
+  projects,
   onViewChange,
   onEdit,
   onDelete,
 }: EquipmentListProps) {
+  const [selectedProjectId, setSelectedProjectId] = useState<string>("");
+
+  // Filtrar equipamentos por obra
+  const filteredEquipment =
+    selectedProjectId === "" || selectedProjectId === "all"
+      ? equipment
+      : equipment.filter((item) => item.projectId === selectedProjectId);
+
   const getStatusLabel = (status: string) => {
     switch (status) {
       case "disponivel":
@@ -45,19 +58,26 @@ export default function EquipmentList({
         </Button>
       </div>
 
-      <div className="obras-inventory-actions">
-        <Button
-          variant="primary"
-          onClick={() => onViewChange("new-equipment")}
-          className="obras-create-btn"
-        >
-          <FiPlus size={20} />
-          Novo Equipamento
-        </Button>
+      <div className="obras-inventory-controls">
+        <div className="obras-inventory-actions">
+          <Button
+            variant="primary"
+            onClick={() => onViewChange("new-equipment")}
+            className="obras-create-btn"
+          >
+            <FiPlus size={20} />
+            Novo Equipamento
+          </Button>
+        </div>
+        <ProjectFilter
+          projects={projects}
+          selectedProjectId={selectedProjectId}
+          onProjectChange={setSelectedProjectId}
+        />
       </div>
 
       <div className="obras-inventory-grid">
-        {equipment.length === 0 ? (
+        {filteredEquipment.length === 0 ? (
           <div className="obras-empty-state">
             <div className="obras-empty-icon">
               <FiTool size={64} />
@@ -71,13 +91,20 @@ export default function EquipmentList({
             </Button>
           </div>
         ) : (
-          equipment.map((item) => (
+          filteredEquipment.map((item) => (
             <div key={item.id} className="obras-inventory-item">
               <div className="obras-item-header">
                 <h3>{item.name}</h3>
                 <span className={`status-${item.status}`}>
                   {getStatusLabel(item.status)}
                 </span>
+              </div>
+              <div className="obras-badge-container">
+                <ProjectBadge
+                  projectId={item.projectId}
+                  projects={projects}
+                  size="medium"
+                />
               </div>
               <div className="obras-item-info">
                 <p>

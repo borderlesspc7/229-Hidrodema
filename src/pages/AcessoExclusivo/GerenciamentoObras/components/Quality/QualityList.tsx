@@ -1,3 +1,4 @@
+import { useState } from "react";
 import Button from "../../../../../components/ui/Button/Button";
 import {
   FiCheckCircle,
@@ -6,11 +7,14 @@ import {
   FiEdit3,
   FiTrash2,
 } from "react-icons/fi";
-import type { QualityChecklist } from "../../../../../services/obrasService";
+import type { QualityChecklist, Project } from "../../../../../services/obrasService";
 import type { ViewMode } from "../../types";
+import ProjectFilter from "../shared/ProjectFilter";
+import ProjectBadge from "../shared/ProjectBadge";
 
 interface QualityListProps {
   qualityChecklists: QualityChecklist[];
+  projects: Project[];
   onViewChange: (mode: ViewMode) => void;
   onEdit: (checklist: QualityChecklist) => void;
   onDelete: (id: string) => void;
@@ -18,10 +22,17 @@ interface QualityListProps {
 
 export default function QualityList({
   qualityChecklists,
+  projects,
   onViewChange,
   onEdit,
   onDelete,
 }: QualityListProps) {
+  const [selectedProjectId, setSelectedProjectId] = useState<string>("");
+
+  const filteredQualityChecklists =
+    selectedProjectId === "" || selectedProjectId === "all"
+      ? qualityChecklists
+      : qualityChecklists.filter((q) => q.projectId === selectedProjectId);
   const getStatusColor = (status: string) => {
     switch (status) {
       case "pendente":
@@ -62,19 +73,26 @@ export default function QualityList({
         </Button>
       </div>
 
-      <div className="obras-inventory-actions">
-        <Button
-          variant="primary"
-          onClick={() => onViewChange("new-quality")}
-          className="obras-create-btn"
-        >
-          <FiPlus size={20} />
-          Novo Checklist
-        </Button>
+      <div className="obras-inventory-controls">
+        <div className="obras-inventory-actions">
+          <Button
+            variant="primary"
+            onClick={() => onViewChange("new-quality")}
+            className="obras-create-btn"
+          >
+            <FiPlus size={20} />
+            Novo Checklist
+          </Button>
+        </div>
+        <ProjectFilter
+          projects={projects}
+          selectedProjectId={selectedProjectId}
+          onProjectChange={setSelectedProjectId}
+        />
       </div>
 
       <div className="obras-inventory-grid">
-        {qualityChecklists.length === 0 ? (
+        {filteredQualityChecklists.length === 0 ? (
           <div className="obras-empty-state">
             <div className="obras-empty-icon">
               <FiCheckCircle size={64} />
@@ -88,7 +106,7 @@ export default function QualityList({
             </Button>
           </div>
         ) : (
-          qualityChecklists.map((checklist) => (
+          filteredQualityChecklists.map((checklist) => (
             <div key={checklist.id} className="obras-inventory-item">
               <div className="obras-item-header">
                 <h3>{checklist.name}</h3>
@@ -109,6 +127,13 @@ export default function QualityList({
                 >
                   {getStatusLabel(checklist.status)}
                 </span>
+              </div>
+              <div className="obras-badge-container">
+                <ProjectBadge
+                  projectId={checklist.projectId}
+                  projects={projects}
+                  size="medium"
+                />
               </div>
               <div className="obras-item-info">
                 <p>

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import Button from "../../../../../components/ui/Button/Button";
 import {
   FiArrowLeft,
@@ -8,11 +9,14 @@ import {
   FiShoppingCart,
   FiAlertTriangle,
 } from "react-icons/fi";
-import type { InventoryItem } from "../../../../../services/obrasService";
+import type { InventoryItem, Project } from "../../../../../services/obrasService";
 import type { ViewMode } from "../../types";
+import ProjectFilter from "../shared/ProjectFilter";
+import ProjectBadge from "../shared/ProjectBadge";
 
 interface InventoryListProps {
   inventory: InventoryItem[];
+  projects: Project[];
   alerts: InventoryItem[];
   onViewChange: (mode: ViewMode) => void;
   onEdit: (item: InventoryItem) => void;
@@ -21,11 +25,20 @@ interface InventoryListProps {
 
 export default function InventoryList({
   inventory,
+  projects,
   alerts,
   onViewChange,
   onEdit,
   onDelete,
 }: InventoryListProps) {
+  const [selectedProjectId, setSelectedProjectId] = useState<string>("");
+
+  // Filtrar inventário por obra
+  const filteredInventory =
+    selectedProjectId === "" || selectedProjectId === "all"
+      ? inventory
+      : inventory.filter((item) => item.projectId === selectedProjectId);
+
   return (
     <div className="obras-inventory-container">
       <div className="obras-inventory-header">
@@ -46,19 +59,26 @@ export default function InventoryList({
         </Button>
       </div>
 
-      <div className="obras-inventory-actions">
-        <Button
-          variant="primary"
-          onClick={() => onViewChange("new-inventory")}
-          className="obras-create-btn"
-        >
-          <FiPlus size={20} />
-          Novo Item
-        </Button>
+      <div className="obras-inventory-controls">
+        <div className="obras-inventory-actions">
+          <Button
+            variant="primary"
+            onClick={() => onViewChange("new-inventory")}
+            className="obras-create-btn"
+          >
+            <FiPlus size={20} />
+            Novo Item
+          </Button>
+        </div>
+        <ProjectFilter
+          projects={projects}
+          selectedProjectId={selectedProjectId}
+          onProjectChange={setSelectedProjectId}
+        />
       </div>
 
       <div className="obras-inventory-grid">
-        {inventory.length === 0 ? (
+        {filteredInventory.length === 0 ? (
           <div className="obras-empty-state">
             <div className="obras-empty-icon">
               <FiPackage size={64} />
@@ -73,7 +93,7 @@ export default function InventoryList({
             </Button>
           </div>
         ) : (
-          inventory.map((item) => (
+          filteredInventory.map((item) => (
             <div key={item.id} className="obras-inventory-item">
               <div className="obras-item-header">
                 <h3>{item.name}</h3>
@@ -84,6 +104,13 @@ export default function InventoryList({
                 >
                   {item.quantity <= item.minStock ? "Estoque Baixo" : "Normal"}
                 </span>
+              </div>
+              <div className="obras-badge-container">
+                <ProjectBadge
+                  projectId={item.projectId}
+                  projects={projects}
+                  size="medium"
+                />
               </div>
               <div className="obras-item-info">
                 <p>

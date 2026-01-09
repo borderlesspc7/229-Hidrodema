@@ -1,3 +1,4 @@
+import { useState } from "react";
 import Button from "../../../../../components/ui/Button/Button";
 import {
   FiShield,
@@ -6,11 +7,14 @@ import {
   FiEdit3,
   FiTrash2,
 } from "react-icons/fi";
-import type { SafetyRecord } from "../../../../../services/obrasService";
+import type { SafetyRecord, Project } from "../../../../../services/obrasService";
 import type { ViewMode } from "../../types";
+import ProjectFilter from "../shared/ProjectFilter";
+import ProjectBadge from "../shared/ProjectBadge";
 
 interface SafetyListProps {
   safetyRecords: SafetyRecord[];
+  projects: Project[];
   onViewChange: (mode: ViewMode) => void;
   onEdit: (record: SafetyRecord) => void;
   onDelete: (id: string) => void;
@@ -18,10 +22,18 @@ interface SafetyListProps {
 
 export default function SafetyList({
   safetyRecords,
+  projects,
   onViewChange,
   onEdit,
   onDelete,
 }: SafetyListProps) {
+  const [selectedProjectId, setSelectedProjectId] = useState<string>("");
+
+  // Filtrar registros de segurança por obra
+  const filteredSafetyRecords =
+    selectedProjectId === "" || selectedProjectId === "all"
+      ? safetyRecords
+      : safetyRecords.filter((record) => record.projectId === selectedProjectId);
   const getSeverityColor = (severity?: string) => {
     switch (severity) {
       case "baixa":
@@ -73,19 +85,26 @@ export default function SafetyList({
         </Button>
       </div>
 
-      <div className="obras-inventory-actions">
-        <Button
-          variant="primary"
-          onClick={() => onViewChange("new-safety")}
-          className="obras-create-btn"
-        >
-          <FiPlus size={20} />
-          Novo Registro
-        </Button>
+      <div className="obras-inventory-controls">
+        <div className="obras-inventory-actions">
+          <Button
+            variant="primary"
+            onClick={() => onViewChange("new-safety")}
+            className="obras-create-btn"
+          >
+            <FiPlus size={20} />
+            Novo Registro
+          </Button>
+        </div>
+        <ProjectFilter
+          projects={projects}
+          selectedProjectId={selectedProjectId}
+          onProjectChange={setSelectedProjectId}
+        />
       </div>
 
       <div className="obras-inventory-grid">
-        {safetyRecords.length === 0 ? (
+        {filteredSafetyRecords.length === 0 ? (
           <div className="obras-empty-state">
             <div className="obras-empty-icon">
               <FiShield size={64} />
@@ -99,7 +118,7 @@ export default function SafetyList({
             </Button>
           </div>
         ) : (
-          safetyRecords.map((record) => (
+          filteredSafetyRecords.map((record) => (
             <div key={record.id} className="obras-inventory-item">
               <div className="obras-item-header">
                 <h3>{record.title}</h3>
@@ -128,6 +147,13 @@ export default function SafetyList({
                     </span>
                   )}
                 </div>
+              </div>
+              <div className="obras-badge-container">
+                <ProjectBadge
+                  projectId={record.projectId}
+                  projects={projects}
+                  size="medium"
+                />
               </div>
               <div className="obras-item-info">
                 <p>

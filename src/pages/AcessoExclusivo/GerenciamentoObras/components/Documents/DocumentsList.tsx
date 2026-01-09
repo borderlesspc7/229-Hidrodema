@@ -1,3 +1,4 @@
+import { useState } from "react";
 import Button from "../../../../../components/ui/Button/Button";
 import {
   FiFile,
@@ -6,11 +7,14 @@ import {
   FiEdit3,
   FiTrash2,
 } from "react-icons/fi";
-import type { DocumentRecord } from "../../../../../services/obrasService";
+import type { DocumentRecord, Project } from "../../../../../services/obrasService";
 import type { ViewMode } from "../../types";
+import ProjectFilter from "../shared/ProjectFilter";
+import ProjectBadge from "../shared/ProjectBadge";
 
 interface DocumentsListProps {
   documents: DocumentRecord[];
+  projects: Project[];
   onViewChange: (mode: ViewMode) => void;
   onEdit: (document: DocumentRecord) => void;
   onDelete: (id: string) => void;
@@ -18,10 +22,17 @@ interface DocumentsListProps {
 
 export default function DocumentsList({
   documents,
+  projects,
   onViewChange,
   onEdit,
   onDelete,
 }: DocumentsListProps) {
+  const [selectedProjectId, setSelectedProjectId] = useState<string>("");
+
+  const filteredDocuments =
+    selectedProjectId === "" || selectedProjectId === "all"
+      ? documents
+      : documents.filter((doc) => doc.projectId === selectedProjectId);
   const getTypeColor = (type: string) => {
     const colors: Record<string, string> = {
       projeto: "#3b82f6",
@@ -62,19 +73,26 @@ export default function DocumentsList({
         </Button>
       </div>
 
-      <div className="obras-inventory-actions">
-        <Button
-          variant="primary"
-          onClick={() => onViewChange("new-documents")}
-          className="obras-create-btn"
-        >
-          <FiPlus size={20} />
-          Novo Documento
-        </Button>
+      <div className="obras-inventory-controls">
+        <div className="obras-inventory-actions">
+          <Button
+            variant="primary"
+            onClick={() => onViewChange("new-documents")}
+            className="obras-create-btn"
+          >
+            <FiPlus size={20} />
+            Novo Documento
+          </Button>
+        </div>
+        <ProjectFilter
+          projects={projects}
+          selectedProjectId={selectedProjectId}
+          onProjectChange={setSelectedProjectId}
+        />
       </div>
 
       <div className="obras-inventory-grid">
-        {documents.length === 0 ? (
+        {filteredDocuments.length === 0 ? (
           <div className="obras-empty-state">
             <div className="obras-empty-icon">
               <FiFile size={64} />
@@ -88,7 +106,7 @@ export default function DocumentsList({
             </Button>
           </div>
         ) : (
-          documents.map((doc) => (
+          filteredDocuments.map((doc) => (
             <div key={doc.id} className="obras-inventory-item">
               <div className="obras-item-header">
                 <h3>{doc.name}</h3>
@@ -109,6 +127,13 @@ export default function DocumentsList({
                 >
                   {getTypeLabel(doc.type)}
                 </span>
+              </div>
+              <div className="obras-badge-container">
+                <ProjectBadge
+                  projectId={doc.projectId}
+                  projects={projects}
+                  size="medium"
+                />
               </div>
               <div className="obras-item-info">
                 <p>

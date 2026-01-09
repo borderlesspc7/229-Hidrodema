@@ -1,3 +1,4 @@
+import { useState } from "react";
 import Button from "../../../../../components/ui/Button/Button";
 import {
   FiArrowLeft,
@@ -7,11 +8,14 @@ import {
   FiTrash2,
   FiPieChart,
 } from "react-icons/fi";
-import type { Budget } from "../../../../../services/obrasService";
+import type { Budget, Project } from "../../../../../services/obrasService";
 import type { ViewMode } from "../../types";
+import ProjectFilter from "../shared/ProjectFilter";
+import ProjectBadge from "../shared/ProjectBadge";
 
 interface BudgetsListProps {
   budgets: Budget[];
+  projects: Project[];
   onViewChange: (mode: ViewMode) => void;
   onEdit: (budget: Budget) => void;
   onDelete: (id: string) => void;
@@ -19,10 +23,19 @@ interface BudgetsListProps {
 
 export default function BudgetsList({
   budgets,
+  projects,
   onViewChange,
   onEdit,
   onDelete,
 }: BudgetsListProps) {
+  const [selectedProjectId, setSelectedProjectId] = useState<string>("");
+
+  // Filtrar orçamentos por obra
+  const filteredBudgets =
+    selectedProjectId === "" || selectedProjectId === "all"
+      ? budgets
+      : budgets.filter((budget) => budget.projectId === selectedProjectId);
+
   return (
     <div className="obras-budgets-container">
       <div className="obras-budgets-header">
@@ -37,19 +50,26 @@ export default function BudgetsList({
         </Button>
       </div>
 
-      <div className="obras-budgets-actions">
-        <Button
-          variant="primary"
-          onClick={() => onViewChange("new-budget")}
-          className="obras-create-btn"
-        >
-          <FiPlus size={20} />
-          Novo Orçamento
-        </Button>
+      <div className="obras-budgets-controls">
+        <div className="obras-budgets-actions">
+          <Button
+            variant="primary"
+            onClick={() => onViewChange("new-budget")}
+            className="obras-create-btn"
+          >
+            <FiPlus size={20} />
+            Novo Orçamento
+          </Button>
+        </div>
+        <ProjectFilter
+          projects={projects}
+          selectedProjectId={selectedProjectId}
+          onProjectChange={setSelectedProjectId}
+        />
       </div>
 
       <div className="obras-budgets-grid">
-        {budgets.length === 0 ? (
+        {filteredBudgets.length === 0 ? (
           <div className="obras-empty-state">
             <div className="obras-empty-icon">
               <FiDollarSign size={64} />
@@ -61,15 +81,24 @@ export default function BudgetsList({
             </Button>
           </div>
         ) : (
-          budgets.map((budget) => {
+          filteredBudgets.map((budget) => {
             const percentage = (budget.spentAmount / budget.totalAmount) * 100;
             return (
               <div key={budget.id} className="obras-budget-card">
                 <div className="obras-budget-header">
                   <h3>{budget.name}</h3>
-                  <span className="obras-gasto-badge">
-                    {percentage.toFixed(1)}% gasto
-                  </span>
+                  <div className="obras-budget-badges">
+                    <span className="obras-gasto-badge">
+                      {percentage.toFixed(1)}% gasto
+                    </span>
+                  </div>
+                </div>
+                <div className="obras-badge-container">
+                  <ProjectBadge
+                    projectId={budget.projectId}
+                    projects={projects}
+                    size="medium"
+                  />
                 </div>
                 <div className="obras-budget-info">
                   <p>
