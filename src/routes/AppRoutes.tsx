@@ -8,6 +8,7 @@ import ExclusiveRoutes from "./exclusiveRoutes";
 import { ProtectedRoute } from "./ProtectedRoute";
 import HidroService from "../pages/HidroService/HidroService";
 import AcessoExclusivo from "../pages/AcessoExclusivo/AcessoExclusivo";
+import SessionExpiredHandler from "../components/SessionExpiredHandler";
 
 function Meeting() {
   return <div>Meeting</div>;
@@ -18,7 +19,9 @@ function Marketing() {
 
 export const AppRoutes = () => {
   return (
-    <Routes>
+    <>
+      <SessionExpiredHandler />
+      <Routes>
       <Route path={paths.home} element={<Menu />} />
       <Route path={paths.login} element={<Login />} />
       <Route path={paths.register} element={<Register />} />
@@ -61,6 +64,7 @@ export const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
-    </Routes>
+      </Routes>
+    </>
   );
 };

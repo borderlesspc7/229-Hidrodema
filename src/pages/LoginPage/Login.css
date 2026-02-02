@@ -311,6 +311,17 @@
   margin-top: 16px;
 }
 
+.session-expired-message {
+  color: #1a3a52;
+  background-color: #e0f2fe;
+  border: 1px solid #7dd3fc;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 14px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
 /* Responsividade */
 @media (max-width: 768px) {
   .login-page {

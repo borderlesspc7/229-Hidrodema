@@ -8,7 +8,14 @@ import { paths } from "../../routes/paths";
 import { authService } from "../../services/authService";
 
 export default function Login() {
-  const { login, loading: authLoading, error: authError, user } = useAuth();
+  const {
+    login,
+    loading: authLoading,
+    error: authError,
+    user,
+    sessionExpiredMessage,
+    clearSessionExpiredMessage,
+  } = useAuth();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -30,8 +37,14 @@ export default function Login() {
     }
   }, [user, navigate]);
 
+  // Limpa a mensagem de sessão expirada ao sair da página de login
+  useEffect(() => {
+    return () => clearSessionExpiredMessage();
+  }, [clearSessionExpiredMessage]);
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    clearSessionExpiredMessage();
 
     try {
       await login({
@@ -102,6 +115,12 @@ export default function Login() {
             Entre com suas credenciais para acessar sua conta
           </p>
         </div>
+
+        {sessionExpiredMessage && (
+          <div className="session-expired-message" role="alert">
+            {sessionExpiredMessage}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="login-form">
           <Input

@@ -1,0 +1,83 @@
+.error-boundary {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: linear-gradient(135deg, #1a3a52 0%, #2c5f7a 100%);
+  color: #fff;
+}
+
+.error-boundary-content {
+  max-width: 420px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 40px 32px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.error-boundary-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  line-height: 1;
+}
+
+.error-boundary-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+  color: #fff;
+}
+
+.error-boundary-message {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin: 0 0 24px 0;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.error-boundary-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.error-boundary-btn {
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.2s, transform 0.1s;
+}
+
+.error-boundary-btn:hover {
+  opacity: 0.95;
+}
+
+.error-boundary-btn:active {
+  transform: scale(0.98);
+}
+
+.error-boundary-btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.error-boundary-btn-primary {
+  background: #fff;
+  color: #1a3a52;
+}
+
+.error-boundary-btn-secondary {
+  background: transparent;
+  color: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+}
+
+.error-boundary-btn-secondary:hover {
+  border-color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
