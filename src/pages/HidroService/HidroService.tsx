@@ -59,7 +59,7 @@ const services = [
   },
   {
     label: "Curso SENAI",
-    to: "https://www.senai.br/cursos/hidroservice",
+    to: "https://www-hidrodema-com-br.rds.land/treinamentoindustrialsenai",
     Icon: School,
     external: true,
   },

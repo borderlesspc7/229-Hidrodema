@@ -301,6 +301,7 @@
 .data-cell {
   background: #f8f9fa;
   font-size: 0.8rem;
+  /* margin-right: 10px; */
 }
 
 .total-row {
@@ -616,17 +617,43 @@
     padding: 8px 4px;
   }
 
-  .chart-bars {
-    height: 250px;
+  .chart-container {
+    display: flex;
     flex-direction: column;
+    align-items: center;
+  }
+
+  .chart-bars {
+    display: flex;
+    height: 400px;
+
+    /* flex-direction: column; */
     align-items: center;
     gap: 20px;
   }
 
+  .obseration {
+    font-size: 0.8rem;
+  }
+
+  .empty-bar {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+  }
+
+  .water-bar {
+    background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+  }
+
+  .full-bar {
+    background: linear-gradient(135deg, #45b7d1 0%, #96c93d 100%);
+  }
+
   .chart-bar-group {
-    flex-direction: row;
+    display: flex;
+    flex-direction: column;
     width: 100%;
-    justify-content: space-around;
+    justify-content: space-between;
+    gap: 80px;
   }
 
   .bar-label {
@@ -642,7 +669,7 @@
   }
 
   .bar {
-    width: 15px;
+    width: 40px;
   }
 
   .bar-value {
@@ -651,6 +678,10 @@
 
   .chart-legend {
     gap: 15px;
+  }
+
+  .material-header {
+    background: #000;
   }
 
   .footer-logo {
@@ -665,44 +696,158 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 425px) {
+  .peso-tubos-container {
+    padding: 8px;
+  }
+
+  .peso-tubos-header {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .back-button {
+    min-width: 90px;
+  }
+
   .peso-tubos-title {
-    font-size: 1.4rem;
+    font-size: 1.3rem;
+    letter-spacing: 2px;
+  }
+
+  .peso-tubos-subtitle {
+    font-size: 0.85rem;
+  }
+
+  .intro-section,
+  .table-section,
+  .chart-section,
+  .diameter-selector {
+    padding: 12px;
   }
 
   .intro-title,
   .table-title,
   .chart-title {
-    font-size: 1.2rem;
-  }
-
-  .peso-table {
-    font-size: 0.7rem;
-  }
-
-  .peso-table th,
-  .peso-table td {
-    padding: 6px 2px;
+    font-size: 1.1rem;
+    flex-wrap: wrap;
   }
 
   .intro-content p {
     font-size: 0.85rem;
   }
 
+  .benefit-card {
+    padding: 14px;
+  }
+
+  .benefit-icon {
+    font-size: 2rem;
+    height: 48px;
+  }
+
+  .diameter-buttons {
+    gap: 6px;
+  }
+
+  .diameter-btn {
+    padding: 6px 10px;
+    font-size: 0.75rem;
+    border-radius: 10px;
+  }
+
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .peso-table {
+    min-width: 560px;
+    font-size: 0.7rem;
+  }
+
+  .peso-table th,
+  .peso-table td {
+    padding: 6px 4px;
+  }
+
+  .category-header {
+    min-width: 120px;
+  }
+
+  .material-header {
+    min-width: 100px;
+  }
+
+  .chart-container {
+    padding: 12px;
+  }
+
   .chart-bars {
-    height: 200px;
+    height: auto;
+    padding: 10px 0 20px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    justify-content: flex-start;
+    gap: 12px;
+  }
+
+  .chart-bar-group {
+    flex: 0 0 120px;
+    margin: 0;
+    align-items: center;
+  }
+
+  .bar-label {
+    font-size: 0.75rem;
+    height: auto;
+    line-height: 1.2;
+    max-width: 110px;
   }
 
   .bars {
     height: 120px;
+    gap: 4px;
+    padding-bottom: 22px;
+    overflow: visible;
+  }
+
+  .bar {
+    width: 24px;
+    margin-right: 0;
+  }
+
+  .bar-value {
+    font-size: 0.5rem;
+    top: auto;
+    bottom: -18px;
+    color: #e2e8f0;
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
+  }
+
+  .obseration {
+    font-size: 0.75rem;
+    white-space: normal;
+    line-height: 1.2;
+  }
+
+  .chart-legend {
+    gap: 10px;
+  }
+
+  .legend-item {
+    font-size: 0.8rem;
+  }
+
+  .legend-color {
+    width: 16px;
+    height: 16px;
   }
 
   .footer-logo {
     height: 55px;
-    max-width: 280px;
-  }
-
-  .bar {
-    width: 12px;
+    max-width: 240px;
   }
 }

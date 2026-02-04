@@ -97,13 +97,13 @@ export default function RelatorioVisitas() {
   const [visitReports, setVisitReports] = useState<DisplayVisit[]>([]);
   const [editingReport, setEditingReport] = useState<DisplayVisit | null>(null);
   const [selectedReport, setSelectedReport] = useState<DisplayVisit | null>(
-    null
+    null,
   );
   const [newComment, setNewComment] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadedRequest, setLoadedRequest] = useState<VisitRequest | null>(null);
   const [availableRequests, setAvailableRequests] = useState<VisitRequest[]>(
-    []
+    [],
   );
 
   // Estrutura preparada para receber 25 perguntas sobre visitas
@@ -538,7 +538,7 @@ export default function RelatorioVisitas() {
           id: req.id || "",
           requestId: req.requestId,
           title: `${req.clientName} - ${new Date(
-            req.visitDate
+            req.visitDate,
           ).toLocaleDateString()}`,
           status: req.status as DisplayVisit["status"],
           visitType:
@@ -594,7 +594,7 @@ export default function RelatorioVisitas() {
 
     // Buscar a solicitação na lista de disponíveis
     const request = availableRequests.find(
-      (req) => req.requestId === requestId
+      (req) => req.requestId === requestId,
     );
 
     if (request) {
@@ -684,11 +684,11 @@ export default function RelatorioVisitas() {
             status: "pending",
             hasReport: false,
             formData: { ...formData },
-          })
+          }),
         );
 
         alert(
-          `Rascunho de solicitação salvo com sucesso!\nID da Solicitação: ${requestId}\n\nGuarde este ID para fazer o relatório posteriormente.`
+          `Rascunho de solicitação salvo com sucesso!\nID da Solicitação: ${requestId}\n\nGuarde este ID para fazer o relatório posteriormente.`,
         );
       }
 
@@ -712,7 +712,7 @@ export default function RelatorioVisitas() {
       // Validar ação selecionada
       if (!selectedAction) {
         errors.push(
-          "Selecione uma ação (Solicitar visita ou Registrar relatório)"
+          "Selecione uma ação (Solicitar visita ou Registrar relatório)",
         );
       }
 
@@ -723,7 +723,7 @@ export default function RelatorioVisitas() {
           : formData.q7;
         const clientNameValidation = validateRequired(
           clientNameValue,
-          "Nome do cliente"
+          "Nome do cliente",
         );
         if (!clientNameValidation.valid)
           errors.push(clientNameValidation.error!);
@@ -737,7 +737,7 @@ export default function RelatorioVisitas() {
           const dateValidation = validateDate(
             formData.q15 as string,
             "Data da visita",
-            false
+            false,
           );
           if (!dateValidation.valid) errors.push(dateValidation.error!);
         }
@@ -780,11 +780,11 @@ export default function RelatorioVisitas() {
             status: "scheduled",
             hasReport: false,
             formData: { ...formData },
-          })
+          }),
         );
 
         alert(
-          `Solicitação de visita criada com sucesso!\nID da Solicitação: ${requestId}\n\nGuarde este ID para fazer o relatório posteriormente.`
+          `Solicitação de visita criada com sucesso!\nID da Solicitação: ${requestId}\n\nGuarde este ID para fazer o relatório posteriormente.`,
         );
       } else if (
         selectedAction === "Fazer o relatório de uma visita realizada"
@@ -794,7 +794,7 @@ export default function RelatorioVisitas() {
 
         if (!requestId) {
           alert(
-            "É necessário informar o ID da solicitação para criar o relatório."
+            "É necessário informar o ID da solicitação para criar o relatório.",
           );
           return;
         }
@@ -899,7 +899,7 @@ export default function RelatorioVisitas() {
 
   const handleChangeStatus = async (
     reportId: string,
-    newStatus: DisplayVisit["status"]
+    newStatus: DisplayVisit["status"],
   ) => {
     try {
       const report = visitReports.find((r) => r.id === reportId);
@@ -944,7 +944,7 @@ export default function RelatorioVisitas() {
                   : ""
               }
               <p>Data: ${new Date(
-                report.scheduledDate
+                report.scheduledDate,
               ).toLocaleDateString()}</p>
               <p>Vendedor: ${report.salesperson}</p>
             </div>
@@ -959,7 +959,7 @@ export default function RelatorioVisitas() {
                     Array.isArray(value) ? value.join(", ") : value
                   }</span>
                 </div>
-              `
+              `,
                 )
                 .join("")}
             </div>
@@ -1059,7 +1059,7 @@ export default function RelatorioVisitas() {
 
     // Definir a solicitação carregada
     const visitRequest = availableRequests.find(
-      (req) => req.requestId === request.requestId
+      (req) => req.requestId === request.requestId,
     );
     if (visitRequest) {
       setLoadedRequest(visitRequest);
@@ -1349,7 +1349,7 @@ export default function RelatorioVisitas() {
                       } else {
                         handleInputChange(
                           question.id,
-                          currentValues.filter((v) => v !== option)
+                          currentValues.filter((v) => v !== option),
                         );
                       }
                     }}
@@ -1391,7 +1391,7 @@ export default function RelatorioVisitas() {
   };
 
   const currentQuestions = questions.filter(
-    (q) => q.section === sections[currentSection]
+    (q) => q.section === sections[currentSection],
   );
   const progress = ((currentSection + 1) / sections.length) * 100;
 
@@ -1515,7 +1515,7 @@ export default function RelatorioVisitas() {
                   onChange={(e) =>
                     handleChangeStatus(
                       report.id,
-                      e.target.value as DisplayVisit["status"]
+                      e.target.value as DisplayVisit["status"],
                     )
                   }
                 >
@@ -1930,9 +1930,9 @@ export default function RelatorioVisitas() {
                   {viewMode === "edit"
                     ? "Atualizar"
                     : formData.q6 ===
-                      "Fazer o relatório de uma visita realizada"
-                    ? "Enviar Relatório"
-                    : "Agendar Visita"}
+                        "Fazer o relatório de uma visita realizada"
+                      ? "Enviar Relatório"
+                      : "Agendar Visita"}
                 </Button>
               ) : (
                 <Button
@@ -1959,7 +1959,7 @@ export default function RelatorioVisitas() {
       {/* Breadcrumb */}
       <Breadcrumb />
 
-      {/* Header */}
+      {/* 'Header' */}
       <div className="visitas-header">
         <Button
           variant="secondary"
@@ -1976,7 +1976,7 @@ export default function RelatorioVisitas() {
           </span>
           <div className="visitas-company-underline"></div>
         </div>
-        <div className="visitas-header-spacer"></div>
+        <div className="visitas-header-spacer "></div>
       </div>
 
       {/* Main Content */}

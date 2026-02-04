@@ -76,10 +76,10 @@ export default function SolicitacaoServicos() {
   const [formData, setFormData] = useState<FormData>({});
   const [serviceRequests, setServiceRequests] = useState<ServiceRequest[]>([]);
   const [editingRequest, setEditingRequest] = useState<ServiceRequest | null>(
-    null
+    null,
   );
   const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(
-    null
+    null,
   );
   const [newComment, setNewComment] = useState("");
   const [loading, setLoading] = useState(false);
@@ -181,13 +181,28 @@ export default function SolicitacaoServicos() {
         "Nic Romano - Expansão & Novos Negócios",
       ],
     },
+
+    // ADD options
     {
       id: "q12",
       type: "select",
       question: "12 - VEND I & II",
       section: "Responsável pelo Acompanhamento Interno",
       required: true,
-      options: ["Selecionar sua resposta"],
+      options: [
+        "002620 - ALESSANDRO APARECIDO DE RESENDE",
+        "035184 - ALEXANDRE DI RIENZO GANDARA",
+        "002630 - CHRISTIAN NONATO MATOS",
+        "002617 - CLAUDINEI RODRIGUES MARQUES",
+        "035174 - CZ",
+        "035163 - ELTON DA COSTA GONCALO",
+        "035179 - GABRIEL LUIS OLIVEIRA ALVES",
+        "035178 - HERBERT LOPES",
+        "035139 - LEONARDO AMARAL MONARI",
+        "035180 - MARIO PESCUMA FILHO",
+        "035183 - GUILHERME ALVES NOGUEIRA",
+        "035168 - JOAO VITOR DA SILVA PEREIRA",
+      ],
     },
     {
       id: "q13",
@@ -195,7 +210,19 @@ export default function SolicitacaoServicos() {
       question: "13 - HUNTERS",
       section: "Responsável pelo Acompanhamento Interno",
       required: true,
-      options: ["Selecionar sua resposta"],
+      options: [
+        "035202 - ANA CAROLINE",
+        "035192 - ANA JULYA",
+        "035104 - LUCAS NASCIMENTO GONCALVES",
+        "035185 - GUILHERME CAMPOS DO CARMO",
+        "035201 - JULIA CINTRA",
+        "035195 - JULIA SANTANA",
+        "035189 - MARIA ROBERTA",
+        "035203 - MILENA RIBEIRO",
+        "035191 - PAOLA LINO",
+        "035190 - PEDRO HENRIQUE PEREIRA SOUZA",
+        "020719 - ROGERIO PINHEIRO FOLTRAN",
+      ],
     },
     {
       id: "q14",
@@ -203,7 +230,29 @@ export default function SolicitacaoServicos() {
       question: "14 - HVAC",
       section: "Responsável pelo Acompanhamento Interno",
       required: true,
-      options: ["Selecionar sua resposta"],
+      options: [
+        "99999G - CEOS CONSULTORIA, ASSESSORIA E REPRESENT",
+        "000356 - DAVI SALGADO DE A. MARTINS",
+        "035140 - DDK REPRESENTACOES LTDA",
+        "99999X - EMB REPRESENTACOES",
+        "A00000 - ENGINE - COMERCIO E SERVICOS EIRELI - EP",
+        "99999E - FAMAC REPRESENTACOES LTDA",
+        "035194 - GERSON SOUZA",
+        "99999Y - ISOLEX NE - PROJETOS, REPRESENTACOES",
+        "035144 - JOSE ROMERO JUNIOR",
+        "035141 - MARCO SOUTO",
+        "99999B - MAURICIO COSTA",
+        "99999D - MULT-ELETRIC REPRESENTACOES",
+        "A00001 - ONIX SP REPRESENTACOES LTDA",
+        "035175 - RC VEDACOES LTDA / RAFAEL",
+        "99999F - SAFETY CONTROL REPRESENTACOES LTDA",
+        "99999J - SAFETY/ZOEGA",
+        "99999N - SIMEY",
+        "99999O - TITO REPRESENTACOES LTDA",
+        "99999Q - TITO/ZOEGA",
+        "99999W - TROMPOWSKY REPRESENTACOES COMERCIAIS LTD",
+        "035176 - VEREDA REPRESENTACOES COMERCIAIS LTDA",
+      ],
     },
     {
       id: "q15",
@@ -211,7 +260,13 @@ export default function SolicitacaoServicos() {
       question: "15 - Expansão & Novos Negócios",
       section: "Responsável pelo Acompanhamento Interno",
       required: true,
-      options: ["Selecionar sua resposta"],
+      options: [
+        "035197 - DANILO TRIPOLI",
+        "035199 - EDSON RANGEL",
+        "035200 - MARCO TULIO",
+        "035193 - NILZA ROMANO",
+        "035198 - RAFAEL SOUZA DA COSTA",
+      ],
     },
     // Seção 4: Cadastrais dados do solicitante de serviço
     {
@@ -807,7 +862,7 @@ export default function SolicitacaoServicos() {
   const handleSaveDraft = async () => {
     try {
       setLoading(true);
-      
+
       // Validações básicas para rascunho (menos rigorosas)
       const warnings: string[] = [];
 
@@ -832,7 +887,7 @@ export default function SolicitacaoServicos() {
       // Se houver avisos, mostrar mas continuar
       if (warnings.length > 0) {
         const continuar = confirm(
-          `Avisos encontrados:\n\n${warnings.join("\n")}\n\nDeseja continuar mesmo assim?`
+          `Avisos encontrados:\n\n${warnings.join("\n")}\n\nDeseja continuar mesmo assim?`,
         );
         if (!continuar) {
           setLoading(false);
@@ -842,45 +897,47 @@ export default function SolicitacaoServicos() {
 
       const requestId = generateServiceRequestId();
 
-      await createServiceRequest(sanitizeForDatabase({
-        requestId,
-        category: (formData.q1 as string) || "Não informado",
-        requestDate:
-          (formData.q2 as string) || new Date().toISOString().split("T")[0],
-        requesterName: (formData.q3 as string) || "Não informado",
-        requesterEmail: (formData.q4 as string) || "",
-        requesterPhone: (formData.q5 as string) || "",
-        internalName: (formData.q6 as string) || "",
-        internalEmail: (formData.q7 as string) || "",
-        clientSegment: (formData.q8 as string) || "",
-        hasOrderOrProposal: (formData.q9 as string) || "Não",
-        orderOrProposalNumber: (formData.q10 as string)
-          ? (formData.q10 as string)
-          : undefined,
-        regional: (formData.q11 as string) || "",
-        salesperson:
-          (formData.q12 as string) ||
-          (formData.q13 as string) ||
-          (formData.q14 as string) ||
-          (formData.q15 as string) ||
-          "",
-        company: (formData.q16 as string) || "Não informado",
-        clientCode: (formData.q17 as string)
-          ? (formData.q17 as string)
-          : undefined,
-        cnpj: (formData.q18 as string) || "",
-        urgencyLevel: (formData.q19 as string) || "0",
-        serviceType: (formData.q20 as string) || "Não especificado",
-        serviceDescription: `Serviço: ${
-          (formData.q20 as string) || "Não especificado"
-        }`,
-        status: "draft",
-        formData: { ...formData },
-      }));
+      await createServiceRequest(
+        sanitizeForDatabase({
+          requestId,
+          category: (formData.q1 as string) || "Não informado",
+          requestDate:
+            (formData.q2 as string) || new Date().toISOString().split("T")[0],
+          requesterName: (formData.q3 as string) || "Não informado",
+          requesterEmail: (formData.q4 as string) || "",
+          requesterPhone: (formData.q5 as string) || "",
+          internalName: (formData.q6 as string) || "",
+          internalEmail: (formData.q7 as string) || "",
+          clientSegment: (formData.q8 as string) || "",
+          hasOrderOrProposal: (formData.q9 as string) || "Não",
+          orderOrProposalNumber: (formData.q10 as string)
+            ? (formData.q10 as string)
+            : undefined,
+          regional: (formData.q11 as string) || "",
+          salesperson:
+            (formData.q12 as string) ||
+            (formData.q13 as string) ||
+            (formData.q14 as string) ||
+            (formData.q15 as string) ||
+            "",
+          company: (formData.q16 as string) || "Não informado",
+          clientCode: (formData.q17 as string)
+            ? (formData.q17 as string)
+            : undefined,
+          cnpj: (formData.q18 as string) || "",
+          urgencyLevel: (formData.q19 as string) || "0",
+          serviceType: (formData.q20 as string) || "Não especificado",
+          serviceDescription: `Serviço: ${
+            (formData.q20 as string) || "Não especificado"
+          }`,
+          status: "draft",
+          formData: { ...formData },
+        }),
+      );
 
       await loadServiceRequests();
       alert(
-        `Rascunho salvo com sucesso!\nID da Solicitação: ${requestId}\n\nGuarde este ID para referência futura.`
+        `Rascunho salvo com sucesso!\nID da Solicitação: ${requestId}\n\nGuarde este ID para referência futura.`,
       );
     } catch (error) {
       console.error("Erro ao salvar rascunho:", error);
@@ -893,12 +950,14 @@ export default function SolicitacaoServicos() {
   const handleSubmit = async () => {
     try {
       setLoading(true);
-      
+
       // Validações dos campos obrigatórios
       const errors: string[] = [];
 
       // Validar categoria (q1)
-      const categoryValue = Array.isArray(formData.q1) ? formData.q1[0] : formData.q1;
+      const categoryValue = Array.isArray(formData.q1)
+        ? formData.q1[0]
+        : formData.q1;
       const categoryValidation = validateRequired(categoryValue, "Categoria");
       if (!categoryValidation.valid) errors.push(categoryValidation.error!);
 
@@ -906,12 +965,14 @@ export default function SolicitacaoServicos() {
       const dateValidation = validateDate(
         formData.q2 as string,
         "Data da solicitação",
-        true
+        true,
       );
       if (!dateValidation.valid) errors.push(dateValidation.error!);
 
       // Validar nome do solicitante (q3)
-      const nameValue = Array.isArray(formData.q3) ? formData.q3[0] : formData.q3;
+      const nameValue = Array.isArray(formData.q3)
+        ? formData.q3[0]
+        : formData.q3;
       const nameValidation = validateRequired(nameValue, "Nome do solicitante");
       if (!nameValidation.valid) errors.push(nameValidation.error!);
 
@@ -925,8 +986,12 @@ export default function SolicitacaoServicos() {
 
       // Validar email interno se fornecido (q7)
       if (formData.q7) {
-        const internalEmailValidation = validateEmail(formData.q7 as string, false);
-        if (!internalEmailValidation.valid) errors.push(internalEmailValidation.error!);
+        const internalEmailValidation = validateEmail(
+          formData.q7 as string,
+          false,
+        );
+        if (!internalEmailValidation.valid)
+          errors.push(internalEmailValidation.error!);
       }
 
       // Validar CNPJ se fornecido (q18)
@@ -981,11 +1046,13 @@ export default function SolicitacaoServicos() {
         formData: { ...formData },
       });
 
-      await createServiceRequest(sanitizedData as Parameters<typeof createServiceRequest>[0]);
+      await createServiceRequest(
+        sanitizedData as Parameters<typeof createServiceRequest>[0],
+      );
 
       await loadServiceRequests();
       alert(
-        `Solicitação enviada com sucesso!\nID da Solicitação: ${requestId}\n\nVocê receberá atualizações por e-mail.`
+        `Solicitação enviada com sucesso!\nID da Solicitação: ${requestId}\n\nVocê receberá atualizações por e-mail.`,
       );
       setViewMode("menu");
       setFormData({});
@@ -1079,7 +1146,7 @@ export default function SolicitacaoServicos() {
                     Array.isArray(value) ? value.join(", ") : value
                   }</span>
                 </div>
-              `
+              `,
                 )
                 .join("")}
             </div>
@@ -1093,11 +1160,11 @@ export default function SolicitacaoServicos() {
                     (comment) => `
                   <div class="comment">
                     <strong>${comment.author}</strong> - ${new Date(
-                      comment.createdAt
+                      comment.createdAt,
                     ).toLocaleDateString()}
                     <p>${comment.text}</p>
                   </div>
-                `
+                `,
                   )
                   .join("")}
               </div>
@@ -1327,7 +1394,7 @@ export default function SolicitacaoServicos() {
                       } else {
                         handleInputChange(
                           question.id,
-                          currentValues.filter((v) => v !== option)
+                          currentValues.filter((v) => v !== option),
                         );
                       }
                     }}
@@ -1340,6 +1407,7 @@ export default function SolicitacaoServicos() {
           </div>
         );
 
+      // meu select
       case "select":
         return (
           <div className="form-question" key={question.id}>
@@ -1354,6 +1422,7 @@ export default function SolicitacaoServicos() {
               required={question.required}
             >
               <option value="">Selecione uma opção</option>
+
               {question.options?.map((option, index) => (
                 <option key={index} value={option}>
                   {option}
@@ -1369,7 +1438,7 @@ export default function SolicitacaoServicos() {
   };
 
   const currentQuestions = questions.filter(
-    (q) => q.section === sections[currentSection]
+    (q) => q.section === sections[currentSection],
   );
   const progress = ((currentSection + 1) / sections.length) * 100;
 

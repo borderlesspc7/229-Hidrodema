@@ -22,7 +22,8 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: radial-gradient(
+  background-image:
+    radial-gradient(
       circle at 30% 40%,
       rgba(139, 92, 246, 0.08) 0%,
       transparent 50%
@@ -108,10 +109,15 @@
   line-height: 1.1;
   text-transform: uppercase;
   position: relative;
-  font-family: "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont,
+  font-family:
+    "Inter",
+    "Segoe UI",
+    -apple-system,
+    BlinkMacSystemFont,
     sans-serif;
   filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.5));
-  animation: titleGlow 3s ease-in-out infinite alternate,
+  animation:
+    titleGlow 3s ease-in-out infinite alternate,
     gradientShift 4s ease-in-out infinite;
 }
 
@@ -207,7 +213,8 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 24px;
   padding: 40px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3),
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
   position: relative;
   overflow: hidden;
@@ -679,7 +686,9 @@
 
 .visitas-menu-card:hover {
   transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 40px rgba(59, 130, 246, 0.2);
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.3),
+    0 0 40px rgba(59, 130, 246, 0.2);
 }
 
 .visitas-menu-card-content {
