@@ -71,7 +71,7 @@ export default function Menu({
       <div className="obras-menu-cards">
         <Card
           variant="service"
-          title="CRIAR OBRA"
+          title="OBRAS"
           textColor="#1e40af"
           backgroundColor="#f0f9ff"
           size="large"
@@ -361,4 +361,3 @@ export default function Menu({
     </div>
   );
 }
-

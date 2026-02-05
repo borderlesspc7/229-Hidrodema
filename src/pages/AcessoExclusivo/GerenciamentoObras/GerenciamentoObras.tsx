@@ -157,10 +157,10 @@ export default function GerenciamentoObras() {
   const [editingBudget, setEditingBudget] = useState<Budget | null>(null);
   const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
   const [editingTeamMember, setEditingTeamMember] = useState<TeamMember | null>(
-    null
+    null,
   );
   const [editingEquipment, setEditingEquipment] = useState<Equipment | null>(
-    null
+    null,
   );
   const [editingSchedule, setEditingSchedule] = useState<Schedule | null>(null);
   const [editingSafetyRecord, setEditingSafetyRecord] =
@@ -169,7 +169,7 @@ export default function GerenciamentoObras() {
     useState<Measurement | null>(null);
   const [editingIssue, setEditingIssue] = useState<Issue | null>(null);
   const [editingDocument, setEditingDocument] = useState<DocumentRecord | null>(
-    null
+    null,
   );
   const [editingQualityChecklist, setEditingQualityChecklist] =
     useState<QualityChecklist | null>(null);
@@ -208,6 +208,7 @@ export default function GerenciamentoObras() {
     startDate: "",
     endDate: "",
     client: "",
+    status: "planejamento" as Project["status"],
     budget: 0,
     team: [] as string[],
     labor: "",
@@ -378,7 +379,7 @@ export default function GerenciamentoObras() {
       setToastType(type);
       setShowToast(true);
     },
-    []
+    [],
   );
 
   const loadData = useCallback(async () => {
@@ -430,7 +431,7 @@ export default function GerenciamentoObras() {
       console.error("Erro ao carregar dados:", error);
       showToastMessage(
         "Erro ao carregar dados. Por favor, recarregue a página.",
-        "error"
+        "error",
       );
     }
   }, [showToastMessage]);
@@ -516,7 +517,7 @@ export default function GerenciamentoObras() {
     if (!obraName || !date) {
       showToastMessage(
         "Preencha pelo menos o nome da obra e a data",
-        "warning"
+        "warning",
       );
       return;
     }
@@ -524,7 +525,7 @@ export default function GerenciamentoObras() {
     if (!selectedProjectId) {
       showToastMessage(
         "Selecione uma obra para vincular o registro",
-        "warning"
+        "warning",
       );
       return;
     }
@@ -573,7 +574,7 @@ export default function GerenciamentoObras() {
     if (!validation.valid) {
       showToastMessage(
         `Erros de validação:\n${validation.errors.join("\n")}`,
-        "warning"
+        "warning",
       );
       return;
     }
@@ -584,20 +585,21 @@ export default function GerenciamentoObras() {
     }
 
     try {
-      const entryData: Omit<DiaryEntry, "id" | "createdAt" | "updatedAt"> = sanitizeForDatabase({
-        projectId: selectedProjectId,
-        obraName: obraName.trim(),
-        date,
-        activities: activities.trim(),
-        materials,
-        photos,
-        observations: observations.trim(),
-        weather: weather.trim(),
-        responsible: responsible.trim(),
-        status,
-        reportType: editingEntry?.reportType || "rdo",
-        approvalStatus: editingEntry?.approvalStatus || "preenchendo",
-      });
+      const entryData: Omit<DiaryEntry, "id" | "createdAt" | "updatedAt"> =
+        sanitizeForDatabase({
+          projectId: selectedProjectId,
+          obraName: obraName.trim(),
+          date,
+          activities: activities.trim(),
+          materials,
+          photos,
+          observations: observations.trim(),
+          weather: weather.trim(),
+          responsible: responsible.trim(),
+          status,
+          reportType: editingEntry?.reportType || "rdo",
+          approvalStatus: editingEntry?.approvalStatus || "preenchendo",
+        });
 
       if (editingEntry && editingEntry.id) {
         await updateDiaryEntry(editingEntry.id, entryData);
@@ -734,6 +736,7 @@ export default function GerenciamentoObras() {
       description: "",
       startDate: "",
       endDate: "",
+      status: "planejamento",
       client: "",
       budget: 0,
       team: [],
@@ -757,26 +760,27 @@ export default function GerenciamentoObras() {
     if (!validation.valid) {
       showToastMessage(
         `Erros de validação:\n${validation.errors.join("\n")}`,
-        "warning"
+        "warning",
       );
       return;
     }
 
     try {
-      const projectData: Omit<Project, "id" | "createdAt" | "updatedAt"> = sanitizeForDatabase({
-        name: newProject.name.trim(),
-        description: newProject.description.trim(),
-        startDate: newProject.startDate,
-        endDate: newProject.endDate,
-        client: newProject.client.trim(),
-        budget: Math.max(0, Number(newProject.budget)),
-        spent: editingProject?.spent || 0,
-        progress: editingProject?.progress || 0,
-        status: editingProject?.status || "planejamento",
-        milestones: editingProject?.milestones || [],
-        team: newProject.team,
-        labor: newProject.labor?.trim() || "",
-      });
+      const projectData: Omit<Project, "id" | "createdAt" | "updatedAt"> =
+        sanitizeForDatabase({
+          name: newProject.name.trim(),
+          description: newProject.description.trim(),
+          startDate: newProject.startDate,
+          endDate: newProject.endDate,
+          client: newProject.client.trim(),
+          budget: Math.max(0, Number(newProject.budget)),
+          spent: editingProject?.spent || 0,
+          progress: editingProject?.progress || 0,
+          status: newProject.status || editingProject?.status || "planejamento",
+          milestones: editingProject?.milestones || [],
+          team: newProject.team,
+          labor: newProject.labor?.trim() || "",
+        });
 
       if (editingProject && editingProject.id) {
         await updateProject(editingProject.id, projectData);
@@ -794,6 +798,7 @@ export default function GerenciamentoObras() {
     }
   };
 
+  // editar
   const handleEditProject = (project: Project) => {
     setEditingProject(project);
     setNewProject({
@@ -801,6 +806,7 @@ export default function GerenciamentoObras() {
       description: project.description,
       startDate: project.startDate,
       endDate: project.endDate,
+      status: project.status,
       client: project.client,
       budget: project.budget,
       team: project.team || [],
@@ -861,26 +867,27 @@ export default function GerenciamentoObras() {
     if (!validation.valid) {
       showToastMessage(
         `Erros de validação:\n${validation.errors.join("\n")}`,
-        "warning"
+        "warning",
       );
       return;
     }
 
     try {
-      const itemData: Omit<InventoryItem, "id" | "createdAt" | "updatedAt"> = sanitizeForDatabase({
-        projectId: newInventoryItem.projectId || "",
-        name: newInventoryItem.name.trim(),
-        category: newInventoryItem.category.trim(),
-        quantity: Math.max(0, Number(newInventoryItem.quantity)),
-        unit: newInventoryItem.unit.trim(),
-        minStock: Math.max(0, Number(newInventoryItem.minStock)),
-        maxStock: Math.max(0, Number(newInventoryItem.maxStock)),
-        price: Math.max(0, Number(newInventoryItem.price)),
-        supplier: newInventoryItem.supplier?.trim() || "",
-        location: newInventoryItem.location?.trim() || "",
-        lastUpdated: new Date().toISOString(),
-        alerts: [],
-      });
+      const itemData: Omit<InventoryItem, "id" | "createdAt" | "updatedAt"> =
+        sanitizeForDatabase({
+          projectId: newInventoryItem.projectId || "",
+          name: newInventoryItem.name.trim(),
+          category: newInventoryItem.category.trim(),
+          quantity: Math.max(0, Number(newInventoryItem.quantity)),
+          unit: newInventoryItem.unit.trim(),
+          minStock: Math.max(0, Number(newInventoryItem.minStock)),
+          maxStock: Math.max(0, Number(newInventoryItem.maxStock)),
+          price: Math.max(0, Number(newInventoryItem.price)),
+          supplier: newInventoryItem.supplier?.trim() || "",
+          location: newInventoryItem.location?.trim() || "",
+          lastUpdated: new Date().toISOString(),
+          alerts: [],
+        });
 
       if (editingInventoryItem && editingInventoryItem.id) {
         await updateInventoryItem(editingInventoryItem.id, itemData);
@@ -947,26 +954,32 @@ export default function GerenciamentoObras() {
   const handleCreateBudget = async () => {
     // Validações
     const nameValidation = validateName(newBudget.name);
-    const amountValidation = validateMoney(newBudget.totalAmount, "Valor total", true, 0.01);
-    
+    const amountValidation = validateMoney(
+      newBudget.totalAmount,
+      "Valor total",
+      true,
+      0.01,
+    );
+
     const errors: string[] = [];
     if (!nameValidation.valid) errors.push(nameValidation.error!);
     if (!amountValidation.valid) errors.push(amountValidation.error!);
-    
+
     if (errors.length > 0) {
       showToastMessage(`Erros de validação:\n${errors.join("\n")}`, "warning");
       return;
     }
 
     try {
-      const budgetData: Omit<Budget, "id" | "createdAt" | "updatedAt"> = sanitizeForDatabase({
-        name: newBudget.name.trim(),
-        description: newBudget.description.trim(),
-        totalAmount: amountValidation.value,
-        spentAmount: editingBudget?.spentAmount || 0,
-        projectId: newBudget.projectId || "",
-        categories: editingBudget?.categories || [],
-      });
+      const budgetData: Omit<Budget, "id" | "createdAt" | "updatedAt"> =
+        sanitizeForDatabase({
+          name: newBudget.name.trim(),
+          description: newBudget.description.trim(),
+          totalAmount: amountValidation.value,
+          spentAmount: editingBudget?.spentAmount || 0,
+          projectId: newBudget.projectId || "",
+          categories: editingBudget?.categories || [],
+        });
 
       if (editingBudget && editingBudget.id) {
         await updateBudget(editingBudget.id, budgetData);
@@ -1006,7 +1019,7 @@ export default function GerenciamentoObras() {
         console.error("Erro ao excluir orçamento:", error);
         showToastMessage(
           "Erro ao excluir orçamento. Tente novamente.",
-          "error"
+          "error",
         );
       }
     }
@@ -1015,19 +1028,19 @@ export default function GerenciamentoObras() {
   // Generic handlers for all new modules
   const createGenericHandlers = <T extends { id?: string }>(
     createFn: (
-      data: Omit<T, "id" | "createdAt" | "updatedAt">
+      data: Omit<T, "id" | "createdAt" | "updatedAt">,
     ) => Promise<string | T>,
     updateFn: (
       id: string,
-      data: Omit<T, "id" | "createdAt" | "updatedAt">
+      data: Omit<T, "id" | "createdAt" | "updatedAt">,
     ) => Promise<void>,
     deleteFn: (id: string) => Promise<void>,
     entityName: string,
-    validateFn?: (data: any) => { valid: boolean; errors: string[] }
+    validateFn?: (data: any) => { valid: boolean; errors: string[] },
   ) => ({
     handleCreate: async (
       data: Omit<T, "id" | "createdAt" | "updatedAt">,
-      editingItem: T | null
+      editingItem: T | null,
     ) => {
       // Validação se fornecida
       if (validateFn) {
@@ -1035,7 +1048,7 @@ export default function GerenciamentoObras() {
         if (!validation.valid) {
           showToastMessage(
             `Erros de validação:\n${validation.errors.join("\n")}`,
-            "warning"
+            "warning",
           );
           return false;
         }
@@ -1044,7 +1057,7 @@ export default function GerenciamentoObras() {
       try {
         // Sanitiza dados antes de salvar
         const sanitizedData = sanitizeForDatabase(data);
-        
+
         if (editingItem && editingItem.id) {
           await updateFn(editingItem.id, sanitizedData);
           showToastMessage(`${entityName} atualizado com sucesso!`, "success");
@@ -1058,7 +1071,7 @@ export default function GerenciamentoObras() {
         console.error(`Erro ao salvar ${entityName}:`, error);
         showToastMessage(
           `Erro ao salvar ${entityName}. Tente novamente.`,
-          "error"
+          "error",
         );
         return false;
       }
@@ -1073,7 +1086,7 @@ export default function GerenciamentoObras() {
           console.error(`Erro ao excluir ${entityName}:`, error);
           showToastMessage(
             `Erro ao excluir ${entityName}. Tente novamente.`,
-            "error"
+            "error",
           );
         }
       }
@@ -1086,7 +1099,7 @@ export default function GerenciamentoObras() {
     updateSupplier,
     deleteSupplier,
     "Fornecedor",
-    validateSupplier
+    validateSupplier,
   );
   const handleSupplierChange = (field: string, value: string | number) => {
     setNewSupplier((prev) => ({ ...prev, [field]: value }));
@@ -1098,11 +1111,11 @@ export default function GerenciamentoObras() {
     updateTeamMember,
     deleteTeamMember,
     "Membro",
-    validateTeamMember
+    validateTeamMember,
   );
   const handleTeamChange = (
     field: string,
-    value: string | number | boolean
+    value: string | number | boolean,
   ) => {
     setNewTeamMember((prev) => ({ ...prev, [field]: value }));
   };
@@ -1113,7 +1126,7 @@ export default function GerenciamentoObras() {
     updateEquipment,
     deleteEquipment,
     "Equipamento",
-    validateEquipment
+    validateEquipment,
   );
   const handleEquipmentChange = (field: string, value: string | number) => {
     setNewEquipment((prev) => ({ ...prev, [field]: value }));
@@ -1125,7 +1138,7 @@ export default function GerenciamentoObras() {
     updateSchedule,
     deleteSchedule,
     "Tarefa",
-    validateSchedule
+    validateSchedule,
   );
   const handleScheduleChange = (field: string, value: string | number) => {
     setNewSchedule((prev) => ({ ...prev, [field]: value }));
@@ -1137,7 +1150,7 @@ export default function GerenciamentoObras() {
     updateSafetyRecord,
     deleteSafetyRecord,
     "Registro",
-    validateSafetyRecord
+    validateSafetyRecord,
   );
   const handleSafetyChange = (field: string, value: string) => {
     setNewSafetyRecord((prev) => ({ ...prev, [field]: value }));
@@ -1149,11 +1162,11 @@ export default function GerenciamentoObras() {
     updateMeasurement,
     deleteMeasurement,
     "Medição",
-    validateMeasurement
+    validateMeasurement,
   );
   const handleMeasurementChange = (
     field: string,
-    value: string | number | boolean
+    value: string | number | boolean,
   ) => {
     setNewMeasurement((prev) => ({ ...prev, [field]: value }));
   };
@@ -1164,7 +1177,7 @@ export default function GerenciamentoObras() {
     updateIssue,
     deleteIssue,
     "Problema",
-    validateIssue
+    validateIssue,
   );
   const handleIssueChange = (field: string, value: string) => {
     setNewIssue((prev) => ({ ...prev, [field]: value }));
@@ -1176,7 +1189,7 @@ export default function GerenciamentoObras() {
     updateDocument,
     deleteDocument,
     "Documento",
-    validateDocument
+    validateDocument,
   );
   const handleDocumentChange = (field: string, value: string) => {
     setNewDocument((prev) => ({ ...prev, [field]: value }));
@@ -1188,7 +1201,7 @@ export default function GerenciamentoObras() {
     updateQualityChecklist,
     deleteQualityChecklist,
     "Checklist",
-    validateQualityChecklist
+    validateQualityChecklist,
   );
   const handleQualityChange = (field: string, value: string) => {
     setNewQualityChecklist((prev) => ({ ...prev, [field]: value }));
@@ -1265,7 +1278,7 @@ export default function GerenciamentoObras() {
                 if (!validation.valid) {
                   showToastMessage(
                     `Erros de validação:\n${validation.errors.join("\n")}`,
-                    "warning"
+                    "warning",
                   );
                   return;
                 }
@@ -1276,15 +1289,15 @@ export default function GerenciamentoObras() {
                 if (editingEntry && editingEntry.id) {
                   await updateDiaryEntry(
                     editingEntry.id,
-                    sanitizedData as Parameters<typeof updateDiaryEntry>[1]
+                    sanitizedData as Parameters<typeof updateDiaryEntry>[1],
                   );
                   showToastMessage(
                     "Relatório atualizado com sucesso!",
-                    "success"
+                    "success",
                   );
                 } else {
                   await createDiaryEntry(
-                    sanitizedData as Parameters<typeof createDiaryEntry>[0]
+                    sanitizedData as Parameters<typeof createDiaryEntry>[0],
                   );
                   showToastMessage("Relatório criado com sucesso!", "success");
                 }
@@ -1295,7 +1308,7 @@ export default function GerenciamentoObras() {
                 console.error("Erro ao salvar relatório:", error);
                 showToastMessage(
                   "Erro ao salvar relatório. Tente novamente.",
-                  "error"
+                  "error",
                 );
               }
             }}
@@ -1324,7 +1337,7 @@ export default function GerenciamentoObras() {
                 if (!validation.valid) {
                   showToastMessage(
                     `Erros de validação:\n${validation.errors.join("\n")}`,
-                    "warning"
+                    "warning",
                   );
                   return;
                 }
@@ -1335,15 +1348,15 @@ export default function GerenciamentoObras() {
                 if (editingEntry && editingEntry.id) {
                   await updateDiaryEntry(
                     editingEntry.id,
-                    sanitizedData as Parameters<typeof updateDiaryEntry>[1]
+                    sanitizedData as Parameters<typeof updateDiaryEntry>[1],
                   );
                   showToastMessage(
                     "Lançamento atualizado com sucesso!",
-                    "success"
+                    "success",
                   );
                 } else {
                   await createDiaryEntry(
-                    sanitizedData as Parameters<typeof createDiaryEntry>[0]
+                    sanitizedData as Parameters<typeof createDiaryEntry>[0],
                   );
                   showToastMessage("Lançamento criado com sucesso!", "success");
                 }
@@ -1354,7 +1367,7 @@ export default function GerenciamentoObras() {
                 console.error("Erro ao salvar lançamento:", error);
                 showToastMessage(
                   "Erro ao salvar lançamento. Tente novamente.",
-                  "error"
+                  "error",
                 );
               }
             }}
@@ -1383,7 +1396,7 @@ export default function GerenciamentoObras() {
                 if (!validation.valid) {
                   showToastMessage(
                     `Erros de validação:\n${validation.errors.join("\n")}`,
-                    "warning"
+                    "warning",
                   );
                   return;
                 }
@@ -1394,19 +1407,19 @@ export default function GerenciamentoObras() {
                 if (editingEntry && editingEntry.id) {
                   await updateDiaryEntry(
                     editingEntry.id,
-                    sanitizedData as Parameters<typeof updateDiaryEntry>[1]
+                    sanitizedData as Parameters<typeof updateDiaryEntry>[1],
                   );
                   showToastMessage(
                     "Relatório de teste hidrostático atualizado com sucesso!",
-                    "success"
+                    "success",
                   );
                 } else {
                   await createDiaryEntry(
-                    sanitizedData as Parameters<typeof createDiaryEntry>[0]
+                    sanitizedData as Parameters<typeof createDiaryEntry>[0],
                   );
                   showToastMessage(
                     "Relatório de teste hidrostático criado com sucesso!",
-                    "success"
+                    "success",
                   );
                 }
                 await refreshData();
@@ -1416,7 +1429,7 @@ export default function GerenciamentoObras() {
                 console.error("Erro ao salvar relatório:", error);
                 showToastMessage(
                   "Erro ao salvar relatório. Tente novamente.",
-                  "error"
+                  "error",
                 );
               }
             }}
@@ -1445,7 +1458,7 @@ export default function GerenciamentoObras() {
                 if (!validation.valid) {
                   showToastMessage(
                     `Erros de validação:\n${validation.errors.join("\n")}`,
-                    "warning"
+                    "warning",
                   );
                   return;
                 }
@@ -1456,19 +1469,19 @@ export default function GerenciamentoObras() {
                 if (editingEntry && editingEntry.id) {
                   await updateDiaryEntry(
                     editingEntry.id,
-                    sanitizedData as Parameters<typeof updateDiaryEntry>[1]
+                    sanitizedData as Parameters<typeof updateDiaryEntry>[1],
                   );
                   showToastMessage(
                     "Relatório de conclusão atualizado com sucesso!",
-                    "success"
+                    "success",
                   );
                 } else {
                   await createDiaryEntry(
-                    sanitizedData as Parameters<typeof createDiaryEntry>[0]
+                    sanitizedData as Parameters<typeof createDiaryEntry>[0],
                   );
                   showToastMessage(
                     "Relatório de conclusão criado com sucesso!",
-                    "success"
+                    "success",
                   );
                 }
                 await refreshData();
@@ -1478,7 +1491,7 @@ export default function GerenciamentoObras() {
                 console.error("Erro ao salvar relatório:", error);
                 showToastMessage(
                   "Erro ao salvar relatório. Tente novamente.",
-                  "error"
+                  "error",
                 );
               }
             }}
@@ -1666,13 +1679,13 @@ export default function GerenciamentoObras() {
               if (!newSupplier.name || !newSupplier.category) {
                 showToastMessage(
                   "Preencha todos os campos obrigatórios",
-                  "warning"
+                  "warning",
                 );
                 return;
               }
               const success = await supplierHandlers.handleCreate(
                 newSupplier,
-                editingSupplier
+                editingSupplier,
               );
               if (success) {
                 setNewSupplier({
@@ -1751,13 +1764,13 @@ export default function GerenciamentoObras() {
               if (!newTeamMember.name || !newTeamMember.role) {
                 showToastMessage(
                   "Preencha todos os campos obrigatórios",
-                  "warning"
+                  "warning",
                 );
                 return;
               }
               const success = await teamHandlers.handleCreate(
                 newTeamMember,
-                editingTeamMember
+                editingTeamMember,
               );
               if (success) {
                 setNewTeamMember({
@@ -1832,13 +1845,13 @@ export default function GerenciamentoObras() {
               if (!newEquipment.name || !newEquipment.type) {
                 showToastMessage(
                   "Preencha todos os campos obrigatórios",
-                  "warning"
+                  "warning",
                 );
                 return;
               }
               const success = await equipmentHandlers.handleCreate(
                 newEquipment,
-                editingEquipment
+                editingEquipment,
               );
               if (success) {
                 setNewEquipment({
@@ -1916,13 +1929,13 @@ export default function GerenciamentoObras() {
               ) {
                 showToastMessage(
                   "Preencha todos os campos obrigatórios",
-                  "warning"
+                  "warning",
                 );
                 return;
               }
               const success = await scheduleHandlers.handleCreate(
                 newSchedule,
-                editingSchedule
+                editingSchedule,
               );
               if (success) {
                 setNewSchedule({
@@ -1999,13 +2012,13 @@ export default function GerenciamentoObras() {
               ) {
                 showToastMessage(
                   "Preencha todos os campos obrigatórios",
-                  "warning"
+                  "warning",
                 );
                 return;
               }
               const success = await safetyHandlers.handleCreate(
                 newSafetyRecord,
-                editingSafetyRecord
+                editingSafetyRecord,
               );
               if (success) {
                 setNewSafetyRecord({
@@ -2083,13 +2096,13 @@ export default function GerenciamentoObras() {
               ) {
                 showToastMessage(
                   "Preencha todos os campos obrigatórios",
-                  "warning"
+                  "warning",
                 );
                 return;
               }
               const success = await measurementHandlers.handleCreate(
                 newMeasurement,
-                editingMeasurement
+                editingMeasurement,
               );
               if (success) {
                 setNewMeasurement({
@@ -2166,13 +2179,13 @@ export default function GerenciamentoObras() {
               if (!newIssue.date || !newIssue.title || !newIssue.description) {
                 showToastMessage(
                   "Preencha todos os campos obrigatórios",
-                  "warning"
+                  "warning",
                 );
                 return;
               }
               const success = await issueHandlers.handleCreate(
                 newIssue,
-                editingIssue
+                editingIssue,
               );
               if (success) {
                 setNewIssue({
@@ -2245,7 +2258,7 @@ export default function GerenciamentoObras() {
               if (!newDocument.name) {
                 showToastMessage(
                   "Preencha todos os campos obrigatórios",
-                  "warning"
+                  "warning",
                 );
                 return;
               }
@@ -2255,7 +2268,7 @@ export default function GerenciamentoObras() {
                   uploadDate:
                     newDocument.uploadDate || new Date().toISOString(),
                 },
-                editingDocument
+                editingDocument,
               );
               if (success) {
                 setNewDocument({
@@ -2324,13 +2337,13 @@ export default function GerenciamentoObras() {
               ) {
                 showToastMessage(
                   "Preencha todos os campos obrigatórios",
-                  "warning"
+                  "warning",
                 );
                 return;
               }
               const success = await qualityHandlers.handleCreate(
                 { ...newQualityChecklist, items: [] },
-                editingQualityChecklist
+                editingQualityChecklist,
               );
               if (success) {
                 setNewQualityChecklist({

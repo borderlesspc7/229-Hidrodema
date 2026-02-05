@@ -23,6 +23,7 @@ interface ProjectsManagementProps {
     startDate: string;
     endDate: string;
     client: string;
+    status: Project["status"];
     budget: number;
     team: string[];
     labor: string;
@@ -129,6 +130,27 @@ export default function ProjectsManagement({
                 </div>
               </div>
 
+              {editingProject && (
+                <div className="obras-form-row">
+                  <div className="obras-form-field">
+                    <label>Status da Obra *</label>
+                    <select
+                      className="obras-select"
+                      value={newProject.status}
+                      onChange={(e) =>
+                        onProjectChange("status", e.target.value)
+                      }
+                      required
+                    >
+                      <option value="planejamento">Planejamento</option>
+                      <option value="em-andamento">Em andamento</option>
+                      <option value="concluida">Concluida</option>
+                      <option value="pausada">Pausada</option>
+                    </select>
+                  </div>
+                </div>
+              )}
+
               <div className="obras-form-row">
                 <div className="obras-form-field">
                   <label>Orçamento (R$)</label>
@@ -143,6 +165,7 @@ export default function ProjectsManagement({
                     min={0}
                   />
                 </div>
+
                 <div className="obras-form-field">
                   <label>Mão de Obra</label>
                   <Input
@@ -279,4 +302,3 @@ export default function ProjectsManagement({
     </div>
   );
 }
-

@@ -975,9 +975,11 @@
 }
 
 .obras-project-info {
+  overflow-x: hidden;
   margin-bottom: auto;
   padding-bottom: 16px;
 }
+
 
 .obras-project-info p {
   margin: 10px 0;
