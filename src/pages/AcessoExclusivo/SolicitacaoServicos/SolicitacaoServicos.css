@@ -92,7 +92,11 @@
   line-height: 1.1;
   text-transform: uppercase;
   position: relative;
-  font-family: "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont,
+  font-family:
+    "Inter",
+    "Segoe UI",
+    -apple-system,
+    BlinkMacSystemFont,
     sans-serif;
   filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.5));
 }
@@ -187,7 +191,8 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 24px;
   padding: 40px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3),
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
   position: relative;
   overflow: hidden;
@@ -625,7 +630,9 @@
 
 .menu-card:hover {
   transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 40px rgba(59, 130, 246, 0.2);
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.3),
+    0 0 40px rgba(59, 130, 246, 0.2);
 }
 
 .menu-card-content {
@@ -1119,7 +1126,7 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (min-width: 480px) {
   .company-title {
     font-size: 24px;
     letter-spacing: 1px;
@@ -1210,6 +1217,10 @@
     height: 55px;
     max-width: 280px;
   }
+
+  .menu-container-solicitacao {
+    /* background: #000; */
+  }
 }
 
 /* Elementos decorativos - cilindros como no design */
@@ -1237,5 +1248,163 @@
 @media (max-width: 768px) {
   .solicitacao-container::after {
     display: none;
+  }
+}
+
+@media (max-width: 425px) {
+  .solicitacao-container {
+    padding: 24px 12px;
+    gap: 24px;
+  }
+
+  .solicitacao-header {
+    margin-bottom: 10px;
+    padding: 10px 0;
+  }
+
+  .back-button {
+    min-width: 100px;
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+
+  .company-title {
+    font-size: 22px;
+    letter-spacing: 1px;
+  }
+
+  .company-subtitle {
+    font-size: 12px;
+  }
+
+  .company-underline {
+    width: 110px;
+    height: 4px;
+  }
+
+  .progress-container {
+    margin-bottom: 10px;
+  }
+
+  .progress-text {
+    font-size: 12px;
+  }
+
+  .form-card {
+    padding: 20px 14px;
+    border-radius: 18px;
+  }
+
+  .form-title {
+    font-size: 20px;
+    letter-spacing: 1px;
+  }
+
+  .form-subtitle {
+    font-size: 13px;
+  }
+
+  .section-title h3 {
+    font-size: 18px;
+  }
+
+  .questions-container {
+    max-height: 320px;
+    padding-right: 6px;
+  }
+
+  .form-question {
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+
+  .question-label {
+    font-size: 14px;
+  }
+
+  .form-textarea,
+  .form-select {
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  .radio-option {
+    padding: 10px 12px;
+  }
+
+  .nav-button {
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+
+  .section-indicators {
+    gap: 6px;
+  }
+
+  .section-dot {
+    width: 8px;
+    height: 8px;
+  }
+
+  .request-item {
+    padding: 16px;
+  }
+
+  .request-info h3 {
+    font-size: 15px;
+  }
+
+  .request-meta {
+    font-size: 12px;
+  }
+
+  .action-button {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+
+  .comments-header h2 {
+    font-size: 20px;
+  }
+
+  .comment-text {
+    font-size: 13px;
+  }
+
+  .footer-logo {
+    height: 50px;
+    max-width: 240px;
+  }
+
+  .solicitacao-menu-cards {
+    grid-template-columns: 1fr !important;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 360px) {
+  .company-title {
+    font-size: 20px;
+  }
+
+  .form-card {
+    padding: 18px 12px;
+  }
+
+  .questions-container {
+    max-height: 280px;
+  }
+
+  .form-question {
+    padding: 14px;
+  }
+
+  .form-textarea,
+  .form-select {
+    padding: 10px;
+  }
+
+  .nav-button {
+    font-size: 12px;
   }
 }
