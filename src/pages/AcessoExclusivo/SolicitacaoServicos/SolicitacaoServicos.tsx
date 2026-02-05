@@ -1437,9 +1437,36 @@ export default function SolicitacaoServicos() {
     }
   };
 
-  const currentQuestions = questions.filter(
-    (q) => q.section === sections[currentSection],
-  );
+  const selectedRegional = (formData.q11 as string) || "";
+  const shouldShowQuestion = (question: Question) => {
+    if (!question.section || question.section !== sections[currentSection]) {
+      return false;
+    }
+
+    if (!selectedRegional) {
+      return !["q12", "q13", "q14", "q15"].includes(question.id);
+    }
+
+    if (question.id === "q12") {
+      return selectedRegional.includes("VEND I & II");
+    }
+
+    if (question.id === "q13") {
+      return selectedRegional.includes("HUNTERS");
+    }
+
+    if (question.id === "q14") {
+      return selectedRegional.includes("HVAC");
+    }
+
+    if (question.id === "q15") {
+      return selectedRegional.includes("Expansão");
+    }
+
+    return true;
+  };
+
+  const currentQuestions = questions.filter(shouldShowQuestion);
   const progress = ((currentSection + 1) / sections.length) * 100;
 
   // Carregar dados na inicialização

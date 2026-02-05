@@ -23,6 +23,7 @@ interface UnifiedReportsListProps {
   onEdit: (entry: DiaryEntry) => void;
   onDelete: (id: string) => void;
   onView: (entry: DiaryEntry) => void;
+  onExportPdf: (entry: DiaryEntry) => void;
 }
 
 // Helper para obter informações do tipo de relatório
@@ -73,6 +74,7 @@ export default function UnifiedReportsList({
   onEdit,
   onDelete,
   onView,
+  onExportPdf,
 }: UnifiedReportsListProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState<string>("all");
@@ -89,7 +91,8 @@ export default function UnifiedReportsList({
       filtered = filtered.filter(
         (entry) =>
           entry.obraName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (entry.reportNumber && entry.reportNumber.toString().includes(searchTerm))
+          (entry.reportNumber &&
+            entry.reportNumber.toString().includes(searchTerm)),
       );
     }
 
@@ -129,9 +132,13 @@ export default function UnifiedReportsList({
   const stats = useMemo(() => {
     const byType = {
       rdo: diaryEntries.filter((e) => e.reportType === "rdo").length,
-      gastos: diaryEntries.filter((e) => e.reportType === "lancamento-gastos").length,
-      hidrostatico: diaryEntries.filter((e) => e.reportType === "teste-hidrostatico").length,
-      conclusao: diaryEntries.filter((e) => e.reportType === "conclusao-obra").length,
+      gastos: diaryEntries.filter((e) => e.reportType === "lancamento-gastos")
+        .length,
+      hidrostatico: diaryEntries.filter(
+        (e) => e.reportType === "teste-hidrostatico",
+      ).length,
+      conclusao: diaryEntries.filter((e) => e.reportType === "conclusao-obra")
+        .length,
     };
 
     return {
@@ -153,7 +160,11 @@ export default function UnifiedReportsList({
             <FiFileText size={16} />
             Novo Relatório
           </Button>
-          <Button variant="secondary" onClick={() => onViewChange("menu")} className="obras-back-btn">
+          <Button
+            variant="secondary"
+            onClick={() => onViewChange("menu")}
+            className="obras-back-btn"
+          >
             <FiArrowLeft size={16} />
             Voltar ao Menu
           </Button>
@@ -166,26 +177,50 @@ export default function UnifiedReportsList({
           <div className="obras-unified-stat-value">{stats.total}</div>
           <div className="obras-unified-stat-label">Total de Relatórios</div>
         </div>
-        <div className="obras-unified-stat-card" style={{ borderColor: "#3b82f6" }}>
-          <div className="obras-unified-stat-value" style={{ color: "#3b82f6" }}>
+        <div
+          className="obras-unified-stat-card"
+          style={{ borderColor: "#3b82f6" }}
+        >
+          <div
+            className="obras-unified-stat-value"
+            style={{ color: "#3b82f6" }}
+          >
             {stats.byType.rdo}
           </div>
           <div className="obras-unified-stat-label">RDOs</div>
         </div>
-        <div className="obras-unified-stat-card" style={{ borderColor: "#10b981" }}>
-          <div className="obras-unified-stat-value" style={{ color: "#10b981" }}>
+        <div
+          className="obras-unified-stat-card"
+          style={{ borderColor: "#10b981" }}
+        >
+          <div
+            className="obras-unified-stat-value"
+            style={{ color: "#10b981" }}
+          >
             {stats.byType.gastos}
           </div>
           <div className="obras-unified-stat-label">Gastos</div>
         </div>
-        <div className="obras-unified-stat-card" style={{ borderColor: "#06b6d4" }}>
-          <div className="obras-unified-stat-value" style={{ color: "#06b6d4" }}>
+        <div
+          className="obras-unified-stat-card"
+          style={{ borderColor: "#06b6d4" }}
+        >
+          <div
+            className="obras-unified-stat-value"
+            style={{ color: "#06b6d4" }}
+          >
             {stats.byType.hidrostatico}
           </div>
           <div className="obras-unified-stat-label">Testes Hidrostáticos</div>
         </div>
-        <div className="obras-unified-stat-card" style={{ borderColor: "#8b5cf6" }}>
-          <div className="obras-unified-stat-value" style={{ color: "#8b5cf6" }}>
+        <div
+          className="obras-unified-stat-card"
+          style={{ borderColor: "#8b5cf6" }}
+        >
+          <div
+            className="obras-unified-stat-value"
+            style={{ color: "#8b5cf6" }}
+          >
             {stats.byType.conclusao}
           </div>
           <div className="obras-unified-stat-label">Conclusões</div>
@@ -209,7 +244,10 @@ export default function UnifiedReportsList({
             <FiFilter size={16} />
             Tipo:
           </label>
-          <select value={filterType} onChange={(e) => setFilterType(e.target.value)}>
+          <select
+            value={filterType}
+            onChange={(e) => setFilterType(e.target.value)}
+          >
             <option value="all">Todos os tipos</option>
             <option value="rdo">RDO</option>
             <option value="lancamento-gastos">Lançamento de Gastos</option>
@@ -220,7 +258,10 @@ export default function UnifiedReportsList({
 
         <div className="obras-unified-filter-group">
           <label>Obra:</label>
-          <select value={filterProject} onChange={(e) => setFilterProject(e.target.value)}>
+          <select
+            value={filterProject}
+            onChange={(e) => setFilterProject(e.target.value)}
+          >
             <option value="all">Todas as obras</option>
             {projects.map((project) => (
               <option key={project.id} value={project.id}>
@@ -232,7 +273,12 @@ export default function UnifiedReportsList({
 
         <div className="obras-unified-filter-group">
           <label>Ordenar por:</label>
-          <select value={sortBy} onChange={(e) => setSortBy(e.target.value as "date" | "type" | "project")}>
+          <select
+            value={sortBy}
+            onChange={(e) =>
+              setSortBy(e.target.value as "date" | "type" | "project")
+            }
+          >
             <option value="date">Data</option>
             <option value="type">Tipo</option>
             <option value="project">Obra</option>
@@ -273,8 +319,14 @@ export default function UnifiedReportsList({
             return (
               <div key={entry.id} className="obras-unified-report-card">
                 <div className="obras-unified-report-main">
-                  <div className="obras-unified-report-icon" style={{ backgroundColor: `${reportTypeInfo.color}15` }}>
-                    <ReportIcon size={24} style={{ color: reportTypeInfo.color }} />
+                  <div
+                    className="obras-unified-report-icon"
+                    style={{ backgroundColor: `${reportTypeInfo.color}15` }}
+                  >
+                    <ReportIcon
+                      size={24}
+                      style={{ color: reportTypeInfo.color }}
+                    />
                   </div>
 
                   <div className="obras-unified-report-info">
@@ -299,12 +351,17 @@ export default function UnifiedReportsList({
                       </span>
 
                       {entry.reportNumber && (
-                        <span className="obras-unified-report-number">Nº {entry.reportNumber}</span>
+                        <span className="obras-unified-report-number">
+                          Nº {entry.reportNumber}
+                        </span>
                       )}
 
                       {entry.approvalStatus && (
-                        <span className={`obras-unified-approval-status obras-status-${entry.approvalStatus}`}>
-                          {entry.approvalStatus === "preenchendo" && "Preenchendo"}
+                        <span
+                          className={`obras-unified-approval-status obras-status-${entry.approvalStatus}`}
+                        >
+                          {entry.approvalStatus === "preenchendo" &&
+                            "Preenchendo"}
                           {entry.approvalStatus === "revisao" && "Em Revisão"}
                           {entry.approvalStatus === "aprovado" && "Aprovado"}
                         </span>
@@ -312,19 +369,36 @@ export default function UnifiedReportsList({
                     </div>
 
                     {entry.dayOfWeek && (
-                      <span className="obras-unified-report-weekday">{entry.dayOfWeek}</span>
+                      <span className="obras-unified-report-weekday">
+                        {entry.dayOfWeek}
+                      </span>
                     )}
                   </div>
                 </div>
 
                 <div className="obras-unified-report-actions">
-                  <Button variant="secondary" onClick={() => onView(entry)} className="obras-action-btn">
+                  <Button
+                    variant="secondary"
+                    onClick={() => onView(entry)}
+                    className="obras-action-btn"
+                  >
                     <FiEye size={16} />
                     Visualizar
                   </Button>
-                  <Button variant="secondary" onClick={() => onEdit(entry)} className="obras-action-btn">
+                  <Button
+                    variant="secondary"
+                    onClick={() => onEdit(entry)}
+                    className="obras-action-btn"
+                  >
                     <FiEdit3 size={16} />
                     Editar
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    className="obras-action-btn"
+                    onClick={() => onExportPdf(entry)}
+                  >
+                    Pdf
                   </Button>
                   <Button
                     variant="secondary"
@@ -344,10 +418,10 @@ export default function UnifiedReportsList({
       {/* Informações de resultados */}
       {filteredAndSortedReports.length > 0 && (
         <div className="obras-unified-results-info">
-          Mostrando {filteredAndSortedReports.length} de {diaryEntries.length} relatório(s)
+          Mostrando {filteredAndSortedReports.length} de {diaryEntries.length}{" "}
+          relatório(s)
         </div>
       )}
     </div>
   );
 }
-

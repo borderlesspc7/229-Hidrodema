@@ -2399,6 +2399,7 @@ export default function GerenciamentoObras() {
             onViewChange={setViewMode}
             onEdit={handleEditDiary}
             onDelete={handleDeleteDiary}
+            onExportPdf={handleExportPDF}
             onView={(entry) => {
               setViewingReport(entry);
               setViewMode("view-report");

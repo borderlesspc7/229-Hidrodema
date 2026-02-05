@@ -65,7 +65,7 @@ interface Question {
 type ViewMode = "menu" | "new" | "history" | "edit" | "comments" | "schedule";
 
 // Interface local combinada para exibição
-interface DisplayVisit {
+export interface DisplayVisit {
   id: string;
   requestId?: string;
   title: string;
@@ -208,14 +208,14 @@ export default function RelatorioVisitas() {
       ],
     },
     // Seção 2: Geral
-    {
-      id: "q6",
-      type: "radio",
-      question: "6 - Selecione a ação que deseja realizar",
-      section: "Geral",
-      required: true,
-      options: ["Solicitar uma nova visita"],
-    },
+    // {
+    //   id: "q6",
+    //   type: "radio",
+    //   question: "6 - Selecione a ação que deseja realizar",
+    //   section: "Geral",
+    //   required: true,
+    //   options: ["Solicitar uma nova visita"],
+    // },
     // Seção 3: Dados do Cliente
     {
       id: "q7",
