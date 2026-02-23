@@ -1,47 +1,127 @@
+/* ============================================================
+   Input — Hidrodema Design System
+   Floating label + ícone + estados
+   ============================================================ */
+
 .input-container {
   position: relative;
-  margin-bottom: 0;
+  width: 100%;
 }
 
 .input-field {
   width: 100%;
-  padding: 16px 16px 16px 16px;
-  border: 2px solid #e5e7eb;
-  border-radius: 12px;
-  font-size: 16px;
-  background: #ffffff;
-  transition: all 0.3s ease;
+  padding: 0.875rem 1rem 0.875rem 1rem;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: var(--radius-lg);
+  color: var(--color-white);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  font-weight: var(--weight-normal);
+  line-height: var(--leading-normal);
   outline: none;
-  box-sizing: border-box;
+  transition:
+    border-color var(--transition-fast),
+    background var(--transition-fast),
+    box-shadow var(--transition-fast);
+  appearance: none;
+  -webkit-appearance: none;
 }
 
+/* Placeholder */
+.input-field::placeholder {
+  color: rgba(255,255,255,0.30);
+}
+
+/* Focus */
+.input-container.focused .input-field,
 .input-field:focus {
-  border-color: #1a3a52;
-  box-shadow: 0 0 0 3px rgba(26, 58, 82, 0.1);
+  border-color: var(--color-accent-400);
+  background: rgba(255,255,255,0.09);
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.18);
 }
 
+/* Floating label */
 .input-label {
   position: absolute;
-  left: 16px;
+  left: 1rem;
   top: 50%;
   transform: translateY(-50%);
-  color: #9ca3af;
-  font-size: 16px;
+  color: rgba(255,255,255,0.40);
+  font-size: var(--text-base);
+  font-weight: var(--weight-normal);
   pointer-events: none;
-  transition: all 0.3s ease;
-  background: #ffffff;
+  transition:
+    top var(--transition-fast),
+    font-size var(--transition-fast),
+    color var(--transition-fast),
+    transform var(--transition-fast);
+  background: transparent;
   padding: 0 4px;
+  line-height: 1;
 }
 
 .input-container.focused .input-label,
 .input-container.has-value .input-label {
   top: 0;
-  font-size: 12px;
-  color: #1a3a52;
-  font-weight: 500;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  color: var(--color-accent-300);
+  transform: translateY(-50%);
+  background: var(--color-primary-700);
+  padding: 0 6px;
+  border-radius: 3px;
 }
 
-.input-container.focused .input-field {
-  border-color: #1a3a52;
-  box-shadow: 0 0 0 3px rgba(26, 58, 82, 0.1);
+/* Variante clara (fundo branco) — usada nos modais */
+.input-container.input--light .input-field {
+  background: var(--color-white);
+  border-color: var(--color-gray-200);
+  color: var(--color-gray-800);
+}
+.input-container.input--light .input-field::placeholder {
+  color: var(--color-gray-400);
+}
+.input-container.input--light .input-label {
+  color: var(--color-gray-400);
+  background: var(--color-white);
+}
+.input-container.input--light.focused .input-field,
+.input-container.input--light .input-field:focus {
+  border-color: var(--color-accent-500);
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+}
+.input-container.input--light.focused .input-label,
+.input-container.input--light.has-value .input-label {
+  color: var(--color-accent-600);
+  background: var(--color-white);
+}
+
+/* Estado de erro */
+.input-container.input--error .input-field {
+  border-color: var(--color-danger-500);
+}
+.input-container.input--error .input-label {
+  color: var(--color-danger-500);
+}
+.input-error-msg {
+  margin-top: var(--space-1);
+  font-size: var(--text-xs);
+  color: #fca5a5;
+}
+
+/* Textarea */
+.input-field[type="textarea"],
+textarea.input-field {
+  resize: vertical;
+  min-height: 96px;
+}
+.input-container textarea ~ .input-label {
+  top: 1rem;
+  transform: none;
+}
+.input-container.focused textarea ~ .input-label,
+.input-container.has-value textarea ~ .input-label {
+  top: 0;
+  transform: translateY(-50%);
 }

@@ -1,1593 +1,858 @@
-/* Container principal - Relatório de Visitas */
+/* ============================================================
+   RelatorioVisitas — Hidrodema Design System
+   ============================================================ */
+
+/* ---- Layout base ---- */
 .visitas-container {
   min-height: 100vh;
+  width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: #1e3a5f;
-  padding: 40px 20px;
-  margin: 0;
-  width: 100%;
-  gap: 40px;
+  background:
+    radial-gradient(ellipse at 18% 22%, rgba(59,130,246,0.08) 0%, transparent 52%),
+    linear-gradient(160deg, var(--color-primary-950) 0%, var(--color-primary-800) 45%, var(--color-primary-600) 100%);
+  font-family: var(--font-sans);
   position: relative;
-  overflow: hidden;
 }
 
-/* Efeito de fundo animado */
-.visitas-container::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image:
-    radial-gradient(
-      circle at 30% 40%,
-      rgba(139, 92, 246, 0.08) 0%,
-      transparent 50%
-    ),
-    radial-gradient(
-      circle at 70% 60%,
-      rgba(59, 130, 246, 0.06) 0%,
-      transparent 50%
-    ),
-    radial-gradient(
-      circle at 40% 20%,
-      rgba(236, 72, 153, 0.04) 0%,
-      transparent 50%
-    );
-  animation: floatingOrbs 20s ease-in-out infinite alternate;
-  pointer-events: none;
-  z-index: 0;
-}
+.visitas-container::before { display: none; }
 
-/* Header - Relatório de Visitas */
+/* ---- Header ---- */
 .visitas-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-8);
+  background: rgba(10,16,32,0.55);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--surface-border);
+  position: sticky;
+  top: 0;
+  z-index: 20;
   width: 100%;
-  max-width: 1200px;
-  position: relative;
-  z-index: 2;
-  margin-bottom: 20px;
 }
 
-.visitas-back-button {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  color: #1a3a52;
-  border: 2px solid rgba(59, 130, 246, 0.3);
-  padding: 12px 20px;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  min-width: 120px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.visitas-back-button:hover {
-  background: rgba(59, 130, 246, 0.1);
-  color: #ffffff;
-  border-color: rgba(59, 130, 246, 0.5);
-  transform: translateY(-2px);
+.visitas-back-button,
+.back-button {
+  min-width: 88px;
 }
 
 .visitas-company-brand {
-  text-align: center;
-  position: relative;
-  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   flex: 1;
+  gap: var(--space-1);
 }
 
 .visitas-company-title {
-  font-size: 48px;
-  font-weight: 900;
-  background: linear-gradient(
-    135deg,
-    #ffffff 0%,
-    #60a5fa 25%,
-    #3b82f6 50%,
-    #8b5cf6 75%,
-    #ffffff 100%
-  );
-  background-size: 300% 300%;
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-extrabold);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  background: linear-gradient(135deg, #ffffff 0%, var(--color-accent-200) 50%, var(--color-accent-100) 100%);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  color: #ffffff;
-  letter-spacing: 6px;
-  margin: 0 0 10px 0;
-  line-height: 1.1;
-  text-transform: uppercase;
-  position: relative;
-  font-family:
-    "Inter",
-    "Segoe UI",
-    -apple-system,
-    BlinkMacSystemFont,
-    sans-serif;
-  filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.5));
-  animation:
-    titleGlow 3s ease-in-out infinite alternate,
-    gradientShift 4s ease-in-out infinite;
+  margin: 0;
+  line-height: var(--leading-tight);
 }
 
 .visitas-company-subtitle {
-  font-size: 16px;
-  color: rgba(255, 255, 255, 0.9);
-  display: block;
-  margin-bottom: 15px;
-  font-weight: 400;
-  letter-spacing: 1px;
+  font-size: var(--text-xs);
+  color: rgba(255,255,255,0.55);
+  letter-spacing: var(--tracking-wider);
 }
 
 .visitas-company-underline {
-  width: 150px;
-  height: 6px;
-  background: linear-gradient(90deg, #ffffff 0%, #3b82f6 50%, #1e40af 100%);
-  margin: 0 auto;
-  border-radius: 3px;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
-  animation: underlinePulse 2s ease-in-out infinite alternate;
-}
-
-.visitas-header-spacer {
-  width: 120px;
-}
-
-/* Progress Bar - Relatório de Visitas */
-.visitas-progress-container {
-  position: relative;
-  z-index: 2;
-  max-width: 800px;
-  width: 100%;
-  margin-bottom: 20px;
-}
-
-.visitas-progress-bar {
-  width: 100%;
-  height: 8px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
-  overflow: hidden;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.visitas-progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #3b82f6, #8b5cf6, #06d6a0);
-  border-radius: 4px;
-  transition: width 0.5s ease;
-  position: relative;
-}
-
-.visitas-progress-fill::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.3),
-    transparent
-  );
-  animation: progressShimmer 2s infinite;
-}
-
-.visitas-progress-text {
-  display: block;
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 14px;
-  font-weight: 600;
-  margin-top: 8px;
-  text-align: center;
-  letter-spacing: 0.5px;
-}
-
-/* Form Container - Relatório de Visitas */
-.visitas-form-container {
-  position: relative;
-  z-index: 2;
-  max-width: 800px;
-  width: 100%;
-}
-
-.visitas-form-card {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 24px;
-  padding: 40px;
-  box-shadow:
-    0 20px 60px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  position: relative;
-  overflow: hidden;
-}
-
-.visitas-form-card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 6px;
-  background: linear-gradient(
-    90deg,
-    #3b82f6,
-    #8b5cf6,
-    #06d6a0,
-    #f59e0b,
-    #ef4444
-  );
-  background-size: 300% 100%;
-  animation: headerGradient 3s ease infinite;
-}
-
-/* Form Header - Relatório de Visitas */
-.visitas-form-header {
-  text-align: center;
-  margin-bottom: 40px;
-}
-
-.visitas-form-title {
-  font-size: 32px;
-  font-weight: 900;
-  color: #1a3a52;
-  margin: 0 0 12px 0;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  position: relative;
-}
-
-.visitas-form-subtitle {
-  font-size: 16px;
-  color: #64748b;
-  margin: 0;
-  font-weight: 500;
-}
-
-/* Section Title - Relatório de Visitas */
-.visitas-section-title {
-  margin-bottom: 30px;
-  padding-bottom: 15px;
-  border-bottom: 2px solid #e2e8f0;
-  position: relative;
-}
-
-.visitas-section-title h3 {
-  font-size: 24px;
-  font-weight: 700;
-  color: #1e40af;
-  margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.visitas-section-title::after {
-  content: "";
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 60px;
+  width: 32px;
   height: 2px;
-  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  background: linear-gradient(90deg, var(--color-accent-400), var(--color-accent-200));
+  border-radius: var(--radius-full);
+  margin-top: var(--space-1);
 }
 
-/* Questions Container - Relatório de Visitas */
-.visitas-questions-container {
-  max-height: 500px;
-  overflow-y: auto;
-  padding-right: 10px;
-  margin-bottom: 30px;
-}
+.visitas-header-spacer { min-width: 88px; }
 
-.visitas-questions-container::-webkit-scrollbar {
-  width: 8px;
-}
-
-.visitas-questions-container::-webkit-scrollbar-track {
-  background: #f1f5f9;
-  border-radius: 4px;
-}
-
-.visitas-questions-container::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #3b82f6, #8b5cf6);
-  border-radius: 4px;
-}
-
-.visitas-questions-container::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #2563eb, #7c3aed);
-}
-
-/* Form Questions - Relatório de Visitas */
-.visitas-form-question {
-  margin-bottom: 30px;
-  padding: 24px;
-  background: rgba(248, 250, 252, 0.8);
-  border: 1px solid rgba(226, 232, 240, 0.8);
-  border-radius: 16px;
-  transition: all 0.3s ease;
-  position: relative;
-}
-
-.visitas-form-question:hover {
-  background: rgba(241, 245, 249, 0.9);
-  border-color: rgba(59, 130, 246, 0.3);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.1);
-}
-
-.visitas-question-label {
-  display: block;
-  font-size: 16px;
-  font-weight: 600;
-  color: #1e40af;
-  margin-bottom: 12px;
-  line-height: 1.5;
-}
-
-.visitas-required {
-  color: #ef4444;
-  margin-left: 4px;
-  font-weight: 700;
-}
-
-.visitas-question-instruction {
-  font-size: 14px;
-  color: #64748b;
-  font-style: italic;
-  margin-bottom: 8px;
-  padding: 8px 12px;
-  background: rgba(59, 130, 246, 0.05);
-  border-left: 3px solid #3b82f6;
-  border-radius: 4px;
-}
-
-.visitas-confirmation-message {
-  background: rgba(34, 197, 94, 0.05);
-  border: 1px solid rgba(34, 197, 94, 0.2);
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 24px;
-  text-align: center;
-}
-
-.visitas-confirmation-message p {
-  color: #059669;
-  font-size: 16px;
-  font-weight: 500;
-  margin: 0;
-  line-height: 1.5;
-}
-
-.visitas-instruction-message {
-  background: rgba(239, 68, 68, 0.05);
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 24px;
-  text-align: center;
-}
-
-.visitas-instruction-message h4 {
-  color: #dc2626;
-  font-size: 18px;
-  font-weight: 700;
-  margin: 0 0 12px 0;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.visitas-instruction-message p {
-  color: #7f1d1d;
-  font-size: 14px;
-  font-weight: 400;
-  margin: 0;
-  line-height: 1.6;
-}
-
-/* Form Elements - Relatório de Visitas */
-.visitas-form-textarea {
+/* ---- Conteúdo principal ---- */
+.visitas-content {
+  flex: 1;
+  padding: var(--space-8);
+  max-width: var(--max-content);
+  margin: 0 auto;
   width: 100%;
-  padding: 16px;
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
-  font-size: 16px;
-  font-family: inherit;
-  background: #ffffff;
-  color: #1e293b;
-  resize: vertical;
-  min-height: 100px;
-  transition: all 0.3s ease;
+  animation: hd-fade-in 0.4s ease both;
 }
 
-.visitas-form-textarea:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  background: #fefeff;
-}
-
-.visitas-form-select {
-  width: 100%;
-  padding: 16px;
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
-  font-size: 16px;
-  font-family: inherit;
-  background: #ffffff;
-  color: #1e293b;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.visitas-form-select:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-/* Options Container - Relatório de Visitas */
-.visitas-options-container {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-/* Radio Options - Relatório de Visitas */
-.visitas-radio-option {
-  display: flex;
-  align-items: center;
-  padding: 12px 16px;
-  background: #ffffff;
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-}
-
-.visitas-radio-option:hover {
-  background: #f8fafc;
-  border-color: #3b82f6;
-}
-
-.visitas-radio-option input[type="radio"] {
-  display: none;
-}
-
-.visitas-radio-custom {
-  width: 20px;
-  height: 20px;
-  border: 2px solid #d1d5db;
-  border-radius: 50%;
-  margin-right: 12px;
-  position: relative;
-  transition: all 0.3s ease;
-}
-
-.visitas-radio-option input[type="radio"]:checked + .visitas-radio-custom {
-  border-color: #3b82f6;
-  background: #3b82f6;
-}
-
-.visitas-radio-option
-  input[type="radio"]:checked
-  + .visitas-radio-custom::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 8px;
-  height: 8px;
-  background: #ffffff;
-  border-radius: 50%;
-}
-
-/* Checkbox Options - Relatório de Visitas */
-.visitas-checkbox-option {
-  display: flex;
-  align-items: center;
-  padding: 12px 16px;
-  background: #ffffff;
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.visitas-checkbox-option:hover {
-  background: #f8fafc;
-  border-color: #3b82f6;
-}
-
-.visitas-checkbox-option input[type="checkbox"] {
-  display: none;
-}
-
-.visitas-checkbox-custom {
-  width: 20px;
-  height: 20px;
-  border: 2px solid #d1d5db;
-  border-radius: 6px;
-  margin-right: 12px;
-  position: relative;
-  transition: all 0.3s ease;
-}
-
-.visitas-checkbox-option
-  input[type="checkbox"]:checked
-  + .visitas-checkbox-custom {
-  border-color: #3b82f6;
-  background: #3b82f6;
-}
-
-.visitas-checkbox-option
-  input[type="checkbox"]:checked
-  + .visitas-checkbox-custom::after {
-  content: "✓";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: #ffffff;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.visitas-option-text {
-  font-size: 16px;
-  color: #374151;
-  font-weight: 500;
-}
-
-/* Placeholder Message - Relatório de Visitas */
-.visitas-placeholder-message {
-  text-align: center;
-  padding: 60px 20px;
-  color: #64748b;
-}
-
-.visitas-placeholder-message p {
-  font-size: 16px;
-  margin-bottom: 12px;
-  line-height: 1.6;
-}
-
-/* Form Navigation - Relatório de Visitas */
-.visitas-form-navigation {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-top: 30px;
-  border-top: 2px solid #e2e8f0;
-  margin-top: 30px;
-}
-
-.visitas-nav-button {
-  padding: 14px 28px;
-  font-size: 16px;
-  font-weight: 700;
-  border-radius: 12px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  transition: all 0.3s ease;
-  min-width: 140px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.visitas-nav-button:hover {
-  transform: translateY(-2px);
-}
-
-.visitas-nav-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.visitas-submit-button {
-  background: linear-gradient(135deg, #06d6a0, #10b981);
-  border: none;
-  color: #ffffff;
-  box-shadow: 0 8px 25px rgba(6, 214, 160, 0.3);
-}
-
-.visitas-submit-button:hover {
-  box-shadow: 0 12px 35px rgba(6, 214, 160, 0.4);
-  background: linear-gradient(135deg, #05c59a, #0f9175);
-}
-
-/* Section Indicators - Relatório de Visitas */
-.visitas-section-indicators {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.visitas-section-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: #d1d5db;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-}
-
-.visitas-section-dot.active {
-  background: #3b82f6;
-  transform: scale(1.3);
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
-}
-
-.visitas-section-dot.completed {
-  background: #10b981;
-}
-
-.visitas-section-dot.completed::after {
-  content: "✓";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: #ffffff;
-  font-size: 8px;
-  font-weight: 700;
-}
-
-/* Menu Container - Relatório de Visitas */
+/* ---- Menu de opções ---- */
 .visitas-menu-container {
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  z-index: 2;
-  background: #1e3a5f;
+  min-height: 60vh;
+  padding: var(--space-8);
 }
 
-.visitas-menu-cards {
+.visitas-menu-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 30px;
-  max-width: 900px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-5);
+  max-width: 720px;
   width: 100%;
-  border-radius: 16px;
 }
 
 .visitas-menu-card {
+  background: var(--surface-glass-md);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-2xl);
+  padding: var(--space-8) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
   cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition:
+    transform var(--transition-base),
+    background var(--transition-base),
+    border-color var(--transition-base),
+    box-shadow var(--transition-base);
+  text-align: center;
   position: relative;
   overflow: hidden;
-  border-radius: 16px;
-  padding: 20px;
+}
+
+.visitas-menu-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(59,130,246,0.05), transparent);
+  opacity: 0;
+  transition: opacity var(--transition-base);
+  border-radius: inherit;
 }
 
 .visitas-menu-card:hover {
-  transform: translateY(-8px) scale(1.02);
-  box-shadow:
-    0 20px 60px rgba(0, 0, 0, 0.3),
-    0 0 40px rgba(59, 130, 246, 0.2);
+  transform: translateY(-4px);
+  background: var(--surface-glass-lg);
+  border-color: rgba(59,130,246,0.30);
+  box-shadow: var(--shadow-xl), var(--shadow-glow-sm);
 }
+.visitas-menu-card:hover::before { opacity: 1; }
+.visitas-menu-card:active { transform: translateY(-2px) scale(0.99); }
 
-.visitas-menu-card-content {
-  text-align: center;
-  padding: 20px;
-}
-
-.visitas-menu-icon {
-  margin-bottom: 20px;
+.visitas-menu-card-icon {
+  width: 52px;
+  height: 52px;
+  background: rgba(59,130,246,0.15);
+  border: 1px solid rgba(59,130,246,0.25);
+  border-radius: var(--radius-xl);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: currentColor;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  color: var(--color-accent-300);
+  transition: background var(--transition-base), border-color var(--transition-base);
+}
+.visitas-menu-card:hover .visitas-menu-card-icon {
+  background: rgba(59,130,246,0.25);
+  border-color: rgba(59,130,246,0.40);
 }
 
-.visitas-menu-card-content p {
-  font-size: 10px;
-  color: #64748b;
-  margin: 0 0 15px 0;
-  font-weight: 500;
+.visitas-menu-card-title {
+  font-size: var(--text-base);
+  font-weight: var(--weight-bold);
+  color: var(--color-white);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
 }
 
-.visitas-request-count {
-  display: block;
-  font-size: 14px;
-  color: #059669;
-  font-weight: 700;
-  background: rgba(5, 150, 105, 0.1);
-  padding: 8px 16px;
-  border-radius: 20px;
-  margin-top: 10px;
+.visitas-menu-card-description {
+  font-size: var(--text-sm);
+  color: rgba(255,255,255,0.55);
+  line-height: var(--leading-relaxed);
 }
 
-/* Schedule Container - Planilha de Visitas */
-.visitas-schedule-container {
-  position: relative;
-  z-index: 2;
-  max-width: 1200px;
+/* ---- Formulário multi-step ---- */
+.visitas-form-container {
+  padding: var(--space-6) var(--space-8);
+  max-width: 780px;
+  margin: 0 auto;
   width: 100%;
+  animation: hd-slide-up 0.4s ease both;
 }
 
-.visitas-schedule-header {
+.form-progress-header {
+  margin-bottom: var(--space-6);
+}
+
+.form-progress-info {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
-  padding-bottom: 20px;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: var(--space-2);
 }
 
-.visitas-schedule-header h2 {
-  font-size: 28px;
-  font-weight: 700;
-  color: #ffffff;
-  margin: 0;
+.form-section-title {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  color: var(--color-white);
+  letter-spacing: var(--tracking-wide);
+}
+
+.form-progress-label {
+  font-size: var(--text-xs);
+  color: var(--color-accent-300);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-wider);
   text-transform: uppercase;
-  letter-spacing: 1px;
 }
 
-.visitas-back-to-menu {
-  background: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.visitas-back-to-menu:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.3);
-}
-
-/* Schedule Table */
-.visitas-schedule-table {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 16px;
+.form-progress-bar {
+  height: 4px;
+  background: rgba(255,255,255,0.10);
+  border-radius: var(--radius-full);
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
-.visitas-table-header {
-  display: grid;
-  grid-template-columns: 2fr 1.5fr 1fr 1fr 1.2fr 1fr;
-  gap: 16px;
-  padding: 20px;
-  background: linear-gradient(135deg, #1e40af, #3b82f6);
-  color: #ffffff;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-size: 14px;
+.form-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-accent-500), var(--color-accent-300));
+  border-radius: var(--radius-full);
+  transition: width var(--transition-slow) cubic-bezier(0.4,0,0.2,1);
 }
 
-.visitas-table-row {
-  display: grid;
-  grid-template-columns: 2fr 1.5fr 1fr 1fr 1.2fr 1fr;
-  gap: 16px;
-  padding: 16px 20px;
-  border-bottom: 1px solid #e2e8f0;
-  transition: all 0.3s ease;
-  align-items: center;
-}
-
-.visitas-table-row:hover {
-  background: rgba(59, 130, 246, 0.05);
-}
-
-.visitas-table-cell {
-  font-size: 14px;
-  color: #374151;
-  font-weight: 500;
-}
-
-.visitas-table-header .visitas-table-cell {
-  color: #ffffff;
-}
-
-.visitas-status-select {
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.visitas-status-select.status-scheduled {
-  background: rgba(251, 191, 36, 0.2);
-  color: #d97706;
-}
-
-.visitas-status-select.status-awaiting-report {
-  background: rgba(59, 130, 246, 0.2);
-  color: #2563eb;
-}
-
-.visitas-status-select.status-cancelled {
-  background: rgba(239, 68, 68, 0.2);
-  color: #dc2626;
-}
-
-.visitas-status-select.status-completed {
-  background: rgba(16, 185, 129, 0.2);
-  color: #059669;
-}
-
-.visitas-table-actions {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.visitas-action-button {
-  padding: 8px 12px;
-  font-size: 14px;
-  font-weight: 600;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  min-width: auto;
-}
-
-.visitas-empty-schedule {
-  text-align: center;
-  padding: 80px 20px;
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 16px;
-}
-
-.visitas-empty-icon {
-  font-size: 64px;
-  margin-bottom: 20px;
-  opacity: 0.6;
-}
-
-.visitas-empty-schedule h3 {
-  font-size: 24px;
-  font-weight: 700;
-  color: #1e40af;
-  margin: 0 0 12px 0;
-}
-
-.visitas-empty-schedule p {
-  font-size: 16px;
-  color: #64748b;
-  margin: 0 0 30px 0;
-}
-
-/* History Container - Relatório de Visitas */
-.visitas-history-container {
-  position: relative;
-  z-index: 2;
-  max-width: 1200px;
-  width: 100%;
-}
-
-.visitas-history-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
-  padding-bottom: 20px;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
-}
-
-.visitas-history-header h2 {
-  font-size: 28px;
-  font-weight: 700;
-  color: #ffffff;
-  margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-/* Requests List - Relatório de Visitas */
-.visitas-requests-list {
+/* Seção de formulário */
+.form-section-card {
+  background: var(--surface-glass-sm);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: var(--space-5);
 }
 
-.visitas-request-item {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 16px;
-  padding: 24px;
+/* Pergunta do formulário */
+.form-question {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.form-question-label {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: rgba(255,255,255,0.85);
+  line-height: var(--leading-snug);
+}
+
+.form-question-required {
+  color: #f87171;
+  margin-left: 2px;
+}
+
+.form-question-instruction {
+  font-size: var(--text-xs);
+  color: rgba(255,255,255,0.45);
+  line-height: var(--leading-relaxed);
+  font-style: italic;
+  white-space: pre-line;
+}
+
+/* Inputs genéricos no contexto dos formulários */
+.form-text-input,
+.form-textarea {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: var(--radius-lg);
+  color: var(--color-white);
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  width: 100%;
+  outline: none;
+  transition: border-color var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
+}
+.form-text-input::placeholder,
+.form-textarea::placeholder { color: rgba(255,255,255,0.28); }
+.form-text-input:focus,
+.form-textarea:focus {
+  border-color: var(--color-accent-400);
+  background: rgba(255,255,255,0.10);
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.18);
+}
+.form-textarea { min-height: 100px; resize: vertical; }
+
+/* Radio / Checkbox */
+.radio-group,
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.radio-option,
+.checkbox-option {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+.radio-option:hover,
+.checkbox-option:hover {
+  background: rgba(59,130,246,0.10);
+  border-color: rgba(59,130,246,0.25);
+}
+.radio-option.selected,
+.checkbox-option.selected {
+  background: rgba(59,130,246,0.15);
+  border-color: rgba(59,130,246,0.35);
+}
+
+.radio-option input[type="radio"],
+.checkbox-option input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  flex-shrink: 0;
+  accent-color: var(--color-accent-400);
+}
+
+.option-label {
+  font-size: var(--text-sm);
+  color: rgba(255,255,255,0.82);
+  line-height: var(--leading-relaxed);
+  cursor: pointer;
+}
+
+/* Select */
+.form-select-field {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: var(--radius-lg);
+  color: var(--color-white);
+  padding: var(--space-3) 2.5rem var(--space-3) var(--space-4);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  width: 100%;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='rgba(255,255,255,0.5)' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--space-3) center;
+  transition: border-color var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
+}
+.form-select-field option { background: var(--color-primary-800); }
+.form-select-field:focus {
+  border-color: var(--color-accent-400);
+  background-color: rgba(255,255,255,0.10);
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.18);
+}
+
+/* Navegação do formulário */
+.form-navigation {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: all 0.3s ease;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--surface-border);
 }
 
-.visitas-request-item:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
-  background: rgba(255, 255, 255, 0.98);
+/* ---- Histórico / Lista de registros ---- */
+.history-container {
+  padding: var(--space-6) var(--space-8);
+  max-width: var(--max-content);
+  margin: 0 auto;
+  width: 100%;
+  animation: hd-fade-in 0.4s ease both;
 }
 
-.visitas-request-info h3 {
-  font-size: 18px;
-  font-weight: 700;
-  color: #1e40af;
-  margin: 0 0 8px 0;
-}
-
-.visitas-request-meta {
+.history-header {
   display: flex;
-  gap: 20px;
   align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
   flex-wrap: wrap;
 }
 
-.visitas-status {
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+.history-title {
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  color: var(--color-white);
+  letter-spacing: var(--tracking-wide);
+}
+
+.history-filters {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.history-search {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: var(--radius-lg);
+  color: var(--color-white);
+  padding: var(--space-2) var(--space-4);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  outline: none;
+  min-width: 200px;
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+.history-search::placeholder { color: rgba(255,255,255,0.30); }
+.history-search:focus { border-color: var(--color-accent-400); background: rgba(255,255,255,0.10); }
+
+.history-filter-select {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: var(--radius-lg);
+  color: var(--color-white);
+  padding: var(--space-2) var(--space-8) var(--space-2) var(--space-4);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='rgba(255,255,255,0.5)' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--space-3) center;
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+.history-filter-select option { background: var(--color-primary-800); }
+.history-filter-select:focus { border-color: var(--color-accent-400); }
+
+/* Cards de item no histórico */
+.request-item,
+.report-item,
+.service-item {
+  background: var(--surface-glass-sm);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5) var(--space-6);
+  margin-bottom: var(--space-3);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+  animation: hd-slide-up 0.3s ease both;
+}
+
+.request-item:hover,
+.report-item:hover,
+.service-item:hover {
+  background: var(--surface-glass-md);
+  border-color: rgba(255,255,255,0.16);
+  box-shadow: var(--shadow-md);
+}
+
+.request-info,
+.report-info,
+.service-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.request-info h3,
+.report-info h3,
+.service-info h3 {
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  color: var(--color-white);
+  margin-bottom: var(--space-1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.request-meta,
+.report-meta,
+.service-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+  margin-top: var(--space-2);
+}
+
+.request-meta span,
+.report-meta span,
+.service-meta span {
+  font-size: var(--text-xs);
+  color: rgba(255,255,255,0.55);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+/* Ações do item */
+.request-actions,
+.report-actions,
+.service-actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* Botão de ação pequeno */
+.action-button {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-}
-
-.visitas-status-scheduled {
-  background: rgba(251, 191, 36, 0.2);
-  color: #d97706;
-}
-
-.visitas-status-awaiting-report {
-  background: rgba(59, 130, 246, 0.2);
-  color: #2563eb;
-}
-
-.visitas-status-cancelled {
-  background: rgba(239, 68, 68, 0.2);
-  color: #dc2626;
-}
-
-.visitas-status-completed {
-  background: rgba(16, 185, 129, 0.2);
-  color: #059669;
-}
-
-.visitas-date,
-.visitas-salesperson {
-  font-size: 14px;
-  color: #64748b;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.visitas-request-actions {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.visitas-delete {
-  background: rgba(239, 68, 68, 0.1);
-  color: #dc2626;
-  border: 1px solid rgba(239, 68, 68, 0.3);
-}
-
-.visitas-delete:hover {
-  background: rgba(239, 68, 68, 0.2);
-  border-color: rgba(239, 68, 68, 0.5);
-}
-
-.visitas-create-report {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: #ffffff;
+  justify-content: center;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  min-width: unset;
+  border-radius: var(--radius-md);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-wide);
+  cursor: pointer;
   border: none;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-  font-weight: 700;
-  animation: pulseGreen 2s ease-in-out infinite;
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.80);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+.action-button:hover {
+  background: rgba(255,255,255,0.14);
+  border-color: rgba(255,255,255,0.22);
+  color: var(--color-white);
+  transform: translateY(-1px);
+}
+.action-button:active { transform: scale(0.97); }
+
+.action-button.delete,
+.action-button--danger {
+  background: rgba(239,68,68,0.10);
+  color: #fca5a5;
+  border-color: rgba(239,68,68,0.20);
+}
+.action-button.delete:hover,
+.action-button--danger:hover {
+  background: rgba(239,68,68,0.20);
+  border-color: rgba(239,68,68,0.40);
+  color: #f87171;
 }
 
-.visitas-create-report:hover {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
-  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
-  transform: translateY(-2px);
-}
-
-@keyframes pulseGreen {
-  0%,
-  100% {
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-  }
-  50% {
-    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
-  }
-}
-
-/* Empty State - Relatório de Visitas */
-.visitas-empty-state {
-  text-align: center;
-  padding: 80px 20px;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.visitas-empty-state h3 {
-  font-size: 24px;
-  font-weight: 700;
-  color: #1e40af;
-  margin: 0 0 12px 0;
-}
-
-.visitas-empty-state p {
-  font-size: 16px;
-  color: #64748b;
-  margin: 0 0 30px 0;
-}
-
-/* Form Actions - Relatório de Visitas */
-.visitas-form-actions {
-  display: flex;
-  gap: 12px;
+/* Badges de status */
+.status {
+  display: inline-flex;
   align-items: center;
-}
-
-/* Comments Container - Relatório de Visitas */
-.visitas-comments-container {
-  position: relative;
-  z-index: 2;
-  max-width: 1000px;
-  width: 100%;
-}
-
-.visitas-comments-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
-  padding-bottom: 20px;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
-}
-
-.visitas-comments-header h2 {
-  font-size: 28px;
-  font-weight: 700;
-  color: #ffffff;
-  margin: 0;
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-wide);
   text-transform: uppercase;
-  letter-spacing: 1px;
 }
 
-.visitas-back-to-history {
-  background: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+.status-pending,    .status-draft         { background: var(--color-warning-100); color: var(--color-warning-700); }
+.status-submitted,  .status-in-progress   { background: var(--color-info-100);    color: var(--color-accent-600);  }
+.status-completed,  .status-approved      { background: var(--color-success-100); color: var(--color-success-700); }
+.status-cancelled,  .status-lost,
+.status-rejected                          { background: var(--color-danger-100);  color: var(--color-danger-700);  }
+.status-scheduled,  .status-open,
+.status-awaiting-quotes                   { background: rgba(147,197,253,0.20);   color: var(--color-accent-200);  border: 1px solid rgba(147,197,253,0.30); }
 
-.visitas-back-to-history:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.3);
-}
-
-/* Comments Content - Relatório de Visitas */
-.visitas-comments-content {
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
-}
-
-.visitas-add-comment-section {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-}
-
-.visitas-add-comment-section h3 {
-  font-size: 20px;
-  font-weight: 700;
-  color: #1e40af;
-  margin: 0 0 20px 0;
-}
-
-.visitas-comment-form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.visitas-comment-textarea {
+/* ---- Seção de comentários ---- */
+.comments-container {
+  padding: var(--space-6) var(--space-8);
+  max-width: 780px;
+  margin: 0 auto;
   width: 100%;
-  padding: 16px;
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
-  font-size: 16px;
-  font-family: inherit;
-  background: #ffffff;
-  color: #1e293b;
-  resize: vertical;
-  min-height: 100px;
-  transition: all 0.3s ease;
+  animation: hd-fade-in 0.4s ease both;
 }
 
-.visitas-comment-textarea:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  background: #fefeff;
-}
-
-.visitas-add-comment-button {
-  align-self: flex-start;
-  padding: 12px 24px;
-  font-weight: 700;
-  border-radius: 12px;
-}
-
-/* Comments List - Relatório de Visitas */
-.visitas-comments-list {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-}
-
-.visitas-comments-list h3 {
-  font-size: 20px;
-  font-weight: 700;
-  color: #1e40af;
-  margin: 0 0 20px 0;
-}
-
-.visitas-no-comments {
-  text-align: center;
-  padding: 40px 20px;
-  color: #64748b;
-}
-
-.visitas-no-comments p {
-  font-size: 16px;
-  margin: 0;
-}
-
-/* Comment Item - Relatório de Visitas */
-.visitas-comment-item {
-  background: rgba(248, 250, 252, 0.8);
-  border: 1px solid rgba(226, 232, 240, 0.8);
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 15px;
-  transition: all 0.3s ease;
-}
-
-.visitas-comment-item:hover {
-  background: rgba(241, 245, 249, 0.9);
-  border-color: rgba(59, 130, 246, 0.3);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.1);
-}
-
-.visitas-comment-header {
+.comments-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
 }
 
-.visitas-comment-author strong {
-  color: #1e40af;
-  font-size: 16px;
+.comments-title {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  color: var(--color-white);
 }
 
-.visitas-comment-date {
-  display: block;
-  font-size: 12px;
-  color: #64748b;
-  margin-top: 4px;
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
 }
 
-.visitas-delete-comment-button {
-  padding: 6px 12px;
-  font-size: 14px;
-  background: rgba(239, 68, 68, 0.1);
-  color: #dc2626;
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  border-radius: 8px;
+.comment-item {
+  background: var(--surface-glass-sm);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-4) var(--space-5);
+  animation: hd-slide-up 0.3s ease both;
 }
 
-.visitas-delete-comment-button:hover {
-  background: rgba(239, 68, 68, 0.2);
-  border-color: rgba(239, 68, 68, 0.5);
+.comment-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-2);
 }
 
-.visitas-comment-text {
-  color: #374151;
-  line-height: 1.6;
-  font-size: 15px;
+.comment-author {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
 }
 
-/* Footer - Relatório de Visitas */
+.comment-avatar {
+  width: 28px;
+  height: 28px;
+  background: linear-gradient(135deg, var(--color-accent-600), var(--color-accent-400));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  color: var(--color-white);
+  flex-shrink: 0;
+}
+
+.comment-author-name {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-white);
+}
+
+.comment-date {
+  font-size: var(--text-xs);
+  color: rgba(255,255,255,0.40);
+}
+
+.comment-text {
+  font-size: var(--text-sm);
+  color: rgba(255,255,255,0.78);
+  line-height: var(--leading-relaxed);
+}
+
+.comment-delete-btn {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.30);
+  cursor: pointer;
+  padding: var(--space-1);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--transition-fast), background var(--transition-fast);
+  flex-shrink: 0;
+}
+.comment-delete-btn:hover {
+  color: #fca5a5;
+  background: rgba(239,68,68,0.10);
+}
+
+/* Campo de novo comentário */
+.new-comment-form {
+  background: var(--surface-glass-sm);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-4) var(--space-5);
+}
+
+.new-comment-textarea {
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: var(--radius-lg);
+  color: var(--color-white);
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  resize: vertical;
+  min-height: 88px;
+  outline: none;
+  margin-bottom: var(--space-3);
+  transition: border-color var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
+}
+.new-comment-textarea::placeholder { color: rgba(255,255,255,0.28); }
+.new-comment-textarea:focus {
+  border-color: var(--color-accent-400);
+  background: rgba(255,255,255,0.08);
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.18);
+}
+
+.new-comment-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* ---- Estado vazio ---- */
+.empty-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-16) var(--space-8);
+  text-align: center;
+}
+
+.empty-list-icon {
+  width: 52px;
+  height: 52px;
+  color: rgba(255,255,255,0.20);
+}
+
+.empty-list-title {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  color: rgba(255,255,255,0.55);
+}
+
+.empty-list-subtitle {
+  font-size: var(--text-sm);
+  color: rgba(255,255,255,0.35);
+}
+
+/* ---- Tabela de responsabilidades (Equalizador) ---- */
+.responsibility-table-wrapper {
+  overflow-x: auto;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--surface-border);
+}
+
+.responsibility-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+  min-width: 500px;
+}
+
+.responsibility-table th {
+  background: rgba(10,16,32,0.85);
+  color: rgba(255,255,255,0.90);
+  padding: var(--space-3);
+  text-align: center;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  border-bottom: 2px solid var(--color-accent-500);
+  white-space: nowrap;
+}
+
+.responsibility-table td {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.78);
+  font-size: var(--text-sm);
+}
+
+.responsibility-table tr:last-child td { border-bottom: none; }
+
+.responsibility-item-cell {
+  font-weight: var(--weight-medium);
+  text-align: left;
+  min-width: 200px;
+}
+
+.responsibility-radio-cell {
+  text-align: center;
+}
+
+.responsibility-radio-cell input[type="radio"] {
+  accent-color: var(--color-accent-400);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* ---- Footer da página ---- */
 .visitas-footer {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 20px;
-  width: 100%;
-  max-width: 400px;
-  margin-top: auto;
-  position: relative;
-  z-index: 2;
+  justify-content: center;
+  padding: var(--space-6);
+  border-top: 1px solid var(--surface-border);
 }
 
 .visitas-footer-logo {
-  height: 80px;
+  height: 32px;
   width: auto;
-  max-width: 400px;
+  max-width: 200px;
   object-fit: contain;
-  filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.4));
-  transition: all 0.3s ease;
-  margin-bottom: 10px;
+  opacity: 0.50;
+  filter: brightness(0.85);
+  transition: opacity var(--transition-base), filter var(--transition-base);
+}
+.visitas-footer-logo:hover { opacity: 0.80; filter: brightness(1); }
+
+/* ---- Responsivo ---- */
+@media (max-width: 1024px) {
+  .visitas-header { padding: var(--space-4) var(--space-6); }
+  .visitas-content,
+  .history-container,
+  .visitas-form-container,
+  .comments-container { padding: var(--space-5) var(--space-5); }
 }
 
-.visitas-footer-logo:hover {
-  filter: drop-shadow(0 0 25px rgba(139, 92, 246, 0.6));
-  transform: scale(1.05);
-}
-
-/* Animações compartilhadas */
-@keyframes titleGlow {
-  0% {
-    filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.3));
-  }
-  100% {
-    filter: drop-shadow(0 0 30px rgba(139, 92, 246, 0.8));
-  }
-}
-
-@keyframes gradientShift {
-  0%,
-  100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-}
-
-@keyframes underlinePulse {
-  0% {
-    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
-    transform: scaleX(1);
-  }
-  100% {
-    box-shadow: 0 4px 25px rgba(59, 130, 246, 0.7);
-    transform: scaleX(1.05);
-  }
-}
-
-@keyframes floatingOrbs {
-  0%,
-  100% {
-    transform: scale(1) rotate(0deg);
-  }
-  50% {
-    transform: scale(1.1) rotate(180deg);
-  }
-}
-
-@keyframes headerGradient {
-  0%,
-  100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-}
-
-@keyframes progressShimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-/* Responsividade - Relatório de Visitas */
 @media (max-width: 768px) {
   .visitas-header {
-    padding: 15px 20px;
-    flex-direction: column;
-    gap: 20px;
-  }
-
-  .visitas-header-spacer {
-    display: none;
-  }
-
-  .visitas-company-title {
-    font-size: 32px;
-    letter-spacing: 2px;
-  }
-
-  .visitas-form-card {
-    padding: 30px 20px;
-  }
-
-  .visitas-form-title {
-    font-size: 24px;
-  }
-
-  .visitas-questions-container {
-    max-height: 400px;
-  }
-
-  .visitas-form-navigation {
-    flex-direction: column;
-    gap: 20px;
-  }
-
-  .visitas-section-indicators {
-    order: -1;
-  }
-
-  .visitas-nav-button {
-    width: 100%;
-    min-width: auto;
-  }
-
-  .visitas-menu-cards {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-
-  .visitas-schedule-header,
-  .visitas-history-header {
-    flex-direction: column;
-    gap: 20px;
-    text-align: center;
-  }
-
-  .visitas-table-header,
-  .visitas-table-row {
-    grid-template-columns: 1fr;
-    gap: 8px;
-    text-align: center;
-  }
-
-  .visitas-table-header {
-    display: none;
-  }
-
-  .visitas-table-row {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
-  }
-
-  .visitas-table-cell {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 0;
-    border-bottom: 1px solid #e2e8f0;
-  }
-
-  .visitas-table-cell::before {
-    content: attr(data-label);
-    font-weight: 600;
-    color: #1e40af;
-    text-transform: uppercase;
-    font-size: 12px;
-    letter-spacing: 0.5px;
-  }
-
-  .visitas-request-item {
-    flex-direction: column;
-    gap: 20px;
-    align-items: stretch;
-  }
-
-  .visitas-request-actions {
-    justify-content: center;
+    padding: var(--space-3) var(--space-4);
     flex-wrap: wrap;
+    gap: var(--space-2);
   }
+  .visitas-company-title { font-size: var(--text-xl); }
+  .visitas-header-spacer { display: none; }
 
-  .visitas-form-actions {
-    flex-direction: column;
-    gap: 10px;
-  }
+  .visitas-content,
+  .history-container,
+  .visitas-form-container,
+  .comments-container { padding: var(--space-4); }
 
-  .visitas-comments-header {
-    flex-direction: column;
-    gap: 20px;
-    text-align: center;
-  }
+  .visitas-menu-grid { grid-template-columns: 1fr; }
+  .visitas-menu-card { padding: var(--space-5) var(--space-4); }
 
-  .visitas-comment-form {
-    gap: 12px;
-  }
+  .request-item,
+  .report-item,
+  .service-item { flex-direction: column; gap: var(--space-3); }
 
-  .visitas-comment-header {
-    flex-direction: column;
-    gap: 10px;
-    align-items: flex-start;
-  }
+  .request-actions,
+  .report-actions,
+  .service-actions { width: 100%; justify-content: flex-start; }
 
-  .visitas-table-actions {
-    justify-content: center;
-  }
-
-  .visitas-footer-logo {
-    height: 65px;
-    max-width: 320px;
-  }
+  .history-header { flex-direction: column; align-items: flex-start; }
+  .history-filters { width: 100%; }
+  .history-search { min-width: unset; flex: 1; }
 }
 
 @media (max-width: 480px) {
-  .visitas-company-title {
-    font-size: 24px;
-    letter-spacing: 1px;
-  }
-
-  .visitas-company-subtitle {
-    font-size: 12px;
-  }
-
-  .visitas-form-card {
-    padding: 20px 15px;
-  }
-
-  .visitas-form-question {
-    padding: 20px 16px;
-  }
-
-  .visitas-questions-container {
-    max-height: 350px;
-  }
-
-  .visitas-section-indicators {
-    gap: 8px;
-  }
-
-  .visitas-section-dot {
-    width: 10px;
-    height: 10px;
-  }
-
-  .visitas-schedule-header h2,
-  .visitas-history-header h2 {
-    font-size: 24px;
-  }
-
-  .visitas-request-item {
-    padding: 20px;
-  }
-
-  .visitas-request-info h3 {
-    font-size: 16px;
-  }
-
-  .visitas-request-meta {
-    flex-direction: column;
-    gap: 10px;
-    align-items: flex-start;
-  }
-
-  .visitas-action-button {
-    padding: 6px 12px;
-    font-size: 12px;
-  }
-
-  .visitas-empty-state,
-  .visitas-empty-schedule {
-    padding: 40px 15px;
-  }
-
-  .visitas-empty-icon {
-    font-size: 48px;
-  }
-
-  .visitas-empty-state h3,
-  .visitas-empty-schedule h3 {
-    font-size: 20px;
-  }
-
-  .visitas-comments-header h2 {
-    font-size: 24px;
-  }
-
-  .visitas-add-comment-section,
-  .visitas-comments-list {
-    padding: 20px;
-  }
-
-  .visitas-comment-item {
-    padding: 16px;
-  }
-
-  .visitas-comment-author strong {
-    font-size: 14px;
-  }
-
-  .visitas-comment-text {
-    font-size: 14px;
-  }
-
-  .visitas-footer-logo {
-    height: 55px;
-    max-width: 280px;
-  }
-}
-
-/* Elementos decorativos */
-.visitas-container::after {
-  content: "";
-  position: absolute;
-  right: 30px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 60px;
-  height: 180px;
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.08) 0%,
-    rgba(255, 255, 255, 0.03) 50%,
-    rgba(255, 255, 255, 0.08) 100%
-  );
-  border-radius: 30px;
-  opacity: 0.6;
-  z-index: 1;
-  box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.1);
-}
-
-/* Responsividade - esconder elemento decorativo em mobile */
-@media (max-width: 768px) {
-  .visitas-container::after {
-    display: none;
-  }
+  .visitas-company-title { font-size: var(--text-lg); letter-spacing: 0.06em; }
+  .form-section-card { padding: var(--space-4); }
+  .action-button { font-size: 10px; padding: var(--space-1) var(--space-2); }
 }

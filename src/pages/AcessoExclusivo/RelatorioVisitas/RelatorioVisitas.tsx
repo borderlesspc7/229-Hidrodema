@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../../hooks/useAuth";
 import Button from "../../../components/ui/Button/Button";
 import Input from "../../../components/ui/Input/Input";
 import Card from "../../../components/ui/Card/Card";
@@ -91,6 +92,8 @@ export interface DisplayVisit {
 
 export default function RelatorioVisitas() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const displayName = user?.name || user?.email || "Usuário";
   const [viewMode, setViewMode] = useState<ViewMode>("menu");
   const [currentSection, setCurrentSection] = useState(0);
   const [formData, setFormData] = useState<FormData>({});
@@ -1002,7 +1005,7 @@ export default function RelatorioVisitas() {
       await addComment({
         requestId,
         text: newComment.trim(),
-        author: "Usuário", // TODO: Pegar do contexto de autenticação
+        author: displayName,
       });
 
       // Recarregar comentários

@@ -1,18 +1,24 @@
+/* ============================================================
+   Breadcrumb — Hidrodema Design System
+   ============================================================ */
+
 .breadcrumb-container {
-  background: linear-gradient(135deg, rgba(30, 58, 138, 0.15) 0%, rgba(30, 64, 175, 0.1) 100%);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 12px 20px;
-  margin-bottom: 24px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  padding: var(--space-2) var(--space-4);
+  margin-bottom: var(--space-6);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .breadcrumb-list {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--space-1);
   list-style: none;
   margin: 0;
   padding: 0;
@@ -21,114 +27,82 @@
 .breadcrumb-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-}
-
-.breadcrumb-link,
-.breadcrumb-current {
-  font-size: 14px;
-  font-weight: 500;
-  text-decoration: none;
-  transition: all 0.2s ease;
-  white-space: nowrap;
+  gap: var(--space-1);
 }
 
 .breadcrumb-link {
-  color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 3px var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: rgba(255,255,255,0.50);
   background: none;
   border: none;
   cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    color var(--transition-fast),
+    background var(--transition-fast),
+    transform var(--transition-fast);
 }
 
 .breadcrumb-link:hover {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255,255,255,0.90);
+  background: rgba(255,255,255,0.08);
   transform: translateY(-1px);
 }
 
-.breadcrumb-link:active {
-  transform: translateY(0);
-}
-
 .breadcrumb-home {
-  padding: 6px;
+  padding: 4px 6px;
 }
 
 .breadcrumb-home-icon {
-  width: 18px;
-  height: 18px;
-  color: rgba(255, 255, 255, 0.8);
-  transition: color 0.2s ease;
+  width: 15px;
+  height: 15px;
+  transition: color var(--transition-fast);
 }
-
 .breadcrumb-link:hover .breadcrumb-home-icon {
-  color: #60a5fa;
+  color: var(--color-accent-300);
 }
 
 .breadcrumb-current {
-  color: #ffffff;
-  font-weight: 600;
-  padding: 4px 8px;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.3) 0%, rgba(37, 99, 235, 0.3) 100%);
-  border-radius: 6px;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+  padding: 3px var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-white);
+  background: rgba(59,130,246,0.18);
+  border: 1px solid rgba(59,130,246,0.25);
+  white-space: nowrap;
 }
 
 .breadcrumb-separator {
-  width: 16px;
-  height: 16px;
-  color: rgba(255, 255, 255, 0.4);
+  width: 14px;
+  height: 14px;
+  color: rgba(255,255,255,0.20);
   flex-shrink: 0;
 }
 
-/* Responsividade */
+/* Responsivo */
 @media (max-width: 768px) {
   .breadcrumb-container {
-    padding: 10px 16px;
-    margin-bottom: 16px;
+    padding: var(--space-2) var(--space-3);
+    margin-bottom: var(--space-4);
   }
-
-  .breadcrumb-list {
-    gap: 6px;
-  }
-
   .breadcrumb-link,
   .breadcrumb-current {
-    font-size: 13px;
-  }
-
-  .breadcrumb-home-icon {
-    width: 16px;
-    height: 16px;
-  }
-
-  .breadcrumb-separator {
-    width: 14px;
-    height: 14px;
+    font-size: var(--text-xs);
   }
 }
 
 @media (max-width: 480px) {
-  .breadcrumb-container {
-    padding: 8px 12px;
-  }
-
-  .breadcrumb-link,
-  .breadcrumb-current {
-    font-size: 12px;
-    padding: 3px 6px;
-  }
-
-  /* Ocultar textos muito longos em mobile */
-  .breadcrumb-item:not(:last-child) .breadcrumb-link {
-    max-width: 100px;
+  .breadcrumb-item:not(:last-child):not(:first-child) .breadcrumb-link {
+    max-width: 80px;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 }
-

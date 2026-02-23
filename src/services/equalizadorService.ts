@@ -436,6 +436,7 @@ export const addMDSComment = async (
 
 /**
  * Buscar comentários por MDS ID
+ * (Query sem orderBy para não exigir índice composto no Firestore; ordenação em memória.)
  */
 export const getCommentsByMDSId = async (
   mdsId: string
@@ -443,15 +444,18 @@ export const getCommentsByMDSId = async (
   try {
     const q = query(
       collection(db, COMMENTS_COLLECTION),
-      where("mdsId", "==", mdsId),
-      orderBy("createdAt", "desc")
+      where("mdsId", "==", mdsId)
     );
     const querySnapshot = await getDocs(q);
 
-    return querySnapshot.docs.map((doc) => ({
+    const comments = querySnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     })) as MDSComment[];
+    return comments.sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
   } catch (error) {
     console.error("Erro ao buscar comentários:", error);
     throw error;
@@ -460,6 +464,7 @@ export const getCommentsByMDSId = async (
 
 /**
  * Buscar comentários por MDS Number
+ * (Query sem orderBy para não exigir índice composto no Firestore; ordenação em memória.)
  */
 export const getCommentsByMDSNumber = async (
   mdsNumber: string
@@ -467,15 +472,18 @@ export const getCommentsByMDSNumber = async (
   try {
     const q = query(
       collection(db, COMMENTS_COLLECTION),
-      where("mdsNumber", "==", mdsNumber),
-      orderBy("createdAt", "desc")
+      where("mdsNumber", "==", mdsNumber)
     );
     const querySnapshot = await getDocs(q);
 
-    return querySnapshot.docs.map((doc) => ({
+    const comments = querySnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     })) as MDSComment[];
+    return comments.sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
   } catch (error) {
     console.error("Erro ao buscar comentários por número:", error);
     throw error;

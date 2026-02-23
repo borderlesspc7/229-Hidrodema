@@ -1,379 +1,196 @@
-/* Container principal do Menu */
+/* ============================================================
+   Menu Principal — Hidrodema Design System
+   ============================================================ */
+
 .menu-container {
   min-height: 100vh;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(
-    135deg,
-    #0f1419 0%,
-    #1a2332 25%,
-    #2d4663 50%,
-    #1e3a5f 75%,
-    #0f1419 100%
-  );
-  padding: 40px 20px;
-  margin: 0;
-  width: 100%;
-  gap: 40px;
+  gap: var(--space-10);
+  padding: var(--space-8) var(--space-5);
   position: relative;
   overflow: hidden;
+  background:
+    radial-gradient(ellipse at 15% 20%, rgba(59,130,246,0.11) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 80%, rgba(30,58,138,0.13) 0%, transparent 50%),
+    linear-gradient(160deg, var(--color-primary-950) 0%, var(--color-primary-800) 40%, var(--color-primary-600) 100%);
 }
 
+/* Pontos de ruído sutil no fundo */
+.menu-container::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 60px 90px,  rgba(255,255,255,0.07), transparent),
+    radial-gradient(1px 1px at 200px 160px, rgba(59,130,246,0.09), transparent),
+    radial-gradient(1px 1px at 350px 80px,  rgba(255,255,255,0.05), transparent),
+    radial-gradient(1px 1px at 500px 220px, rgba(96,165,250,0.07), transparent);
+  background-size: 600px 400px;
+  pointer-events: none;
+  animation: hd-bg-drift 30s ease-in-out infinite alternate;
+}
+
+@keyframes hd-bg-drift {
+  from { transform: translate(0,0); }
+  to   { transform: translate(20px, -12px); }
+}
+
+/* Header */
 .menu-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  max-width: 1200px;
+  max-width: var(--max-content);
   position: relative;
-  margin-bottom: 20px;
+  z-index: 2;
 }
 
 .logout-button-left {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  color: #1a3a52;
-  border: 2px solid rgba(59, 130, 246, 0.3);
-  padding: 10px 12px;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  /* herdado do .button--secondary */
+  min-width: 88px;
+  font-size: var(--text-xs) !important;
+  letter-spacing: var(--tracking-wider) !important;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  min-width: 100px;
 }
 
-.logout-button-left:hover {
-  background: rgba(255, 255, 255, 1);
-  border-color: #3b82f6;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
-}
+.header-spacer { width: 88px; }
 
-.logout-button-left:active {
-  transform: translateY(0);
-}
-
-.header-spacer {
-  width: 80px;
-}
-
-/* Padrão moderno de fundo com elementos flutuantes */
-.menu-container::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: radial-gradient(
-      circle at 20% 30%,
-      rgba(59, 130, 246, 0.1) 0%,
-      transparent 50%
-    ),
-    radial-gradient(
-      circle at 80% 70%,
-      rgba(139, 92, 246, 0.08) 0%,
-      transparent 50%
-    ),
-    radial-gradient(
-      circle at 50% 20%,
-      rgba(16, 185, 129, 0.06) 0%,
-      transparent 50%
-    ),
-    radial-gradient(
-      circle at 10% 80%,
-      rgba(236, 72, 153, 0.05) 0%,
-      transparent 50%
-    );
-  animation: floatingOrbs 20s ease-in-out infinite alternate;
-  pointer-events: none;
-}
-
-/* Adicionar partículas flutuantes */
-.menu-container::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: radial-gradient(
-      2px 2px at 20px 30px,
-      rgba(255, 255, 255, 0.3),
-      transparent
-    ),
-    radial-gradient(2px 2px at 40px 70px, rgba(59, 130, 246, 0.4), transparent),
-    radial-gradient(1px 1px at 90px 40px, rgba(139, 92, 246, 0.3), transparent),
-    radial-gradient(1px 1px at 130px 80px, rgba(16, 185, 129, 0.3), transparent);
-  background-repeat: repeat;
-  background-size: 150px 150px;
-  animation: particleFloat 15s linear infinite;
-  pointer-events: none;
-  opacity: 0.6;
-}
-
-@keyframes floatingOrbs {
-  0%,
-  100% {
-    transform: scale(1) rotate(0deg);
-  }
-  50% {
-    transform: scale(1.1) rotate(180deg);
-  }
-}
-
-@keyframes particleFloat {
-  0% {
-    transform: translateY(0px) translateX(0px);
-  }
-  100% {
-    transform: translateY(-100px) translateX(50px);
-  }
-}
-
-/* Marca da empresa - igual ao Login */
+/* Marca */
 .company-brand {
-  text-align: center;
-  position: relative;
-  z-index: 2;
-  margin-bottom: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-
-.company-title {
-  font-size: 48px;
-  font-weight: 900;
-  background: linear-gradient(
-    135deg,
-    #ffffff 0%,
-    #60a5fa 25%,
-    #3b82f6 50%,
-    #8b5cf6 75%,
-    #ffffff 100%
-  );
-  background-size: 300% 300%;
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: #ffffff;
-  letter-spacing: 8px;
-  margin: 0 0 20px 0;
-  line-height: 1.1;
-  text-transform: uppercase;
+  text-align: center;
+  flex: 1;
   position: relative;
-  font-family: "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont,
-    sans-serif;
-  filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.5));
-  animation: titleGlow 3s ease-in-out infinite alternate,
-    gradientShift 4s ease-in-out infinite;
-}
-
-@keyframes titleGlow {
-  0% {
-    filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.3));
-  }
-  100% {
-    filter: drop-shadow(0 0 30px rgba(139, 92, 246, 0.8));
-  }
-}
-
-@keyframes gradientShift {
-  0%,
-  100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
+  z-index: 2;
+  animation: hd-slide-up 0.6s ease both;
 }
 
 .company-logo {
-  height: 100px;
-  width: 900px;
+  height: 64px;
+  width: auto;
+  max-width: 500px;
   object-fit: contain;
-  filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.5));
-  transition: all 0.3s ease;
+  filter: brightness(1.05) drop-shadow(0 4px 16px rgba(59,130,246,0.30));
+  transition: filter var(--transition-base), transform var(--transition-base);
 }
-
 .company-logo:hover {
-  filter: drop-shadow(0 0 30px rgba(139, 92, 246, 0.8));
-  transform: scale(1.05);
+  filter: brightness(1.1) drop-shadow(0 6px 24px rgba(59,130,246,0.45));
+  transform: scale(1.02);
 }
 
-.company-title::after {
-  content: "®";
-  font-size: 0.4em;
-  position: absolute;
-  top: 0;
-  right: -0.6em;
-  opacity: 0.8;
+.company-title {
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-extrabold);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  margin-bottom: var(--space-3);
+  background: linear-gradient(135deg, #ffffff 0%, var(--color-accent-200) 60%, var(--color-accent-100) 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .company-underline {
-  width: 150px;
-  height: 6px;
-  background: linear-gradient(90deg, #ffffff 0%, #3b82f6 50%, #1e40af 100%);
+  width: 40px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-accent-400), var(--color-accent-200));
+  border-radius: var(--radius-full);
   margin: 0 auto;
-  border-radius: 3px;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
-  animation: underlinePulse 2s ease-in-out infinite alternate;
 }
 
-@keyframes underlinePulse {
-  0% {
-    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
-    transform: scaleX(1);
-  }
-  100% {
-    box-shadow: 0 4px 25px rgba(59, 130, 246, 0.7);
-    transform: scaleX(1.05);
-  }
-}
-
-/* Container dos cards */
+/* Cards container */
 .menu-cards {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 24px;
-  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
   width: 100%;
+  max-width: 400px;
   position: relative;
   z-index: 2;
+  animation: hd-slide-up 0.6s 0.1s ease both;
 }
 
-/* Estilização específica para os cards do menu */
+/* Cards do menu — override glassmorphism */
 .menu-cards .card {
   width: 100%;
-  min-height: 180px;
-  backdrop-filter: blur(16px);
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  min-height: 110px;
+  background: var(--surface-glass-md);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: var(--shadow-md);
   cursor: pointer;
-  position: relative;
+  transition:
+    transform var(--transition-base),
+    box-shadow var(--transition-base),
+    background var(--transition-base),
+    border-color var(--transition-base);
   overflow: hidden;
-  border-radius: 24px;
-}
-
-.menu-cards .card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.1),
-    transparent
-  );
-  transition: left 0.6s ease;
+  position: relative;
 }
 
 .menu-cards .card:hover {
-  transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25), 0 0 40px rgba(59, 130, 246, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(59, 130, 246, 0.3);
-}
-
-.menu-cards .card:hover::before {
-  left: 100%;
+  transform: translateY(-5px) scale(1.01);
+  background: var(--surface-glass-lg);
+  border-color: rgba(59,130,246,0.28);
+  box-shadow: var(--shadow-xl), var(--shadow-glow-sm);
 }
 
 .menu-cards .card:active {
-  transform: translateY(-4px) scale(1.01);
+  transform: translateY(-2px) scale(0.99);
 }
 
-/* Footer com botão de logout */
+/* Linha de destaque à esquerda no hover */
+.menu-cards .card::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 20%;
+  bottom: 20%;
+  width: 3px;
+  background: linear-gradient(180deg, var(--color-accent-400), var(--color-accent-300));
+  border-radius: 0 var(--radius-full) var(--radius-full) 0;
+  opacity: 0;
+  transform: scaleY(0.6);
+  transition:
+    opacity var(--transition-base),
+    transform var(--transition-base);
+}
+.menu-cards .card:hover::after {
+  opacity: 1;
+  transform: scaleY(1);
+}
+
+/* Footer */
 .menu-footer {
   text-align: center;
-  margin-top: auto;
   position: relative;
   z-index: 2;
+  animation: hd-fade-in 0.6s 0.25s ease both;
 }
 
-/* Responsividade */
+/* Responsivo */
 @media (max-width: 768px) {
-  .menu-container {
-    padding: 30px 15px;
-    gap: 30px;
-  }
-
-  .company-logo {
-    height: 45px;
-    max-width: 250px;
-  }
-
-  .company-title {
-    font-size: 36px;
-    letter-spacing: 4px;
-    margin: 0 0 15px 0;
-    width: 50%;
-  }
-
-  .company-underline {
-    width: 120px;
-    height: 4px;
-  }
-
-  .menu-cards {
-    max-width: 100%;
-    gap: 20px;
-  }
-
-  .menu-cards .card {
-    min-height: 160px;
-  }
-
-  .menu-footer button {
-    padding: 14px 28px;
-    font-size: 14px;
-    min-width: 180px;
-  }
+  .menu-container { gap: var(--space-8); padding: var(--space-6) var(--space-4); }
+  .company-logo   { height: 48px; }
+  .company-title  { font-size: var(--text-2xl); letter-spacing: 0.06em; }
+  .menu-cards     { max-width: 100%; gap: var(--space-3); }
+  .menu-cards .card { min-height: 90px; }
+  .header-spacer  { width: 72px; }
 }
 
 @media (max-width: 480px) {
-  .menu-container {
-    padding: 20px 10px;
-    gap: 25px;
-  }
-
-  .company-logo {
-    height: 35px;
-    max-width: 200px;
-  }
-
-  .company-title {
-    font-size: 28px;
-    letter-spacing: 2px;
-  }
-
-  .company-underline {
-    width: 100px;
-    height: 3px;
-  }
-
-  .menu-cards .card {
-    min-height: 140px;
-  }
-
-  .menu-footer button {
-    padding: 12px 24px;
-    font-size: 12px;
-    min-width: 160px;
-  }
+  .menu-container { gap: var(--space-6); padding: var(--space-5) var(--space-3); }
+  .company-logo   { height: 40px; }
+  .company-title  { font-size: var(--text-xl); }
+  .menu-cards .card { min-height: 80px; }
+  .header-spacer  { width: 60px; }
 }

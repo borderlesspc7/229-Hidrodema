@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../../hooks/useAuth";
 import Button from "../../../components/ui/Button/Button";
 import Card from "../../../components/ui/Card/Card";
 import Input from "../../../components/ui/Input/Input";
@@ -88,6 +89,8 @@ interface ServiceMDS {
 
 const EqualizadorServicos = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const displayName = user?.name || user?.email || "Usuário";
   const [viewMode, setViewMode] = useState<ViewMode>("menu");
   const [currentSection, setCurrentSection] = useState(0);
   const [formData, setFormData] = useState<FormData>({});
@@ -807,7 +810,7 @@ const EqualizadorServicos = () => {
         mdsId,
         mdsNumber,
         text: newComment.trim(),
-        author: "Usuário", // TODO: Pegar do contexto de autenticação
+        author: displayName,
       });
 
       // Recarregar comentários
@@ -851,10 +854,78 @@ const EqualizadorServicos = () => {
     }
   };
 
-  // Exportar para PDF (implementação básica)
+  // Exportar para PDF (mesmo padrão das outras telas: janela de impressão)
   const handleExportPDF = (service: ServiceMDS) => {
-    alert(`Exportando MDS ${service.number} para PDF...`);
-    // Implementação futura de geração de PDF
+    const printWindow = window.open("", "_blank");
+    if (printWindow) {
+      const number = service.mdsNumber || service.number || "—";
+      const comments = service.comments || [];
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>MDS - ${number}</title>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 20px; }
+              .header { text-align: center; margin-bottom: 30px; }
+              .section { margin-bottom: 25px; }
+              .question { margin-bottom: 15px; }
+              .label { font-weight: bold; color: #1e40af; }
+              .value { margin-left: 10px; }
+              .comments { margin-top: 30px; }
+              .comment { margin-bottom: 15px; padding: 10px; background: #f5f5f5; border-radius: 5px; }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <h1>HIDRO SERVICE</h1>
+              <h2>Memorando de Serviços (MDS)</h2>
+              <p>Número: ${number}</p>
+              <p>Cliente: ${service.client}</p>
+              <p>Local da obra: ${service.project}</p>
+              <p>Data: ${new Date(service.createdAt).toLocaleDateString()}</p>
+            </div>
+            <div class="section">
+              <h3>Dados do MDS</h3>
+              ${Object.entries(service.formData || {})
+                .map(
+                  ([key, value]) => `
+                <div class="question">
+                  <span class="label">${key}:</span>
+                  <span class="value">${
+                    Array.isArray(value) ? value.join(", ") : value
+                  }</span>
+                </div>
+              `,
+                )
+                .join("")}
+            </div>
+            ${
+              comments.length > 0
+                ? `
+              <div class="comments">
+                <h3>Comentários</h3>
+                ${comments
+                  .map(
+                    (comment) => `
+                  <div class="comment">
+                    <strong>${comment.author}</strong> - ${new Date(
+                      comment.createdAt,
+                    ).toLocaleDateString()}
+                    <p>${comment.text}</p>
+                  </div>
+                `,
+                  )
+                  .join("")}
+              </div>
+            `
+                : ""
+            }
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.print();
+    }
   };
 
   // Solicitar cotação (implementação básica)

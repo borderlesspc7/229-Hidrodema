@@ -374,6 +374,7 @@ export const addComment = async (
 
 /**
  * Buscar comentários por requestId
+ * (Query sem orderBy para não exigir índice composto no Firestore; ordenação em memória.)
  */
 export const getCommentsByRequestId = async (
   requestId: string
@@ -381,15 +382,18 @@ export const getCommentsByRequestId = async (
   try {
     const q = query(
       collection(db, COMMENTS_COLLECTION),
-      where("requestId", "==", requestId),
-      orderBy("createdAt", "desc")
+      where("requestId", "==", requestId)
     );
     const querySnapshot = await getDocs(q);
 
-    return querySnapshot.docs.map((doc) => ({
+    const comments = querySnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     })) as VisitComment[];
+    return comments.sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
   } catch (error) {
     console.error("Erro ao buscar comentários:", error);
     throw error;

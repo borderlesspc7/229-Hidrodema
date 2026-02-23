@@ -1,343 +1,222 @@
-/* Container principal do Acesso Exclusivo */
+/* ============================================================
+   AcessoExclusivo — Hidrodema Design System
+   ============================================================ */
+
 .acesso-exclusivo-container {
   min-height: 100vh;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: #1e3a5f;
-  padding: 40px 20px;
-  margin: 0;
-  width: 100%;
-  gap: 40px;
+  gap: var(--space-8);
+  padding: var(--space-8) var(--space-5);
   position: relative;
   overflow: hidden;
+  background:
+    radial-gradient(ellipse at 20% 25%, rgba(59,130,246,0.10) 0%, transparent 52%),
+    radial-gradient(ellipse at 80% 75%, rgba(30,58,138,0.12) 0%, transparent 52%),
+    linear-gradient(160deg, var(--color-primary-950) 0%, var(--color-primary-800) 40%, var(--color-primary-600) 100%);
 }
 
-/* Padrão moderno de fundo com elementos flutuantes */
+/* Textura de fundo */
 .acesso-exclusivo-container::before {
   content: "";
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: #1e3a5f;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 50px 80px,  rgba(255,255,255,0.07), transparent),
+    radial-gradient(1px 1px at 220px 150px, rgba(59,130,246,0.08), transparent),
+    radial-gradient(1px 1px at 400px 70px,  rgba(255,255,255,0.05), transparent);
+  background-size: 550px 380px;
   pointer-events: none;
 }
 
-/* Header igual ao HidroService */
-.acesso-exclusivo-container .acesso-exclusivo-header {
+/* Remove o ::after decorativo antigo */
+.acesso-exclusivo-container::after { display: none; }
+
+/* Header */
+.hidro-service-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
+  max-width: var(--max-content);
   position: relative;
   z-index: 2;
-  margin-bottom: 20px;
-}
-
-.acesso-exclusivo-container .acesso-exclusivo-header-spacer {
-  width: 100px;
-}
-
-/* Marca da empresa - baseado no HidroService */
-.acesso-exclusivo-container .acesso-exclusivo-company-brand {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  position: relative;
-  z-index: 2;
-  margin-bottom: 0;
-  flex: 1;
-}
-
-.acesso-exclusivo-logo {
-  height: 180px;
-  width: 1000px;
-  object-fit: contain;
-  filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.5));
-  transition: all 0.3s ease;
-  margin-bottom: 15px;
-}
-
-.acesso-exclusivo-logo:hover {
-  filter: drop-shadow(0 0 30px rgba(139, 92, 246, 0.8));
-  transform: scale(1.05);
-}
-
-@keyframes titleGlow {
-  0% {
-    filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.3));
-  }
-  100% {
-    filter: drop-shadow(0 0 30px rgba(139, 92, 246, 0.8));
-  }
-}
-
-.acesso-exclusivo-container .acesso-exclusivo-company-subtitle {
-  font-size: 16px;
-  color: rgba(255, 255, 255, 0.9);
-  display: block;
-  margin-bottom: 15px;
-  font-weight: 400;
-  letter-spacing: 1px;
-}
-
-.acesso-exclusivo-container .acesso-exclusivo-company-underline {
-  width: 150px;
-  height: 6px;
-  background: linear-gradient(90deg, #ffffff 0%, #3b82f6 50%, #1e40af 100%);
-  margin: 0 auto;
-  border-radius: 3px;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
-  animation: underlinePulse 2s ease-in-out infinite alternate;
-}
-
-@keyframes underlinePulse {
-  0% {
-    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
-    transform: scaleX(1);
-  }
-  100% {
-    box-shadow: 0 4px 25px rgba(59, 130, 246, 0.7);
-    transform: scaleX(1.05);
-  }
 }
 
 .logout-button-left {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  color: #1a3a52;
-  border: 2px solid rgba(59, 130, 246, 0.3);
-  padding: 10px 12px;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  min-width: 100px;
+  min-width: 88px;
 }
 
-/* Container dos cards - baseado no HidroService */
-.acesso-exclusivo-container .acesso-exclusivo-content {
+/* Marca */
+.acesso-exclusivo-company-brand {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  max-width: 400px;
-  width: 100%;
+  align-items: center;
+  flex: 1;
   position: relative;
   z-index: 2;
+  animation: hd-slide-up 0.5s ease both;
 }
 
-.acesso-exclusivo-container .acesso-exclusivo-content-title {
-  font-size: 30px;
-  font-weight: 900;
-  text-align: center;
-  margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 50%, #c7d2fe 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: #ffffff;
-  text-transform: uppercase;
-  letter-spacing: 6px;
-  position: relative;
-  text-align: center;
-  margin-bottom: 10px;
+.acesso-exclusivo-logo {
+  height: 64px;
+  width: auto;
+  max-width: 420px;
+  object-fit: contain;
+  filter: brightness(1.05) drop-shadow(0 4px 16px rgba(59,130,246,0.30));
+  transition: filter var(--transition-base), transform var(--transition-base);
+  margin-bottom: var(--space-3);
 }
-/* Estilização específica para os cards do Acesso Exclusivo */
-.acesso-exclusivo-container .acesso-exclusivo-content .card {
+.acesso-exclusivo-logo:hover {
+  filter: brightness(1.1) drop-shadow(0 6px 24px rgba(59,130,246,0.45));
+  transform: scale(1.02);
+}
+
+.acesso-exclusivo-company-subtitle {
+  font-size: var(--text-sm);
+  color: rgba(255,255,255,0.70);
+  letter-spacing: var(--tracking-wider);
+  margin-bottom: var(--space-2);
+}
+
+.acesso-exclusivo-company-underline {
+  width: 40px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-accent-400), var(--color-accent-200));
+  border-radius: var(--radius-full);
+  margin: 0 auto;
+}
+
+.acesso-exclusivo-header-spacer { width: 88px; }
+
+/* Conteúdo principal */
+.acesso-exclusivo-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
   width: 100%;
-  min-height: 70px;
+  max-width: 420px;
+  position: relative;
+  z-index: 2;
+  animation: hd-slide-up 0.5s 0.1s ease both;
+}
+
+.acesso-exclusivo-content-title {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  text-align: center;
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.90);
+  margin-bottom: var(--space-2);
+}
+
+/* Cards do acesso exclusivo */
+.acesso-exclusivo-content .card {
+  width: 100%;
+  min-height: 56px;
+  background: var(--surface-glass-md);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-full);
   backdrop-filter: blur(16px);
-  background: #1e3a5f;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  -webkit-backdrop-filter: blur(16px);
+  padding: var(--space-4) var(--space-6);
   cursor: pointer;
-  position: relative;
-  border-radius: 70px;
-  padding: 20px 30px;
-  overflow: hidden;
-}
-
-.acesso-exclusivo-container .acesso-exclusivo-content .card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.1),
-    transparent
-  );
-  transition: left 0.6s ease;
-}
-
-.acesso-exclusivo-container .acesso-exclusivo-content .card:hover {
-  transform: translateY(-6px) scale(1.02);
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3), 0 0 30px rgba(139, 92, 246, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(139, 92, 246, 0.3);
-}
-
-.acesso-exclusivo-container .acesso-exclusivo-content .card:hover::before {
-  left: 100%;
-}
-
-.acesso-exclusivo-container .acesso-exclusivo-content .card:active {
-  transform: translateY(-3px) scale(1.01);
-}
-
-/* Personalizar título dos cards para Acesso Exclusivo */
-.acesso-exclusivo-container .acesso-exclusivo-content .card .card__title {
-  font-size: 18px;
-  font-weight: 700;
-  text-align: center;
-  margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  line-height: 1.3;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 70px;
+  transition:
+    transform var(--transition-base),
+    background var(--transition-base),
+    border-color var(--transition-base),
+    box-shadow var(--transition-base);
+  overflow: hidden;
+  position: relative;
 }
 
-/* Footer - baseado no HidroService */
-.acesso-exclusivo-container .acesso-exclusivo-footer {
+.acesso-exclusivo-content .card:hover {
+  transform: translateY(-3px) scale(1.01);
+  background: var(--surface-glass-lg);
+  border-color: rgba(59,130,246,0.30);
+  box-shadow: var(--shadow-lg), var(--shadow-glow-sm);
+}
+.acesso-exclusivo-content .card:active {
+  transform: translateY(-1px) scale(0.99);
+}
+
+/* Linha de accent à esquerda */
+.acesso-exclusivo-content .card::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 25%;
+  bottom: 25%;
+  width: 3px;
+  background: linear-gradient(180deg, var(--color-accent-400), var(--color-accent-300));
+  border-radius: 0 var(--radius-full) var(--radius-full) 0;
+  opacity: 0;
+  transform: scaleY(0.5);
+  transition:
+    opacity var(--transition-base),
+    transform var(--transition-base);
+}
+.acesso-exclusivo-content .card:hover::after {
+  opacity: 1;
+  transform: scaleY(1);
+}
+
+/* Título dos cards */
+.acesso-exclusivo-content .card .card__title {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.92);
+  text-align: center;
+  min-height: unset;
+}
+
+/* Footer */
+.acesso-exclusivo-footer {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: var(--space-4);
   width: 100%;
   max-width: 400px;
-  margin-top: auto;
   position: relative;
   z-index: 2;
 }
 
 .acesso-exclusivo-footer-logo {
-  height: 80px;
-  width: 1000px;
-
+  height: 40px;
+  width: auto;
+  max-width: 280px;
   object-fit: contain;
-  filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.4));
-  transition: all 0.3s ease;
-  margin-bottom: 10px;
+  filter: brightness(0.85) drop-shadow(0 2px 8px rgba(59,130,246,0.20));
+  transition: filter var(--transition-base);
+  opacity: 0.7;
 }
-
 .acesso-exclusivo-footer-logo:hover {
-  filter: drop-shadow(0 0 25px rgba(139, 92, 246, 0.6));
-  transform: scale(1.05);
+  filter: brightness(1) drop-shadow(0 4px 12px rgba(59,130,246,0.35));
+  opacity: 1;
 }
 
-/* Elementos decorativos - cilindros como no design */
-.acesso-exclusivo-container::after {
-  content: "";
-  position: absolute;
-  right: 30px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 60px;
-  height: 180px;
-  background: #1e3a5f;
-  border-radius: 30px;
-  opacity: 0.6;
-  z-index: 1;
-  box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.1);
-}
-
-/* Responsividade */
+/* Responsivo */
 @media (max-width: 768px) {
-  .acesso-exclusivo-container {
-    padding: 30px 15px;
-    gap: 30px;
-  }
-
-  .acesso-exclusivo-logo {
-    height: 90px;
-    max-width: 350px;
-  }
-
-  .acesso-exclusivo-container .acesso-exclusivo-company-subtitle {
-    font-size: 14px;
-    margin-bottom: 12px;
-  }
-
-  .acesso-exclusivo-container .acesso-exclusivo-company-underline {
-    width: 120px;
-    height: 4px;
-  }
-
-  .acesso-exclusivo-container .acesso-exclusivo-content {
-    max-width: 100%;
-    gap: 15px;
-  }
-
-  .acesso-exclusivo-container .acesso-exclusivo-content .card {
-    min-height: 60px;
-    padding: 15px 25px;
-  }
-
-  .acesso-exclusivo-container .acesso-exclusivo-content .card .card__title {
-    font-size: 16px;
-    min-height: 60px;
-  }
-
-  .acesso-exclusivo-footer-logo {
-    height: 55px;
-    max-width: 280px;
-  }
-
-  .acesso-exclusivo-container::after {
-    display: none;
-  }
+  .acesso-exclusivo-container { padding: var(--space-6) var(--space-4); gap: var(--space-6); }
+  .acesso-exclusivo-logo { height: 50px; }
+  .acesso-exclusivo-content { max-width: 100%; }
+  .acesso-exclusivo-content .card { min-height: 50px; padding: var(--space-3) var(--space-5); }
+  .acesso-exclusivo-content .card .card__title { font-size: var(--text-xs); }
+  .acesso-exclusivo-footer-logo { height: 32px; }
 }
 
 @media (max-width: 480px) {
-  .acesso-exclusivo-container {
-    padding: 20px 10px;
-    gap: 25px;
-  }
-
-  .acesso-exclusivo-logo {
-    height: 70px;
-    max-width: 280px;
-  }
-
-  .acesso-exclusivo-container .acesso-exclusivo-company-subtitle {
-    font-size: 12px;
-  }
-
-  .acesso-exclusivo-container .acesso-exclusivo-company-underline {
-    width: 100px;
-    height: 3px;
-  }
-
-  .acesso-exclusivo-container .acesso-exclusivo-content .card {
-    min-height: 50px;
-    padding: 12px 20px;
-  }
-
-  .acesso-exclusivo-container .acesso-exclusivo-content .card .card__title {
-    font-size: 14px;
-    letter-spacing: 0.5px;
-    min-height: 50px;
-  }
-
-  .acesso-exclusivo-footer-logo {
-    height: 45px;
-    max-width: 220px;
-  }
+  .acesso-exclusivo-container { padding: var(--space-5) var(--space-3); gap: var(--space-5); }
+  .acesso-exclusivo-logo { height: 40px; }
+  .acesso-exclusivo-content .card { padding: var(--space-3) var(--space-4); }
 }

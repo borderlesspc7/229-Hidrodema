@@ -1,181 +1,167 @@
+/* ============================================================
+   Card — Hidrodema Design System
+   ============================================================ */
+
 .card {
   position: relative;
-  padding: 1.5rem;
-  transition: all 0.3s ease;
+  padding: var(--space-6);
+  border-radius: var(--radius-xl);
   overflow: hidden;
-  min-height: 200px;
   display: flex;
   flex-direction: column;
+  transition:
+    transform var(--transition-base),
+    box-shadow var(--transition-base),
+    background var(--transition-base),
+    border-color var(--transition-base);
+  min-height: 120px;
 }
 
-.card--rounded {
-  border-radius: 12px;
-}
-
+/* Sombra opcional */
 .card--shadow {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-lg);
+}
+.card--shadow:hover {
+  box-shadow: var(--shadow-xl);
 }
 
+/* Borda opcional */
 .card--border {
-  border: 2px solid currentColor;
+  border: 1px solid var(--surface-border);
 }
 
-/* Variantes de tamanho */
-.card--small {
-  min-height: 150px;
-  padding: 1rem;
-}
-
-.card--medium {
-  min-height: 200px;
-  padding: 1.5rem;
-}
-
-.card--large {
-  min-height: 250px;
-  padding: 2rem;
-}
-
-/* Variantes de tipo */
+/* ---- Variantes de tipo ---- */
 .card--service {
-  background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
+  background: var(--surface-glass-md);
+  border: 1px solid var(--surface-border);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
 .card--technology {
-  background: linear-gradient(135deg, #2c5f5f, #1a3a3a);
+  background: linear-gradient(135deg, rgba(44,95,95,0.85) 0%, rgba(20,50,50,0.9) 100%);
+  border: 1px solid rgba(96,165,250,0.20);
 }
 
 .card--marketing {
-  background: linear-gradient(135deg, #ffffff, #f8f8f8);
-  border: 2px solid #e74c3c;
+  background: rgba(255,255,255,0.95);
+  border: 1px solid var(--color-danger-500);
+  color: var(--color-gray-800);
 }
 
-/* Conteúdo do card */
+/* ---- Hover interativo ---- */
+.card[role="button"],
+.card[onClick],
+.card.card--clickable {
+  cursor: pointer;
+}
+.card:hover {
+  transform: translateY(-3px);
+}
+
+/* Shimmer no hover */
+.card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,0.06),
+    transparent
+  );
+  transition: left 0.55s ease;
+  pointer-events: none;
+}
+.card:hover::before { left: 100%; }
+
+/* ---- Tamanhos ---- */
+.card--small  { min-height: 80px;  padding: var(--space-4); }
+.card--medium { min-height: 120px; padding: var(--space-5); }
+.card--large  { min-height: 200px; padding: var(--space-8); }
+
+/* ---- Conteúdo ---- */
 .card__content {
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-2);
   height: 100%;
+  position: relative;
+  z-index: 1;
 }
 
 .card__title {
-  font-weight: 900;
-  margin: 0 0 0.5rem 0;
+  font-weight: var(--weight-bold);
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: var(--tracking-wider);
+  text-align: center;
   display: flex;
   align-items: center;
   justify-content: center;
-  text-align: center;
+  line-height: var(--leading-tight);
 }
 
 .card__title h2 {
-  font-size: 1rem;
+  font-size: var(--text-base);
+  font-weight: inherit;
 }
 
 .card__subtitle-container {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
+  gap: var(--space-2);
   justify-content: center;
 }
 
 .card__subtitle {
-  font-size: 1.2rem;
-  font-weight: 600;
+  font-size: var(--text-xl);
+  font-weight: var(--weight-semibold);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: var(--tracking-wide);
 }
 
-.card--small .card__subtitle {
-  font-size: 1rem;
-}
-
-.card--large .card__subtitle {
-  font-size: 1.4rem;
-}
-
-.card__dots {
-  font-size: 1rem;
-  font-weight: 600;
-  opacity: 0.8;
-}
+.card--small .card__subtitle  { font-size: var(--text-base); }
+.card--large .card__subtitle  { font-size: var(--text-2xl);  }
 
 .card__description {
-  font-size: 0.9rem;
-  line-height: 1.4;
-  margin: 0;
-  opacity: 0.9;
-  flex: 1;
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  opacity: 0.8;
   text-align: center;
 }
 
-.card--small .card__description {
-  font-size: 0.8rem;
+.card--small .card__description { font-size: var(--text-xs); }
+.card--large .card__description { font-size: var(--text-base); }
+
+.card__dots {
+  font-size: var(--text-base);
+  opacity: 0.7;
 }
 
-.card--large .card__description {
-  font-size: 1rem;
-}
-
-/* Imagem do card */
-.card__image {
+.card__icon {
   position: absolute;
-  top: 0;
-  right: 0;
-  width: 100px;
-  height: 100px;
-  opacity: 0.1;
+  bottom: var(--space-4);
+  right: var(--space-4);
+  z-index: 2;
+  opacity: 0.5;
+}
+
+.card__children {
+  margin-top: auto;
+  padding-top: var(--space-4);
+  position: relative;
   z-index: 1;
 }
 
-.card__image img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-/* Ícone do card */
-.card__icon {
-  position: absolute;
-  bottom: 1rem;
-  right: 1rem;
-  z-index: 2;
-}
-
-/* Children do card */
-.card__children {
-  margin-top: auto;
-  padding-top: 1rem;
-}
-
-/* Estados interativos */
-.card:hover {
-  transform: translateY(-2px);
-}
-
-.card:hover.card--shadow {
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
-}
-
-/* Responsividade */
+/* Responsivo */
 @media (max-width: 768px) {
-  .card {
-    padding: 1rem;
-    min-height: 180px;
-  }
-
-  .card__title {
-    font-size: 2rem;
-  }
-
-  .card__subtitle {
-    font-size: 1rem;
-  }
-
-  .card__description {
-    font-size: 0.8rem;
-  }
+  .card { padding: var(--space-4); }
+  .card--large { padding: var(--space-6); }
+  .card__subtitle { font-size: var(--text-base); }
 }
