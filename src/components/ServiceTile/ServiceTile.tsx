@@ -24,16 +24,21 @@ export default function ServiceTile({
   const prefersReducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
 
   const cardSx: SxProps<Theme> = {
-    bgcolor: "rgba(255, 255, 255, 0.06)",
-    border: "1px solid rgba(255, 255, 255, 0.15)",
-    borderRadius: 4,
-    backdropFilter: "blur(10px)",
-    transition: "all 150ms cubic-bezier(0.4, 0, 0.2, 1)",
+    bgcolor: "rgba(255, 255, 255, 0.07)",
+    border: "1px solid rgba(255, 255, 255, 0.12)",
+    borderRadius: 2, /* 16px — bordas arredondadas modernas */
+    backdropFilter: "blur(12px)",
+    WebkitBackdropFilter: "blur(12px)",
+    boxShadow:
+      "0 4px 24px rgba(0, 0, 0, 0.12), 0 0 1px rgba(255, 255, 255, 0.08)",
+    transition: "all 300ms cubic-bezier(0.4, 0, 0.2, 1)",
     height: "100%",
+    minHeight: 160,
     "&:hover": {
-      boxShadow: 6,
-      bgcolor: "rgba(255, 255, 255, 0.1)",
-      borderColor: "rgba(59, 130, 246, 0.3)",
+      bgcolor: "rgba(255, 255, 255, 0.11)",
+      borderColor: "rgba(255, 255, 255, 0.18)",
+      boxShadow:
+        "0 12px 32px rgba(0, 0, 0, 0.18), 0 0 24px rgba(59, 130, 246, 0.12)",
       transform: prefersReducedMotion ? "none" : "translateY(-4px)",
     },
     "&:active": {
@@ -51,28 +56,30 @@ export default function ServiceTile({
     alignItems: "center",
     justifyContent: "center",
     textAlign: "center",
-    gap: 2,
-    minHeight: { xs: 72, sm: 80 },
-    padding: { xs: 2, sm: 2.5 },
+    gap: 2.5, /* 20px — melhor espaçamento entre ícone e texto */
+    minHeight: 160,
+    padding: { xs: 3, sm: 3.5 }, /* 24px / 28px — mesmo padding interno */
   };
 
   const iconSx: SxProps<Theme> = {
-    fontSize: { xs: 32, sm: 40 },
+    fontSize: { xs: 40, sm: 48 }, /* ícones maiores e destacados */
     color: "#fff",
+    filter: "drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2))",
   };
 
   const textSx: SxProps<Theme> = {
     color: "#fff",
-    fontSize: { xs: "0.875rem", sm: "1rem" },
-    fontWeight: 600,
+    fontSize: { xs: "0.9375rem", sm: "1.0625rem" },
+    fontWeight: 700,
     textTransform: "uppercase",
-    letterSpacing: "0.5px",
-    lineHeight: 1.2,
+    letterSpacing: "0.06em",
+    lineHeight: 1.25,
     display: "-webkit-box",
     WebkitLineClamp: 2,
     WebkitBoxOrient: "vertical",
     overflow: "hidden",
     wordBreak: "break-word",
+    textShadow: "0 1px 2px rgba(0, 0, 0, 0.2)",
   };
 
   const content = (

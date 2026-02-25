@@ -98,6 +98,8 @@ export default function Login() {
 
   return (
     <div className="login-page">
+      <div className="login-grid" aria-hidden="true" />
+
       {/* Título da Empresa */}
       <div className="company-brand">
         <img
@@ -161,20 +163,6 @@ export default function Login() {
 
           {authError && <p className="error-message">{authError}</p>}
         </form>
-
-        <div className="auth-divider">
-          <div className="divider-line"></div>
-          <span>ou</span>
-          <div className="divider-line"></div>
-        </div>
-
-        <Button
-          onClick={() => navigate(paths.menu)}
-          variant="secondary"
-          className="button--full-width"
-        >
-          Entrar sem login
-        </Button>
 
         <div className="auth-toggle">
           <span>Não tem uma conta?</span>

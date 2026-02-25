@@ -9,8 +9,9 @@
   display: flex;
   flex-direction: column;
   background:
-    radial-gradient(ellipse at 18% 22%, rgba(59,130,246,0.08) 0%, transparent 52%),
-    linear-gradient(160deg, var(--color-primary-950) 0%, var(--color-primary-800) 45%, var(--color-primary-600) 100%);
+    radial-gradient(ellipse at 50% 20%, rgba(59,130,246,0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(30,58,138,0.10) 0%, transparent 45%),
+    linear-gradient(165deg, var(--color-primary-950) 0%, var(--color-primary-800) 42%, var(--color-primary-600) 100%);
   font-family: var(--font-sans);
   position: relative;
 }
@@ -91,37 +92,80 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 60vh;
-  padding: var(--space-8);
-}
-
-.visitas-menu-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: var(--space-5);
-  max-width: 720px;
-  width: 100%;
-}
-
-.visitas-menu-card {
-  background: var(--surface-glass-md);
-  border: 1px solid var(--surface-border);
-  border-radius: var(--radius-2xl);
+  flex: 1;
   padding: var(--space-8) var(--space-6);
+}
+
+.visitas-menu-grid,
+.visitas-menu-cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  width: 100%;
+  max-width: 520px;
+}
+
+.visitas-menu-card,
+.visitas-menu-cards .card {
+  width: 100% !important;
+  min-height: 130px !important;
+  border-radius: var(--radius-xl) !important;
+  padding: var(--space-6) var(--space-8) !important;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-4);
+  justify-content: center;
+  gap: var(--space-3);
   cursor: pointer;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  /* dark theme override — anula backgroundColor inline do componente Card */
+  background: rgba(14, 25, 52, 0.78) !important;
+  background-color: rgba(14, 25, 52, 0.78) !important;
+  border: 1px solid rgba(59,130,246,0.18) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.05) !important;
+  color: var(--color-white) !important;
   transition:
     transform var(--transition-base),
     background var(--transition-base),
     border-color var(--transition-base),
     box-shadow var(--transition-base);
-  text-align: center;
-  position: relative;
-  overflow: hidden;
 }
+
+/* anula textColor inline do Card */
+.visitas-menu-card *,
+.visitas-menu-cards .card * {
+  color: var(--color-white) !important;
+  -webkit-text-fill-color: var(--color-white) !important;
+}
+
+/* ícones com cores diferenciadas por posição (1º azul, 2º verde, 3º roxo) */
+/* Centralização do conteúdo e ícones */
+.visitas-menu-card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+}
+
+.visitas-menu-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-2);
+}
+
+.visitas-menu-card-content p {
+  margin: 0;
+}
+
+.visitas-menu-cards .card:nth-child(1) .visitas-menu-icon { color: #93c5fd !important; -webkit-text-fill-color: #93c5fd !important; }
+.visitas-menu-cards .card:nth-child(2) .visitas-menu-icon { color: #6ee7b7 !important; -webkit-text-fill-color: #6ee7b7 !important; }
+.visitas-menu-cards .card:nth-child(3) .visitas-menu-icon { color: #c4b5fd !important; -webkit-text-fill-color: #c4b5fd !important; }
 
 .visitas-menu-card::before {
   content: "";
@@ -133,11 +177,13 @@
   border-radius: inherit;
 }
 
-.visitas-menu-card:hover {
-  transform: translateY(-4px);
-  background: var(--surface-glass-lg);
-  border-color: rgba(59,130,246,0.30);
-  box-shadow: var(--shadow-xl), var(--shadow-glow-sm);
+.visitas-menu-card:hover,
+.visitas-menu-cards .card:hover {
+  transform: translateY(-4px) !important;
+  background: rgba(20, 38, 78, 0.92) !important;
+  background-color: rgba(20, 38, 78, 0.92) !important;
+  border-color: rgba(59,130,246,0.40) !important;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.40), 0 0 24px rgba(59,130,246,0.14) !important;
 }
 .visitas-menu-card:hover::before { opacity: 1; }
 .visitas-menu-card:active { transform: translateY(-2px) scale(0.99); }
@@ -173,13 +219,442 @@
   line-height: var(--leading-relaxed);
 }
 
+/* ---- Stepper / Progress (formulário) ---- */
+.visitas-progress-container {
+  padding: 0 var(--space-8) var(--space-5);
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+  animation: hd-fade-in 0.4s ease both;
+}
+
+.visitas-progress-bar {
+  height: 6px;
+  background: rgba(255,255,255,0.12);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-bottom: var(--space-3);
+}
+
+.visitas-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-accent-500), var(--color-accent-400));
+  border-radius: var(--radius-full);
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.visitas-progress-text {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-accent-200);
+  letter-spacing: var(--tracking-wide);
+}
+
 /* ---- Formulário multi-step ---- */
 .visitas-form-container {
-  padding: var(--space-6) var(--space-8);
-  max-width: 780px;
+  padding: var(--space-6) var(--space-8) var(--space-10);
+  max-width: 800px;
+  min-width: 0;
   margin: 0 auto;
   width: 100%;
   animation: hd-slide-up 0.4s ease both;
+}
+
+/* Card do formulário — glassmorphism e destaque */
+.visitas-form-container .visitas-form-card,
+.visitas-form-container .card {
+  width: 100% !important;
+  max-width: 100%;
+  border-radius: 16px !important;
+  padding: var(--space-8) var(--space-10) !important;
+  min-height: unset !important;
+  background: rgba(18, 32, 62, 0.85) !important;
+  background-color: rgba(18, 32, 62, 0.85) !important;
+  border: 1px solid rgba(255,255,255,0.12) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  box-shadow:
+    0 25px 50px -12px rgba(0,0,0,0.45),
+    0 0 0 1px rgba(255,255,255,0.05) !important;
+  transition: none !important;
+  cursor: default !important;
+}
+
+.visitas-form-container .visitas-form-card:hover,
+.visitas-form-container .card:hover {
+  transform: none !important;
+}
+
+.visitas-form-container .card__children {
+  margin-top: 0;
+  padding-top: 0;
+  align-items: stretch;
+  text-align: left;
+  width: 100%;
+}
+
+/* Cabeçalho do card */
+.visitas-form-header {
+  margin-bottom: var(--space-6);
+}
+
+.visitas-form-title {
+  font-size: 1.5rem;
+  font-weight: var(--weight-extrabold);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--color-white) !important;
+  margin: 0 0 var(--space-2) 0 !important;
+  line-height: 1.25;
+}
+
+.visitas-form-subtitle {
+  font-size: var(--text-sm);
+  color: rgba(255,255,255,0.6) !important;
+  margin: 0;
+  line-height: 1.45;
+}
+
+.visitas-form-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.visitas-section-title {
+  margin-bottom: var(--space-2);
+}
+
+.visitas-section-title h3 {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  color: var(--color-accent-200) !important;
+  letter-spacing: var(--tracking-wide);
+  margin: 0;
+}
+
+.visitas-questions-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+/* Cada pergunta */
+.visitas-form-question {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.visitas-question-label {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: rgba(255,255,255,0.92) !important;
+  line-height: 1.4;
+}
+
+.visitas-question-instruction {
+  font-size: var(--text-xs);
+  color: rgba(255,255,255,0.55) !important;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+.visitas-required {
+  color: #f87171;
+  margin-left: 2px;
+}
+
+/* Select no formulário */
+.visitas-form-select {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 2.5rem 0 var(--space-4);
+  font-size: var(--text-base);
+  color: var(--color-white) !important;
+  background: rgba(255,255,255,0.08) !important;
+  border: 1px solid rgba(255,255,255,0.18) !important;
+  border-radius: 12px;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='rgba(255,255,255,0.6)' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right var(--space-4) center !important;
+  cursor: pointer;
+  outline: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+}
+
+.visitas-form-select:focus {
+  border-color: var(--color-accent-400) !important;
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.22);
+  background-color: rgba(255,255,255,0.11) !important;
+}
+
+.visitas-form-select option {
+  background: var(--color-primary-800);
+  color: var(--color-white);
+}
+
+/* Textarea no formulário */
+.visitas-form-textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: var(--space-4);
+  font-size: var(--text-base);
+  color: var(--color-white) !important;
+  background: rgba(255,255,255,0.08) !important;
+  border: 1px solid rgba(255,255,255,0.18) !important;
+  border-radius: 12px;
+  resize: vertical;
+  outline: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.visitas-form-textarea::placeholder {
+  color: rgba(255,255,255,0.4) !important;
+}
+
+.visitas-form-textarea:focus {
+  border-color: var(--color-accent-400) !important;
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.22);
+  background-color: rgba(255,255,255,0.11) !important;
+}
+
+/* Navegação do formulário */
+.visitas-form-navigation {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-top: var(--space-8);
+  padding-top: var(--space-6);
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.visitas-section-indicators {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.visitas-section-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  cursor: pointer;
+  transition: background var(--transition-fast), transform var(--transition-fast);
+}
+
+.visitas-section-dot:hover {
+  background: rgba(255,255,255,0.35);
+}
+
+.visitas-section-dot.active {
+  background: var(--color-accent-400);
+  box-shadow: 0 0 0 2px rgba(59,130,246,0.4);
+  transform: scale(1.2);
+}
+
+.visitas-section-dot.completed {
+  background: var(--color-accent-500);
+}
+
+.visitas-form-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.visitas-nav-button {
+  padding: 12px 24px !important;
+  border-radius: var(--radius-lg) !important;
+  font-weight: var(--weight-semibold) !important;
+  font-size: var(--text-sm) !important;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast) !important;
+}
+
+.visitas-nav-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.visitas-nav-button.visitas-submit-button,
+.visitas-form-actions .button--primary {
+  box-shadow: 0 4px 14px rgba(59,130,246,0.35) !important;
+}
+
+.visitas-form-actions .button--primary:hover:not(:disabled) {
+  box-shadow: 0 6px 20px rgba(59,130,246,0.45) !important;
+}
+
+/* Mensagens no formulário */
+.visitas-confirmation-message,
+.visitas-instruction-message,
+.visitas-placeholder-message {
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-2);
+}
+
+.visitas-confirmation-message {
+  background: rgba(16,185,129,0.12);
+  border: 1px solid rgba(16,185,129,0.25);
+  color: var(--color-success-100) !important;
+}
+
+.visitas-instruction-message {
+  background: rgba(59,130,246,0.12);
+  border: 1px solid rgba(59,130,246,0.25);
+  color: var(--color-accent-200) !important;
+}
+
+.visitas-instruction-message h4 {
+  margin: 0 0 var(--space-2) 0;
+  font-size: var(--text-base);
+}
+
+.visitas-placeholder-message {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.65) !important;
+}
+
+.visitas-placeholder-message p {
+  margin: 0 0 var(--space-2) 0;
+  font-size: var(--text-sm);
+}
+
+.visitas-placeholder-message p:last-child {
+  margin-bottom: 0;
+}
+
+/* Input (componente) dentro do formulário — altura e tema */
+.visitas-form-question .input-container .input-field {
+  min-height: 48px;
+  padding: 12px 16px;
+  font-size: var(--text-base);
+  background: rgba(255,255,255,0.08) !important;
+  border: 1px solid rgba(255,255,255,0.18) !important;
+  border-radius: 12px;
+}
+
+.visitas-form-question .input-container.focused .input-field,
+.visitas-form-question .input-container.has-value .input-field {
+  background: rgba(255,255,255,0.11) !important;
+  border-color: rgba(59,130,246,0.5) !important;
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.22);
+}
+
+.visitas-form-question .input-container .input-label {
+  color: rgba(255,255,255,0.5);
+}
+
+.visitas-form-question .input-container.focused .input-label,
+.visitas-form-question .input-container.has-value .input-label {
+  background: rgba(18, 32, 62, 0.98);
+  color: var(--color-accent-200);
+}
+
+/* Radio options — horizontal e estilo moderno */
+.visitas-options-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.visitas-radio-option,
+.visitas-checkbox-option {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.visitas-radio-option:hover,
+.visitas-checkbox-option:hover {
+  background: rgba(59,130,246,0.1);
+  border-color: rgba(59,130,246,0.25);
+}
+
+.visitas-radio-option:has(input:checked),
+.visitas-checkbox-option:has(input:checked) {
+  border-color: rgba(59,130,246,0.45);
+  background: rgba(59,130,246,0.14);
+}
+
+.visitas-radio-option input,
+.visitas-checkbox-option input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.visitas-radio-custom,
+.visitas-checkbox-custom {
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  border: 2px solid rgba(255,255,255,0.35);
+  border-radius: 50%;
+  position: relative;
+  transition: all var(--transition-fast);
+  background: rgba(255,255,255,0.05);
+}
+
+.visitas-checkbox-custom {
+  border-radius: var(--radius-md);
+}
+
+.visitas-radio-option input:checked + .visitas-radio-custom {
+  border-color: var(--color-accent-400);
+  background: var(--color-accent-500);
+  box-shadow: 0 0 0 2px rgba(59,130,246,0.3);
+}
+
+.visitas-radio-option input:checked + .visitas-radio-custom::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-white);
+}
+
+.visitas-checkbox-option input:checked + .visitas-checkbox-custom {
+  border-color: var(--color-accent-400);
+  background: var(--color-accent-500);
+}
+
+.visitas-checkbox-option input:checked + .visitas-checkbox-custom::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 5px;
+  width: 5px;
+  height: 9px;
+  border: 2px solid white;
+  border-top: none;
+  border-left: none;
+  transform: rotate(45deg);
+}
+
+.visitas-option-text {
+  font-size: var(--text-sm);
+  color: rgba(255,255,255,0.9) !important;
+  line-height: 1.35;
 }
 
 .form-progress-header {
@@ -832,10 +1307,36 @@
 
   .visitas-content,
   .history-container,
-  .visitas-form-container,
   .comments-container { padding: var(--space-4); }
 
-  .visitas-menu-grid { grid-template-columns: 1fr; }
+  .visitas-progress-container,
+  .visitas-form-container {
+    padding-left: var(--space-5);
+    padding-right: var(--space-5);
+  }
+
+  .visitas-form-container .visitas-form-card,
+  .visitas-form-container .card {
+    padding: var(--space-6) var(--space-5) !important;
+  }
+
+  .visitas-form-title { font-size: 1.35rem; }
+  .visitas-form-navigation {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-4);
+  }
+
+  .visitas-section-indicators { justify-content: center; }
+  .visitas-form-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  .visitas-form-actions .button,
+  .visitas-nav-button { width: 100%; justify-content: center; }
+
+  .visitas-menu-grid,
+  .visitas-menu-cards { gap: var(--space-4); max-width: 100%; }
   .visitas-menu-card { padding: var(--space-5) var(--space-4); }
 
   .request-item,
@@ -855,4 +1356,20 @@
   .visitas-company-title { font-size: var(--text-lg); letter-spacing: 0.06em; }
   .form-section-card { padding: var(--space-4); }
   .action-button { font-size: 10px; padding: var(--space-1) var(--space-2); }
+
+  .visitas-progress-container,
+  .visitas-form-container {
+    padding-left: var(--space-4);
+    padding-right: var(--space-4);
+  }
+
+  .visitas-form-container .visitas-form-card,
+  .visitas-form-container .card {
+    padding: var(--space-5) var(--space-4) !important;
+  }
+
+  .visitas-form-title { font-size: 1.2rem; }
+  .visitas-options-container { flex-direction: column; }
+  .visitas-radio-option,
+  .visitas-checkbox-option { width: 100%; }
 }

@@ -90,32 +90,38 @@
   padding: var(--space-8);
 }
 
-.solicitacao-menu-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+.solicitacao-menu-grid,
+.solicitacao-menu-cards {
+  display: flex;
+  flex-direction: column;
   gap: var(--space-5);
-  max-width: 720px;
   width: 100%;
+  max-width: 480px;
 }
 
-.solicitacao-menu-card {
-  background: var(--surface-glass-md);
-  border: 1px solid var(--surface-border);
-  border-radius: var(--radius-2xl);
-  padding: var(--space-8) var(--space-6);
+.solicitacao-menu-card,
+.solicitacao-menu-cards .card,
+.solicitacao-menu-cards .menu-card {
+  width: 100% !important;
+  min-height: 140px !important;
+  border-radius: var(--radius-2xl) !important;
+  padding: var(--space-6) !important;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-4);
+  justify-content: center;
+  gap: var(--space-3);
   cursor: pointer;
+  text-align: center;
   transition:
     transform var(--transition-base),
     background var(--transition-base),
     border-color var(--transition-base),
     box-shadow var(--transition-base);
-  text-align: center;
 }
-.solicitacao-menu-card:hover {
+.solicitacao-menu-card:hover,
+.solicitacao-menu-cards .card:hover,
+.solicitacao-menu-cards .menu-card:hover {
   transform: translateY(-4px);
   background: var(--surface-glass-lg);
   border-color: rgba(59,130,246,0.28);
@@ -441,6 +447,93 @@
   .solicitacao-header { padding: var(--space-4) var(--space-6); }
   .history-container, .solicitacao-form-container, .comments-container { padding: var(--space-5); }
 }
+/* ============================================================
+   CORREÇÕES DE LAYOUT — menu container + cards dark theme + footer
+   ============================================================ */
+
+/* Alias: o TSX usa "menu-container-solicitacao" mas o CSS original define
+   "solicitacao-menu-container" — adicionamos o alias aqui */
+.menu-container-solicitacao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-height: 65vh;
+  padding: var(--space-8) var(--space-6);
+}
+
+/* Dark theme override para as menu cards — anula backgroundColor inline */
+.solicitacao-menu-cards .card,
+.solicitacao-menu-cards .menu-card {
+  background: rgba(14, 25, 52, 0.78) !important;
+  background-color: rgba(14, 25, 52, 0.78) !important;
+  border: 1px solid rgba(59,130,246,0.18) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.05) !important;
+  color: var(--color-white) !important;
+}
+
+.solicitacao-menu-cards .card:hover,
+.solicitacao-menu-cards .menu-card:hover {
+  background: rgba(20, 38, 78, 0.92) !important;
+  background-color: rgba(20, 38, 78, 0.92) !important;
+  border-color: rgba(59,130,246,0.40) !important;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.40), 0 0 24px rgba(59,130,246,0.14) !important;
+  transform: translateY(-4px) !important;
+}
+
+/* Texto branco — anula textColor inline */
+.solicitacao-menu-cards .card *,
+.solicitacao-menu-cards .menu-card * {
+  color: var(--color-white) !important;
+  -webkit-text-fill-color: var(--color-white) !important;
+}
+
+/* Cores de ícone por card */
+/* Centralização do conteúdo e ícones */
+.menu-card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+}
+
+.menu-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-2);
+}
+
+.menu-card-content p { margin: 0; }
+
+.solicitacao-menu-cards .card:nth-child(1) .menu-icon { color: #93c5fd !important; -webkit-text-fill-color: #93c5fd !important; }
+.solicitacao-menu-cards .card:nth-child(2) .menu-icon { color: #6ee7b7 !important; -webkit-text-fill-color: #6ee7b7 !important; }
+
+/* Footer com logo centralizado */
+.solicitacao-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6) var(--space-8);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  margin-top: auto;
+}
+
+.footer-logo {
+  height: 36px;
+  width: auto;
+  max-width: 220px;
+  object-fit: contain;
+  opacity: 0.55;
+  filter: brightness(0.85);
+  transition: opacity var(--transition-base), filter var(--transition-base);
+}
+.footer-logo:hover { opacity: 0.90; filter: brightness(1.1); }
+
+/* ---- Responsivo ---- */
 @media (max-width: 768px) {
   .solicitacao-header { padding: var(--space-3) var(--space-4); flex-wrap: wrap; }
   .company-title { font-size: var(--text-xl); }
@@ -448,6 +541,7 @@
   .request-item, .service-item { flex-direction: column; gap: var(--space-3); }
   .request-actions, .service-actions { width: 100%; }
   .solicitacao-menu-grid { grid-template-columns: 1fr; }
+  .menu-container-solicitacao { padding: var(--space-5) var(--space-4); min-height: 50vh; }
 }
 @media (max-width: 480px) {
   .company-title { font-size: var(--text-lg); }

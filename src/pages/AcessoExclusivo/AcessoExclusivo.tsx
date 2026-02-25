@@ -47,9 +47,8 @@ export default function AcessoExclusivo() {
         <h2 className="acesso-exclusivo-content-title">ACESSO EXCLUSIVO</h2>
         <Card
           variant="service"
-          title="RELATORIO DE VISITAS"
-          backgroundColor="#f5f5f5"
-          textColor="#333"
+          title="RELATÓRIO DE VISITAS"
+          textColor="#ffffff"
           size="medium"
           className="acesso-exclusivo-card"
           onClick={() => navigate("/acesso-exclusivo/relatorio-visitas")}
@@ -57,26 +56,23 @@ export default function AcessoExclusivo() {
         <Card
           variant="service"
           title="GERENCIAMENTO DE OBRAS"
-          backgroundColor="#f5f5f5"
-          textColor="#333"
+          textColor="#ffffff"
           size="medium"
           className="acesso-exclusivo-card"
           onClick={() => navigate("/acesso-exclusivo/gerenciamento-obras")}
         />
         <Card
           variant="service"
-          title="EQUALIZADOR DE SERVICOS"
-          backgroundColor="#f5f5f5"
-          textColor="#333"
+          title="EQUALIZADOR DE SERVIÇOS"
+          textColor="#ffffff"
           size="medium"
           className="acesso-exclusivo-card"
           onClick={() => navigate("/acesso-exclusivo/equalizador-servico")}
         />
         <Card
           variant="service"
-          title="SOLICITACAO DE SERVICOS"
-          backgroundColor="#f5f5f5"
-          textColor="#333"
+          title="SOLICITAÇÃO DE SERVIÇOS"
+          textColor="#ffffff"
           size="medium"
           className="acesso-exclusivo-card"
           onClick={() => navigate("/acesso-exclusivo/solicitacao-servicos")}

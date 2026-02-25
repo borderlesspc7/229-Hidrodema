@@ -395,3 +395,76 @@
 @media (max-width: 480px) {
   .equalizador-company-title { font-size: var(--text-lg); }
 }
+
+/* ============================================================
+   CORREÇÕES — cards dark theme + footer
+   ============================================================ */
+
+/* Dark theme override para menu cards — anula backgroundColor inline */
+.equalizador-menu-card {
+  background: rgba(14, 25, 52, 0.78) !important;
+  background-color: rgba(14, 25, 52, 0.78) !important;
+  border: 1px solid rgba(59,130,246,0.18) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.05) !important;
+  color: var(--color-white) !important;
+}
+
+.equalizador-menu-card:hover {
+  background: rgba(20, 38, 78, 0.92) !important;
+  background-color: rgba(20, 38, 78, 0.92) !important;
+  border-color: rgba(59,130,246,0.40) !important;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.40), 0 0 24px rgba(59,130,246,0.14) !important;
+  transform: translateY(-4px) !important;
+}
+
+/* Texto branco — anula textColor inline */
+.equalizador-menu-card * {
+  color: var(--color-white) !important;
+  -webkit-text-fill-color: var(--color-white) !important;
+}
+
+/* Cores de ícone por card */
+/* Centralização do conteúdo e ícones */
+.equalizador-menu-card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+}
+
+.equalizador-menu-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-2);
+}
+
+.equalizador-menu-card-content p { margin: 0; }
+
+.equalizador-menu-cards .equalizador-menu-card:nth-child(1) .equalizador-menu-icon { color: #93c5fd !important; -webkit-text-fill-color: #93c5fd !important; }
+.equalizador-menu-cards .equalizador-menu-card:nth-child(2) .equalizador-menu-icon { color: #6ee7b7 !important; -webkit-text-fill-color: #6ee7b7 !important; }
+.equalizador-menu-cards .equalizador-menu-card:nth-child(3) .equalizador-menu-icon { color: #c4b5fd !important; -webkit-text-fill-color: #c4b5fd !important; }
+
+/* Footer */
+.equalizador-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6) var(--space-8);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  margin-top: auto;
+}
+
+.equalizador-footer-logo {
+  height: 36px;
+  width: auto;
+  max-width: 220px;
+  object-fit: contain;
+  opacity: 0.55;
+  filter: brightness(0.85);
+  transition: opacity var(--transition-base), filter var(--transition-base);
+}
+.equalizador-footer-logo:hover { opacity: 0.90; filter: brightness(1.1); }

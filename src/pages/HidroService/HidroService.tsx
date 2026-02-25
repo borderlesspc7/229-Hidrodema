@@ -75,103 +75,63 @@ export default function HidroService() {
   return (
     <ThemeProvider theme={darkTheme}>
       <div className="hidro-service-container">
-        <Container maxWidth="lg" sx={{ width: "100%", py: { xs: 3, sm: 4 } }}>
+        <Container maxWidth="lg" className="hidro-service-inner">
           {/* Breadcrumb */}
           <Breadcrumb />
 
           {/* Header */}
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              mb: 4,
-              width: "100%",
-            }}
-          >
+          <Box className="hidro-service-header-wrapper">
             <Button
               variant="outlined"
               startIcon={<ArrowBack />}
               onClick={handleBack}
               aria-label="Voltar para o menu"
-              sx={{
-                color: "#fff",
-                borderColor: "rgba(255, 255, 255, 0.3)",
-                "&:hover": {
-                  borderColor: "rgba(255, 255, 255, 0.5)",
-                  bgcolor: "rgba(255, 255, 255, 0.1)",
-                },
-              }}
+              className="hidro-service-back-btn"
             >
               Voltar
             </Button>
-            <Box sx={{ flex: 1, display: "flex", justifyContent: "center" }}>
-              <div className="hidro-service-company-brand">
-                <img
-                  src="/Logo HidroService.png"
-                  alt="HIDRO SERVICE"
-                  className="hidro-service-logo"
-                />
-                <div className="hidro-service-company-underline"></div>
-              </div>
-            </Box>
-            <Box sx={{ width: 100 }} /> {/* Spacer */}
-          </Box>
-
-          {/* Grid de Serviços */}
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: {
-                xs: "1fr",
-                sm: "repeat(2, 1fr)",
-                xl: "repeat(3, 1fr)",
-              },
-              gap: 3,
-              mb: 4,
-            }}
-          >
-            {services.map((service) => (
-              <ServiceTile
-                key={service.label}
-                label={service.label}
-                to={service.to}
-                Icon={service.Icon}
-                external={service.external}
+            <div className="hidro-service-company-brand">
+              <img
+                src="/Logo HidroService.png"
+                alt="HIDRO SERVICE"
+                className="hidro-service-logo"
               />
-            ))}
+              <div className="hidro-service-company-underline" />
+            </div>
+            <Box sx={{ width: { xs: 80, sm: 100 } }} aria-hidden />
           </Box>
 
-          {/* Footer */}
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 2,
-              mt: 4,
-            }}
-          >
+          {/* Grid de Serviços — centralizado e formatado */}
+          <section className="hidro-service-section" aria-label="Serviços disponíveis">
+            <div className="hidro-service-grid">
+              {services.map((service) => (
+                <div key={service.label} className="hidro-service-tile-wrapper">
+                  <ServiceTile
+                    label={service.label}
+                    to={service.to}
+                    Icon={service.Icon}
+                    external={service.external}
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Footer — Acesso Exclusivo em destaque, HIDRODEMA embaixo */}
+          <footer className="hidro-service-footer">
+            <Button
+              variant="outlined"
+              onClick={() => navigate(paths.acessoExclusivo)}
+              className="hidro-service-acesso-btn"
+            >
+              Acesso Exclusivo
+            </Button>
             <img
               src="/HIDRODEMA_LogoNovo_Branco (2).png"
               alt="HIDRODEMA"
               className="hidro-service-footer-logo"
             />
-            <Button
-              variant="outlined"
-              onClick={() => navigate(paths.acessoExclusivo)}
-              sx={{
-                color: "#fff",
-                borderColor: "rgba(255, 255, 255, 0.3)",
-                "&:hover": {
-                  borderColor: "rgba(255, 255, 255, 0.5)",
-                  bgcolor: "rgba(255, 255, 255, 0.1)",
-                },
-              }}
-            >
-              Acesso Exclusivo
-            </Button>
-          </Box>
+          </footer>
         </Container>
       </div>
     </ThemeProvider>

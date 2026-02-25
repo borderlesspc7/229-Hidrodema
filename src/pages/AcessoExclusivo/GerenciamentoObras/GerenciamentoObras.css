@@ -357,3 +357,118 @@
   .obras-company-title { font-size: var(--text-lg); }
   .form-section-card { padding: var(--space-4); }
 }
+
+/* ============================================================
+   CORREÇÕES — aliases class names + cards dark theme + footer
+   ============================================================ */
+
+/* Alias: TSX usa "obras-menu-cards" mas CSS definiu "obras-menu-grid" */
+.obras-menu-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-5);
+  max-width: 840px;
+  width: 100%;
+}
+
+/* Alias: TSX usa "obras-back-btn" mas CSS definiu "obras-back-button" */
+.obras-back-btn {
+  min-width: 88px;
+  padding: var(--space-2) var(--space-4);
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: var(--radius-lg);
+  color: rgba(255,255,255,0.85);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+}
+.obras-back-btn:hover {
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(255,255,255,0.25);
+  color: var(--color-white);
+}
+
+/* Dark theme override para menu cards — anula backgroundColor inline */
+.obras-menu-cards .obras-menu-card,
+.obras-menu-card {
+  background: rgba(14, 25, 52, 0.78) !important;
+  background-color: rgba(14, 25, 52, 0.78) !important;
+  border: 1px solid rgba(59,130,246,0.18) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.05) !important;
+  color: var(--color-white) !important;
+}
+
+.obras-menu-cards .obras-menu-card:hover,
+.obras-menu-card:hover {
+  background: rgba(20, 38, 78, 0.92) !important;
+  background-color: rgba(20, 38, 78, 0.92) !important;
+  border-color: rgba(59,130,246,0.40) !important;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.40), 0 0 24px rgba(59,130,246,0.14) !important;
+  transform: translateY(-4px) !important;
+}
+
+/* Texto branco */
+.obras-menu-card * {
+  color: var(--color-white) !important;
+  -webkit-text-fill-color: var(--color-white) !important;
+}
+
+/* Ícones com cores diferenciadas */
+/* Centralização do conteúdo e ícones */
+.obras-menu-card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+}
+
+.obras-menu-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-2);
+}
+
+.obras-menu-card-content p { margin: 0; }
+
+.obras-menu-cards .obras-menu-card:nth-child(1) .obras-menu-icon { color: #93c5fd !important; -webkit-text-fill-color: #93c5fd !important; }
+.obras-menu-cards .obras-menu-card:nth-child(2) .obras-menu-icon { color: #fcd34d !important; -webkit-text-fill-color: #fcd34d !important; }
+.obras-menu-cards .obras-menu-card:nth-child(3) .obras-menu-icon { color: #6ee7b7 !important; -webkit-text-fill-color: #6ee7b7 !important; }
+.obras-menu-cards .obras-menu-card:nth-child(4) .obras-menu-icon { color: #fca5a5 !important; -webkit-text-fill-color: #fca5a5 !important; }
+.obras-menu-cards .obras-menu-card:nth-child(5) .obras-menu-icon { color: #fdba74 !important; -webkit-text-fill-color: #fdba74 !important; }
+.obras-menu-cards .obras-menu-card:nth-child(6) .obras-menu-icon { color: #a5b4fc !important; -webkit-text-fill-color: #a5b4fc !important; }
+
+/* Footer */
+.obras-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6) var(--space-8);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  margin-top: auto;
+}
+
+.obras-footer-logo {
+  height: 36px;
+  width: auto;
+  max-width: 220px;
+  object-fit: contain;
+  opacity: 0.55;
+  filter: brightness(0.85);
+  transition: opacity var(--transition-base), filter var(--transition-base);
+}
+.obras-footer-logo:hover { opacity: 0.90; filter: brightness(1.1); }
+
+/* Responsivo para os novos aliases */
+@media (max-width: 768px) {
+  .obras-menu-cards { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 480px) {
+  .obras-menu-cards { grid-template-columns: 1fr; }
+}
