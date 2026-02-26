@@ -29,6 +29,7 @@ import type {
   DocumentRecord,
 } from "../../../../../services/obrasService";
 import type { ViewMode } from "../../types";
+import { pluralize } from "../../../../../utils/pluralize";
 
 interface ReportsDashboardProps {
   projects: Project[];
@@ -126,20 +127,23 @@ export default function ReportsDashboard({
   ).length;
 
   return (
-    <div className="obras-reports-container">
-      <div className="obras-reports-header">
-        <h2>RELATÓRIOS E ANÁLISES</h2>
+    <section
+      className="obras-reports-container"
+      aria-labelledby="obras-reports-title"
+    >
+      <header className="obras-reports-header">
+        <h2 id="obras-reports-title">RELATÓRIOS E ANÁLISES</h2>
         <Button
           variant="primary"
           onClick={() => onViewChange("menu")}
           className="obras-back-to-menu"
         >
-          <FiArrowLeft size={16} />
+          <FiArrowLeft size={16} aria-hidden />
           Voltar ao Menu
         </Button>
-      </div>
+      </header>
 
-      <div className="obras-reports-dashboard">
+      <div className="obras-reports-dashboard" role="region" aria-label="Resumo do dashboard">
         {/* Resumo Geral de Projetos */}
         <div className="obras-dashboard-section">
           <h3 className="obras-dashboard-section-title">
@@ -216,7 +220,7 @@ export default function ReportsDashboard({
                 <p className="obras-card-value">
                   R$ {totalBudget.toLocaleString("pt-BR")}
                 </p>
-                <span className="obras-card-detail">{budgets.length} orçamentos</span>
+                <span className="obras-card-detail">{pluralize(budgets.length, "orçamento", "orçamentos")}</span>
               </div>
             </div>
 
@@ -271,7 +275,7 @@ export default function ReportsDashboard({
                   style={{ color: lowStockItems > 0 ? "#ef4444" : "#10b981" }}
                 >
                   {lowStockItems > 0
-                    ? `${lowStockItems} itens em falta`
+                    ? pluralize(lowStockItems, "item em falta", "itens em falta")
                     : "Estoque OK"}
                 </span>
               </div>
@@ -435,7 +439,7 @@ export default function ReportsDashboard({
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
 

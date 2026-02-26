@@ -42,6 +42,8 @@ import {
   validateDate,
   sanitizeForDatabase,
 } from "../../../utils/validation";
+import { pluralize } from "../../../utils/pluralize";
+import { jsPDF } from "jspdf";
 
 interface FormData {
   [key: string]: string | string[];
@@ -1113,72 +1115,105 @@ export default function SolicitacaoServicos() {
     }
   };
 
-  const handleExportPDF = (request: ServiceRequest) => {
-    // Implementação básica de exportação para PDF
-    const printWindow = window.open("", "_blank");
-    if (printWindow) {
-      printWindow.document.write(`
-        <html>
-          <head>
-            <title>Solicitação de Serviço - ${request.title}</title>
-            <style>
-              body { font-family: Arial, sans-serif; margin: 20px; }
-              .header { text-align: center; margin-bottom: 30px; }
-              .section { margin-bottom: 25px; }
-              .question { margin-bottom: 15px; }
-              .label { font-weight: bold; color: #1e40af; }
-              .value { margin-left: 10px; }
-              .comments { margin-top: 30px; }
-              .comment { margin-bottom: 15px; padding: 10px; background: #f5f5f5; border-radius: 5px; }
-            </style>
-          </head>
-          <body>
-            <div class="header">
-              <h1>HIDRO SERVICE</h1>
-              <h2>Solicitação de Serviço</h2>
-              <p>Data: ${new Date(request.createdAt).toLocaleDateString()}</p>
-            </div>
-            <div class="section">
-              <h3>Dados da Solicitação</h3>
-              ${Object.entries(request.formData)
-                .map(
-                  ([key, value]) => `
-                <div class="question">
-                  <span class="label">${key}:</span>
-                  <span class="value">${
-                    Array.isArray(value) ? value.join(", ") : value
-                  }</span>
-                </div>
-              `,
-                )
-                .join("")}
-            </div>
-            ${
-              request.comments.length > 0
-                ? `
-              <div class="comments">
-                <h3>Comentários</h3>
-                ${request.comments
-                  .map(
-                    (comment) => `
-                  <div class="comment">
-                    <strong>${comment.author}</strong> - ${new Date(
-                      comment.createdAt,
-                    ).toLocaleDateString()}
-                    <p>${comment.text}</p>
-                  </div>
-                `,
-                  )
-                  .join("")}
-              </div>
-            `
-                : ""
-            }
-          </body>
-        </html>
-      `);
-      printWindow.document.close();
-      printWindow.print();
+  const handleExportPDF = async (request: ServiceRequest) => {
+    try {
+      const doc = new jsPDF({ format: "a4", unit: "mm" });
+      const margin = 18;
+      const pageW = doc.internal.pageSize.getWidth();
+      const pageH = doc.internal.pageSize.getHeight();
+      let y = margin;
+
+      doc.setFontSize(18);
+      doc.setTextColor(30, 64, 175);
+      doc.setFont("helvetica", "bold");
+      doc.text("HIDRODEMA - Solicitação de Serviço", pageW / 2, y, {
+        align: "center",
+      });
+      y += 10;
+
+      doc.setFontSize(11);
+      doc.setTextColor(55, 65, 81);
+      doc.setFont("helvetica", "normal");
+      doc.text(`Título: ${request.title}`, margin, y);
+      y += 6;
+      doc.text(
+        `Data: ${new Date(request.createdAt).toLocaleDateString("pt-BR")}`,
+        margin,
+        y,
+      );
+      y += 6;
+      doc.text(
+        `Status: ${request.status}`,
+        margin,
+        y,
+      );
+      y += 12;
+
+      doc.setFontSize(12);
+      doc.setTextColor(30, 64, 175);
+      doc.setFont("helvetica", "bold");
+      doc.text("Dados da solicitação", margin, y);
+      y += 10;
+
+      doc.setFontSize(10);
+      doc.setTextColor(31, 41, 55);
+      doc.setFont("helvetica", "normal");
+
+      const formEntries = Object.entries(request.formData || {});
+      for (const [key, value] of formEntries) {
+        const valueStr = Array.isArray(value) ? value.join(", ") : String(value ?? "");
+        const text = `${key}: ${valueStr}`;
+        const lines = doc.splitTextToSize(text, pageW - 2 * margin);
+        if (y + lines.length * 5 > pageH - margin) {
+          doc.addPage();
+          y = margin;
+        }
+        doc.text(lines, margin, y);
+        y += lines.length * 5 + 2;
+      }
+
+      if (request.comments && request.comments.length > 0) {
+        y += 8;
+        if (y > pageH - 30) {
+          doc.addPage();
+          y = margin;
+        }
+        doc.setFontSize(12);
+        doc.setTextColor(30, 64, 175);
+        doc.setFont("helvetica", "bold");
+        doc.text("Comentários", margin, y);
+        y += 10;
+
+        doc.setFontSize(10);
+        doc.setTextColor(31, 41, 55);
+        doc.setFont("helvetica", "normal");
+        for (const comment of request.comments) {
+          if (y > pageH - 25) {
+            doc.addPage();
+            y = margin;
+          }
+          doc.setFont("helvetica", "bold");
+          doc.text(
+            `${comment.author} - ${new Date(comment.createdAt).toLocaleDateString("pt-BR")} ${new Date(comment.createdAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`,
+            margin,
+            y,
+          );
+          y += 6;
+          doc.setFont("helvetica", "normal");
+          const commentLines = doc.splitTextToSize(comment.text, pageW - 2 * margin);
+          doc.text(commentLines, margin, y);
+          y += commentLines.length * 5 + 6;
+        }
+      }
+
+      const safeTitle = (request.title || "solicitacao")
+        .replace(/[^a-zA-Z0-9\u00C0-\u00FF\s-]/g, "")
+        .slice(0, 40);
+      const dateStr = new Date(request.createdAt).toISOString().slice(0, 10);
+      doc.save(`Solicitacao_Servico_${safeTitle}_${dateStr}.pdf`);
+    } catch (err) {
+      console.error("Erro ao gerar PDF:", err);
+      alert("Não foi possível gerar o PDF. Tente novamente.");
     }
   };
 
@@ -1513,7 +1548,7 @@ export default function SolicitacaoServicos() {
             </div>
             <p>Consultar solicitações anteriores</p>
             <span className="request-count">
-              {serviceRequests.length} solicitações
+              {pluralize(serviceRequests.length, "solicitação", "solicitações")}
             </span>
           </div>
         </Card>
@@ -1577,6 +1612,12 @@ export default function SolicitacaoServicos() {
                       <>
                         <FiCheck size={16} />
                         Concluído
+                      </>
+                    )}
+                    {request.status === "cancelled" && (
+                      <>
+                        <FiTrash2 size={16} />
+                        Cancelado
                       </>
                     )}
                   </span>
@@ -1650,21 +1691,24 @@ export default function SolicitacaoServicos() {
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
               rows={4}
+              aria-label="Digite seu comentário"
             />
-            <Button
-              variant="primary"
-              onClick={handleAddComment}
-              disabled={!newComment.trim()}
-              className="add-comment-button"
-            >
-              <FiPlus size={16} />
-              Adicionar Comentário
-            </Button>
+            <div className="comment-form-actions">
+              <Button
+                variant="primary"
+                onClick={handleAddComment}
+                disabled={!newComment.trim()}
+                className="add-comment-button"
+              >
+                <FiPlus size={16} />
+                Adicionar Comentário
+              </Button>
+            </div>
           </div>
         </div>
 
         <div className="comments-list">
-          <h3>Comentários ({selectedRequest?.comments.length || 0})</h3>
+          <h3>{pluralize(selectedRequest?.comments.length || 0, "Comentário", "Comentários")}</h3>
           {selectedRequest?.comments.length === 0 ? (
             <div className="no-comments">
               <p>Nenhum comentário ainda. Seja o primeiro a comentar!</p>
@@ -1722,7 +1766,6 @@ export default function SolicitacaoServicos() {
           variant="service"
           className="form-card"
           title=""
-          textColor="#1e293b"
         >
           <div className="form-header">
             <h2 className="form-title">

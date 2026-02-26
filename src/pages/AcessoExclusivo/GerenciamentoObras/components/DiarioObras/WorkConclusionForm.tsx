@@ -29,6 +29,7 @@ import type {
   SignatureEntry,
 } from "../../../../../services/obrasService";
 import { OCCURRENCE_TAGS as TAGS } from "../../../../../services/obrasService";
+import { pluralize } from "../../../../../utils/pluralize";
 
 interface WorkConclusionFormProps {
   projects: Project[];
@@ -422,7 +423,7 @@ export default function WorkConclusionForm({
                   className="obras-section-title"
                   style={{ color: "#ea580c" }}
                 >
-                  <FiActivity /> Atividades ({activities.length})
+                  <FiActivity /> {pluralize(activities.length, "Atividade", "Atividades")}
                 </h3>
                 <Button variant="primary" onClick={handleAddActivity}>
                   <FiPlus size={16} /> Adicionar
@@ -543,7 +544,7 @@ export default function WorkConclusionForm({
                   className="obras-section-title"
                   style={{ color: "#ea580c" }}
                 >
-                  <FiAlertTriangle /> Ocorrências ({occurrences.length})
+                  <FiAlertTriangle /> {pluralize(occurrences.length, "Ocorrência", "Ocorrências")}
                 </h3>
                 <Button variant="primary" onClick={handleAddOccurrence}>
                   <FiPlus size={16} /> Adicionar
@@ -583,7 +584,7 @@ export default function WorkConclusionForm({
                       placeholder="Selecione as tags"
                       value={
                         newOccurrence.tags.length > 0
-                          ? `${newOccurrence.tags.length} tag(s) selecionada(s)`
+                          ? pluralize(newOccurrence.tags.length, "tag selecionada", "tags selecionadas")
                           : ""
                       }
                       readOnly
@@ -669,7 +670,7 @@ export default function WorkConclusionForm({
                   className="obras-section-title"
                   style={{ color: "#ea580c" }}
                 >
-                  <FiMessageSquare /> Comentários ({comments.length})
+                  <FiMessageSquare /> {pluralize(comments.length, "Comentário", "Comentários")}
                 </h3>
                 <Button variant="primary" onClick={handleAddComment}>
                   <FiPlus size={16} /> Adicionar
@@ -717,7 +718,7 @@ export default function WorkConclusionForm({
                   className="obras-section-title"
                   style={{ color: "#ea580c" }}
                 >
-                  <FiCamera /> Fotos ({photos.length})
+                  <FiCamera /> {pluralize(photos.length, "Foto", "Fotos")}
                 </h3>
                 <label className="obras-upload-btn">
                   <FiPlus size={16} /> Adicionar
@@ -772,7 +773,7 @@ export default function WorkConclusionForm({
                   className="obras-section-title"
                   style={{ color: "#ea580c" }}
                 >
-                  <FiVideo /> Vídeos ({videos.length})
+                  <FiVideo /> {pluralize(videos.length, "Vídeo", "Vídeos")}
                 </h3>
                 <label className="obras-upload-btn">
                   <FiPlus size={16} /> Adicionar

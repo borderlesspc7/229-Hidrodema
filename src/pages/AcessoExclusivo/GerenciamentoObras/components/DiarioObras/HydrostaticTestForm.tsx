@@ -34,6 +34,7 @@ import type {
   HydrostaticTestItem,
   TestParameter,
 } from "../../../../../services/obrasService";
+import { pluralize } from "../../../../../utils/pluralize";
 
 interface HydrostaticTestFormProps {
   projects: Project[];
@@ -847,7 +848,7 @@ export default function HydrostaticTestForm({
                   className="obras-section-title"
                   style={{ color: "#ea580c" }}
                 >
-                  <FiDroplet /> Comentários ({testItems.length})
+                  <FiDroplet /> {pluralize(testItems.length, "Comentário", "Comentários")}
                 </h3>
                 <Button
                   variant="primary"

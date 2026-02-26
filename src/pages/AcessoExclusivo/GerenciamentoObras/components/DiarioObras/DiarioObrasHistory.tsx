@@ -17,6 +17,7 @@ import {
 } from "react-icons/fi";
 import type { DiaryEntry } from "../../../../../services/obrasService";
 import type { ViewMode } from "../../types";
+import { pluralize } from "../../../../../utils/pluralize";
 
 // Helper para obter informações do tipo de relatório
 const getReportTypeInfo = (reportType?: string) => {
@@ -155,11 +156,11 @@ export default function DiarioObrasHistory({
                     </span>
                     <span className="obras-materials-count">
                       <FiPackage size={16} />
-                      {entry.materials?.length || 0} materiais
+                      {pluralize(entry.materials?.length || 0, "material", "materiais")}
                     </span>
                     <span className="obras-photos-count">
                       <FiCamera size={16} />
-                      {entry.photos?.length || 0} fotos
+                      {pluralize(entry.photos?.length || 0, "foto", "fotos")}
                     </span>
                   </div>
                 </div>

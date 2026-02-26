@@ -148,11 +148,13 @@ export default function UnifiedReportsList({
   }, [diaryEntries]);
 
   return (
-    <div className="obras-unified-reports-container">
-      {/* Header */}
-      <div className="obras-unified-reports-header">
+    <section
+      className="obras-unified-reports-container"
+      aria-labelledby="obras-unified-reports-title"
+    >
+      <header className="obras-unified-reports-header">
         <div className="obras-unified-reports-title">
-          <h2>RELATÓRIOS UNIFICADOS</h2>
+          <h2 id="obras-unified-reports-title">RELATÓRIOS UNIFICADOS</h2>
           <p>Todos os relatórios criados em um único lugar</p>
         </div>
         <div className="obras-unified-reports-header-actions">
@@ -169,10 +171,9 @@ export default function UnifiedReportsList({
             Voltar ao Menu
           </Button>
         </div>
-      </div>
+      </header>
 
-      {/* Estatísticas */}
-      <div className="obras-unified-stats">
+      <div className="obras-unified-stats" role="group" aria-label="Resumo de relatórios">
         <div className="obras-unified-stat-card">
           <div className="obras-unified-stat-value">{stats.total}</div>
           <div className="obras-unified-stat-label">Total de Relatórios</div>
@@ -227,26 +228,28 @@ export default function UnifiedReportsList({
         </div>
       </div>
 
-      {/* Filtros e Busca */}
-      <div className="obras-unified-filters">
+      <div className="obras-unified-filters" role="search" aria-label="Filtros e busca de relatórios">
         <div className="obras-unified-search">
-          <FiSearch size={18} />
+          <FiSearch size={18} aria-hidden />
           <input
-            type="text"
+            type="search"
             placeholder="Buscar por nome da obra ou número do relatório..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            aria-label="Buscar por nome da obra ou número do relatório"
           />
         </div>
 
         <div className="obras-unified-filter-group">
-          <label>
-            <FiFilter size={16} />
+          <label htmlFor="obras-filter-type">
+            <FiFilter size={16} aria-hidden />
             Tipo:
           </label>
           <select
+            id="obras-filter-type"
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
+            aria-label="Filtrar por tipo de relatório"
           >
             <option value="all">Todos os tipos</option>
             <option value="rdo">RDO</option>
@@ -257,10 +260,12 @@ export default function UnifiedReportsList({
         </div>
 
         <div className="obras-unified-filter-group">
-          <label>Obra:</label>
+          <label htmlFor="obras-filter-project">Obra:</label>
           <select
+            id="obras-filter-project"
             value={filterProject}
             onChange={(e) => setFilterProject(e.target.value)}
+            aria-label="Filtrar por obra"
           >
             <option value="all">Todas as obras</option>
             {projects.map((project) => (
@@ -272,12 +277,14 @@ export default function UnifiedReportsList({
         </div>
 
         <div className="obras-unified-filter-group">
-          <label>Ordenar por:</label>
+          <label htmlFor="obras-sort-by">Ordenar por:</label>
           <select
+            id="obras-sort-by"
             value={sortBy}
             onChange={(e) =>
               setSortBy(e.target.value as "date" | "type" | "project")
             }
+            aria-label="Ordenar relatórios por"
           >
             <option value="date">Data</option>
             <option value="type">Tipo</option>
@@ -286,15 +293,16 @@ export default function UnifiedReportsList({
         </div>
 
         <button
+          type="button"
           className="obras-unified-sort-toggle"
           onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
-          title={sortOrder === "asc" ? "Ordem crescente" : "Ordem decrescente"}
+          title={sortOrder === "asc" ? "Ordem crescente (clique para decrescente)" : "Ordem decrescente (clique para crescente)"}
+          aria-label={sortOrder === "asc" ? "Ordem crescente; alterar para decrescente" : "Ordem decrescente; alterar para crescente"}
         >
           {sortOrder === "asc" ? "↑" : "↓"}
         </button>
       </div>
 
-      {/* Lista de Relatórios */}
       <div className="obras-unified-reports-list">
         {filteredAndSortedReports.length === 0 ? (
           <div className="obras-empty-state">
@@ -317,7 +325,7 @@ export default function UnifiedReportsList({
             const ReportIcon = reportTypeInfo.icon;
 
             return (
-              <div key={entry.id} className="obras-unified-report-card">
+              <article key={entry.id} className="obras-unified-report-card">
                 <div className="obras-unified-report-main">
                   <div
                     className="obras-unified-report-icon"
@@ -409,19 +417,18 @@ export default function UnifiedReportsList({
                     Excluir
                   </Button>
                 </div>
-              </div>
+              </article>
             );
           })
         )}
       </div>
 
-      {/* Informações de resultados */}
       {filteredAndSortedReports.length > 0 && (
-        <div className="obras-unified-results-info">
+        <p className="obras-unified-results-info" aria-live="polite">
           Mostrando {filteredAndSortedReports.length} de {diaryEntries.length}{" "}
-          relatório(s)
-        </div>
+          {filteredAndSortedReports.length === 1 ? "relatório" : "relatórios"}
+        </p>
       )}
-    </div>
+    </section>
   );
 }

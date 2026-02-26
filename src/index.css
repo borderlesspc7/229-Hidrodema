@@ -160,6 +160,11 @@ body {
   line-height: var(--leading-normal);
   color: var(--color-white);
   background-color: var(--color-primary-600);
+  background-image: url('/FundoHidrodema.jpeg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
   min-height: 100vh;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
@@ -222,13 +227,109 @@ img, svg { display: block; }
    Utilitários globais reutilizáveis
    ============================================================ */
 
-/* Fundo padrão de telas (gradiente escuro elegante) */
+/* Botões Voltar / Sair — canto superior esquerdo extremo + formato pill */
+.logout-button-left,
+.hidro-service-back-btn,
+.equalizador-back-button,
+.equalizador-back-to-menu,
+.obras-back-btn,
+.obras-back-to-menu,
+.visitas-back-button,
+.visitas-planilha-back,
+.visitas-back-to-history,
+.solicitacao-content .back-button,
+.back-button {
+  position: fixed !important;
+  top: var(--space-3) !important;
+  left: var(--space-3) !important;
+  z-index: 1000 !important;
+  min-width: 120px !important;
+  min-height: 72px !important;
+  padding: var(--space-3) var(--space-5) !important;
+  font-size: var(--text-sm) !important;
+  font-weight: var(--weight-bold) !important;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  display: inline-flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: var(--space-2) !important;
+  background: transparent !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  border-radius: 9999px !important;
+  box-shadow: none;
+}
+.logout-button-left:hover:not(:disabled),
+.hidro-service-back-btn:hover,
+.equalizador-back-button:hover:not(:disabled),
+.equalizador-back-to-menu:hover:not(:disabled),
+.obras-back-btn:hover:not(:disabled),
+.obras-back-to-menu:hover:not(:disabled),
+.visitas-back-button:hover:not(:disabled),
+.visitas-planilha-back:hover:not(:disabled),
+.visitas-back-to-history:hover:not(:disabled),
+.solicitacao-content .back-button:hover:not(:disabled),
+.back-button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.28) !important;
+}
+
+/* Compensar espaço do botão fixo nos headers (evitar sobreposição com logo/título) */
+.menu-header,
+.hidro-service-header,
+.hidro-service-header-wrapper,
+.equalizador-header,
+.obras-header,
+.visitas-header,
+.solicitacao-header,
+.equalizador-quotations-header,
+.equalizador-history-header {
+  padding-left: 140px !important;
+}
+
+/* Ícone acima do texto — botões com .button-text (Button do design system) */
+.logout-button-left .button-text,
+.equalizador-back-button .button-text,
+.equalizador-back-to-menu .button-text,
+.obras-back-btn .button-text,
+.obras-back-to-menu .button-text,
+.visitas-back-button .button-text,
+.visitas-planilha-back .button-text,
+.visitas-back-to-history .button-text,
+.solicitacao-content .back-button .button-text {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: var(--space-2) !important;
+}
+.logout-button-left .button-text svg,
+.equalizador-back-button .button-text svg,
+.equalizador-back-to-menu .button-text svg,
+.obras-back-btn .button-text svg,
+.obras-back-to-menu .button-text svg,
+.visitas-back-button .button-text svg,
+.visitas-planilha-back .button-text svg,
+.visitas-back-to-history .button-text svg,
+.solicitacao-content .back-button .button-text svg {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+/* HidroService usa MUI: ícone em cima do texto */
+.hidro-service-back-btn {
+  flex-direction: column !important;
+}
+.hidro-service-back-btn .MuiButton-startIcon {
+  margin: 0 0 var(--space-1) 0 !important;
+}
+
+/* Fundo padrão de telas — herda a imagem de fundo do body */
 .page-bg {
   min-height: 100vh;
-  background:
-    radial-gradient(ellipse at 15% 20%, rgba(59,130,246,0.10) 0%, transparent 55%),
-    radial-gradient(ellipse at 85% 80%, rgba(30,58,138,0.12) 0%, transparent 55%),
-    linear-gradient(160deg, var(--color-primary-950) 0%, var(--color-primary-800) 40%, var(--color-primary-600) 100%);
+  background: transparent;
 }
 
 /* Card glassmorphism */

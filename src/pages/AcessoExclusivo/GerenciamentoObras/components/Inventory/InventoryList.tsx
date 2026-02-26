@@ -11,6 +11,7 @@ import {
 } from "react-icons/fi";
 import type { InventoryItem, Project } from "../../../../../services/obrasService";
 import type { ViewMode } from "../../types";
+import { pluralize } from "../../../../../utils/pluralize";
 import ProjectFilter from "../shared/ProjectFilter";
 import ProjectBadge from "../shared/ProjectBadge";
 
@@ -40,36 +41,39 @@ export default function InventoryList({
       : inventory.filter((item) => item.projectId === selectedProjectId);
 
   return (
-    <div className="obras-inventory-container">
-      <div className="obras-inventory-header">
-        <h2>Controle de Estoque</h2>
+    <section
+      className="obras-inventory-container"
+      aria-labelledby="obras-inventory-title"
+    >
+      <header className="obras-inventory-header">
+        <h2 id="obras-inventory-title">Controle de Estoque</h2>
         {alerts.length > 0 && (
-          <div className="obras-alert-banner">
-            <FiAlertTriangle size={20} />
-            <span>{alerts.length} itens com estoque baixo</span>
+          <div className="obras-alert-banner" role="alert">
+            <FiAlertTriangle size={20} aria-hidden />
+            <span>{pluralize(alerts.length, "item com estoque baixo", "itens com estoque baixo")}</span>
           </div>
         )}
-        <Button
-          variant="primary"
-          onClick={() => onViewChange("menu")}
-          className="obras-back-to-menu"
-        >
-          <FiArrowLeft size={16} />
-          Voltar ao Menu
-        </Button>
-      </div>
-
-      <div className="obras-inventory-controls">
-        <div className="obras-inventory-actions">
+        <div className="obras-inventory-header-actions">
+          <Button
+            variant="primary"
+            onClick={() => onViewChange("menu")}
+            className="obras-back-to-menu"
+          >
+            <FiArrowLeft size={16} aria-hidden />
+            Voltar ao Menu
+          </Button>
           <Button
             variant="primary"
             onClick={() => onViewChange("new-inventory")}
             className="obras-create-btn"
           >
-            <FiPlus size={20} />
+            <FiPlus size={20} aria-hidden />
             Novo Item
           </Button>
         </div>
+      </header>
+
+      <div className="obras-inventory-controls" role="search" aria-label="Filtrar itens por obra">
         <ProjectFilter
           projects={projects}
           selectedProjectId={selectedProjectId}
@@ -94,13 +98,14 @@ export default function InventoryList({
           </div>
         ) : (
           filteredInventory.map((item) => (
-            <div key={item.id} className="obras-inventory-item">
+            <article key={item.id} className="obras-inventory-item">
               <div className="obras-item-header">
                 <h3>{item.name}</h3>
                 <span
                   className={`obras-item-status ${
                     item.quantity <= item.minStock ? "low-stock" : "normal"
                   }`}
+                  aria-label={item.quantity <= item.minStock ? "Estoque baixo" : "Estoque normal"}
                 >
                   {item.quantity <= item.minStock ? "Estoque Baixo" : "Normal"}
                 </span>
@@ -136,28 +141,30 @@ export default function InventoryList({
                 <Button
                   variant="secondary"
                   onClick={() => item.id && onEdit(item)}
+                  aria-label={`Editar ${item.name}`}
                 >
-                  <FiEdit3 size={16} />
+                  <FiEdit3 size={16} aria-hidden />
                   Editar
                 </Button>
                 <Button
                   variant="secondary"
                   onClick={() => item.id && onDelete(item.id)}
                   className="obras-delete"
+                  aria-label={`Excluir ${item.name}`}
                 >
-                  <FiTrash2 size={16} />
+                  <FiTrash2 size={16} aria-hidden />
                   Excluir
                 </Button>
-                <Button variant="primary">
-                  <FiShoppingCart size={16} />
+                <Button variant="primary" aria-label={`Comprar ${item.name}`}>
+                  <FiShoppingCart size={16} aria-hidden />
                   Comprar
                 </Button>
               </div>
-            </div>
+            </article>
           ))
         )}
       </div>
-    </div>
+    </section>
   );
 }
 

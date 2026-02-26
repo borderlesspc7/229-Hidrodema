@@ -27,25 +27,7 @@ export default function ProjectSelector({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         required={required}
-        style={{
-          width: "100%",
-          padding: "12px 16px",
-          fontSize: "14px",
-          border: "2px solid #e2e8f0",
-          borderRadius: "8px",
-          outline: "none",
-          transition: "all 0.2s",
-          backgroundColor: "#ffffff",
-          cursor: "pointer",
-        }}
-        onFocus={(e) => {
-          e.target.style.borderColor = "#3b82f6";
-          e.target.style.boxShadow = "0 0 0 3px rgba(59, 130, 246, 0.1)";
-        }}
-        onBlur={(e) => {
-          e.target.style.borderColor = "#e2e8f0";
-          e.target.style.boxShadow = "none";
-        }}
+        className="project-select"
       >
         <option value="">
           {required ? "Selecione uma obra" : "Nenhuma obra específica"}

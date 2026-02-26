@@ -14,15 +14,11 @@ import {
   FiSave,
   FiEdit3,
   FiMessageCircle,
-  FiFile,
   FiTrash2,
   FiPlus,
   FiCheck,
-  FiClock,
   FiArrowLeft,
-  FiUsers,
   FiList,
-  FiX,
 } from "react-icons/fi";
 import "./RelatorioVisitas.css";
 import {
@@ -47,6 +43,8 @@ import {
   validateDate,
   sanitizeForDatabase,
 } from "../../../utils/validation";
+import { pluralize } from "../../../utils/pluralize";
+import { jsPDF } from "jspdf";
 
 interface FormData {
   [key: string]: string | string[];
@@ -64,6 +62,8 @@ interface Question {
 }
 
 type ViewMode = "menu" | "new" | "history" | "edit" | "comments" | "schedule";
+
+const VISITAS_DRAFT_KEY = "hidrodema_relatorio_visitas_draft";
 
 // Interface local combinada para exibição
 export interface DisplayVisit {
@@ -210,15 +210,18 @@ export default function RelatorioVisitas() {
         "035198 - RAFAEL SOUZA DA COSTA",
       ],
     },
-    // Seção 2: Geral
-    // {
-    //   id: "q6",
-    //   type: "radio",
-    //   question: "6 - Selecione a ação que deseja realizar",
-    //   section: "Geral",
-    //   required: true,
-    //   options: ["Solicitar uma nova visita"],
-    // },
+    // Seção 2: Geral — escolha do fluxo (solicitação ou relatório)
+    {
+      id: "q6",
+      type: "radio",
+      question: "6 - Selecione a ação que deseja realizar",
+      section: "Geral",
+      required: true,
+      options: [
+        "Solicitar uma nova visita",
+        "Fazer o relatório de uma visita realizada",
+      ],
+    },
     // Seção 3: Dados do Cliente
     {
       id: "q7",
@@ -504,19 +507,19 @@ export default function RelatorioVisitas() {
     "Relatório",
   ];
 
-  // Determinar seções ativas baseadas na escolha do usuário
-  const getActiveSections = () => {
-    const selectedAction = formData.q6 as string;
-
+  // Determinar seções ativas baseadas na escolha do usuário (aceita formData opcional para restauração de rascunho)
+  const getActiveSectionsFromData = (data: FormData) => {
+    const selectedAction = data.q6 as string;
     if (selectedAction === "Solicitar uma nova visita") {
       return solicitacaoSections;
-    } else if (selectedAction === "Fazer o relatório de uma visita realizada") {
+    }
+    if (selectedAction === "Fazer o relatório de uma visita realizada") {
       return relatorioSections;
     }
-
-    // Se ainda não selecionou, mostrar apenas até a seção Geral
     return ["Informações Regionais e Vendedores", "Geral"];
   };
+
+  const getActiveSections = () => getActiveSectionsFromData(formData);
 
   const sections = getActiveSections();
 
@@ -625,10 +628,15 @@ export default function RelatorioVisitas() {
       [questionId]: value,
     }));
 
-    // Se mudou a seleção de ação (q6), resetar para a seção Geral
+    // Se mudou a seleção de ação (q6), ajustar seção atual
     if (questionId === "q6") {
-      setCurrentSection(1); // Índice da seção "Geral"
-      setLoadedRequest(null); // Limpar solicitação carregada
+      setLoadedRequest(null);
+      const action = value as string;
+      if (action === "Fazer o relatório de uma visita realizada") {
+        setCurrentSection(0); // primeira seção do fluxo relatório
+      } else {
+        setCurrentSection(1); // manter na seção "Geral" para solicitação
+      }
     }
 
     // Se selecionou uma solicitação no dropdown, carregar os dados
@@ -657,8 +665,26 @@ export default function RelatorioVisitas() {
       setLoading(true);
       const selectedAction = formData.q6 as string;
 
+      if (!selectedAction) {
+        const draft = { formData: { ...formData }, currentSection };
+        localStorage.setItem(VISITAS_DRAFT_KEY, JSON.stringify(draft));
+        alert(
+          "Rascunho salvo localmente. Selecione uma ação na seção \"Geral\" (Solicitar visita ou Fazer relatório) e depois use \"Salvar Rascunho\" ou \"Agendar Visita\" para enviar ao sistema.",
+        );
+        return;
+      }
+
+      if (selectedAction === "Fazer o relatório de uma visita realizada") {
+        const draft = { formData: { ...formData }, currentSection };
+        localStorage.setItem(VISITAS_DRAFT_KEY, JSON.stringify(draft));
+        alert(
+          "Rascunho do relatório salvo localmente. Preencha todos os campos e use \"Enviar Relatório\" para salvar no sistema.",
+        );
+        await loadVisitData();
+        return;
+      }
+
       if (selectedAction === "Solicitar uma nova visita") {
-        // Salvar rascunho de solicitação
         const requestId = generateRequestId();
 
         await createVisitRequest(
@@ -825,6 +851,7 @@ export default function RelatorioVisitas() {
       }
 
       await loadVisitData();
+      localStorage.removeItem(VISITAS_DRAFT_KEY);
       setViewMode("menu");
       setFormData({});
       setCurrentSection(0);
@@ -904,73 +931,125 @@ export default function RelatorioVisitas() {
     reportId: string,
     newStatus: DisplayVisit["status"],
   ) => {
-    try {
-      const report = visitReports.find((r) => r.id === reportId);
+    const report = visitReports.find((r) => r.id === reportId);
+    if (!report || !report.isRequest) return;
 
-      if (report && report.isRequest) {
-        await updateVisitRequest(reportId, {
-          status: newStatus as VisitRequest["status"],
-        });
-        await loadVisitData();
-      }
+    setVisitReports((prev) =>
+      prev.map((r) =>
+        r.id === reportId ? { ...r, status: newStatus } : r,
+      ),
+    );
+
+    try {
+      await updateVisitRequest(reportId, {
+        status: newStatus as VisitRequest["status"],
+      });
+      await loadVisitData();
     } catch (err) {
       console.error("Erro ao alterar status:", err);
+      setVisitReports((prev) =>
+        prev.map((r) => (r.id === reportId ? { ...r, status: report.status } : r)),
+      );
       alert("Erro ao alterar status. Tente novamente.");
     }
   };
 
-  const handleExportPDF = (report: DisplayVisit) => {
-    const printWindow = window.open("", "_blank");
-    if (printWindow) {
-      printWindow.document.write(`
-        <html>
-          <head>
-            <title>Relatório de Visita - ${report.title}</title>
-            <style>
-              body { font-family: Arial, sans-serif; margin: 20px; }
-              .header { text-align: center; margin-bottom: 30px; }
-              .section { margin-bottom: 25px; }
-              .question { margin-bottom: 15px; }
-              .label { font-weight: bold; color: #1e40af; }
-              .value { margin-left: 10px; }
-              .comments { margin-top: 30px; }
-              .comment { margin-bottom: 15px; padding: 10px; background: #f5f5f5; border-radius: 5px; }
-            </style>
-          </head>
-          <body>
-            <div class="header">
-              <h1>RELATÓRIO DE VISITA</h1>
-              <h2>Cliente: ${report.client}</h2>
-              ${
-                report.requestId
-                  ? `<p>ID Solicitação: ${report.requestId}</p>`
-                  : ""
-              }
-              <p>Data: ${new Date(
-                report.scheduledDate,
-              ).toLocaleDateString()}</p>
-              <p>Vendedor: ${report.salesperson}</p>
-            </div>
-            <div class="section">
-              <h3>Dados da Visita</h3>
-              ${Object.entries(report.formData)
-                .map(
-                  ([key, value]) => `
-                <div class="question">
-                  <span class="label">${key}:</span>
-                  <span class="value">${
-                    Array.isArray(value) ? value.join(", ") : value
-                  }</span>
-                </div>
-              `,
-                )
-                .join("")}
-            </div>
-          </body>
-        </html>
-      `);
-      printWindow.document.close();
-      printWindow.print();
+  const handleExportPDF = async (report: DisplayVisit) => {
+    const loadImage = (src: string): Promise<string> =>
+      new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          canvas.width = img.naturalWidth;
+          canvas.height = img.naturalHeight;
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            ctx.drawImage(img, 0, 0);
+            resolve(canvas.toDataURL("image/png"));
+          } else reject(new Error("Canvas context"));
+        };
+        img.onerror = () => reject(new Error("Falha ao carregar logo"));
+        img.src = src;
+      });
+
+    try {
+      const doc = new jsPDF({ format: "a4", unit: "mm" });
+      const margin = 18;
+      const pageW = doc.internal.pageSize.getWidth();
+      let y = margin;
+
+      const logoUrl = "/HIDRODEMA_LogoNovo_Verde.png";
+      try {
+        const logoData = await loadImage(logoUrl);
+        const logoWidth = 48;
+        const logoHeight = 14;
+        doc.addImage(logoData, "PNG", pageW / 2 - logoWidth / 2, y, logoWidth, logoHeight);
+        y += logoHeight + 10;
+      } catch {
+        doc.setFontSize(18);
+        doc.setTextColor(0, 82, 155);
+        doc.text("HIDRODEMA®", pageW / 2, y + 6, { align: "center" });
+        y += 16;
+      }
+
+      doc.setDrawColor(0, 82, 155);
+      doc.setLineWidth(0.5);
+      doc.line(margin, y, pageW - margin, y);
+      y += 12;
+
+      doc.setFontSize(16);
+      doc.setTextColor(30, 64, 175);
+      doc.setFont("helvetica", "bold");
+      doc.text("RELATÓRIO DE VISITA", pageW / 2, y, { align: "center" });
+      y += 14;
+
+      doc.setFontSize(11);
+      doc.setTextColor(55, 65, 81);
+      doc.setFont("helvetica", "normal");
+      doc.text(`Cliente: ${report.client || "—"}`, margin, y);
+      y += 7;
+      if (report.requestId) {
+        doc.text(`ID Solicitação: ${report.requestId}`, margin, y);
+        y += 7;
+      }
+      doc.text(
+        `Data: ${new Date(report.scheduledDate).toLocaleDateString("pt-BR")}`,
+        margin,
+        y,
+      );
+      y += 7;
+      doc.text(`Vendedor: ${report.salesperson || "—"}`, margin, y);
+      y += 14;
+
+      doc.setFontSize(12);
+      doc.setTextColor(30, 64, 175);
+      doc.setFont("helvetica", "bold");
+      doc.text("Dados da visita", margin, y);
+      y += 10;
+
+      doc.setFontSize(10);
+      doc.setTextColor(31, 41, 55);
+      doc.setFont("helvetica", "normal");
+
+      const entries = Object.entries(report.formData);
+      for (const [key, value] of entries) {
+        const text = `${key}: ${Array.isArray(value) ? value.join(", ") : value ?? ""}`;
+        const lines = doc.splitTextToSize(text, pageW - 2 * margin);
+        if (y + lines.length * 5 > doc.internal.pageSize.getHeight() - margin) {
+          doc.addPage();
+          y = margin;
+        }
+        doc.text(lines, margin, y);
+        y += lines.length * 5 + 2;
+      }
+
+      const safeName = (report.client || "relatorio").replace(/[^a-zA-Z0-9\u00C0-\u00FF\s-]/g, "");
+      const dateStr = new Date(report.scheduledDate).toISOString().slice(0, 10);
+      doc.save(`Relatorio_Visita_${safeName}_${dateStr}.pdf`);
+    } catch (err) {
+      console.error("Erro ao gerar PDF:", err);
+      alert("Não foi possível gerar o PDF. Tente novamente.");
     }
   };
 
@@ -1249,7 +1328,7 @@ export default function RelatorioVisitas() {
               </div>
             )}
             <Input
-              placeholder={question.placeholder || "Digite sua resposta"}
+              placeholder=""
               type="date"
               value={value as string}
               onChange={(newValue) => handleInputChange(question.id, newValue)}
@@ -1403,6 +1482,30 @@ export default function RelatorioVisitas() {
     loadVisitData();
   }, []);
 
+  // Restaurar rascunho local ao abrir o formulário (apenas quando está vazio; não sobrescreve se veio de "Fazer relatório" de uma solicitação)
+  useEffect(() => {
+    if (viewMode !== "new" || editingReport) return;
+    if (Object.keys(formData).length > 0) return;
+    try {
+      const raw = localStorage.getItem(VISITAS_DRAFT_KEY);
+      if (!raw) return;
+      const draft = JSON.parse(raw) as {
+        formData: FormData;
+        currentSection: number;
+      };
+      if (!draft.formData || Object.keys(draft.formData).length === 0) return;
+      const sections = getActiveSectionsFromData(draft.formData);
+      const safeSection = Math.min(
+        Math.max(0, draft.currentSection),
+        sections.length - 1,
+      );
+      setFormData(draft.formData);
+      setCurrentSection(safeSection);
+    } catch {
+      // ignorar dados inválidos
+    }
+  }, [viewMode]);
+
   // Renderizar menu principal
   const renderMenu = () => (
     <div className="visitas-menu-container">
@@ -1439,7 +1542,7 @@ export default function RelatorioVisitas() {
             </div>
             <p>Consultar agenda e status das visitas</p>
             <span className="visitas-request-count">
-              {visitReports.length} visitas
+              {pluralize(visitReports.length, "visita", "visitas")}
             </span>
           </div>
         </Card>
@@ -1464,264 +1567,326 @@ export default function RelatorioVisitas() {
     </div>
   );
 
-  // Renderizar planilha interativa de visitas
+  // Renderizar planilha interativa de visitas (tabela estruturada)
   const renderSchedule = () => (
-    <div className="visitas-schedule-container">
-      <div className="visitas-schedule-header">
-        <h2>Planilha de Visitas</h2>
+    <div className="visitas-planilha-container">
+      <div className="visitas-planilha-header">
+        <h2 className="visitas-planilha-title">Planilha de Visitas</h2>
+        <p className="visitas-planilha-subtitle">
+          Consultar agenda e status das visitas
+        </p>
         <Button
           variant="secondary"
           onClick={() => setViewMode("menu")}
-          className="visitas-back-to-menu"
+          className="visitas-planilha-back"
         >
           <FiArrowLeft size={16} />
           Voltar ao Menu
         </Button>
       </div>
 
-      <div className="visitas-schedule-table">
-        <div className="visitas-table-header">
-          <div className="visitas-table-cell">Cliente</div>
-          <div className="visitas-table-cell">Vendedor</div>
-          <div className="visitas-table-cell">Data</div>
-          <div className="visitas-table-cell">Tipo</div>
-          <div className="visitas-table-cell">Status</div>
-          <div className="visitas-table-cell">Ações</div>
+      {visitReports.length === 0 ? (
+        <div className="visitas-planilha-empty">
+          <div className="visitas-planilha-empty-icon">
+            <FiCalendar size={64} />
+          </div>
+          <h3>Nenhuma visita cadastrada</h3>
+          <p>Crie uma nova solicitação ou consulte o histórico.</p>
+          <Button variant="primary" onClick={() => setViewMode("new")}>
+            Nova Solicitação
+          </Button>
         </div>
-
-        {visitReports.length === 0 ? (
-          <div className="visitas-empty-schedule">
-            <div className="visitas-empty-icon">
-              <FiCalendar size={64} />
-            </div>
-            <h3>Nenhuma visita agendada</h3>
-            <p>Crie sua primeira visita</p>
-            <Button variant="primary" onClick={() => setViewMode("new")}>
-              Nova Visita
-            </Button>
-          </div>
-        ) : (
-          visitReports.map((report) => (
-            <div key={report.id} className="visitas-table-row">
-              <div className="visitas-table-cell">{report.client}</div>
-              <div className="visitas-table-cell">{report.salesperson}</div>
-              <div className="visitas-table-cell">
-                {new Date(report.scheduledDate).toLocaleDateString()}
-              </div>
-              <div className="visitas-table-cell">
-                {report.visitType === "technical" ? "Técnica" : "Comercial"}
-              </div>
-              <div className="visitas-table-cell">
-                <select
-                  className={`visitas-status-select status-${report.status}`}
-                  value={report.status}
-                  onChange={(e) =>
-                    handleChangeStatus(
-                      report.id,
-                      e.target.value as DisplayVisit["status"],
-                    )
-                  }
-                >
-                  <option value="scheduled">Agendada</option>
-                  <option value="awaiting-report">Aguardando Relatório</option>
-                  <option value="cancelled">Cancelada</option>
-                  <option value="completed">Concluída</option>
-                </select>
-              </div>
-              <div className="visitas-table-cell">
-                <div className="visitas-table-actions">
-                  <Button
-                    variant="secondary"
-                    onClick={() => handleEditReport(report)}
-                    className="visitas-action-button"
-                  >
-                    <FiEdit3 size={14} />
-                  </Button>
-                  <Button
-                    variant="primary"
-                    onClick={() => handleExportPDF(report)}
-                    className="visitas-action-button"
-                  >
-                    <FiFile size={14} />
-                  </Button>
-                </div>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
+      ) : (
+        <div className="visitas-planilha-wrapper">
+          <table className="visitas-planilha-table">
+            <thead>
+              <tr>
+                <th scope="col">Cliente</th>
+                <th scope="col">Vendedor</th>
+                <th scope="col">Data</th>
+                <th scope="col">Tipo</th>
+                <th scope="col">Status</th>
+                <th scope="col" className="visitas-planilha-col-actions">
+                  Ações
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {visitReports.map((report) => (
+                <tr key={report.id}>
+                  <td data-label="Cliente">{report.client || "—"}</td>
+                  <td data-label="Vendedor">{report.salesperson || "—"}</td>
+                  <td data-label="Data">
+                    {new Date(report.scheduledDate).toLocaleDateString("pt-BR")}
+                  </td>
+                  <td data-label="Tipo">
+                    {report.visitType === "technical" ? "Técnica" : "Comercial"}
+                  </td>
+                  <td data-label="Status">
+                    {report.isRequest ? (
+                      <select
+                        className={`visitas-planilha-status status-${report.status}`}
+                        value={report.status}
+                        onChange={(e) =>
+                          handleChangeStatus(
+                            report.id,
+                            e.target.value as DisplayVisit["status"],
+                          )
+                        }
+                        aria-label="Alterar status"
+                      >
+                        <option value="pending">Pendente</option>
+                        <option value="scheduled">Agendada</option>
+                        <option value="awaiting-report">
+                          Aguardando Relatório
+                        </option>
+                        <option value="cancelled">Cancelada</option>
+                        <option value="completed">Concluída</option>
+                      </select>
+                    ) : (
+                      <span className={`visitas-planilha-badge status-${report.status}`}>
+                        Concluída
+                      </span>
+                    )}
+                  </td>
+                  <td data-label="Ações" className="visitas-planilha-actions">
+                    {report.isRequest && !report.hasReport && (
+                      <Button
+                        variant="primary"
+                        onClick={() => handleCreateReportFromRequest(report)}
+                        className="visitas-planilha-btn"
+                        title="Fazer relatório"
+                      >
+                        Relatório
+                      </Button>
+                    )}
+                    <Button
+                      variant="secondary"
+                      onClick={() => handleEditReport(report)}
+                      className="visitas-planilha-btn"
+                      title="Editar"
+                    >
+                      <FiEdit3 size={14} />
+                    </Button>
+                    <Button
+                      variant="primary"
+                      onClick={() => handleExportPDF(report)}
+                      className="visitas-planilha-btn"
+                      title="Gerar PDF"
+                    >
+                      PDF
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 
-  // Renderizar histórico de relatórios
+  // Agrupar histórico por data (mais recente primeiro) para exibição estruturada
+  const historyGroupedByDate = ((): { dateLabel: string; items: DisplayVisit[] }[] => {
+    const sorted = [...visitReports].sort(
+      (a, b) =>
+        new Date(b.scheduledDate).getTime() -
+        new Date(a.scheduledDate).getTime(),
+    );
+    const byDate = new Map<string, DisplayVisit[]>();
+    for (const item of sorted) {
+      const key = new Date(item.scheduledDate).toLocaleDateString("pt-BR");
+      if (!byDate.has(key)) byDate.set(key, []);
+      byDate.get(key)!.push(item);
+    }
+    return Array.from(byDate.entries()).map(([dateLabel, items]) => ({
+      dateLabel,
+      items,
+    }));
+  })();
+
+  // Renderizar histórico em tabela completa: agrupado por data, rótulos claros nas ações
   const renderHistory = () => (
-    <div className="visitas-history-container">
-      <div className="visitas-history-header">
-        <h2>Histórico de Visitas</h2>
+    <div className="visitas-planilha-container visitas-historial-container">
+      <div className="visitas-planilha-header">
+        <h2 className="visitas-planilha-title">Histórico de Visitas</h2>
+        <p className="visitas-planilha-subtitle">
+          Relatórios e solicitações técnicas e comerciais
+        </p>
         <Button
           variant="secondary"
           onClick={() => setViewMode("menu")}
-          className="visitas-back-to-menu"
+          className="visitas-planilha-back"
         >
           <FiArrowLeft size={16} />
           Voltar ao Menu
         </Button>
       </div>
 
-      <div className="visitas-requests-list">
-        {visitReports.length === 0 ? (
-          <div className="visitas-empty-state">
-            <div className="visitas-empty-icon">
-              <FiMapPin size={64} />
-            </div>
-            <h3>Nenhuma visita encontrada</h3>
-            <p>Crie sua primeira visita</p>
-            <Button variant="primary" onClick={() => setViewMode("new")}>
-              Nova Visita
-            </Button>
+      {visitReports.length === 0 ? (
+        <div className="visitas-planilha-empty">
+          <div className="visitas-planilha-empty-icon">
+            <FiMapPin size={64} />
           </div>
-        ) : (
-          visitReports.map((report) => (
-            <div key={report.id} className="visitas-request-item">
-              <div className="visitas-request-info">
-                <div
-                  style={{ display: "flex", alignItems: "center", gap: "12px" }}
+          <h3>Nenhum registro encontrado</h3>
+          <p>Crie uma nova solicitação para começar.</p>
+          <Button variant="primary" onClick={() => setViewMode("new")}>
+            Nova Solicitação
+          </Button>
+        </div>
+      ) : (
+        <div className="visitas-planilha-wrapper">
+          <table className="visitas-planilha-table visitas-planilha-table--history">
+            <thead>
+              <tr>
+                <th scope="col">Registro</th>
+                <th scope="col">Cliente / Identificador</th>
+                <th scope="col">Vendedor</th>
+                <th scope="col">Data</th>
+                <th scope="col">Tipo</th>
+                <th scope="col">Status</th>
+                <th scope="col" className="visitas-planilha-col-actions">
+                  Ações
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {historyGroupedByDate.flatMap(({ dateLabel, items }) => [
+                <tr
+                  key={`group-${dateLabel}`}
+                  className="visitas-history-group-row"
                 >
-                  <h3>{report.title}</h3>
-                  {/* Badge indicando se é solicitação ou relatório */}
-                  {report.isRequest && !report.hasReport && (
-                    <span
-                      style={{
-                        padding: "4px 12px",
-                        background: "rgba(251, 191, 36, 0.15)",
-                        border: "1px solid rgba(251, 191, 36, 0.3)",
-                        borderRadius: "6px",
-                        fontSize: "12px",
-                        fontWeight: "600",
-                        color: "#d97706",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: "6px",
-                      }}
-                    >
-                      <FiClock size={14} />
-                      Aguardando Relatório
+                  <td colSpan={7} data-label="">
+                    <span className="visitas-history-group-label">
+                      <FiCalendar size={16} aria-hidden />
+                      Concluída em {dateLabel}
                     </span>
-                  )}
-                  {report.isRequest && report.hasReport && (
-                    <span
-                      style={{
-                        padding: "4px 12px",
-                        background: "rgba(6, 214, 160, 0.15)",
-                        border: "1px solid rgba(6, 214, 160, 0.3)",
-                        borderRadius: "6px",
-                        fontSize: "12px",
-                        fontWeight: "600",
-                        color: "#059669",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: "6px",
-                      }}
-                    >
-                      <FiCheck size={14} />
-                      Relatório Concluído
-                    </span>
-                  )}
-                </div>
-                <div className="visitas-request-meta">
-                  <span
-                    className={`visitas-status visitas-status-${report.status}`}
-                  >
-                    {report.status === "scheduled" && (
-                      <>
-                        <FiClock size={16} />
-                        Agendada
-                      </>
-                    )}
-                    {report.status === "awaiting-report" && (
-                      <>
-                        <FiEdit3 size={16} />
-                        Aguardando Relatório
-                      </>
-                    )}
-                    {report.status === "cancelled" && (
-                      <>
-                        <FiX size={16} />
-                        Cancelada
-                      </>
-                    )}
-                    {report.status === "completed" && (
-                      <>
-                        <FiCheck size={16} />
-                        Concluída
-                      </>
-                    )}
-                  </span>
-                  <span className="visitas-date">
-                    {new Date(report.scheduledDate).toLocaleDateString()}
-                  </span>
-                  <span className="visitas-salesperson">
-                    <FiUsers size={16} />
-                    {report.salesperson}
-                  </span>
-                </div>
-              </div>
-              <div className="visitas-request-actions">
-                {/* Mostrar botão "Fazer Relatório" apenas para solicitações sem relatório */}
-                {report.isRequest && !report.hasReport && (
-                  <Button
-                    variant="primary"
-                    onClick={() => handleCreateReportFromRequest(report)}
-                    className="visitas-action-button visitas-create-report"
-                  >
-                    <FiFile size={16} />
-                    Fazer Relatório
-                  </Button>
-                )}
-                <Button
-                  variant="secondary"
-                  onClick={() => handleEditReport(report)}
-                  className="visitas-action-button"
-                >
-                  <FiEdit3 size={16} />
-                  Editar
-                </Button>
-                <Button
-                  variant="primary"
-                  onClick={() => handleViewComments(report)}
-                  className="visitas-action-button"
-                >
-                  <FiMessageCircle size={16} />({report.comments.length})
-                </Button>
-                <Button
-                  variant="primary"
-                  onClick={() => handleExportPDF(report)}
-                  className="visitas-action-button"
-                >
-                  <FiFile size={16} />
-                  PDF
-                </Button>
-                <Button
-                  variant="secondary"
-                  onClick={() => handleDeleteReport(report.id)}
-                  className="visitas-action-button visitas-delete"
-                >
-                  <FiTrash2 size={16} />
-                  Excluir
-                </Button>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
+                  </td>
+                </tr>,
+                ...items.map((report) => (
+                    <tr key={report.id}>
+                      <td data-label="Registro">
+                        <span
+                          className={`visitas-planilha-badge visitas-planilha-badge--${
+                            report.isRequest
+                              ? report.hasReport
+                                ? "relatorio-ok"
+                                : "aguardando"
+                              : "relatorio"
+                          }`}
+                        >
+                          {report.isRequest
+                            ? report.hasReport
+                              ? "Relatório concluído"
+                              : "Aguardando relatório"
+                            : "Relatório"}
+                        </span>
+                      </td>
+                      <td data-label="Cliente">
+                        {report.client || report.title || "—"}
+                      </td>
+                      <td data-label="Vendedor">{report.salesperson || "—"}</td>
+                      <td data-label="Data">
+                        {new Date(
+                          report.scheduledDate,
+                        ).toLocaleDateString("pt-BR")}
+                      </td>
+                      <td data-label="Tipo">
+                        {report.visitType === "technical"
+                          ? "Técnica"
+                          : "Comercial"}
+                      </td>
+                      <td data-label="Status">
+                        <span
+                          className={`visitas-planilha-badge status-${report.status}`}
+                        >
+                          {report.status === "pending" && "Pendente"}
+                          {report.status === "scheduled" && "Agendada"}
+                          {report.status === "awaiting-report" &&
+                            "Aguardando Relatório"}
+                          {report.status === "cancelled" && "Cancelada"}
+                          {report.status === "completed" && "Concluída"}
+                        </span>
+                      </td>
+                      <td
+                        data-label="Ações"
+                        className="visitas-planilha-actions visitas-history-actions"
+                      >
+                        {report.isRequest && !report.hasReport && (
+                          <Button
+                            variant="primary"
+                            onClick={() =>
+                              handleCreateReportFromRequest(report)
+                            }
+                            className="visitas-planilha-btn"
+                            title="Fazer relatório"
+                          >
+                            Relatório
+                          </Button>
+                        )}
+                        <Button
+                          variant="secondary"
+                          onClick={() => handleEditReport(report)}
+                          className="visitas-planilha-btn"
+                          title="Editar"
+                        >
+                          <FiEdit3 size={14} />
+                          Editar
+                        </Button>
+                        <Button
+                          variant="primary"
+                          onClick={() => handleViewComments(report)}
+                          className="visitas-planilha-btn"
+                          title="Comentários"
+                        >
+                          <FiMessageCircle size={14} />
+                          Comentários ({report.comments.length})
+                        </Button>
+                        <Button
+                          variant="primary"
+                          onClick={() => handleExportPDF(report)}
+                          className="visitas-planilha-btn"
+                          title="Gerar PDF"
+                        >
+                          PDF
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          onClick={() => handleDeleteReport(report.id)}
+                          className="visitas-planilha-btn visitas-planilha-btn--danger"
+                          title="Excluir"
+                        >
+                          <FiTrash2 size={14} />
+                          Excluir
+                        </Button>
+                      </td>
+                    </tr>
+                  )),
+              ])}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 
-  // Renderizar comentários
+  const getInitials = (name: string) =>
+    name
+      .trim()
+      .split(/\s+/)
+      .map((s) => s[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase() || "?";
+
+  // Renderizar comentários — layout completo e formatado
   const renderComments = () => (
     <div className="visitas-comments-container">
-      <div className="visitas-comments-header">
-        <h2>Comentários - {selectedReport?.title}</h2>
+      <header className="visitas-comments-header">
+        <div className="visitas-comments-header-text">
+          <h1 className="visitas-comments-title">Comentários</h1>
+          <p className="visitas-comments-subtitle">{selectedReport?.title}</p>
+        </div>
         <Button
           variant="secondary"
           onClick={() => setViewMode("history")}
@@ -1730,63 +1895,96 @@ export default function RelatorioVisitas() {
           <FiArrowLeft size={16} />
           Voltar ao Histórico
         </Button>
-      </div>
+      </header>
 
       <div className="visitas-comments-content">
-        <div className="visitas-add-comment-section">
-          <h3>Adicionar Comentário</h3>
+        <section className="visitas-add-comment-section" aria-label="Novo comentário">
+          <h2 className="visitas-add-comment-title">Adicionar Comentário</h2>
+          <p className="visitas-add-comment-desc">
+            Escreva sua observação sobre esta visita. Ela ficará registrada com sua identificação e data.
+          </p>
           <div className="visitas-comment-form">
             <textarea
               className="visitas-comment-textarea"
               placeholder="Digite seu comentário..."
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
-              rows={4}
+              rows={5}
+              minLength={1}
+              aria-label="Texto do comentário"
             />
-            <Button
-              variant="primary"
-              onClick={handleAddComment}
-              disabled={!newComment.trim()}
-              className="visitas-add-comment-button"
-            >
-              <FiPlus size={16} />
-              Adicionar Comentário
-            </Button>
+            <div className="visitas-comment-form-actions">
+              <Button
+                variant="primary"
+                onClick={handleAddComment}
+                disabled={!newComment.trim()}
+                className="visitas-add-comment-button"
+              >
+                <FiPlus size={18} />
+                Adicionar Comentário
+              </Button>
+            </div>
           </div>
-        </div>
+        </section>
 
-        <div className="visitas-comments-list">
-          <h3>Comentários ({selectedReport?.comments.length || 0})</h3>
-          {selectedReport?.comments.length === 0 ? (
+        <section className="visitas-comments-list" aria-label="Lista de comentários">
+          <h2 className="visitas-comments-list-title">
+            Comentários
+            <span className="visitas-comments-count">
+              {selectedReport?.comments.length || 0}
+            </span>
+          </h2>
+          {!selectedReport?.comments.length ? (
             <div className="visitas-no-comments">
-              <p>Nenhum comentário ainda. Seja o primeiro a comentar!</p>
+              <div className="visitas-no-comments-icon" aria-hidden>
+                <FiMessageCircle size={48} />
+              </div>
+              <p className="visitas-no-comments-title">Nenhum comentário ainda</p>
+              <p className="visitas-no-comments-desc">
+                Seja o primeiro a comentar sobre esta visita.
+              </p>
             </div>
           ) : (
-            selectedReport?.comments.map((comment) => (
-              <div key={comment.id} className="visitas-comment-item">
-                <div className="visitas-comment-header">
-                  <div className="visitas-comment-author">
-                    <strong>{comment.author}</strong>
-                    <span className="visitas-comment-date">
-                      {new Date(comment.createdAt).toLocaleDateString()} às{" "}
-                      {new Date(comment.createdAt).toLocaleTimeString()}
-                    </span>
+            <ol className="visitas-comments-list-inner">
+              {selectedReport?.comments.map((comment) => (
+                <li key={comment.id} className="visitas-comment-item">
+                  <div className="visitas-comment-item-avatar" aria-hidden>
+                    {getInitials(comment.author)}
                   </div>
-                  <Button
-                    variant="secondary"
-                    onClick={() =>
-                      comment.id && handleDeleteComment(comment.id)
-                    }
-                    className="visitas-delete-comment-button"
-                  >
-                    <FiTrash2 size={16} />
-                  </Button>
-                </div>
-                <div className="visitas-comment-text">{comment.text}</div>
-              </div>
-            ))
+                  <div className="visitas-comment-item-body">
+                    <div className="visitas-comment-header">
+                      <div className="visitas-comment-author">
+                        <strong className="visitas-comment-author-name">{comment.author}</strong>
+                        <span className="visitas-comment-date">
+                          {new Date(comment.createdAt).toLocaleDateString("pt-BR", {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                          })}{" "}
+                          às{" "}
+                          {new Date(comment.createdAt).toLocaleTimeString("pt-BR", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </span>
+                      </div>
+                      <Button
+                        variant="secondary"
+                        onClick={() =>
+                          comment.id && handleDeleteComment(comment.id)
+                        }
+                        className="visitas-delete-comment-button"
+                      >
+                        <FiTrash2 size={14} />
+                      </Button>
+                    </div>
+                    <div className="visitas-comment-text">{comment.text}</div>
+                  </div>
+                </li>
+              ))}
+            </ol>
           )}
-        </div>
+        </section>
       </div>
     </div>
   );

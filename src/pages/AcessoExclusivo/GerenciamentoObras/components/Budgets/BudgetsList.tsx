@@ -37,30 +37,33 @@ export default function BudgetsList({
       : budgets.filter((budget) => budget.projectId === selectedProjectId);
 
   return (
-    <div className="obras-budgets-container">
-      <div className="obras-budgets-header">
-        <h2>Sistema de Orçamentos</h2>
-        <Button
-          variant="primary"
-          onClick={() => onViewChange("menu")}
-          className="obras-back-to-menu"
-        >
-          <FiArrowLeft size={16} />
-          Voltar ao Menu
-        </Button>
-      </div>
-
-      <div className="obras-budgets-controls">
-        <div className="obras-budgets-actions">
+    <section
+      className="obras-budgets-container"
+      aria-labelledby="obras-budgets-title"
+    >
+      <header className="obras-budgets-header">
+        <h2 id="obras-budgets-title">Sistema de Orçamentos</h2>
+        <div className="obras-budgets-header-actions">
+          <Button
+            variant="primary"
+            onClick={() => onViewChange("menu")}
+            className="obras-back-to-menu"
+          >
+            <FiArrowLeft size={16} aria-hidden />
+            Voltar ao Menu
+          </Button>
           <Button
             variant="primary"
             onClick={() => onViewChange("new-budget")}
             className="obras-create-btn"
           >
-            <FiPlus size={20} />
+            <FiPlus size={20} aria-hidden />
             Novo Orçamento
           </Button>
         </div>
+      </header>
+
+      <div className="obras-budgets-controls" role="search" aria-label="Filtrar orçamentos por obra">
         <ProjectFilter
           projects={projects}
           selectedProjectId={selectedProjectId}
@@ -82,13 +85,16 @@ export default function BudgetsList({
           </div>
         ) : (
           filteredBudgets.map((budget) => {
-            const percentage = (budget.spentAmount / budget.totalAmount) * 100;
+            const percentage =
+              budget.totalAmount > 0
+                ? (budget.spentAmount / budget.totalAmount) * 100
+                : 0;
             return (
-              <div key={budget.id} className="obras-budget-card">
+              <article key={budget.id} className="obras-budget-card">
                 <div className="obras-budget-header">
                   <h3>{budget.name}</h3>
                   <div className="obras-budget-badges">
-                    <span className="obras-gasto-badge">
+                    <span className="obras-gasto-badge" aria-label={`${percentage.toFixed(1)}% gasto`}>
                       {percentage.toFixed(1)}% gasto
                     </span>
                   </div>
@@ -123,7 +129,7 @@ export default function BudgetsList({
                     )}
                   </p>
                 </div>
-                <div className="obras-budget-progress">
+                <div className="obras-budget-progress" role="progressbar" aria-valuenow={percentage} aria-valuemin={0} aria-valuemax={100} aria-label="Execução do orçamento">
                   <p>
                     <strong>Execução do Orçamento</strong>{" "}
                     <span>{percentage.toFixed(1)}%</span>
@@ -134,36 +140,38 @@ export default function BudgetsList({
                       style={{
                         width: `${percentage}%`,
                       }}
-                    ></div>
+                    />
                   </div>
                 </div>
                 <div className="obras-budget-actions">
                   <Button
                     variant="secondary"
                     onClick={() => budget.id && onEdit(budget)}
+                    aria-label={`Editar orçamento ${budget.name}`}
                   >
-                    <FiEdit3 size={16} />
+                    <FiEdit3 size={16} aria-hidden />
                     Editar
                   </Button>
                   <Button
                     variant="secondary"
                     onClick={() => budget.id && onDelete(budget.id)}
                     className="obras-delete"
+                    aria-label={`Excluir orçamento ${budget.name}`}
                   >
-                    <FiTrash2 size={16} />
+                    <FiTrash2 size={16} aria-hidden />
                     Excluir
                   </Button>
-                  <Button variant="primary">
-                    <FiPieChart size={16} />
+                  <Button variant="primary" aria-label={`Ver detalhes do orçamento ${budget.name}`}>
+                    <FiPieChart size={16} aria-hidden />
                     Detalhes
                   </Button>
                 </div>
-              </div>
+              </article>
             );
           })
         )}
       </div>
-    </div>
+    </section>
   );
 }
 

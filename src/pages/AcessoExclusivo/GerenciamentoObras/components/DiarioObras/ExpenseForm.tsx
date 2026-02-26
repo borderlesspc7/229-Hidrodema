@@ -13,6 +13,8 @@ import {
   FiEdit2,
   FiArrowLeft,
   FiSave,
+  FiDollarSign,
+  FiX,
 } from "react-icons/fi";
 import type {
   Project,
@@ -20,6 +22,7 @@ import type {
   CommentEntry,
   Photo,
 } from "../../../../../services/obrasService";
+import { pluralize } from "../../../../../utils/pluralize";
 
 interface ExpenseFormProps {
   projects: Project[];
@@ -53,8 +56,26 @@ export default function ExpenseForm({
     editingEntry?.reportNumber || 1
   );
 
-  // Comentários/Gastos
-  const [comments, setComments] = useState<ExpenseComment[]>([]);
+  // Comentários/Gastos — inicializa a partir de editingEntry quando existir
+  const parseCommentsToExpense = (entries: { id: string; author: string; text: string; date: string }[]): ExpenseComment[] => {
+    return entries.map((c) => {
+      const items: { description: string; value: number }[] = [];
+      const lines = c.text.split("\n").filter(Boolean);
+      for (const line of lines) {
+        const match = line.match(/^(.+?)\s*-\s*R\$\s*([\d.,]+)$/);
+        if (match) {
+          const value = parseFloat(match[2].replace(".", "").replace(",", ".")) || 0;
+          items.push({ description: match[1].trim(), value });
+        }
+      }
+      return { id: c.id, author: c.author, text: c.text, date: c.date, items };
+    });
+  };
+  const [comments, setComments] = useState<ExpenseComment[]>(() =>
+    editingEntry?.comments?.length
+      ? parseCommentsToExpense(editingEntry.comments)
+      : []
+  );
   const [newExpenseItem, setNewExpenseItem] = useState({
     description: "",
     value: 0,
@@ -66,11 +87,14 @@ export default function ExpenseForm({
   // Fotos
   const [photos, setPhotos] = useState<Photo[]>(editingEntry?.photos || []);
 
-  // Aprovação
+  // Aprovação e assinatura
   const [approvalStatus, setApprovalStatus] = useState<
     DiaryEntry["approvalStatus"]
   >(editingEntry?.approvalStatus || "preenchendo");
-  const [signature] = useState(editingEntry?.signature || "");
+  const [signature, setSignature] = useState(editingEntry?.signature || "");
+  const [responsibleName, setResponsibleName] = useState(
+    editingEntry?.responsible || editingEntry?.signedBy || ""
+  );
 
   // Seção ativa
   const [activeSection, setActiveSection] = useState("details");
@@ -170,9 +194,10 @@ export default function ExpenseForm({
       photos,
       observations: "",
       weather: "",
-      responsible: "",
+      responsible: responsibleName,
       approvalStatus,
       signature,
+      signedBy: responsibleName || undefined,
       status: "em-andamento",
       materials: [],
       activities: "",
@@ -182,15 +207,15 @@ export default function ExpenseForm({
 
   // Seções do menu lateral
   const sections = [
-    { id: "details", label: "Detalhes do relatório", icon: FiFileText },
+    { id: "details", label: "Informações básicas", icon: FiFileText },
     {
       id: "expenses",
-      label: "Comentários",
-      icon: FiMessageSquare,
-      count: comments.length,
+      label: "Itens de gasto",
+      icon: FiDollarSign,
+      count: comments.reduce((acc, c) => acc + c.items.length, 0) || comments.length,
     },
-    { id: "photos", label: "Fotos", icon: FiCamera, count: photos.length },
-    { id: "approval", label: "Aprovação", icon: FiCheck },
+    { id: "photos", label: "Fotos / Comprovantes", icon: FiCamera, count: photos.length },
+    { id: "approval", label: "Aprovação e assinatura", icon: FiCheck },
   ];
 
   return (
@@ -231,9 +256,9 @@ export default function ExpenseForm({
           <div className="obras-rdo-header">
             <div className="obras-rdo-logo">
               <img
-                src="/HIDRODEMA_LogoNovo_Azul.png"
+                src="/HIDRODEMA_LogoNovo_Branco (2).png"
                 alt="HIDRODEMA"
-                style={{ maxHeight: 60 }}
+                style={{ maxHeight: 56 }}
               />
             </div>
             <div className="obras-rdo-header-info">
@@ -269,45 +294,96 @@ export default function ExpenseForm({
             </span>
           </div>
 
-          <h2 className="obras-rdo-title">LANÇAMENTO DE GASTOS</h2>
+          <h2 className="obras-rdo-title obras-rdo-title-expense">
+            <FiDollarSign size={28} /> Lançamento de Gastos
+          </h2>
 
-          {/* Seleção de obra */}
-          <div className="obras-rdo-section">
-            <ProjectSelector
-              projects={projects}
-              value={projectId}
-              onChange={(id) => {
-                setProjectId(id);
-                const project = projects.find((p) => p.id === id);
-                if (project) setObraName(project.name);
-              }}
-              required
-              label="Obra"
-            />
-          </div>
+          {obraName && (
+            <p className="obras-rdo-subtitle">{obraName}</p>
+          )}
 
-          {/* Seção: Gastos/Comentários */}
+          {/* Seção: Informações básicas */}
+          {activeSection === "details" && (
+            <div className="obras-rdo-section obras-rdo-details-section">
+              <h3 className="obras-section-title">Informações básicas</h3>
+              <div className="obras-rdo-details-grid">
+                <div className="obras-rdo-field">
+                  <label>Obra / Projeto</label>
+                  <ProjectSelector
+                    projects={projects}
+                    value={projectId}
+                    onChange={(id) => {
+                      setProjectId(id);
+                      const project = projects.find((p) => p.id === id);
+                      if (project) setObraName(project.name);
+                    }}
+                    required
+                    label=""
+                  />
+                </div>
+                <div className="obras-rdo-field">
+                  <label>Número do relatório</label>
+                  <Input
+                    type="text"
+                    value={reportNumber.toString()}
+                    onChange={(v) => setReportNumber(parseInt(v) || 1)}
+                    placeholder="N°"
+                  />
+                </div>
+                <div className="obras-rdo-field">
+                  <label>Data</label>
+                  <Input
+                    type="date"
+                    value={date}
+                    onChange={setDate}
+                    placeholder=""
+                  />
+                </div>
+                <div className="obras-rdo-field">
+                  <label>Dia da semana</label>
+                  <span className="obras-rdo-weekday">{getDayOfWeek(date)}</span>
+                </div>
+                <div className="obras-rdo-field">
+                  <label>Status de aprovação</label>
+                  <span
+                    className={`obras-rdo-status-badge obras-status-${approvalStatus}`}
+                  >
+                    {approvalStatus === "preenchendo" && "Preenchendo"}
+                    {approvalStatus === "revisao" && "Em Revisão"}
+                    {approvalStatus === "aprovado" && "Aprovado"}
+                  </span>
+                </div>
+              </div>
+              <p className="obras-rdo-instructions">
+                Use o menu lateral para adicionar <strong>itens de gasto</strong>, anexar <strong>fotos/comprovantes</strong> e concluir <strong>aprovação e assinatura</strong>.
+              </p>
+            </div>
+          )}
+
+          {/* Seção: Itens de gasto */}
           {activeSection === "expenses" && (
             <div className="obras-rdo-section">
               <div className="obras-rdo-section-header">
-                <h3
-                  className="obras-section-title"
-                  style={{ color: "#ea580c" }}
-                >
-                  <FiMessageSquare /> Comentários ({comments.length})
+                <h3 className="obras-section-title obras-section-title-expense">
+                  <FiDollarSign /> Itens de gasto
                 </h3>
-                <Button
-                  variant="primary"
-                  onClick={handleSaveExpense}
-                  disabled={currentExpenseItems.length === 0}
-                >
-                  <FiPlus size={16} /> Adicionar
-                </Button>
+                <div className="obras-rdo-section-header-right">
+                  <span className="obras-rdo-section-count">
+                    {pluralize(comments.reduce((acc, c) => acc + c.items.length, 0), "item", "itens")} · Total R$ {calculateTotal().toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                  </span>
+                  <Button
+                    variant="primary"
+                    onClick={handleSaveExpense}
+                    disabled={currentExpenseItems.length === 0}
+                  >
+                    <FiPlus size={16} /> Confirmar itens
+                  </Button>
+                </div>
               </div>
 
               {/* Formulário para adicionar itens de gasto */}
               <div className="obras-expense-form">
-                <h4>Adicionar item de gasto:</h4>
+                <h4 className="obras-expense-form-title">Adicionar item de gasto</h4>
                 <div className="obras-rdo-add-form">
                   <Input
                     type="text"
@@ -343,7 +419,7 @@ export default function ExpenseForm({
                 {/* Lista de itens pendentes */}
                 {currentExpenseItems.length > 0 && (
                   <div className="obras-expense-pending">
-                    <h5>Itens a serem adicionados:</h5>
+                    <h5>Itens a adicionar ao relatório</h5>
                     {currentExpenseItems.map((item, index) => (
                       <div key={index} className="obras-expense-pending-item">
                         <span>{item.description}</span>
@@ -429,11 +505,8 @@ export default function ExpenseForm({
           {activeSection === "photos" && (
             <div className="obras-rdo-section">
               <div className="obras-rdo-section-header">
-                <h3
-                  className="obras-section-title"
-                  style={{ color: "#ea580c" }}
-                >
-                  <FiCamera /> Fotos ({photos.length})
+                <h3 className="obras-section-title obras-section-title-photos">
+                  <FiCamera /> Fotos / Comprovantes
                 </h3>
                 <label className="obras-upload-btn">
                   <FiPlus size={16} /> Adicionar
@@ -480,101 +553,141 @@ export default function ExpenseForm({
             </div>
           )}
 
-          {/* Seção: Aprovação */}
+          {/* Seção: Aprovação e assinatura */}
           {activeSection === "approval" && (
             <div className="obras-rdo-section">
-              <h3 className="obras-section-title" style={{ color: "#ea580c" }}>
-                <FiCheck /> Assinatura manual
+              <h3 className="obras-section-title obras-section-title-approval">
+                <FiCheck /> Aprovação e assinatura
               </h3>
               <div className="obras-rdo-approval">
-                <span
-                  className={`obras-rdo-approval-badge obras-status-${approvalStatus}`}
-                >
-                  {approvalStatus === "aprovado"
-                    ? "Aprovado"
-                    : approvalStatus === "revisao"
-                    ? "Em Revisão"
-                    : "Pendente"}
-                </span>
+                <div className="obras-rdo-field">
+                  <label>Status de aprovação</label>
+                  <span
+                    className={`obras-rdo-approval-badge obras-status-${approvalStatus}`}
+                  >
+                    {approvalStatus === "aprovado"
+                      ? "Aprovado"
+                      : approvalStatus === "revisao"
+                      ? "Em Revisão"
+                      : "Preenchendo"}
+                  </span>
+                </div>
                 <div className="obras-rdo-approval-options">
-                  <label>
+                  <label className="obras-rdo-radio-label">
                     <input
                       type="radio"
-                      name="approval"
+                      name="approval-expense"
                       checked={approvalStatus === "preenchendo"}
                       onChange={() => setApprovalStatus("preenchendo")}
                     />
-                    1° Preenchendo Relatório
+                    <span>1° Preenchendo relatório</span>
                   </label>
-                  <label>
+                  <label className="obras-rdo-radio-label">
                     <input
                       type="radio"
-                      name="approval"
+                      name="approval-expense"
                       checked={approvalStatus === "revisao"}
                       onChange={() => setApprovalStatus("revisao")}
                     />
-                    2° Revisar Relatório
+                    <span>2° Em revisão</span>
                   </label>
-                  <label>
+                  <label className="obras-rdo-radio-label">
                     <input
                       type="radio"
-                      name="approval"
+                      name="approval-expense"
                       checked={approvalStatus === "aprovado"}
                       onChange={() => setApprovalStatus("aprovado")}
                     />
-                    3° Aprovado
+                    <span>3° Aprovado</span>
                   </label>
                 </div>
                 <div className="obras-rdo-signature-area">
-                  <div className="obras-rdo-signature-box">
-                    {signature ? (
-                      <img src={signature} alt="Assinatura" />
-                    ) : (
-                      <span>Assinatura</span>
-                    )}
+                  <div className="obras-rdo-field">
+                    <label>Responsável / Assinante</label>
+                    <Input
+                      type="text"
+                      placeholder="Nome do responsável pela aprovação"
+                      value={responsibleName}
+                      onChange={setResponsibleName}
+                    />
                   </div>
-                  <Button variant="primary" onClick={() => {}}>
-                    <FiEdit2 size={16} /> Assinar
-                  </Button>
+                  <div className="obras-rdo-signature-row">
+                    <div className="obras-rdo-signature-box">
+                      {signature ? (
+                        <img src={signature} alt="Assinatura" />
+                      ) : (
+                        <span className="obras-rdo-signature-placeholder">
+                          Assinatura (opcional — use campo responsável acima)
+                        </span>
+                      )}
+                    </div>
+                    <div className="obras-rdo-signature-actions">
+                      <label className="obras-upload-btn">
+                        <FiEdit2 size={16} /> Carregar imagem
+                        <input
+                          type="file"
+                          accept="image/*"
+                          style={{ display: "none" }}
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              const reader = new FileReader();
+                              reader.onloadend = () =>
+                                setSignature(reader.result as string);
+                              reader.readAsDataURL(file);
+                            }
+                          }}
+                        />
+                      </label>
+                      {signature && (
+                        <Button
+                          variant="secondary"
+                          onClick={() => setSignature("")}
+                        >
+                          <FiTrash2 size={14} /> Limpar
+                        </Button>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Mostrar detalhes por padrão */}
-          {activeSection === "details" && (
-            <div className="obras-rdo-section">
-              <p className="obras-rdo-instructions">
-                Use o menu lateral para navegar entre as seções do relatório.
-                Registre os gastos na seção "Comentários" e anexe comprovantes
-                na seção "Fotos".
-              </p>
-            </div>
-          )}
-
-          {/* Footer */}
-          <div className="obras-rdo-footer">
+          {/* Footer com ações */}
+          <div className="obras-rdo-footer obras-rdo-footer-actions">
             <div className="obras-rdo-meta">
               {editingEntry && (
                 <>
                   <span>
-                    Criado por: {editingEntry.createdBy} (
-                    {new Date(editingEntry.createdAt).toLocaleString()})
+                    Criado por {editingEntry.createdBy ?? "—"} em{" "}
+                    {new Date(editingEntry.createdAt).toLocaleString("pt-BR")}
                   </span>
-                  <span>
-                    Última modificação: {editingEntry.lastModifiedBy} (
-                    {new Date(editingEntry.updatedAt).toLocaleString()})
-                  </span>
+                  {editingEntry.lastModifiedBy && (
+                    <span>
+                      Última alteração: {editingEntry.lastModifiedBy} (
+                      {new Date(editingEntry.updatedAt).toLocaleString("pt-BR")})
+                    </span>
+                  )}
                 </>
               )}
             </div>
-            <Button
-              variant="primary"
-              onClick={handleSave}
-              className="obras-save-btn"
-            >
-              <FiSave size={16} /> Salvar
-            </Button>
+            <div className="obras-rdo-footer-buttons">
+              <Button
+                variant="secondary"
+                onClick={onBack}
+                className="obras-cancel-btn"
+              >
+                <FiX size={16} /> Cancelar
+              </Button>
+              <Button
+                variant="primary"
+                onClick={handleSave}
+                className="obras-save-btn"
+              >
+                <FiSave size={16} /> Salvar relatório
+              </Button>
+            </div>
           </div>
         </Card>
       </div>

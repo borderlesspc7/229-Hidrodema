@@ -43,6 +43,7 @@ import {
   validateDate,
   sanitizeForDatabase,
 } from "../../../utils/validation";
+import { pluralize } from "../../../utils/pluralize";
 
 // Interfaces
 interface FormData {
@@ -127,7 +128,7 @@ const EqualizadorServicos = () => {
       question: "3. Data de emissão da visita",
       section: "Informações da Obra",
       required: true,
-      placeholder: "Insira a data (dd/MM/yyyy)",
+      placeholder: "Selecione a data",
     },
     {
       id: "q4",
@@ -1049,7 +1050,7 @@ const EqualizadorServicos = () => {
               </div>
             )}
             <Input
-              placeholder={question.placeholder || "Digite sua resposta"}
+              placeholder={question.placeholder || "Selecione a data"}
               type="date"
               value={value as string}
               onChange={(newValue) => handleInputChange(question.id, newValue)}
@@ -1291,7 +1292,7 @@ const EqualizadorServicos = () => {
             </div>
             <p>Visualizar e gerenciar cotações de prestadores</p>
             <span className="equalizador-request-count">
-              {serviceMDS.length} MDS
+              {pluralize(serviceMDS.length, "MDS", "MDS")}
             </span>
           </div>
         </Card>
@@ -1320,15 +1321,15 @@ const EqualizadorServicos = () => {
   const renderQuotations = () => (
     <div className="equalizador-quotations-container">
       <div className="equalizador-quotations-header">
-        <h2>Planilha de Cotações</h2>
         <Button
           variant="secondary"
           onClick={() => setViewMode("menu")}
           className="equalizador-back-to-menu"
         >
-          <FiArrowLeft size={16} />
+          <FiArrowLeft size={18} />
           Voltar ao Menu
         </Button>
+        <h2>Planilha de Cotações</h2>
       </div>
 
       <div className="equalizador-schedule-table">
@@ -1410,15 +1411,15 @@ const EqualizadorServicos = () => {
   const renderHistory = () => (
     <div className="equalizador-history-container">
       <div className="equalizador-history-header">
-        <h2>Histórico de MDS</h2>
         <Button
           variant="secondary"
           onClick={() => setViewMode("menu")}
           className="equalizador-back-to-menu"
         >
-          <FiArrowLeft size={16} />
+          <FiArrowLeft size={18} />
           Voltar ao Menu
         </Button>
+        <h2>Histórico de MDS</h2>
       </div>
 
       <div className="equalizador-requests-list">
@@ -1491,8 +1492,10 @@ const EqualizadorServicos = () => {
                   variant="primary"
                   onClick={() => handleViewComments(service)}
                   className="equalizador-action-button"
+                  title="Comentários"
                 >
-                  <FiMessageCircle size={16} />({service.comments?.length || 0})
+                  <FiMessageCircle size={16} />
+                  {pluralize(service.comments?.length || 0, "comentário", "comentários")}
                 </Button>
                 <Button
                   variant="primary"
@@ -1542,7 +1545,8 @@ const EqualizadorServicos = () => {
               placeholder="Digite seu comentário..."
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
-              rows={4}
+              rows={5}
+              aria-label="Campo para adicionar comentário"
             />
             <Button
               variant="primary"
@@ -1557,7 +1561,7 @@ const EqualizadorServicos = () => {
         </div>
 
         <div className="equalizador-comments-list">
-          <h3>Comentários ({selectedService?.comments?.length || 0})</h3>
+          <h3>{pluralize(selectedService?.comments?.length || 0, "Comentário", "Comentários")}</h3>
           {!selectedService?.comments ||
           selectedService.comments.length === 0 ? (
             <div className="equalizador-no-comments">
@@ -1616,7 +1620,6 @@ const EqualizadorServicos = () => {
           variant="service"
           className="equalizador-form-card"
           title=""
-          textColor="#1e293b"
         >
           <div className="equalizador-form-header">
             <h2 className="equalizador-form-title">

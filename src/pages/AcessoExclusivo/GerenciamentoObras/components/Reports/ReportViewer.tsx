@@ -18,6 +18,7 @@ import {
   FiDroplet,
 } from "react-icons/fi";
 import type { DiaryEntry } from "../../../../../services/obrasService";
+import { pluralize } from "../../../../../utils/pluralize";
 
 interface ReportViewerProps {
   entry: DiaryEntry;
@@ -170,7 +171,7 @@ export default function ReportViewer({ entry, onBack, onEdit, onDelete }: Report
             {entry.workforce && entry.workforce.length > 0 && (
               <div className="obras-report-viewer-section">
                 <h3>
-                  <FiUsers size={20} /> Mão de Obra ({entry.workforce.length})
+                  <FiUsers size={20} /> {pluralize(entry.workforce.length, "Mão de Obra", "Mãos de Obra")}
                 </h3>
                 <div className="obras-report-viewer-list">
                   {entry.workforce.map((worker) => (
@@ -188,7 +189,7 @@ export default function ReportViewer({ entry, onBack, onEdit, onDelete }: Report
             {entry.equipmentUsed && entry.equipmentUsed.length > 0 && (
               <div className="obras-report-viewer-section">
                 <h3>
-                  <FiTool size={20} /> Equipamentos ({entry.equipmentUsed.length})
+                  <FiTool size={20} /> {pluralize(entry.equipmentUsed.length, "Equipamento", "Equipamentos")}
                 </h3>
                 <div className="obras-report-viewer-list">
                   {entry.equipmentUsed.map((eq) => (
@@ -206,7 +207,7 @@ export default function ReportViewer({ entry, onBack, onEdit, onDelete }: Report
             {entry.activitiesList && entry.activitiesList.length > 0 && (
               <div className="obras-report-viewer-section">
                 <h3>
-                  <FiActivity size={20} /> Atividades ({entry.activitiesList.length})
+                  <FiActivity size={20} /> {pluralize(entry.activitiesList.length, "Atividade", "Atividades")}
                 </h3>
                 <div className="obras-report-viewer-list">
                   {entry.activitiesList.map((activity) => (
@@ -230,7 +231,7 @@ export default function ReportViewer({ entry, onBack, onEdit, onDelete }: Report
         {entry.reportType === "lancamento-gastos" && entry.comments && entry.comments.length > 0 && (
           <div className="obras-report-viewer-section">
             <h3>
-              <FiDollarSign size={20} /> Gastos Registrados ({entry.comments.length})
+              <FiDollarSign size={20} /> {pluralize(entry.comments.length, "Gasto Registrado", "Gastos Registrados")}
             </h3>
             <div className="obras-report-viewer-list">
               {entry.comments.map((comment) => (
@@ -250,7 +251,7 @@ export default function ReportViewer({ entry, onBack, onEdit, onDelete }: Report
         {entry.reportType === "teste-hidrostatico" && entry.testItems && entry.testItems.length > 0 && (
           <div className="obras-report-viewer-section">
             <h3>
-              <FiDroplet size={20} /> Itens Testados ({entry.testItems.length})
+              <FiDroplet size={20} /> {pluralize(entry.testItems.length, "Item Testado", "Itens Testados")}
             </h3>
             <div className="obras-report-viewer-list">
               {entry.testItems.map((item, index) => (
@@ -272,7 +273,7 @@ export default function ReportViewer({ entry, onBack, onEdit, onDelete }: Report
             {entry.conclusionActivities && entry.conclusionActivities.length > 0 && (
               <div className="obras-report-viewer-section">
                 <h3>
-                  <FiActivity size={20} /> Atividades de Conclusão ({entry.conclusionActivities.length})
+                  <FiActivity size={20} /> {pluralize(entry.conclusionActivities.length, "Atividade de Conclusão", "Atividades de Conclusão")}
                 </h3>
                 <div className="obras-report-viewer-list">
                   {entry.conclusionActivities.map((activity) => (
@@ -292,7 +293,7 @@ export default function ReportViewer({ entry, onBack, onEdit, onDelete }: Report
             {entry.conclusionOccurrences && entry.conclusionOccurrences.length > 0 && (
               <div className="obras-report-viewer-section">
                 <h3>
-                  <FiAlertTriangle size={20} /> Ocorrências ({entry.conclusionOccurrences.length})
+                  <FiAlertTriangle size={20} /> {pluralize(entry.conclusionOccurrences.length, "Ocorrência", "Ocorrências")}
                 </h3>
                 <div className="obras-report-viewer-list">
                   {entry.conclusionOccurrences.map((occurrence) => (
@@ -319,7 +320,7 @@ export default function ReportViewer({ entry, onBack, onEdit, onDelete }: Report
         {entry.comments && entry.comments.length > 0 && entry.reportType !== "lancamento-gastos" && (
           <div className="obras-report-viewer-section">
             <h3>
-              <FiMessageSquare size={20} /> Comentários ({entry.comments.length})
+              <FiMessageSquare size={20} /> {pluralize(entry.comments.length, "Comentário", "Comentários")}
             </h3>
             <div className="obras-report-viewer-list">
               {entry.comments.map((comment) => (
@@ -339,7 +340,7 @@ export default function ReportViewer({ entry, onBack, onEdit, onDelete }: Report
         {entry.photos && entry.photos.length > 0 && (
           <div className="obras-report-viewer-section">
             <h3>
-              <FiCamera size={20} /> Fotos ({entry.photos.length})
+              <FiCamera size={20} /> {pluralize(entry.photos.length, "Foto", "Fotos")}
             </h3>
             <div className="obras-report-viewer-photos">
               {entry.photos.map((photo) => (
@@ -356,7 +357,7 @@ export default function ReportViewer({ entry, onBack, onEdit, onDelete }: Report
         {entry.videos && entry.videos.length > 0 && (
           <div className="obras-report-viewer-section">
             <h3>
-              <FiVideo size={20} /> Vídeos ({entry.videos.length})
+              <FiVideo size={20} /> {pluralize(entry.videos.length, "Vídeo", "Vídeos")}
             </h3>
             <div className="obras-report-viewer-videos">
               {entry.videos.map((video) => (
@@ -391,7 +392,7 @@ export default function ReportViewer({ entry, onBack, onEdit, onDelete }: Report
         {entry.signatures && entry.signatures.length > 0 && (
           <div className="obras-report-viewer-section">
             <h3>
-              <FiCheck size={20} /> Assinaturas ({entry.signatures.length})
+              <FiCheck size={20} /> {pluralize(entry.signatures.length, "Assinatura", "Assinaturas")}
             </h3>
             <div className="obras-report-viewer-signatures">
               {entry.signatures.map((sig) => (

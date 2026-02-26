@@ -1,4 +1,5 @@
 import Card from "../../../../../components/ui/Card/Card";
+import { pluralize } from "../../../../../utils/pluralize";
 import {
   FiTool,
   FiPlus,
@@ -83,7 +84,7 @@ export default function Menu({
               <FiTool size={48} />
             </div>
             <p>Cadastrar novas obras para gerenciamento</p>
-            <span className="obras-entry-count">{projects.length} obras</span>
+            <span className="obras-entry-count">{pluralize(projects.length, "obra", "obras")}</span>
           </div>
         </Card>
 
@@ -119,7 +120,7 @@ export default function Menu({
             </div>
             <p>Todos os relatórios em um único lugar</p>
             <span className="obras-entry-count">
-              {diaryEntries.length} relatórios
+              {pluralize(diaryEntries.length, "relatório", "relatórios")}
             </span>
           </div>
         </Card>
@@ -138,7 +139,7 @@ export default function Menu({
               <FiPackage size={48} />
             </div>
             <p>Controle de estoque de materiais</p>
-            <span className="obras-entry-count">{inventory.length} itens</span>
+            <span className="obras-entry-count">{pluralize(inventory.length, "item", "itens")}</span>
           </div>
         </Card>
 
@@ -157,7 +158,7 @@ export default function Menu({
             </div>
             <p>Sistema de orçamentos automatizado</p>
             <span className="obras-entry-count">
-              {budgets.length} orçamentos
+              {pluralize(budgets.length, "orçamento", "orçamentos")}
             </span>
           </div>
         </Card>
@@ -177,7 +178,7 @@ export default function Menu({
             </div>
             <p>Gestão de fornecedores</p>
             <span className="obras-entry-count">
-              {suppliers.length} fornecedores
+              {pluralize(suppliers.length, "fornecedor", "fornecedores")}
             </span>
           </div>
         </Card>
@@ -197,7 +198,7 @@ export default function Menu({
             </div>
             <p>Controle de qualidade com checklists</p>
             <span className="obras-entry-count">
-              {qualityChecklists.length} checklists
+              {pluralize(qualityChecklists.length, "checklist", "checklists")}
             </span>
           </div>
         </Card>
@@ -235,7 +236,7 @@ export default function Menu({
             </div>
             <p>Gestão de equipe e mão de obra</p>
             <span className="obras-entry-count">
-              {teamMembers.length} membros
+              {pluralize(teamMembers.length, "membro", "membros")}
             </span>
           </div>
         </Card>
@@ -255,7 +256,7 @@ export default function Menu({
             </div>
             <p>Controle de equipamentos</p>
             <span className="obras-entry-count">
-              {equipment.length} equipamentos
+              {pluralize(equipment.length, "equipamento", "equipamentos")}
             </span>
           </div>
         </Card>
@@ -275,7 +276,7 @@ export default function Menu({
             </div>
             <p>Planejamento e cronograma</p>
             <span className="obras-entry-count">
-              {schedules.length} tarefas
+              {pluralize(schedules.length, "tarefa", "tarefas")}
             </span>
           </div>
         </Card>
@@ -295,7 +296,7 @@ export default function Menu({
             </div>
             <p>Segurança do trabalho</p>
             <span className="obras-entry-count">
-              {safetyRecords.length} registros
+              {pluralize(safetyRecords.length, "registro", "registros")}
             </span>
           </div>
         </Card>
@@ -315,7 +316,7 @@ export default function Menu({
             </div>
             <p>Avanço físico-financeiro</p>
             <span className="obras-entry-count">
-              {measurements.length} medições
+              {pluralize(measurements.length, "medição", "medições")}
             </span>
           </div>
         </Card>
@@ -334,7 +335,7 @@ export default function Menu({
               <FiAlertTriangle size={48} />
             </div>
             <p>Não conformidades e problemas</p>
-            <span className="obras-entry-count">{issues.length} registros</span>
+            <span className="obras-entry-count">{pluralize(issues.length, "registro", "registros")}</span>
           </div>
         </Card>
 
@@ -353,7 +354,7 @@ export default function Menu({
             </div>
             <p>Documentação técnica</p>
             <span className="obras-entry-count">
-              {documents.length} documentos
+              {pluralize(documents.length, "documento", "documentos")}
             </span>
           </div>
         </Card>

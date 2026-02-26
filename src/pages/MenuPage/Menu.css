@@ -8,15 +8,13 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: var(--space-10);
-  padding: var(--space-8) var(--space-5);
+  padding: var(--space-6) var(--space-5) var(--space-8);
+  padding-top: var(--space-5);
   position: relative;
   overflow: hidden;
-  background:
-    radial-gradient(ellipse at 15% 20%, rgba(59,130,246,0.11) 0%, transparent 50%),
-    radial-gradient(ellipse at 85% 80%, rgba(30,58,138,0.13) 0%, transparent 50%),
-    linear-gradient(160deg, var(--color-primary-950) 0%, var(--color-primary-800) 40%, var(--color-primary-600) 100%);
+  background: transparent;
 }
 
 /* Pontos de ruído sutil no fundo */
@@ -39,7 +37,7 @@
   to   { transform: translate(20px, -12px); }
 }
 
-/* Header */
+/* Header — fixo no topo, botão Sair no canto superior esquerdo */
 .menu-header {
   display: flex;
   align-items: center;
@@ -48,17 +46,16 @@
   max-width: var(--max-content);
   position: relative;
   z-index: 2;
+  flex-shrink: 0;
+  margin-bottom: var(--space-2);
 }
 
 .logout-button-left {
-  /* herdado do .button--secondary */
-  min-width: 88px;
-  font-size: var(--text-xs) !important;
-  letter-spacing: var(--tracking-wider) !important;
+  flex-shrink: 0;
   text-transform: uppercase;
 }
 
-.header-spacer { width: 88px; }
+.header-spacer { width: 110px; min-width: 110px; }
 
 /* Marca */
 .company-brand {

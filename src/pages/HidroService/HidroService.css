@@ -9,16 +9,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   position: relative;
   overflow-x: hidden;
-  padding: var(--space-6) 0 var(--space-8);
-  /* Gradiente azul sofisticado */
-  background:
-    radial-gradient(ellipse 120% 80% at 50% -20%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
-    radial-gradient(ellipse 80% 60% at 100% 100%, rgba(30, 58, 138, 0.2) 0%, transparent 45%),
-    radial-gradient(ellipse 60% 80% at 0% 100%, rgba(37, 99, 235, 0.12) 0%, transparent 45%),
-    linear-gradient(160deg, var(--color-primary-950) 0%, var(--color-primary-900) 35%, var(--color-primary-800) 70%, var(--color-primary-700) 100%);
+  padding: var(--space-5) 0 var(--space-8);
+  background: transparent;
 }
 
 .hidro-service-container::before {
@@ -61,7 +56,7 @@
   }
 }
 
-/* Header — Voltar + Logo centralizado */
+/* Header — Voltar no canto superior esquerdo + Logo centralizado */
 .hidro-service-header-wrapper {
   display: flex;
   align-items: center;
@@ -69,12 +64,14 @@
   width: 100%;
   margin-bottom: var(--space-8);
   gap: var(--space-4);
+  flex-shrink: 0;
 }
 
 .hidro-service-back-btn {
   color: #fff !important;
   border-color: rgba(255, 255, 255, 0.25) !important;
   font-weight: 600 !important;
+  min-height: 44px !important;
   padding: var(--space-2) var(--space-5) !important;
   border-radius: var(--radius-lg) !important;
   text-transform: none !important;

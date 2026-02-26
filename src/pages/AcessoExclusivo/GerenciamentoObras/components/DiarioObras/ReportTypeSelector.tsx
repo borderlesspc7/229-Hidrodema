@@ -61,18 +61,21 @@ export default function ReportTypeSelector({
   onBack,
 }: ReportTypeSelectorProps) {
   return (
-    <div className="obras-report-selector-container">
+    <section
+      className="obras-report-selector-container"
+      aria-labelledby="obras-report-selector-title"
+    >
       <Button variant="secondary" onClick={onBack} className="obras-back-btn">
         <FiArrowLeft size={16} />
         Voltar ao Menu
       </Button>
 
-      <div className="obras-report-selector-header">
-        <h2>SELECIONE O TIPO DE RELATÓRIO</h2>
+      <header className="obras-report-selector-header">
+        <h2 id="obras-report-selector-title">SELECIONE O TIPO DE RELATÓRIO</h2>
         <p>Escolha o tipo de relatório que deseja criar</p>
-      </div>
+      </header>
 
-      <div className="obras-report-selector-grid">
+      <div className="obras-report-selector-grid" role="list">
         {reportTypes.map((report) => {
           const IconComponent = report.icon;
           return (
@@ -80,6 +83,7 @@ export default function ReportTypeSelector({
               key={report.type}
               variant="service"
               title=""
+              role="listitem"
               className={`obras-report-type-card ${
                 !report.available ? "obras-report-type-disabled" : ""
               }`}
@@ -92,6 +96,7 @@ export default function ReportTypeSelector({
                     backgroundColor: report.bgColor,
                     color: report.color,
                   }}
+                  aria-hidden
                 >
                   <IconComponent size={48} />
                 </div>
@@ -100,8 +105,11 @@ export default function ReportTypeSelector({
                 {report.available ? (
                   <Button
                     variant="primary"
-                    onClick={() => onSelectType(report.type)}
                     className="obras-report-type-button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelectType(report.type);
+                    }}
                   >
                     Criar Relatório
                   </Button>
@@ -113,6 +121,6 @@ export default function ReportTypeSelector({
           );
         })}
       </div>
-    </div>
+    </section>
   );
 }

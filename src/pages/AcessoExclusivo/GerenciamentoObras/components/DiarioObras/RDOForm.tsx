@@ -30,6 +30,7 @@ import type {
   CommentEntry,
   Photo,
 } from "../../../../../services/obrasService";
+import { pluralize } from "../../../../../utils/pluralize";
 
 interface RDOFormProps {
   projects: Project[];
@@ -343,7 +344,7 @@ export default function RDOForm({
           <div className="obras-rdo-header">
             <div className="obras-rdo-logo">
               <img
-                src="/HIDRODEMA_LogoNovo_Azul.png"
+                src="/HIDRODEMA_LogoNovo_Branco (2).png"
                 alt="HIDRODEMA"
                 style={{ maxHeight: 60 }}
               />
@@ -761,7 +762,7 @@ export default function RDOForm({
                   className="obras-section-title"
                   style={{ color: "#ea580c" }}
                 >
-                  <FiMessageSquare /> Comentários ({comments.length})
+                  <FiMessageSquare /> {pluralize(comments.length, "Comentário", "Comentários")}
                 </h3>
                 <Button variant="primary" onClick={handleAddComment}>
                   <FiPlus size={16} /> Adicionar

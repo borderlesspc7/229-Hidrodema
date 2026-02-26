@@ -26,6 +26,7 @@ import type {
   Schedule,
   SafetyRecord,
 } from "../../../../../services/obrasService";
+import { pluralize } from "../../../../../utils/pluralize";
 
 interface ProjectDetailViewProps {
   project: Project;
@@ -238,19 +239,19 @@ export default function ProjectDetailView({
           <div className="project-detail-resources-summary">
             <div className="resource-item">
               <FiPackage size={20} />
-              <span>{projectInventory.length} Itens de Estoque</span>
+              <span>{pluralize(projectInventory.length, "Item de Estoque", "Itens de Estoque")}</span>
             </div>
             <div className="resource-item">
               <FiTool size={20} />
-              <span>{projectEquipment.length} Equipamentos</span>
+              <span>{pluralize(projectEquipment.length, "Equipamento", "Equipamentos")}</span>
             </div>
             <div className="resource-item">
               <FiUsers size={20} />
-              <span>{projectSuppliers.length} Fornecedores</span>
+              <span>{pluralize(projectSuppliers.length, "Fornecedor", "Fornecedores")}</span>
             </div>
             <div className="resource-item">
               <FiShield size={20} />
-              <span>{projectSafety.length} Registros de Segurança</span>
+              <span>{pluralize(projectSafety.length, "Registro de Segurança", "Registros de Segurança")}</span>
             </div>
           </div>
         </div>
@@ -407,7 +408,7 @@ export default function ProjectDetailView({
                 )}
                 {report.photos && report.photos.length > 0 && (
                   <p>
-                    <FiImage size={14} /> {report.photos.length} foto(s)
+                    <FiImage size={14} /> {pluralize(report.photos.length, "foto", "fotos")}
                   </p>
                 )}
               </div>
@@ -421,7 +422,7 @@ export default function ProjectDetailView({
   const renderPhotos = () => (
     <div className="project-detail-photos">
       <div className="photos-header">
-        <h3>Galeria de Fotos ({allPhotos.length})</h3>
+        <h3>Galeria de Fotos ({pluralize(allPhotos.length, "foto", "fotos")})</h3>
       </div>
       {allPhotos.length === 0 ? (
         <div className="empty-state">
@@ -559,7 +560,7 @@ export default function ProjectDetailView({
 
       <div className="resources-section">
         <h3>
-          <FiTool /> Equipamentos ({projectEquipment.length})
+          <FiTool /> {pluralize(projectEquipment.length, "Equipamento", "Equipamentos")}
         </h3>
         {projectEquipment.length === 0 ? (
           <p className="empty-message">Nenhum equipamento alocado</p>
@@ -588,7 +589,7 @@ export default function ProjectDetailView({
 
       <div className="resources-section">
         <h3>
-          <FiPackage /> Estoque ({projectInventory.length})
+          <FiPackage /> Estoque ({pluralize(projectInventory.length, "item", "itens")})
         </h3>
         {projectInventory.length === 0 ? (
           <p className="empty-message">Nenhum item de estoque vinculado</p>
@@ -611,7 +612,7 @@ export default function ProjectDetailView({
 
       <div className="resources-section">
         <h3>
-          <FiDollarSign /> Fornecedores ({projectSuppliers.length})
+          <FiDollarSign /> {pluralize(projectSuppliers.length, "Fornecedor", "Fornecedores")}
         </h3>
         {projectSuppliers.length === 0 ? (
           <p className="empty-message">Nenhum fornecedor vinculado</p>

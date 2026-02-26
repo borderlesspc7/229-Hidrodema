@@ -75,18 +75,18 @@ export default function ProjectsManagement({
               {editingProject ? "EDITAR OBRA" : "CADASTRAR NOVA OBRA"}
             </h2>
             <p className="obras-form-subtitle">
-              Registre uma obra para utilizá-la em relatórios e acompanhamentos
+              Registre uma obra para utilizá-la em relatórios e acompanhamento do andamento.
             </p>
           </div>
 
           <div className="obras-form-content">
-            <div className="obras-section">
-              <h3 className="obras-section-title">
+            <section className="obras-section" aria-labelledby="obras-info-heading">
+              <h3 id="obras-info-heading" className="obras-section-title">
                 <FiTool /> Informações da Obra
               </h3>
               <div className="obras-form-row">
                 <div className="obras-form-field">
-                  <label>Nome da Obra *</label>
+                  <label>Nome da Obra <span className="obras-required" aria-hidden>*</span></label>
                   <Input
                     type="text"
                     placeholder="Nome da obra"
@@ -96,7 +96,7 @@ export default function ProjectsManagement({
                   />
                 </div>
                 <div className="obras-form-field">
-                  <label>Cliente *</label>
+                  <label>Cliente <span className="obras-required" aria-hidden>*</span></label>
                   <Input
                     type="text"
                     placeholder="Nome do cliente"
@@ -109,20 +109,20 @@ export default function ProjectsManagement({
 
               <div className="obras-form-row">
                 <div className="obras-form-field">
-                  <label>Data de Início *</label>
+                  <label>Data de Início <span className="obras-required" aria-hidden>*</span></label>
                   <Input
                     type="date"
-                    placeholder="Data de início"
+                    placeholder=""
                     value={newProject.startDate}
                     onChange={(value) => onProjectChange("startDate", value)}
                     required
                   />
                 </div>
                 <div className="obras-form-field">
-                  <label>Data de Término *</label>
+                  <label>Data de Término <span className="obras-required" aria-hidden>*</span></label>
                   <Input
                     type="date"
-                    placeholder="Data de término"
+                    placeholder=""
                     value={newProject.endDate}
                     onChange={(value) => onProjectChange("endDate", value)}
                     required
@@ -133,7 +133,7 @@ export default function ProjectsManagement({
               {editingProject && (
                 <div className="obras-form-row">
                   <div className="obras-form-field">
-                    <label>Status da Obra *</label>
+                    <label>Status da Obra <span className="obras-required" aria-hidden>*</span></label>
                     <select
                       className="obras-select"
                       value={newProject.status}
@@ -189,7 +189,7 @@ export default function ProjectsManagement({
                   rows={4}
                 />
               </div>
-            </div>
+            </section>
 
             <div className="obras-form-actions">
               <Button

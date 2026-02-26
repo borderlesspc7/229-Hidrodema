@@ -29,21 +29,6 @@ export default function SuppliersList({
       ? suppliers
       : suppliers.filter((supplier) => supplier.projectId === selectedProjectId);
 
-  const getReliabilityColor = (reliability: string) => {
-    switch (reliability) {
-      case "excelente":
-        return "#10b981";
-      case "bom":
-        return "#3b82f6";
-      case "regular":
-        return "#f59e0b";
-      case "ruim":
-        return "#ef4444";
-      default:
-        return "#6b7280";
-    }
-  };
-
   const getReliabilityLabel = (reliability: string) => {
     switch (reliability) {
       case "excelente":
@@ -59,31 +44,42 @@ export default function SuppliersList({
     }
   };
 
-  return (
-    <div className="obras-inventory-container">
-      <div className="obras-inventory-header">
-        <h2>FORNECEDORES</h2>
-        <Button
-          variant="primary"
-          onClick={() => onViewChange("menu")}
-          className="obras-back-to-menu"
-        >
-          <FiArrowLeft size={16} />
-          Voltar ao Menu
-        </Button>
-      </div>
+  const getReliabilityClass = (reliability: string) => {
+    const normalized = (reliability || "").toLowerCase();
+    if (["excelente", "bom", "regular", "ruim"].includes(normalized)) {
+      return `reliability-${normalized}`;
+    }
+    return "";
+  };
 
-      <div className="obras-inventory-controls">
-        <div className="obras-inventory-actions">
+  return (
+    <section
+      className="obras-inventory-container"
+      aria-labelledby="obras-suppliers-title"
+    >
+      <header className="obras-inventory-header">
+        <h2 id="obras-suppliers-title">FORNECEDORES</h2>
+        <div className="obras-inventory-header-actions">
+          <Button
+            variant="primary"
+            onClick={() => onViewChange("menu")}
+            className="obras-back-to-menu"
+          >
+            <FiArrowLeft size={16} aria-hidden />
+            Voltar ao Menu
+          </Button>
           <Button
             variant="primary"
             onClick={() => onViewChange("new-supplier")}
             className="obras-create-btn"
           >
-            <FiPlus size={20} />
+            <FiPlus size={20} aria-hidden />
             Novo Fornecedor
           </Button>
         </div>
+      </header>
+
+      <div className="obras-inventory-controls" role="search" aria-label="Filtrar fornecedores por obra">
         <ProjectFilter
           projects={projects}
           selectedProjectId={selectedProjectId}
@@ -95,9 +91,10 @@ export default function SuppliersList({
         {filteredSuppliers.length === 0 ? (
           <div className="obras-empty-state">
             <div className="obras-empty-icon">
-              <FiTruck size={64} />
+              <FiTruck size={64} aria-hidden />
             </div>
             <h3>Nenhum fornecedor cadastrado</h3>
+            <p>Adicione fornecedores ao sistema</p>
             <Button
               variant="primary"
               onClick={() => onViewChange("new-supplier")}
@@ -107,24 +104,12 @@ export default function SuppliersList({
           </div>
         ) : (
           filteredSuppliers.map((supplier) => (
-            <div key={supplier.id} className="obras-inventory-item">
+            <article key={supplier.id} className="obras-inventory-item">
               <div className="obras-item-header">
                 <h3>{supplier.name}</h3>
                 <span
-                  className="reliability-badge"
-                  style={{
-                    color: "#ffffff",
-                    background: getReliabilityColor(supplier.reliability),
-                    padding: "8px 16px",
-                    borderRadius: "24px",
-                    fontSize: "11px",
-                    fontWeight: "700",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.8px",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
-                  }}
+                  className={`reliability-badge ${getReliabilityClass(supplier.reliability)}`}
+                  aria-label={`Confiabilidade: ${getReliabilityLabel(supplier.reliability)}`}
                 >
                   {getReliabilityLabel(supplier.reliability)}
                 </span>
@@ -161,24 +146,26 @@ export default function SuppliersList({
                 <Button
                   variant="secondary"
                   onClick={() => supplier.id && onEdit(supplier)}
+                  aria-label={`Editar fornecedor ${supplier.name}`}
                 >
-                  <FiEdit3 size={16} />
+                  <FiEdit3 size={16} aria-hidden />
                   Editar
                 </Button>
                 <Button
                   variant="secondary"
                   onClick={() => supplier.id && onDelete(supplier.id)}
                   className="obras-delete"
+                  aria-label={`Excluir fornecedor ${supplier.name}`}
                 >
-                  <FiTrash2 size={16} />
+                  <FiTrash2 size={16} aria-hidden />
                   Excluir
                 </Button>
               </div>
-            </div>
+            </article>
           ))
         )}
       </div>
-    </div>
+    </section>
   );
 }
 

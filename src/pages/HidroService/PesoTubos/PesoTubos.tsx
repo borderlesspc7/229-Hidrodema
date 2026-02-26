@@ -182,6 +182,9 @@ export default function PesoTubos() {
       .filter((item) => item.empty > 0);
   };
 
+  const formatWeight = (value: number) =>
+    value.toFixed(2).replace(".", ",") + " kg";
+
   return (
     <div className="peso-tubos-container">
       <Breadcrumb />
@@ -328,48 +331,54 @@ export default function PesoTubos() {
                 <div key={item.material} className="chart-bar-group">
                   <div className="bar-label">{item.material}</div>
                   <div className="bars">
-                    <div
-                      className="bar empty-bar"
-                      style={{
-                        height: `${
-                          (item.empty /
-                            Math.max(...getChartData().map((d) => d.empty))) *
-                          200
-                        }px`,
-                      }}
-                      title={`Peso vazio: ${item.empty}kg`}
-                    >
-                      <span className="bar-value">{item.empty}kg</span>
+                    <div className="bar-column">
+                      <span className="bar-value" title={`Peso do tubo: ${formatWeight(item.empty)}`}>
+                        {formatWeight(item.empty)}
+                      </span>
+                      <div
+                        className="bar empty-bar"
+                        style={{
+                          height: `${
+                            (item.empty /
+                              Math.max(...getChartData().map((d) => d.empty))) *
+                            200
+                          }px`,
+                        }}
+                      />
                     </div>
-                    <div
-                      className="bar water-bar"
-                      style={{
-                        height: `${
-                          (item.water /
-                            Math.max(...getChartData().map((d) => d.water))) *
-                          200
-                        }px`,
-                      }}
-                      title={`Peso da água: ${item.water}kg`}
-                    >
-                      <span className="bar-value">{item.water}kg</span>
+                    <div className="bar-column">
+                      <span className="bar-value" title={`Peso da água: ${formatWeight(item.water)}`}>
+                        {formatWeight(item.water)}
+                      </span>
+                      <div
+                        className="bar water-bar"
+                        style={{
+                          height: `${
+                            (item.water /
+                              Math.max(...getChartData().map((d) => d.water))) *
+                            200
+                          }px`,
+                        }}
+                      />
                     </div>
-                    <div
-                      className="bar full-bar"
-                      style={{
-                        height: `${
-                          (item.full /
-                            Math.max(...getChartData().map((d) => d.full))) *
-                          200
-                        }px`,
-                      }}
-                      title={`Peso total: ${item.full}kg`}
-                    >
-                      <span className="bar-value">{item.full}kg</span>
+                    <div className="bar-column">
+                      <span className="bar-value" title={`Peso total: ${formatWeight(item.full)}`}>
+                        {formatWeight(item.full)}
+                      </span>
+                      <div
+                        className="bar full-bar"
+                        style={{
+                          height: `${
+                            (item.full /
+                              Math.max(...getChartData().map((d) => d.full))) *
+                            200
+                          }px`,
+                        }}
+                      />
                     </div>
                   </div>
                   <div className="obseration">
-                    Os valores são calculados por metro de tubo{" "}
+                    Os valores são calculados por metro de tubo
                   </div>
                 </div>
               ))}
