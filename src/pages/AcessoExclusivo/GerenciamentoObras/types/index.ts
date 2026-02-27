@@ -16,6 +16,11 @@ export interface Photo {
   dataUrl: string;
 }
 
+/** Opcional: ao abrir formulário de recurso (estoque, fornecedor, equipe, equipamento) com obra filtrada, pré-seleciona a obra. */
+export interface ViewChangeContext {
+  projectId?: string;
+}
+
 export type ViewMode =
   | "menu"
   | "new"

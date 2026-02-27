@@ -2,14 +2,14 @@ import { useState } from "react";
 import Button from "../../../../../components/ui/Button/Button";
 import { FiTool, FiArrowLeft, FiPlus, FiEdit3, FiTrash2 } from "react-icons/fi";
 import type { Equipment, Project } from "../../../../../services/obrasService";
-import type { ViewMode } from "../../types";
+import type { ViewMode, ViewChangeContext } from "../../types";
 import ProjectFilter from "../shared/ProjectFilter";
 import ProjectBadge from "../shared/ProjectBadge";
 
 interface EquipmentListProps {
   equipment: Equipment[];
   projects: Project[];
-  onViewChange: (mode: ViewMode) => void;
+  onViewChange: (mode: ViewMode, context?: ViewChangeContext) => void;
   onEdit: (item: Equipment) => void;
   onDelete: (id: string) => void;
 }
@@ -62,7 +62,7 @@ export default function EquipmentList({
         <div className="obras-inventory-actions">
           <Button
             variant="primary"
-            onClick={() => onViewChange("new-equipment")}
+            onClick={() => onViewChange("new-equipment", selectedProjectId ? { projectId: selectedProjectId } : undefined)}
             className="obras-create-btn"
           >
             <FiPlus size={20} />
@@ -85,7 +85,7 @@ export default function EquipmentList({
             <h3>Nenhum equipamento cadastrado</h3>
             <Button
               variant="primary"
-              onClick={() => onViewChange("new-equipment")}
+              onClick={() => onViewChange("new-equipment", selectedProjectId ? { projectId: selectedProjectId } : undefined)}
             >
               Cadastrar Primeiro Equipamento
             </Button>

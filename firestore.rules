@@ -1,0 +1,16 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Usuários: leitura/escrita apenas do próprio documento
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    // Demais coleções (obras, visitas, etc.): apenas autenticados
+    match /{collection} {
+      allow read, write: if request.auth != null && collection != 'users';
+    }
+    match /{collection}/{document=**} {
+      allow read, write: if request.auth != null && collection != 'users';
+    }
+  }
+}

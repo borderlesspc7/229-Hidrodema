@@ -1,0 +1,9 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Obras: anexos e documentos por projectId (apenas usuários autenticados)
+    match /obras/{allPaths=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}

@@ -7,10 +7,11 @@ import "./Button.css";
 interface ButtonProps {
   children: React.ReactNode;
   type?: "button" | "submit";
-  onClick?: () => void;
+  onClick?: (e?: React.MouseEvent<HTMLButtonElement>) => void;
   disabled?: boolean;
   className?: string;
   variant?: "primary" | "secondary";
+  title?: string;
 }
 
 export default function Button({
@@ -20,6 +21,7 @@ export default function Button({
   disabled,
   className,
   variant = "primary",
+  title,
 }: ButtonProps) {
   const buttonClasses = ["button", `button--${variant}`, className]
     .filter(Boolean)
@@ -31,6 +33,7 @@ export default function Button({
       onClick={onClick}
       disabled={disabled}
       className={buttonClasses}
+      title={title}
     >
       <span className="button-text">{children}</span>
     </button>

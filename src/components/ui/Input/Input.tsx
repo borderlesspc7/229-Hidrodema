@@ -32,10 +32,10 @@ export default function Input({
 
   useEffect(() => {
     if (mask && mask !== "none") {
-      // Para currency, converte o valor para centavos antes de formatar
+      // Para currency: value já vem em centavos (dígitos) dos formulários
       if (mask === "currency") {
-        const numValue = parseFloat(value) || 0;
-        setDisplayValue(applyMask((numValue * 100).toString(), mask));
+        const centavos = (value || "0").toString().replace(/\D/g, "") || "0";
+        setDisplayValue(applyMask(centavos, mask));
       } else {
         setDisplayValue(applyMask(value, mask));
       }
@@ -71,22 +71,27 @@ export default function Input({
         newValue = newValue.replace(/\D/g, "");
       }
 
-      // Converte para número para validação
+      // Converte para número para validação (currency: centavos → reais)
+      const rawNum = parseFloat(newValue.replace(/\D/g, "")) || 0;
       const numValue =
-        mask === "currency"
-          ? parseFloat(newValue.replace(/\D/g, "")) / 100
-          : parseFloat(newValue) || 0;
+        mask === "currency" ? rawNum / 100 : rawNum;
 
       // Valida mínimo (não permite negativos por padrão)
       if (min !== undefined && numValue < min) {
-        newValue = min.toString();
+        newValue =
+          mask === "currency"
+            ? String(Math.max(0, Math.round(min * 100)))
+            : min.toString();
       } else if (min === undefined && numValue < 0) {
         newValue = "0";
       }
 
       // Valida máximo
       if (max !== undefined && numValue > max) {
-        newValue = max.toString();
+        newValue =
+          mask === "currency"
+            ? String(Math.round(max * 100))
+            : max.toString();
       }
     }
 

@@ -1,0 +1,196 @@
+/* Modal de recuperação de senha — overlay escuro */
+
+.auth-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 12, 28, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--space-5);
+  animation: auth-modal-fade 0.25s ease both;
+}
+
+.auth-modal-content {
+  background: rgba(14, 26, 52, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-2xl);
+  width: 100%;
+  max-width: 460px;
+  overflow: hidden;
+  box-shadow: 0 32px 64px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  animation: auth-modal-scale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.auth-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-5) var(--space-6);
+  background: linear-gradient(
+    135deg,
+    rgba(30, 64, 130, 0.6) 0%,
+    rgba(15, 40, 90, 0.7) 100%
+  );
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.auth-modal-title {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  color: var(--color-white);
+  margin: 0;
+}
+
+.auth-modal-close {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-md);
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  padding: 0;
+  transition:
+    background 0.2s,
+    transform 0.2s,
+    color 0.2s;
+}
+
+.auth-modal-close:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+  transform: rotate(90deg);
+}
+
+.auth-modal-body {
+  padding: var(--space-8) var(--space-6);
+}
+
+/* Input no modal (fundo escuro) */
+.auth-modal-body .auth-input__label {
+  color: rgba(255, 255, 255, 0.9);
+}
+.auth-modal-body .auth-input__field {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: var(--color-white);
+}
+.auth-modal-body .auth-input__field::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+.auth-modal-body .auth-input__field:focus {
+  border-color: var(--color-accent-400);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+}
+.auth-modal-body .auth-message--error {
+  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.auth-modal-description {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  text-align: center;
+  margin: 0 0 var(--space-6) 0;
+}
+
+.auth-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.auth-modal-actions {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.auth-modal-actions button {
+  flex: 1;
+}
+
+.auth-modal-success {
+  text-align: center;
+  padding: var(--space-5) 0;
+  animation: auth-modal-scale 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.auth-modal-success-icon {
+  width: 72px;
+  height: 72px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--space-5);
+  color: var(--color-white);
+  font-size: 36px;
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.35);
+}
+
+.auth-modal-success-title {
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  color: var(--color-white);
+  margin: 0 0 var(--space-3) 0;
+}
+
+.auth-modal-success-desc {
+  font-size: var(--text-base);
+  color: rgba(255, 255, 255, 0.88);
+  line-height: 1.6;
+  margin: 0 0 var(--space-2) 0;
+}
+
+.auth-modal-success-note {
+  font-size: var(--text-sm);
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
+  margin: 0;
+}
+
+@keyframes auth-modal-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes auth-modal-scale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-modal-content {
+    max-width: 95%;
+  }
+  .auth-modal-actions {
+    flex-direction: column;
+  }
+}

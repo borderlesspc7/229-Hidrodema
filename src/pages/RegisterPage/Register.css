@@ -75,20 +75,60 @@
   margin: 0 auto;
 }
 
-/* Card */
-.auth-card {
-  background: rgba(255,255,255,0.97);
-  border-radius: var(--radius-2xl);
+/* Card — transparente como no Login (glass) */
+.register-page .auth-card {
+  background: rgba(14, 26, 50, 0.78);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  border-radius: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
   padding: var(--space-10) var(--space-8);
   width: 100%;
   max-width: 460px;
-  box-shadow:
-    0 24px 48px rgba(0,0,0,0.22),
-    0 8px 16px rgba(0,0,0,0.12),
-    0 0 0 1px rgba(255,255,255,0.15);
   position: relative;
   z-index: 2;
   animation: hd-slide-up 0.55s 0.1s var(--transition-slow) both;
+  box-shadow:
+    0 40px 80px rgba(0, 0, 0, 0.45),
+    0 12px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+.register-page .auth-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  border-radius: 1.5rem 1.5rem 0 0;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--color-accent-500) 15%,
+    var(--color-accent-300) 50%,
+    var(--color-accent-500) 85%,
+    transparent 100%
+  );
+  opacity: 0.95;
+}
+
+/* Texto do card transparente (legível no fundo escuro) */
+.register-page .auth-card .auth-title {
+  color: rgba(255, 255, 255, 0.95);
+}
+.register-page .auth-card .auth-subtitle {
+  color: rgba(255, 255, 255, 0.75);
+}
+.register-page .auth-card .auth-toggle {
+  border-top-color: rgba(255, 255, 255, 0.15);
+}
+.register-page .auth-card .auth-toggle span {
+  color: rgba(255, 255, 255, 0.8);
+}
+.register-page .auth-card .toggle-button {
+  color: var(--color-accent-200);
+}
+.register-page .auth-card .toggle-button:hover {
+  color: var(--color-accent-100);
 }
 
 .auth-header {
@@ -148,6 +188,89 @@
   padding: var(--space-3) var(--space-4);
   font-size: var(--text-sm);
   text-align: center;
+}
+
+/* Checkbox dos termos — dentro do auth-card, antes do auth-toggle */
+.checkbox-container--auth-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+  font-size: var(--text-sm);
+  user-select: none;
+  margin-top: var(--space-5);
+  color: #000;
+}
+/* No card transparente (register), texto e checkbox claros */
+.register-page .auth-card .checkbox-container--auth-card {
+  color: rgba(255, 255, 255, 0.92);
+}
+.register-page .auth-card .checkbox-container--auth-card .checkmark {
+  border-color: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.08);
+}
+.register-page .auth-card .checkbox-container--auth-card:hover .checkmark {
+  border-color: rgba(59, 130, 246, 0.7);
+  background: rgba(59, 130, 246, 0.15);
+}
+.checkbox-container--auth-card input {
+  display: none;
+}
+.checkbox-container--auth-card .checkmark {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  border: 1.5px solid var(--color-gray-300);
+  border-radius: var(--radius-md);
+  position: relative;
+  transition: all var(--transition-fast);
+  background: var(--color-white);
+}
+.checkbox-container--auth-card:hover .checkmark {
+  border-color: var(--color-accent-400);
+  background: rgba(59, 130, 246, 0.06);
+}
+.checkbox-container--auth-card input:checked + .checkmark {
+  background: var(--color-accent-500);
+  border-color: var(--color-accent-500);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+.checkbox-container--auth-card input:checked + .checkmark::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 6px;
+  width: 5px;
+  height: 10px;
+  border: 2px solid white;
+  border-top: none;
+  border-left: none;
+  transform: rotate(45deg);
+}
+
+/* Texto dos termos: todo em preto (card branco), exceto os links */
+.checkbox-container--auth-card .terms-text {
+  color: #000 !important;
+  font-weight: 500;
+}
+.checkbox-container--auth-card .terms-text a {
+  color: var(--color-accent-600) !important;
+  font-weight: var(--weight-semibold);
+  text-decoration: underline;
+  transition: color var(--transition-fast);
+}
+.checkbox-container--auth-card .terms-text a:hover {
+  color: var(--color-accent-500) !important;
+}
+/* No card transparente: texto claro, links em destaque */
+.register-page .auth-card .checkbox-container--auth-card .terms-text {
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+.register-page .auth-card .checkbox-container--auth-card .terms-text a {
+  color: var(--color-accent-200) !important;
+}
+.register-page .auth-card .checkbox-container--auth-card .terms-text a:hover {
+  color: var(--color-accent-100) !important;
 }
 
 /* Responsivo */

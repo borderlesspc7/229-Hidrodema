@@ -5,7 +5,6 @@ import Card from "../../../../../components/ui/Card/Card";
 import ProjectSelector from "../shared/ProjectSelector";
 import {
   FiFileText,
-  FiMessageSquare,
   FiCamera,
   FiCheck,
   FiPlus,

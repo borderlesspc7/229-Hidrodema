@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
-import "./Login.css";
-import Input from "../../components/ui/Input/Input";
+import AuthLayout from "../../components/auth/AuthLayout/AuthLayout";
+import LoginForm from "../../components/auth/LoginForm/LoginForm";
+import AuthInputField from "../../components/auth/AuthInputField/AuthInputField";
 import Button from "../../components/ui/Button/Button";
 import { useAuth } from "../../hooks/useAuth";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { paths } from "../../routes/paths";
 import { authService } from "../../services/authService";
+import "../../components/auth/Auth.css";
+import "../../components/auth/AuthModal/AuthModal.css";
 
 export default function Login() {
   const {
@@ -18,62 +21,35 @@ export default function Login() {
   } = useAuth();
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
-
-  // Estados do modal de recuperação de senha
   const [showResetModal, setShowResetModal] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [resetLoading, setResetLoading] = useState(false);
   const [resetSuccess, setResetSuccess] = useState(false);
   const [resetError, setResetError] = useState("");
 
-  // Redireciona para o menu se já estiver logado
   useEffect(() => {
-    if (user) {
-      navigate(paths.menu);
-    }
+    if (user) navigate(paths.menu);
   }, [user, navigate]);
 
-  // Limpa a mensagem de sessão expirada ao sair da página de login
   useEffect(() => {
     return () => clearSessionExpiredMessage();
   }, [clearSessionExpiredMessage]);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    clearSessionExpiredMessage();
-
-    try {
-      await login({
-        email: formData.email,
-        password: formData.password,
-      });
-    } catch (error) {
-      console.error("Erro no login:", error);
-    }
+  const handleLogin = async (email: string, password: string) => {
+    await login({ email, password });
   };
 
-  const handleChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleForgotPassword = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
+  const handleForgotPassword = () => {
     setShowResetModal(true);
     setResetSuccess(false);
     setResetError("");
-    setResetEmail(formData.email); // Preenche com o email do formulário se houver
   };
 
-  const handleResetPassword = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleResetSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setResetLoading(true);
     setResetError("");
     setResetSuccess(false);
-
     try {
       await authService.resetPassword(resetEmail);
       setResetSuccess(true);
@@ -82,8 +58,8 @@ export default function Login() {
         setResetEmail("");
         setResetSuccess(false);
       }, 3000);
-    } catch (error) {
-      setResetError((error as Error).message);
+    } catch (err) {
+      setResetError((err as Error).message);
     } finally {
       setResetLoading(false);
     }
@@ -97,19 +73,7 @@ export default function Login() {
   };
 
   return (
-    <div className="login-page">
-      <div className="login-grid" aria-hidden="true" />
-
-      {/* Título da Empresa */}
-      <div className="company-brand">
-        <img
-          src="/HIDRODEMA_LogoNovo_Branco (2).png"
-          alt="HIDRODEMA"
-          className="company-logo"
-        />
-        <div className="company-underline"></div>
-      </div>
-
+    <AuthLayout>
       <div className="auth-card">
         <div className="auth-header">
           <h1 className="auth-title">Bem-vindo de volta</h1>
@@ -118,68 +82,34 @@ export default function Login() {
           </p>
         </div>
 
-        {sessionExpiredMessage && (
-          <div className="session-expired-message" role="alert">
-            {sessionExpiredMessage}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="login-form">
-          <Input
-            type="email"
-            placeholder="Digite seu email"
-            value={formData.email}
-            onChange={(value) => handleChange("email", value)}
-          />
-          <Input
-            type="password"
-            placeholder="Digite sua senha"
-            value={formData.password}
-            onChange={(value) => handleChange("password", value)}
-          />
-          <div className="form-options">
-            <label className="checkbox-container">
-              <input type="checkbox" id="remember" />
-              <span className="checkmark"></span>
-              <span>Lembrar-me</span>
-            </label>
-            <a
-              href="#"
-              className="forgot-password"
-              onClick={handleForgotPassword}
-            >
-              Esqueceu sua senha?
-            </a>
-          </div>
-
-          <Button
-            variant="primary"
-            className="button--full-width"
-            type="submit"
-            disabled={authLoading}
-          >
-            {authLoading ? "Carregando..." : "Entrar"}
-          </Button>
-
-          {authError && <p className="error-message">{authError}</p>}
-        </form>
-
-        <div className="auth-toggle">
-          <span>Não tem uma conta?</span>
-          <Link to={paths.register} className="toggle-button">
-            Criar conta
-          </Link>
-        </div>
+        <LoginForm
+          onSubmit={handleLogin}
+          loading={authLoading}
+          error={authError}
+          onForgotPassword={handleForgotPassword}
+          sessionExpiredMessage={sessionExpiredMessage}
+        />
       </div>
 
-      {/* Modal de Recuperação de Senha */}
       {showResetModal && (
-        <div className="modal-overlay" onClick={closeResetModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2 className="modal-title">Recuperar Senha</h2>
+        <div
+          className="auth-modal-overlay"
+          onClick={closeResetModal}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="auth-modal-title"
+        >
+          <div
+            className="auth-modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="auth-modal-header">
+              <h2 id="auth-modal-title" className="auth-modal-title">
+                Recuperar Senha
+              </h2>
               <button
-                className="modal-close-button"
+                type="button"
+                className="auth-modal-close"
                 onClick={closeResetModal}
                 aria-label="Fechar"
               >
@@ -187,27 +117,38 @@ export default function Login() {
               </button>
             </div>
 
-            <div className="modal-body">
+            <div className="auth-modal-body">
               {!resetSuccess ? (
                 <>
-                  <p className="modal-description">
+                  <p className="auth-modal-description">
                     Digite seu email cadastrado e enviaremos um link para
                     redefinir sua senha.
                   </p>
 
-                  <form onSubmit={handleResetPassword} className="reset-form">
-                    <Input
+                  <form
+                    onSubmit={handleResetSubmit}
+                    className="auth-modal-form"
+                    noValidate
+                  >
+                    <AuthInputField
+                      id="reset-email"
+                      label="Email"
                       type="email"
-                      placeholder="Digite seu email"
                       value={resetEmail}
                       onChange={setResetEmail}
+                      placeholder="seu@email.com"
+                      required
+                      disabled={resetLoading}
+                      autoComplete="email"
                     />
 
                     {resetError && (
-                      <p className="error-message">{resetError}</p>
+                      <p className="auth-message auth-message--error" role="alert">
+                        {resetError}
+                      </p>
                     )}
 
-                    <div className="modal-actions">
+                    <div className="auth-modal-actions">
                       <Button
                         variant="secondary"
                         type="button"
@@ -219,7 +160,7 @@ export default function Login() {
                       <Button
                         variant="primary"
                         type="submit"
-                        disabled={resetLoading || !resetEmail}
+                        disabled={resetLoading || !resetEmail.trim()}
                       >
                         {resetLoading ? "Enviando..." : "Enviar Email"}
                       </Button>
@@ -227,14 +168,14 @@ export default function Login() {
                   </form>
                 </>
               ) : (
-                <div className="success-message-container">
-                  <div className="success-icon">✓</div>
-                  <h3 className="success-title">Email Enviado!</h3>
-                  <p className="success-description">
+                <div className="auth-modal-success">
+                  <div className="auth-modal-success-icon">✓</div>
+                  <h3 className="auth-modal-success-title">Email Enviado!</h3>
+                  <p className="auth-modal-success-desc">
                     Verifique sua caixa de entrada e siga as instruções para
                     redefinir sua senha.
                   </p>
-                  <p className="success-note">
+                  <p className="auth-modal-success-note">
                     Se não encontrar o email, verifique sua caixa de spam.
                   </p>
                 </div>
@@ -243,6 +184,6 @@ export default function Login() {
           </div>
         </div>
       )}
-    </div>
+    </AuthLayout>
   );
 }

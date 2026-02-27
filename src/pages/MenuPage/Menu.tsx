@@ -43,9 +43,9 @@ export default function Menu() {
         <Button
           variant="secondary"
           className="logout-button-left"
-          onClick={handleLogout}
+          onClick={user ? handleLogout : () => navigate(paths.login)}
         >
-          Sair
+          {user ? "Sair" : "Login"}
         </Button>
         <div className="company-brand">
           <img
@@ -60,41 +60,40 @@ export default function Menu() {
       <div className="menu-cards">
         <Card
           variant="service"
-          title="Hidro"
-          subtitle="Service"
-          description="Engenharia de aplicaçao e serviços Hidrodema"
-          backgroundColor="#f5f5f5"
-          textColor="#333"
+          title="HIDRO SERVICE"
+          description="Engenharia de aplicação e serviços Hidrodema"
+          backgroundColor="#1a2f4a"
+          textColor="#ffffff"
           size="large"
           onClick={() => navigate(paths.service)}
         />
         <Card
           variant="technology"
-          title="Hidro"
-          subtitle="meeting"
-          description="Tecnologia em termoplasticos industriais"
-          backgroundColor="#2c5f5f"
-          textColor="#fff"
+          title="HIDRO MEETING"
+          description="Tecnologia em termoplásticos industriais"
+          backgroundColor="#1e4d4d"
+          textColor="#ffffff"
           size="large"
           onClick={() => handleCardClick(paths.meeting)}
         />
         <Card
           variant="marketing"
-          title="Marketing"
+          title="MARKETING"
           description="Gerencie seu marketing"
-          backgroundColor="#fff"
-          textColor="#000"
+          backgroundColor="#252d3d"
+          textColor="#ffffff"
           size="large"
           onClick={() => handleCardClick(paths.marketing)}
         />
       </div>
       <div className="menu-footer">
-        <Button
-          variant="secondary"
+        <button
+          type="button"
+          className="menu-footer__btn"
           onClick={() => handleCardClick(paths.acessoExclusivo)}
         >
           Acesso Exclusivo
-        </Button>
+        </button>
       </div>
       {showToast && (
         <Toast

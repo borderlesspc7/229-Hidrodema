@@ -841,10 +841,21 @@ export default function SolicitacaoServicos() {
   };
 
   const handleInputChange = (questionId: string, value: string | string[]) => {
-    setFormData((prev) => ({
-      ...prev,
-      [questionId]: value,
-    }));
+    setFormData((prev) => {
+      const next = { ...prev, [questionId]: value };
+
+      // Formulário dinâmico por regional: ao trocar a regional (q11), limpar
+      // as perguntas específicas de cada regional (q12–q15) para evitar
+      // valor incompatível com a nova seleção.
+      if (questionId === "q11") {
+        delete next.q12;
+        delete next.q13;
+        delete next.q14;
+        delete next.q15;
+      }
+
+      return next;
+    });
 
     // Se mudou a seleção de serviço (q20), resetar para a última seção base
     if (questionId === "q20") {

@@ -107,22 +107,28 @@ export default function ReportViewer({ entry, onBack, onEdit, onDelete }: Report
           <div className="obras-report-viewer-grid">
             <div className="obras-report-viewer-field">
               <label>Número do Relatório</label>
-              <span>{entry.reportNumber || "N/A"}</span>
+              <span>{entry.reportNumber != null ? String(entry.reportNumber) : "—"}</span>
             </div>
             <div className="obras-report-viewer-field">
               <label>Data</label>
               <span>
-                <FiCalendar size={16} />
-                {new Date(entry.date).toLocaleDateString("pt-BR")}
+                <FiCalendar size={16} aria-hidden />
+                {entry.date
+                  ? new Date(entry.date).toLocaleDateString("pt-BR", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    })
+                  : "—"}
               </span>
             </div>
-            {entry.dayOfWeek && (
+            {(entry.dayOfWeek != null && entry.dayOfWeek !== "") && (
               <div className="obras-report-viewer-field">
                 <label>Dia da Semana</label>
                 <span>{entry.dayOfWeek}</span>
               </div>
             )}
-            {entry.approvalStatus && (
+            {(entry.approvalStatus != null && entry.approvalStatus !== "") && (
               <div className="obras-report-viewer-field">
                 <label>Status de Aprovação</label>
                 <span className={`obras-status-badge obras-status-${entry.approvalStatus}`}>
@@ -336,6 +342,24 @@ export default function ReportViewer({ entry, onBack, onEdit, onDelete }: Report
           </div>
         )}
 
+        {/* Attachments (PDF/arquivos) */}
+        {entry.attachments && entry.attachments.length > 0 && (
+          <div className="obras-report-viewer-section">
+            <h3>
+              <FiFileText size={20} /> Anexos ({entry.attachments.length})
+            </h3>
+            <ul style={{ listStyle: "none", padding: 0 }}>
+              {entry.attachments.map((a) => (
+                <li key={a.id} style={{ marginBottom: "8px" }}>
+                  <a href={a.fileUrl} target="_blank" rel="noopener noreferrer">
+                    {a.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {/* Photos */}
         {entry.photos && entry.photos.length > 0 && (
           <div className="obras-report-viewer-section">
@@ -411,10 +435,18 @@ export default function ReportViewer({ entry, onBack, onEdit, onDelete }: Report
 
         {/* Metadata */}
         <div className="obras-report-viewer-metadata">
-          {entry.createdAt && <span>Criado em: {new Date(entry.createdAt).toLocaleString("pt-BR")}</span>}
-          {entry.updatedAt && <span>Última atualização: {new Date(entry.updatedAt).toLocaleString("pt-BR")}</span>}
-          {entry.createdBy && <span>Criado por: {entry.createdBy}</span>}
-          {entry.lastModifiedBy && <span>Última modificação por: {entry.lastModifiedBy}</span>}
+          {entry.createdAt && (
+            <span><strong>Criado em:</strong> {new Date(entry.createdAt).toLocaleString("pt-BR")}</span>
+          )}
+          {entry.updatedAt && (
+            <span><strong>Última atualização:</strong> {new Date(entry.updatedAt).toLocaleString("pt-BR")}</span>
+          )}
+          {entry.createdBy && (
+            <span><strong>Criado por:</strong> {entry.createdBy}</span>
+          )}
+          {entry.lastModifiedBy && (
+            <span><strong>Última modificação por:</strong> {entry.lastModifiedBy}</span>
+          )}
         </div>
       </div>
     </div>

@@ -35,6 +35,7 @@ import type {
   TestParameter,
 } from "../../../../../services/obrasService";
 import { pluralize } from "../../../../../utils/pluralize";
+import SignatureCapture from "../../../../../components/SignatureCapture/SignatureCapture";
 
 interface HydrostaticTestFormProps {
   projects: Project[];
@@ -139,7 +140,8 @@ export default function HydrostaticTestForm({
   const [approvalStatus, setApprovalStatus] = useState<
     DiaryEntry["approvalStatus"]
   >(editingEntry?.approvalStatus || "preenchendo");
-  const [signature] = useState(editingEntry?.signature || "");
+  const [signature, setSignature] = useState(editingEntry?.signature || "");
+  const [signatureModalOpen, setSignatureModalOpen] = useState(false);
 
   // Seção ativa para navegação
   const [activeSection, setActiveSection] = useState("details");
@@ -1173,9 +1175,18 @@ export default function HydrostaticTestForm({
                       <span>Assinatura</span>
                     )}
                   </div>
-                  <Button variant="primary" onClick={() => {}}>
+                  <Button variant="primary" onClick={() => setSignatureModalOpen(true)}>
                     <FiEdit2 size={16} /> Assinar
                   </Button>
+                  <SignatureCapture
+                    open={signatureModalOpen}
+                    onClose={() => setSignatureModalOpen(false)}
+                    onSave={(dataUrl) => {
+                      setSignature(dataUrl);
+                      setSignatureModalOpen(false);
+                    }}
+                    title="Assinatura do responsável"
+                  />
                 </div>
               </div>
             </div>

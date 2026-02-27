@@ -11,6 +11,11 @@ export default function getFirebaseErrorMessage(
   }
 
   const errorCode = error?.code || "";
+  const errorMessage = (error as FirebaseError)?.message?.toLowerCase() ?? "";
+
+  if (errorMessage.includes("user not found")) {
+    return "Usuário não encontrado no sistema. Verifique seu email ou crie uma conta.";
+  }
 
   switch (errorCode) {
     case "auth/user-not-found":
@@ -33,6 +38,10 @@ export default function getFirebaseErrorMessage(
 
     case "auth/invalid-api-key":
       return "Erro de configuração. Entre em contato com o suporte.";
+
+    case "auth/invalid-credential":
+    case "auth/invalid-login-credentials":
+      return "Email ou senha incorretos. Tente novamente.";
 
     default:
       return "Erro inesperado. Tente novamente.";

@@ -1,0 +1,74 @@
+/* ============================================================
+   AuthInputField — Label acima, placeholder claro, estado de erro
+   ============================================================ */
+
+.auth-input {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.auth-input__label {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-gray-800);
+  line-height: 1.4;
+}
+
+.auth-input__required {
+  color: var(--color-danger-500);
+}
+
+.auth-input__field {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 1rem;
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  color: var(--color-gray-900);
+  background: var(--color-white);
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--radius-lg);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.auth-input__field::placeholder {
+  color: var(--color-gray-400);
+}
+
+.auth-input__field:hover:not(:disabled) {
+  border-color: var(--color-gray-400);
+}
+
+.auth-input__field:focus {
+  border-color: var(--color-accent-500);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.auth-input__field:disabled {
+  background: var(--color-gray-100);
+  color: var(--color-gray-500);
+  cursor: not-allowed;
+}
+
+/* Estado de erro */
+.auth-input--error .auth-input__field {
+  border-color: var(--color-danger-500);
+  background: var(--color-danger-100);
+}
+
+.auth-input--error .auth-input__field:focus {
+  border-color: var(--color-danger-600);
+  box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.15);
+}
+
+.auth-input__error {
+  font-size: var(--text-xs);
+  color: var(--color-danger-600);
+  margin: 0;
+  line-height: 1.4;
+}

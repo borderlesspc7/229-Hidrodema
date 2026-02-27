@@ -1,2 +1,10 @@
 .env
+.env.*
+!.env.example
 node_modules
+dist
+
+# Firebase Admin SDK (credenciais secretas - nunca commitar)
+*firebase-adminsdk*.json
+*-firebase-adminsdk-*.json
+serviceAccount*.json

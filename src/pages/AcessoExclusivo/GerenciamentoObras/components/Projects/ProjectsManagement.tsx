@@ -1,3 +1,4 @@
+import { useRef, useEffect } from "react";
 import Button from "../../../../../components/ui/Button/Button";
 import Input from "../../../../../components/ui/Input/Input";
 import Card from "../../../../../components/ui/Card/Card";
@@ -49,10 +50,18 @@ export default function ProjectsManagement({
   onDeleteProject,
   onViewProjectDetail,
 }: ProjectsManagementProps) {
+  const formSectionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (editingProject && formSectionRef.current) {
+      formSectionRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [editingProject]);
+
   return (
     <div className="obras-projects-container">
       <div className="obras-projects-header">
-        <h2>Criar Obra</h2>
+        <h2>OBRAS</h2>
         <Button
           variant="primary"
           onClick={() => onViewChange("menu")}
@@ -63,7 +72,7 @@ export default function ProjectsManagement({
         </Button>
       </div>
 
-      <div className="obras-projects-form-section">
+      <div className="obras-projects-form-section" ref={formSectionRef}>
         <Card
           variant="service"
           className="obras-form-card"
@@ -130,26 +139,24 @@ export default function ProjectsManagement({
                 </div>
               </div>
 
-              {editingProject && (
-                <div className="obras-form-row">
-                  <div className="obras-form-field">
-                    <label>Status da Obra <span className="obras-required" aria-hidden>*</span></label>
-                    <select
-                      className="obras-select"
-                      value={newProject.status}
-                      onChange={(e) =>
-                        onProjectChange("status", e.target.value)
-                      }
-                      required
-                    >
-                      <option value="planejamento">Planejamento</option>
-                      <option value="em-andamento">Em andamento</option>
-                      <option value="concluida">Concluida</option>
-                      <option value="pausada">Pausada</option>
-                    </select>
-                  </div>
+              <div className="obras-form-row">
+                <div className="obras-form-field">
+                  <label>Status da Obra <span className="obras-required" aria-hidden>*</span></label>
+                  <select
+                    className="obras-select"
+                    value={newProject.status}
+                    onChange={(e) =>
+                      onProjectChange("status", e.target.value as Project["status"])
+                    }
+                    required
+                  >
+                    <option value="planejamento">Planejamento</option>
+                    <option value="em-andamento">Em andamento</option>
+                    <option value="concluida">Concluída</option>
+                    <option value="pausada">Pausada</option>
+                  </select>
                 </div>
-              )}
+              </div>
 
               <div className="obras-form-row">
                 <div className="obras-form-field">
@@ -163,16 +170,6 @@ export default function ProjectsManagement({
                     }
                     mask="currency"
                     min={0}
-                  />
-                </div>
-
-                <div className="obras-form-field">
-                  <label>Mão de Obra</label>
-                  <Input
-                    type="text"
-                    placeholder="Equipe, empresa ou observações"
-                    value={newProject.labor}
-                    onChange={(value) => onProjectChange("labor", value)}
                   />
                 </div>
               </div>
@@ -273,7 +270,8 @@ export default function ProjectsManagement({
                 <div className="obras-project-actions">
                   <Button
                     variant="secondary"
-                    onClick={() => project.id && onEditProject(project)}
+                    onClick={() => onEditProject(project)}
+                    title="Editar obra"
                   >
                     <FiEdit3 size={16} />
                     Editar

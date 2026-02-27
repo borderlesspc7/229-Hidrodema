@@ -107,7 +107,7 @@ export default function ReportTypeSelector({
                     variant="primary"
                     className="obras-report-type-button"
                     onClick={(e) => {
-                      e.stopPropagation();
+                      e?.stopPropagation?.();
                       onSelectType(report.type);
                     }}
                   >

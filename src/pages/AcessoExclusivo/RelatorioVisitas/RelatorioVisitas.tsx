@@ -109,108 +109,9 @@ export default function RelatorioVisitas() {
     [],
   );
 
-  // Estrutura preparada para receber 25 perguntas sobre visitas
+  // Estrutura de perguntas (campos redundantes removidos: regional, vendedores repetidos, confirmação e pergunta duplicada de ID)
   const questions: Question[] = [
-    // Seção 1: Informações Regionais e Vendedores
-    {
-      id: "q1",
-      type: "radio",
-      question: "1 - Informe sua Regional",
-      section: "Informações Regionais e Vendedores",
-      required: true,
-      options: [
-        "Carlos Moraes - VEND I & II",
-        "Rogério Foltran - HUNTERS",
-        "Davi Salgado - HVAC",
-        "Nic Romano - Expansão & Novos Negócios",
-      ],
-    },
-    {
-      id: "q2",
-      type: "select",
-      question: "2 - Vendedor Solicitação - VEND I & II",
-      section: "Informações Regionais e Vendedores",
-      required: true,
-      options: [
-        "002620 - ALESSANDRO APARECIDO DE RESENDE",
-        "035184 - ALEXANDRE DI RIENZO GANDARA",
-        "002630 - CHRISTIAN NONATO MATOS",
-        "002617 - CLAUDINEI RODRIGUES MARQUES",
-        "035174 - CZ",
-        "035163 - ELTON DA COSTA GONCALO",
-        "035179 - GABRIEL LUIS OLIVEIRA ALVES",
-        "035178 - HERBERT LOPES",
-        "035139 - LEONARDO AMARAL MONARI",
-        "035180 - MARIO PESCUMA FILHO",
-        "035183 - GUILHERME ALVES NOGUEIRA",
-        "035168 - JOAO VITOR DA SILVA PEREIRA",
-      ],
-    },
-    {
-      id: "q3",
-      type: "select",
-      question: "3 - Vendedor Solicitação - Hunters",
-      section: "Informações Regionais e Vendedores",
-      required: true,
-      options: [
-        "035202 - ANA CAROLINE",
-        "035192 - ANA JULYA",
-        "035104 - LUCAS NASCIMENTO GONCALVES",
-        "035185 - GUILHERME CAMPOS DO CARMO",
-        "035201 - JULIA CINTRA",
-        "035195 - JULIA SANTANA",
-        "035189 - MARIA ROBERTA",
-        "035203 - MILENA RIBEIRO",
-        "035191 - PAOLA LINO",
-        "035190 - PEDRO HENRIQUE PEREIRA SOUZA",
-        "020719 - ROGERIO PINHEIRO FOLTRAN",
-      ],
-    },
-    {
-      id: "q4",
-      type: "select",
-      question: "4 - Vendedor Solicitação - HVAC",
-      section: "Informações Regionais e Vendedores",
-      required: true,
-      options: [
-        "99999G - CEOS CONSULTORIA, ASSESSORIA E REPRESENT",
-        "000356 - DAVI SALGADO DE A. MARTINS",
-        "035140 - DDK REPRESENTACOES LTDA",
-        "99999X - EMB REPRESENTACOES",
-        "A00000 - ENGINE - COMERCIO E SERVICOS EIRELI - EP",
-        "99999E - FAMAC REPRESENTACOES LTDA",
-        "035194 - GERSON SOUZA",
-        "99999Y - ISOLEX NE - PROJETOS, REPRESENTACOES",
-        "035144 - JOSE ROMERO JUNIOR",
-        "035141 - MARCO SOUTO",
-        "99999B - MAURICIO COSTA",
-        "99999D - MULT-ELETRIC REPRESENTACOES",
-        "A00001 - ONIX SP REPRESENTACOES LTDA",
-        "035175 - RC VEDACOES LTDA / RAFAEL",
-        "99999F - SAFETY CONTROL REPRESENTACOES LTDA",
-        "99999J - SAFETY/ZOEGA",
-        "99999N - SIMEY",
-        "99999O - TITO REPRESENTACOES LTDA",
-        "99999Q - TITO/ZOEGA",
-        "99999W - TROMPOWSKY REPRESENTACOES COMERCIAIS LTD",
-        "035176 - VEREDA REPRESENTACOES COMERCIAIS LTDA",
-      ],
-    },
-    {
-      id: "q5",
-      type: "select",
-      question: "5 - Vendedor Solicitação - Expansão & Novos Negócios",
-      section: "Informações Regionais e Vendedores",
-      required: true,
-      options: [
-        "035197 - DANILO TRIPOLI",
-        "035199 - EDSON RANGEL",
-        "035200 - MARCO TULIO",
-        "035193 - NILZA ROMANO",
-        "035198 - RAFAEL SOUZA DA COSTA",
-      ],
-    },
-    // Seção 2: Geral — escolha do fluxo (solicitação ou relatório)
+    // Seção: Geral — escolha do fluxo (solicitação ou relatório)
     {
       id: "q6",
       type: "radio",
@@ -347,18 +248,7 @@ export default function RelatorioVisitas() {
         "Outro Vendedor",
       ],
     },
-    // Seção 5: Confirmação
-    {
-      id: "q18",
-      type: "checkbox",
-      question: "18 - Confirmação da Solicitação",
-      section: "Confirmação",
-      required: true,
-      options: [
-        "Confirmo que todas as informações fornecidas estão corretas e autorizo o processamento desta solicitação de visita",
-      ],
-    },
-    // Seção 6: Instruções para Relatório
+    // Instruções para Relatório
     {
       id: "q19",
       type: "text",
@@ -367,17 +257,7 @@ export default function RelatorioVisitas() {
       required: true,
       placeholder: "Insira o ID da solicitação prévia",
     },
-    // Seção 7: Dados da Visita
-    {
-      id: "q21",
-      type: "text",
-      question: "21 - Solicitação de Visita",
-      section: "Dados da Visita",
-      required: true,
-      instruction:
-        "Adicione o ID da Solicitação de visita que está referenciando.",
-      placeholder: "O número não pode ser 0",
-    },
+    // Dados da Visita
     {
       id: "q22",
       type: "text",
@@ -491,13 +371,11 @@ export default function RelatorioVisitas() {
     },
   ];
 
-  // Seções para Solicitação de Visita
+  // Seções para Solicitação de Visita (redundantes removidas)
   const solicitacaoSections = [
-    "Informações Regionais e Vendedores",
     "Geral",
     "Dados do Cliente",
     "Solicitação de Visita",
-    "Confirmação",
   ];
 
   // Seções para Relatório de Visita
@@ -516,7 +394,7 @@ export default function RelatorioVisitas() {
     if (selectedAction === "Fazer o relatório de uma visita realizada") {
       return relatorioSections;
     }
-    return ["Informações Regionais e Vendedores", "Geral"];
+    return ["Geral"];
   };
 
   const getActiveSections = () => getActiveSectionsFromData(formData);
@@ -611,7 +489,6 @@ export default function RelatorioVisitas() {
         ...prev,
         // Manter o ID da solicitação
         q19: requestId,
-        q21: requestId,
         // Preencher dados do cliente
         q22: request.clientName,
         // Dados da visita
@@ -641,7 +518,7 @@ export default function RelatorioVisitas() {
 
     // Se selecionou uma solicitação no dropdown, carregar os dados
     if (
-      (questionId === "q19" || questionId === "q21") &&
+      questionId === "q19" &&
       typeof value === "string"
     ) {
       loadRequestFromSelect(value);
@@ -690,13 +567,8 @@ export default function RelatorioVisitas() {
         await createVisitRequest(
           sanitizeForDatabase({
             requestId,
-            regional: (formData.q1 as string) || "",
-            vendedor:
-              (formData.q2 as string) ||
-              (formData.q3 as string) ||
-              (formData.q4 as string) ||
-              (formData.q5 as string) ||
-              "",
+            regional: (formData.q17 as string) || "",
+            vendedor: (formData.q17 as string) || "",
             clientName: (formData.q7 as string) || "Cliente não informado",
             clientCNPJ: formData.q8 as string,
             clientCode: formData.q9 as string,
@@ -786,13 +658,8 @@ export default function RelatorioVisitas() {
         await createVisitRequest(
           sanitizeForDatabase({
             requestId,
-            regional: (formData.q1 as string) || "",
-            vendedor:
-              (formData.q2 as string) ||
-              (formData.q3 as string) ||
-              (formData.q4 as string) ||
-              (formData.q5 as string) ||
-              "",
+            regional: (formData.q17 as string) || "",
+            vendedor: (formData.q17 as string) || "",
             clientName: (formData.q7 as string) || "Cliente não informado",
             clientCNPJ: formData.q8 as string,
             clientCode: formData.q9 as string,
@@ -819,7 +686,7 @@ export default function RelatorioVisitas() {
         selectedAction === "Fazer o relatório de uma visita realizada"
       ) {
         // Criar relatório vinculado à solicitação
-        const requestId = (formData.q19 || formData.q21) as string;
+        const requestId = formData.q19 as string;
 
         if (!requestId) {
           alert(
@@ -1032,16 +899,27 @@ export default function RelatorioVisitas() {
       doc.setTextColor(31, 41, 55);
       doc.setFont("helvetica", "normal");
 
-      const entries = Object.entries(report.formData);
+      const entries = Object.entries(report.formData || {}).filter(
+        ([_, v]) => v !== undefined && v !== null && v !== ""
+      );
+      const maxW = pageW - 2 * margin;
       for (const [key, value] of entries) {
-        const text = `${key}: ${Array.isArray(value) ? value.join(", ") : value ?? ""}`;
-        const lines = doc.splitTextToSize(text, pageW - 2 * margin);
-        if (y + lines.length * 5 > doc.internal.pageSize.getHeight() - margin) {
+        const question = questions.find((q) => q.id === key);
+        const label = question ? question.question : key;
+        const valueStr = Array.isArray(value) ? value.join(", ") : String(value ?? "");
+        const labelLines = doc.splitTextToSize(label, maxW);
+        const valueLines = doc.splitTextToSize(valueStr, maxW);
+        const totalH = (labelLines.length + valueLines.length) * 5 + 4;
+        if (y + totalH > doc.internal.pageSize.getHeight() - margin) {
           doc.addPage();
           y = margin;
         }
-        doc.text(lines, margin, y);
-        y += lines.length * 5 + 2;
+        doc.setFont("helvetica", "bold");
+        doc.text(labelLines, margin, y);
+        y += labelLines.length * 5;
+        doc.setFont("helvetica", "normal");
+        doc.text(valueLines, margin, y);
+        y += valueLines.length * 5 + 4;
       }
 
       const safeName = (report.client || "relatorio").replace(/[^a-zA-Z0-9\u00C0-\u00FF\s-]/g, "");
@@ -1134,7 +1012,6 @@ export default function RelatorioVisitas() {
       ...(request.formData || {}),
       q6: "Fazer o relatório de uma visita realizada",
       q19: request.requestId || "",
-      q21: request.requestId || "",
       q22: request.client,
       q23: request.scheduledDate,
     });
@@ -1172,8 +1049,8 @@ export default function RelatorioVisitas() {
 
     switch (question.type) {
       case "text": {
-        // Se for q19 ou q21 (seleção de solicitação), mostrar SELECT em vez de INPUT
-        if (question.id === "q19" || question.id === "q21") {
+        // Se for q19 (seleção de solicitação), mostrar SELECT em vez de INPUT
+        if (question.id === "q19") {
           return (
             <div className="visitas-form-question" key={question.id}>
               <label className="visitas-question-label">
@@ -1575,14 +1452,6 @@ export default function RelatorioVisitas() {
         <p className="visitas-planilha-subtitle">
           Consultar agenda e status das visitas
         </p>
-        <Button
-          variant="secondary"
-          onClick={() => setViewMode("menu")}
-          className="visitas-planilha-back"
-        >
-          <FiArrowLeft size={16} />
-          Voltar ao Menu
-        </Button>
       </div>
 
       {visitReports.length === 0 ? (
@@ -1713,14 +1582,6 @@ export default function RelatorioVisitas() {
         <p className="visitas-planilha-subtitle">
           Relatórios e solicitações técnicas e comerciais
         </p>
-        <Button
-          variant="secondary"
-          onClick={() => setViewMode("menu")}
-          className="visitas-planilha-back"
-        >
-          <FiArrowLeft size={16} />
-          Voltar ao Menu
-        </Button>
       </div>
 
       {visitReports.length === 0 ? (

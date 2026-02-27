@@ -43,7 +43,18 @@ export const authService = {
       const userDoc = await getDoc(doc(db, "users", firebaseUser.uid));
 
       if (!userDoc.exists()) {
-        throw new Error("User not found");
+        // Usuário criado só no Firebase Auth (ex.: admin no Console) — cria documento no Firestore
+        const now = new Date();
+        const newUser: User = {
+          uid: firebaseUser.uid,
+          email: firebaseUser.email ?? credentials.email,
+          name: firebaseUser.displayName ?? credentials.email.split("@")[0],
+          createdAt: now,
+          updatedAt: now,
+          role: "admin",
+        };
+        await setDoc(doc(db, "users", firebaseUser.uid), newUser);
+        return newUser;
       }
 
       const userData = userDoc.data() as User;

@@ -1,0 +1,157 @@
+/* ============================================================
+   AuthLayout — Fundo gradiente navy/midnight, overlay, logo
+   ============================================================ */
+
+.auth-layout {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-8);
+  padding: var(--space-8) var(--space-5);
+  position: relative;
+  overflow: hidden;
+  background-color: #0b1220;
+  background-image: url("/FundoLogin.jpg");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+
+.auth-layout::before {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(90px);
+  opacity: 0.35;
+  z-index: 0;
+  width: 480px;
+  height: 480px;
+  background: radial-gradient(
+    circle,
+    rgba(59, 130, 246, 0.28) 0%,
+    transparent 68%
+  );
+  top: -100px;
+  left: -80px;
+  animation: auth-float 14s ease-in-out infinite;
+}
+
+@keyframes auth-float {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(25px, -20px) scale(1.04);
+  }
+  66% {
+    transform: translate(-15px, 18px) scale(0.97);
+  }
+}
+
+.auth-layout__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(11, 18, 32, 0.65) 0%,
+    rgba(15, 23, 42, 0.5) 40%,
+    rgba(11, 18, 32, 0.6) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.auth-layout__grid {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 56px 56px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.auth-layout__brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+  margin-bottom: var(--space-2);
+  animation: auth-slide-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.auth-layout__logo {
+  height: 72px;
+  width: auto;
+  max-width: 380px;
+  object-fit: contain;
+  filter: brightness(1.08) drop-shadow(0 4px 24px rgba(59, 130, 246, 0.45));
+  transition: filter 0.3s ease, transform 0.3s ease;
+}
+
+.auth-layout__logo:hover {
+  filter: brightness(1.15) drop-shadow(0 8px 32px rgba(59, 130, 246, 0.5));
+  transform: scale(1.03);
+}
+
+.auth-layout__underline {
+  width: 56px;
+  height: 4px;
+  background: linear-gradient(
+    90deg,
+    var(--color-accent-400),
+    var(--color-accent-300)
+  );
+  border-radius: var(--radius-full);
+  margin: 0 auto;
+  box-shadow: 0 0 16px rgba(59, 130, 246, 0.35);
+}
+
+.auth-layout__content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 480px;
+  animation: auth-slide-up 0.55s 0.1s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes auth-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .auth-layout {
+    padding: var(--space-6) var(--space-4);
+    gap: var(--space-6);
+  }
+  .auth-layout__logo {
+    height: 56px;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-layout {
+    padding: var(--space-5) var(--space-4);
+    gap: var(--space-5);
+  }
+  .auth-layout__logo {
+    height: 48px;
+  }
+  .auth-layout__content {
+    max-width: 90%;
+  }
+}

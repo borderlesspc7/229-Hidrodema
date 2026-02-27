@@ -112,13 +112,13 @@
   box-shadow: 0 0 16px rgba(59,130,246,0.35);
 }
 
-/* ---- Card principal ---- */
+/* ---- Card principal (leve transparência) ---- */
 .auth-card {
-  background: rgba(14, 26, 50, 0.94);
+  background: rgba(14, 26, 50, 0.78);
   backdrop-filter: blur(32px);
   -webkit-backdrop-filter: blur(32px);
   border-radius: 1.5rem;
-  border: 1px solid rgba(255,255,255,0.14);
+  border: 1px solid rgba(255,255,255,0.18);
   padding: var(--space-16) var(--space-12);
   width: 100%;
   max-width: 520px;
@@ -126,9 +126,9 @@
   position: relative;
   z-index: 2;
   box-shadow:
-    0 40px 80px rgba(0,0,0,0.5),
-    0 12px 32px rgba(0,0,0,0.35),
-    inset 0 1px 0 rgba(255,255,255,0.1);
+    0 40px 80px rgba(0,0,0,0.45),
+    0 12px 32px rgba(0,0,0,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.12);
   animation: hd-slide-up 0.65s 0.12s cubic-bezier(0.22,1,0.36,1) both;
   overflow: hidden;
 }
@@ -158,8 +158,8 @@
 
 .auth-title {
   font-size: 1.75rem;
-  font-weight: var(--weight-extrabold);
-  color: var(--color-white);
+  font-weight: 700;
+  color: #ffffff;
   margin: 0 0 var(--space-3) 0;
   line-height: 1.2;
   letter-spacing: -0.03em;
@@ -167,7 +167,7 @@
 
 .auth-subtitle {
   font-size: var(--text-base);
-  color: rgba(255,255,255,0.88);
+  color: #ffffff;
   margin: 0;
   line-height: 1.5;
 }
@@ -179,32 +179,38 @@
   gap: var(--space-6);
 }
 
-/* Inputs dentro do login - melhor contraste e formatação */
-.login-form .input-container .input-field {
-  padding: 1rem 1.125rem;
-  font-size: var(--text-base);
-  color: var(--color-white);
-  background: rgba(255,255,255,0.08);
-  border-color: rgba(255,255,255,0.18);
-  border-radius: var(--radius-lg);
-}
-.login-form .input-container .input-field::placeholder {
-  color: rgba(255,255,255,0.58);
-}
-.login-form .input-container.focused .input-field,
-.login-form .input-container.has-value .input-field {
-  background: rgba(255,255,255,0.12);
-  border-color: rgba(59,130,246,0.55);
-  box-shadow: 0 0 0 1px rgba(59,130,246,0.2);
-}
+/* Inputs dentro do login — sem fundo nos rótulos, texto mais visível */
 .login-form .input-container .input-label {
-  color: rgba(255,255,255,0.88);
-  font-weight: var(--weight-medium);
+  color: rgba(255,255,255,0.95);
+  font-weight: var(--weight-semibold);
+  background: transparent !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
 }
 .login-form .input-container.focused .input-label,
 .login-form .input-container.has-value .input-label {
-  color: var(--color-accent-200);
-  background: rgba(14, 26, 50, 0.98);
+  color: var(--color-white);
+  background: transparent !important;
+  font-weight: var(--weight-bold);
+}
+.login-form .input-container .input-field {
+  padding: 1rem 1.125rem;
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
+  background: #1e2432;
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  border-radius: var(--radius-lg);
+  color: #ffffff;
+  -webkit-text-fill-color: #ffffff;
+  caret-color: var(--color-accent-300);
+}
+.login-form .input-container .input-field::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+.login-form .input-container.focused .input-field,
+.login-form .input-container.has-value .input-field {
+  background: #252d3d;
+  border-color: var(--color-accent-400);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
 }
 
 .form-options {

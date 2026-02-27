@@ -102,95 +102,111 @@ export default function DiarioObrasHistory({
             </Button>
           </div>
         ) : (
-          diaryEntries.map((entry) => {
+          diaryEntries.map((entry, index) => {
             const reportTypeInfo = getReportTypeInfo(entry.reportType);
             const ReportIcon = reportTypeInfo.icon;
-            
+            const dateFormatted = new Date(entry.date).toLocaleDateString("pt-BR", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+            });
+
             return (
-              <div key={entry.id} className="obras-entry-item">
+              <article
+                key={entry.id ?? `entry-${index}`}
+                className="obras-entry-item"
+                aria-labelledby={`entry-title-${entry.id ?? index}`}
+              >
                 <div className="obras-entry-info">
                   <div className="obras-entry-header-row">
-                    <h3>{entry.obraName}</h3>
-                    <span 
+                    <h3 id={`entry-title-${entry.id ?? index}`}>{entry.obraName}</h3>
+                    <span
                       className="obras-report-type-badge"
-                      style={{ 
-                        backgroundColor: `${reportTypeInfo.color}15`,
+                      style={{
+                        backgroundColor: `${reportTypeInfo.color}18`,
                         color: reportTypeInfo.color,
                         borderColor: reportTypeInfo.color,
                       }}
+                      aria-label={`Tipo: ${reportTypeInfo.shortLabel}`}
                     >
-                      <ReportIcon size={14} />
+                      <ReportIcon size={14} aria-hidden />
                       {reportTypeInfo.shortLabel}
                     </span>
                   </div>
-                  <div className="obras-entry-meta">
-                    <span className="obras-date">
-                      <FiCalendar size={16} />
-                      {new Date(entry.date).toLocaleDateString()}
+                  <div className="obras-entry-meta" role="list">
+                    <span className="obras-date" role="listitem">
+                      <FiCalendar size={16} aria-hidden />
+                      {dateFormatted}
                     </span>
-                    {entry.reportNumber && (
-                      <span className="obras-report-number">
-                        <FiFileText size={16} />
+                    {entry.reportNumber != null && entry.reportNumber !== "" && (
+                      <span className="obras-report-number" role="listitem">
+                        <FiFileText size={16} aria-hidden />
                         Nº {entry.reportNumber}
                       </span>
                     )}
-                    <span className={`obras-status obras-status-${entry.status}`}>
-                      {entry.status === "em-andamento" && (
+                    <span
+                      className={`obras-status obras-status-${entry.status ?? "em-andamento"}`}
+                      role="listitem"
+                    >
+                      {(entry.status === "em-andamento" || !entry.status) && (
                         <>
-                          <FiClock size={16} />
+                          <FiClock size={16} aria-hidden />
                           Em Andamento
                         </>
                       )}
                       {entry.status === "concluida" && (
                         <>
-                          <FiCheckCircle size={16} />
+                          <FiCheckCircle size={16} aria-hidden />
                           Concluída
                         </>
                       )}
                       {entry.status === "pausada" && (
                         <>
-                          <FiClock size={16} />
+                          <FiClock size={16} aria-hidden />
                           Pausada
                         </>
                       )}
                     </span>
-                    <span className="obras-materials-count">
-                      <FiPackage size={16} />
-                      {pluralize(entry.materials?.length || 0, "material", "materiais")}
+                    <span className="obras-materials-count" role="listitem">
+                      <FiPackage size={16} aria-hidden />
+                      {pluralize(entry.materials?.length ?? 0, "material", "materiais")}
                     </span>
-                    <span className="obras-photos-count">
-                      <FiCamera size={16} />
-                      {pluralize(entry.photos?.length || 0, "foto", "fotos")}
+                    <span className="obras-photos-count" role="listitem">
+                      <FiCamera size={16} aria-hidden />
+                      {pluralize(entry.photos?.length ?? 0, "foto", "fotos")}
                     </span>
                   </div>
                 </div>
-                <div className="obras-entry-actions">
+                <div className="obras-entry-actions" role="group" aria-label="Ações do registro">
                   <Button
                     variant="secondary"
                     onClick={() => onEdit(entry)}
                     className="obras-action-button"
+                    title="Editar registro"
                   >
-                    <FiEdit3 size={16} />
+                    <FiEdit3 size={16} aria-hidden />
                     Editar
                   </Button>
                   <Button
                     variant="primary"
                     onClick={() => onExportPDF(entry)}
                     className="obras-action-button"
+                    title="Exportar PDF"
                   >
-                    <FiFile size={16} />
+                    <FiFile size={16} aria-hidden />
                     PDF
                   </Button>
                   <Button
                     variant="secondary"
                     onClick={() => entry.id && onDelete(entry.id)}
                     className="obras-action-button obras-delete"
+                    title="Excluir registro"
                   >
-                    <FiTrash2 size={16} />
+                    <FiTrash2 size={16} aria-hidden />
                     Excluir
                   </Button>
                 </div>
-              </div>
+              </article>
             );
           })
         )}

@@ -10,7 +10,7 @@ import {
   FiAlertTriangle,
 } from "react-icons/fi";
 import type { InventoryItem, Project } from "../../../../../services/obrasService";
-import type { ViewMode } from "../../types";
+import type { ViewMode, ViewChangeContext } from "../../types";
 import { pluralize } from "../../../../../utils/pluralize";
 import ProjectFilter from "../shared/ProjectFilter";
 import ProjectBadge from "../shared/ProjectBadge";
@@ -19,7 +19,7 @@ interface InventoryListProps {
   inventory: InventoryItem[];
   projects: Project[];
   alerts: InventoryItem[];
-  onViewChange: (mode: ViewMode) => void;
+  onViewChange: (mode: ViewMode, context?: ViewChangeContext) => void;
   onEdit: (item: InventoryItem) => void;
   onDelete: (id: string) => void;
 }
@@ -64,7 +64,7 @@ export default function InventoryList({
           </Button>
           <Button
             variant="primary"
-            onClick={() => onViewChange("new-inventory")}
+            onClick={() => onViewChange("new-inventory", selectedProjectId ? { projectId: selectedProjectId } : undefined)}
             className="obras-create-btn"
           >
             <FiPlus size={20} aria-hidden />
@@ -91,7 +91,7 @@ export default function InventoryList({
             <p>Adicione itens ao seu estoque</p>
             <Button
               variant="primary"
-              onClick={() => onViewChange("new-inventory")}
+              onClick={() => onViewChange("new-inventory", selectedProjectId ? { projectId: selectedProjectId } : undefined)}
             >
               Adicionar Primeiro Item
             </Button>

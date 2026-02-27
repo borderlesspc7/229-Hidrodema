@@ -80,6 +80,9 @@ export interface DiaryEntry {
   conclusionOccurrences?: ConclusionOccurrenceEntry[]; // Ocorrências com tags
   signatures?: SignatureEntry[]; // Múltiplas assinaturas (empresa e cliente)
 
+  // Anexos (PDFs e outros arquivos)
+  attachments?: DiaryAttachment[];
+
   // Campos comuns
   materials: Material[];
   photos: Photo[];
@@ -255,6 +258,13 @@ export interface Material {
   supplier?: string;
   supplierId?: string; // ID do fornecedor relacionado
   category?: string;
+}
+
+/** Anexo de relatório (PDF ou outro arquivo) armazenado por URL. */
+export interface DiaryAttachment {
+  id: string;
+  name: string;
+  fileUrl: string;
 }
 
 export interface Photo {
@@ -894,6 +904,26 @@ export const getLowStockItems = async (): Promise<InventoryItem[]> => {
   }
 };
 
+export const getInventoryItemsByProject = async (
+  projectId: string
+): Promise<InventoryItem[]> => {
+  try {
+    const q = query(
+      collection(db, INVENTORY_COLLECTION),
+      where("projectId", "==", projectId),
+      orderBy("createdAt", "desc")
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map((d) => ({
+      id: d.id,
+      ...d.data(),
+    })) as InventoryItem[];
+  } catch (error) {
+    console.error("Erro ao listar itens de inventário por projeto:", error);
+    throw error;
+  }
+};
+
 export const updateInventoryItem = async (
   id: string,
   updates: Partial<InventoryItem>
@@ -1119,6 +1149,26 @@ export const getSuppliersByCategory = async (
   }
 };
 
+export const getSuppliersByProject = async (
+  projectId: string
+): Promise<Supplier[]> => {
+  try {
+    const q = query(
+      collection(db, SUPPLIERS_COLLECTION),
+      where("projectId", "==", projectId),
+      orderBy("createdAt", "desc")
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map((d) => ({
+      id: d.id,
+      ...d.data(),
+    })) as Supplier[];
+  } catch (error) {
+    console.error("Erro ao listar fornecedores por projeto:", error);
+    throw error;
+  }
+};
+
 export const updateSupplier = async (
   id: string,
   updates: Partial<Supplier>
@@ -1308,6 +1358,26 @@ export const getAllTeamMembers = async (): Promise<TeamMember[]> => {
   }
 };
 
+export const getTeamMembersByProject = async (
+  projectId: string
+): Promise<TeamMember[]> => {
+  try {
+    const q = query(
+      collection(db, TEAM_MEMBERS_COLLECTION),
+      where("projectId", "==", projectId),
+      orderBy("createdAt", "desc")
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map((d) => ({
+      id: d.id,
+      ...d.data(),
+    })) as TeamMember[];
+  } catch (error) {
+    console.error("Erro ao listar membros da equipe por projeto:", error);
+    throw error;
+  }
+};
+
 export const updateTeamMember = async (
   id: string,
   updates: Partial<TeamMember>
@@ -1377,6 +1447,26 @@ export const getAllEquipment = async (): Promise<Equipment[]> => {
     })) as Equipment[];
   } catch (error) {
     console.error("Erro ao listar equipamentos:", error);
+    throw error;
+  }
+};
+
+export const getEquipmentByProject = async (
+  projectId: string
+): Promise<Equipment[]> => {
+  try {
+    const q = query(
+      collection(db, EQUIPMENT_COLLECTION),
+      where("projectId", "==", projectId),
+      orderBy("createdAt", "desc")
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map((d) => ({
+      id: d.id,
+      ...d.data(),
+    })) as Equipment[];
+  } catch (error) {
+    console.error("Erro ao listar equipamentos por projeto:", error);
     throw error;
   }
 };
@@ -1879,6 +1969,29 @@ export const deleteDocument = async (id: string): Promise<void> => {
 };
 
 // ===== UTILITÁRIOS =====
+
+/**
+ * Recalcula o progresso da obra com base nas tarefas do cronograma (média do progresso das tarefas)
+ * e persiste no projeto. Deve ser chamado após criar/atualizar/deletar tarefas do cronograma.
+ */
+export const updateProjectProgressFromSchedules = async (
+  projectId: string
+): Promise<void> => {
+  try {
+    const schedules = await getSchedulesByProject(projectId);
+    const progress =
+      schedules.length === 0
+        ? 0
+        : Math.round(
+            schedules.reduce((sum, s) => sum + (s.progress ?? 0), 0) /
+              schedules.length
+          );
+    await updateProject(projectId, { progress });
+  } catch (error) {
+    console.error("Erro ao atualizar progresso da obra a partir do cronograma:", error);
+    throw error;
+  }
+};
 
 export const getProjectStatistics = async (projectId: string) => {
   try {

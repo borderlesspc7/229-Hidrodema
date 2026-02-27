@@ -93,6 +93,7 @@ import {
   getAllSchedules,
   updateSchedule,
   deleteSchedule,
+  updateProjectProgressFromSchedules,
   createSafetyRecord,
   getAllSafetyRecords,
   updateSafetyRecord,
@@ -110,6 +111,7 @@ import {
   updateDocument,
   deleteDocument,
 } from "../../../services/obrasService";
+import { uploadObraAttachment } from "../../../services/storageService";
 import type {
   Project,
   DiaryEntry,
@@ -125,12 +127,30 @@ import type {
   Issue,
   DocumentRecord,
 } from "../../../services/obrasService";
-import type { Material, Photo, ViewMode } from "./types";
+import type { Material, Photo, ViewMode, ViewChangeContext } from "./types";
 import "./GerenciamentoObras.css";
 
 export default function GerenciamentoObras() {
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<ViewMode>("menu");
+
+  /** Altera a view; se vier context.projectId ao abrir formulário de recurso, pré-seleciona a obra. */
+  const handleViewChange = (mode: ViewMode, context?: ViewChangeContext) => {
+    const projectId = context?.projectId ?? "";
+    if (mode === "new-inventory" && projectId) {
+      setNewInventoryItem((prev) => ({ ...prev, projectId }));
+    }
+    if (mode === "new-supplier" && projectId) {
+      setNewSupplier((prev) => ({ ...prev, projectId }));
+    }
+    if (mode === "new-team" && projectId) {
+      setNewTeamMember((prev) => ({ ...prev, projectId }));
+    }
+    if (mode === "new-equipment" && projectId) {
+      setNewEquipment((prev) => ({ ...prev, projectId }));
+    }
+    setViewMode(mode);
+  };
 
   // Data states
   const [diaryEntries, setDiaryEntries] = useState<DiaryEntry[]>([]);
@@ -174,8 +194,10 @@ export default function GerenciamentoObras() {
   const [editingQualityChecklist, setEditingQualityChecklist] =
     useState<QualityChecklist | null>(null);
 
-  // Viewing report state
+  // Viewing report state (e.g. "project-detail" para voltar à obra, "unified-reports" para lista)
   const [viewingReport, setViewingReport] = useState<DiaryEntry | null>(null);
+  const [viewReportReturnTo, setViewReportReturnTo] =
+    useState<ViewMode>("unified-reports");
 
   // Toast states
   const [showToast, setShowToast] = useState(false);
@@ -667,48 +689,12 @@ export default function GerenciamentoObras() {
   };
 
   const handleExportPDF = (entry: DiaryEntry) => {
-    const printWindow = window.open("", "_blank");
-    if (printWindow) {
-      printWindow.document.write(`
-        <html>
-          <head>
-            <title>Diário de Obra - ${entry.obraName}</title>
-            <style>
-              body { font-family: Arial, sans-serif; margin: 20px; }
-              .header { text-align: center; margin-bottom: 30px; }
-              .section { margin-bottom: 25px; }
-              .label { font-weight: bold; color: #1e40af; }
-              .value { margin-left: 10px; }
-            </style>
-          </head>
-          <body>
-            <div class="header">
-              <h1>DIÁRIO DE OBRA</h1>
-              <h2>${entry.obraName}</h2>
-              <p>Data: ${new Date(entry.date).toLocaleDateString()}</p>
-            </div>
-            <div class="section">
-              <p><span class="label">Responsável:</span><span class="value">${
-                entry.responsible || "Não informado"
-              }</span></p>
-              <p><span class="label">Clima:</span><span class="value">${
-                entry.weather || "Não informado"
-              }</span></p>
-            </div>
-            <div class="section">
-              <h3>Atividades</h3>
-              <p>${entry.activities}</p>
-            </div>
-            <div class="section">
-              <h3>Observações</h3>
-              <p>${entry.observations || "Nenhuma observação"}</p>
-            </div>
-          </body>
-        </html>
-      `);
-      printWindow.document.close();
-      printWindow.print();
-    }
+    import("../../../utils/diarioObrasPdf")
+      .then(({ generateDiarioObraPdf }) => generateDiarioObraPdf(entry))
+      .catch((err) => {
+        console.error("Erro ao gerar PDF:", err);
+        showToastMessage("Não foi possível gerar o PDF. Tente novamente.", "error");
+      });
   };
 
   const resetDiarioForm = () => {
@@ -798,19 +784,38 @@ export default function GerenciamentoObras() {
     }
   };
 
-  // editar
+  // Normaliza data vinda do Firestore (Timestamp ou string) para YYYY-MM-DD
+  const toFormDate = (value: unknown): string => {
+    if (value == null || value === "") return "";
+    if (typeof value === "string") {
+      return value.length >= 10 ? value.slice(0, 10) : value;
+    }
+    if (
+      typeof value === "object" &&
+      value !== null &&
+      "toDate" in value &&
+      typeof (value as { toDate: () => Date }).toDate === "function"
+    ) {
+      return (value as { toDate: () => Date })
+        .toDate()
+        .toISOString()
+        .slice(0, 10);
+    }
+    return "";
+  };
+
   const handleEditProject = (project: Project) => {
     setEditingProject(project);
     setNewProject({
-      name: project.name,
-      description: project.description,
-      startDate: project.startDate,
-      endDate: project.endDate,
-      status: project.status,
-      client: project.client,
-      budget: project.budget,
-      team: project.team || [],
-      labor: project.labor || "",
+      name: project.name ?? "",
+      description: project.description ?? "",
+      startDate: toFormDate(project.startDate) || "",
+      endDate: toFormDate(project.endDate) || "",
+      status: project.status ?? "planejamento",
+      client: project.client ?? "",
+      budget: typeof project.budget === "number" ? project.budget : 0,
+      team: Array.isArray(project.team) ? project.team : [],
+      labor: project.labor ?? "",
     });
   };
 
@@ -1266,15 +1271,15 @@ export default function GerenciamentoObras() {
           <RDOForm
             projects={projects}
             editingEntry={editingEntry}
-            onSave={async (data) => {
+            equipmentList={equipment}
+            teamMembersList={teamMembers}
+            onSave={async (data, extra) => {
               try {
-                // Validação dos dados do relatório
                 const validation = validateReport({
                   obraName: data.obraName || "",
                   date: data.date || "",
                   projectId: data.projectId || "",
                 });
-
                 if (!validation.valid) {
                   showToastMessage(
                     `Erros de validação:\n${validation.errors.join("\n")}`,
@@ -1282,23 +1287,54 @@ export default function GerenciamentoObras() {
                   );
                   return;
                 }
-
-                // Sanitiza dados antes de salvar
                 const sanitizedData = sanitizeForDatabase(data);
+                const projectId = (data.projectId as string) || "";
 
                 if (editingEntry && editingEntry.id) {
                   await updateDiaryEntry(
                     editingEntry.id,
                     sanitizedData as Parameters<typeof updateDiaryEntry>[1],
                   );
-                  showToastMessage(
-                    "Relatório atualizado com sucesso!",
-                    "success",
-                  );
+                  if (extra?.attachmentFiles?.length && projectId) {
+                    const urls: { id: string; name: string; fileUrl: string }[] = [];
+                    for (const { file, name } of extra.attachmentFiles) {
+                      const url = await uploadObraAttachment(
+                        projectId,
+                        editingEntry.id,
+                        file
+                      );
+                      urls.push({
+                        id: crypto.randomUUID(),
+                        name,
+                        fileUrl: url,
+                      });
+                    }
+                    const existing = (editingEntry.attachments || []) as { id: string; name: string; fileUrl: string }[];
+                    await updateDiaryEntry(editingEntry.id, {
+                      attachments: [...existing, ...urls],
+                    });
+                  }
+                  showToastMessage("Relatório atualizado com sucesso!", "success");
                 } else {
-                  await createDiaryEntry(
+                  const entryId = await createDiaryEntry(
                     sanitizedData as Parameters<typeof createDiaryEntry>[0],
                   );
+                  if (extra?.attachmentFiles?.length && projectId) {
+                    const urls: { id: string; name: string; fileUrl: string }[] = [];
+                    for (const { file, name } of extra.attachmentFiles) {
+                      const url = await uploadObraAttachment(
+                        projectId,
+                        entryId,
+                        file
+                      );
+                      urls.push({
+                        id: crypto.randomUUID(),
+                        name,
+                        fileUrl: url,
+                      });
+                    }
+                    await updateDiaryEntry(entryId, { attachments: urls });
+                  }
                   showToastMessage("Relatório criado com sucesso!", "success");
                 }
                 await refreshData();
@@ -1580,6 +1616,7 @@ export default function GerenciamentoObras() {
             equipment={equipment}
             schedules={schedules}
             safetyRecords={safetyRecords}
+            documents={documents}
             onBack={() => {
               setSelectedProjectForDetail(null);
               setViewMode("projects");
@@ -1587,6 +1624,27 @@ export default function GerenciamentoObras() {
             onEditProject={(project) => {
               handleEditProject(project);
               setViewMode("projects");
+            }}
+            onViewReport={(entry) => {
+              setViewReportReturnTo("project-detail");
+              setViewingReport(entry);
+              setViewMode("view-report");
+            }}
+            onExportPdf={handleExportPDF}
+            onAddDocument={(projectId) => {
+              setNewDocument((prev) => ({
+                ...prev,
+                projectId,
+                name: "",
+                type: "outro",
+                uploadDate: new Date().toISOString().split("T")[0],
+                fileUrl: "",
+                description: "",
+                version: "",
+                uploadedBy: "",
+              }));
+              setViewMode("new-documents");
+              setSelectedProjectForDetail(null);
             }}
           />
         ) : null;
@@ -1597,7 +1655,7 @@ export default function GerenciamentoObras() {
             inventory={inventory}
             projects={projects}
             alerts={checkInventoryAlerts()}
-            onViewChange={setViewMode}
+            onViewChange={handleViewChange}
             onEdit={handleEditInventoryItem}
             onDelete={handleDeleteInventoryItem}
           />
@@ -1645,7 +1703,7 @@ export default function GerenciamentoObras() {
           <SuppliersList
             suppliers={suppliers}
             projects={projects}
-            onViewChange={setViewMode}
+            onViewChange={handleViewChange}
             onEdit={(supplier) => {
               setEditingSupplier(supplier);
               setNewSupplier({
@@ -1732,7 +1790,7 @@ export default function GerenciamentoObras() {
           <TeamList
             teamMembers={teamMembers}
             projects={projects}
-            onViewChange={setViewMode}
+            onViewChange={handleViewChange}
             onEdit={(member) => {
               setEditingTeamMember(member);
               setNewTeamMember({
@@ -1813,7 +1871,7 @@ export default function GerenciamentoObras() {
           <EquipmentList
             equipment={equipment}
             projects={projects}
-            onViewChange={setViewMode}
+            onViewChange={handleViewChange}
             onEdit={(item) => {
               setEditingEquipment(item);
               setNewEquipment({
@@ -1910,7 +1968,23 @@ export default function GerenciamentoObras() {
               });
               setViewMode("new-schedule");
             }}
-            onDelete={scheduleHandlers.handleDelete}
+            onDelete={async (id: string) => {
+              const schedule = schedules.find((s) => s.id === id);
+              const projectId = schedule?.projectId;
+              if (confirm("Tem certeza que deseja excluir esta tarefa?")) {
+                try {
+                  await deleteSchedule(id);
+                  if (projectId) {
+                    await updateProjectProgressFromSchedules(projectId);
+                  }
+                  await refreshData();
+                  showToastMessage("Tarefa excluída com sucesso!", "success");
+                } catch (error) {
+                  console.error("Erro ao excluir tarefa:", error);
+                  showToastMessage("Erro ao excluir tarefa. Tente novamente.", "error");
+                }
+              }
+            }}
           />
         );
 
@@ -1938,6 +2012,14 @@ export default function GerenciamentoObras() {
                 editingSchedule,
               );
               if (success) {
+                if (newSchedule.projectId) {
+                  try {
+                    await updateProjectProgressFromSchedules(newSchedule.projectId);
+                    await refreshData();
+                  } catch (e) {
+                    console.error("Erro ao atualizar progresso da obra:", e);
+                  }
+                }
                 setNewSchedule({
                   projectId: "",
                   taskName: "",
@@ -2401,6 +2483,7 @@ export default function GerenciamentoObras() {
             onDelete={handleDeleteDiary}
             onExportPdf={handleExportPDF}
             onView={(entry) => {
+              setViewReportReturnTo("unified-reports");
               setViewingReport(entry);
               setViewMode("view-report");
             }}
@@ -2413,7 +2496,7 @@ export default function GerenciamentoObras() {
             entry={viewingReport}
             onBack={() => {
               setViewingReport(null);
-              setViewMode("unified-reports");
+              setViewMode(viewReportReturnTo);
             }}
             onEdit={() => {
               handleEditDiary(viewingReport);

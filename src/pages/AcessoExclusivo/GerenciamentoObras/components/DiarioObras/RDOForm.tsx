@@ -29,14 +29,23 @@ import type {
   OccurrenceEntry,
   CommentEntry,
   Photo,
+  TeamMember,
+  Equipment,
 } from "../../../../../services/obrasService";
 import { pluralize } from "../../../../../utils/pluralize";
+import SignatureCapture from "../../../../../components/SignatureCapture/SignatureCapture";
+
+/** Arquivos pendentes de upload para anexos do relatório. */
+export type PendingAttachment = { file: File; name: string };
 
 interface RDOFormProps {
   projects: Project[];
   editingEntry: DiaryEntry | null;
-  onSave: (data: Partial<DiaryEntry>) => void;
+  onSave: (data: Partial<DiaryEntry>, extra?: { attachmentFiles?: PendingAttachment[] }) => void;
   onBack: () => void;
+  /** Recursos da obra para seleção (equipe e equipamentos alocados à obra). */
+  equipmentList?: Equipment[];
+  teamMembersList?: TeamMember[];
 }
 
 export default function RDOForm({
@@ -44,6 +53,8 @@ export default function RDOForm({
   editingEntry,
   onSave,
   onBack,
+  equipmentList = [],
+  teamMembersList = [],
 }: RDOFormProps) {
   // Estados básicos
   const [projectId, setProjectId] = useState(editingEntry?.projectId || "");
@@ -115,10 +126,25 @@ export default function RDOForm({
   const [approvalStatus, setApprovalStatus] = useState<
     DiaryEntry["approvalStatus"]
   >(editingEntry?.approvalStatus || "preenchendo");
-  const [signature] = useState(editingEntry?.signature || "");
+  const [signature, setSignature] = useState(editingEntry?.signature || "");
+  const [signatureModalOpen, setSignatureModalOpen] = useState(false);
+
+  // Anexos (PDFs e outros arquivos)
+  const [attachments] = useState<DiaryEntry["attachments"]>(
+    editingEntry?.attachments || []
+  );
+  const [pendingAttachmentFiles, setPendingAttachmentFiles] = useState<PendingAttachment[]>([]);
 
   // Seção ativa para navegação
   const [activeSection, setActiveSection] = useState("details");
+
+  // Recursos da obra selecionada (para escolher equipe e equipamentos)
+  const projectTeam = projectId
+    ? teamMembersList.filter((m) => m.projectId === projectId)
+    : [];
+  const projectEquipment = projectId
+    ? equipmentList.filter((e) => e.projectId === projectId)
+    : [];
 
   // Calcular horas trabalhadas
   useEffect(() => {
@@ -264,8 +290,12 @@ export default function RDOForm({
       signature,
       status: "em-andamento",
       materials: [],
+      attachments,
     };
-    onSave(data);
+    onSave(data, {
+      attachmentFiles:
+        pendingAttachmentFiles.length > 0 ? pendingAttachmentFiles : undefined,
+    });
   };
 
   // Seções do menu lateral
@@ -303,6 +333,12 @@ export default function RDOForm({
       count: comments.length,
     },
     { id: "photos", label: "Fotos", icon: FiCamera, count: photos.length },
+    {
+      id: "attachments",
+      label: "Anexos (PDF/arquivos)",
+      icon: FiFileText,
+      count: (attachments?.length || 0) + pendingAttachmentFiles.length,
+    },
     { id: "approval", label: "Aprovação", icon: FiCheck },
   ];
 
@@ -476,6 +512,39 @@ export default function RDOForm({
                   <FiPlus size={16} /> Adicionar
                 </Button>
               </div>
+              {projectTeam.length > 0 && (
+                <div className="obras-rdo-add-form" style={{ marginBottom: "12px" }}>
+                  <label>Adicionar da equipe da obra:</label>
+                  <select
+                    className="obras-select"
+                    value=""
+                    onChange={(e) => {
+                      const id = e.target.value;
+                      if (!id) return;
+                      const member = projectTeam.find((m) => m.id === id);
+                      if (member) {
+                        setWorkforce([
+                          ...workforce,
+                          {
+                            id: member.id || id,
+                            name: member.name,
+                            company: member.role || "",
+                            quantity: 1,
+                          },
+                        ]);
+                        e.target.value = "";
+                      }
+                    }}
+                  >
+                    <option value="">Selecione um membro</option>
+                    {projectTeam.map((m) => (
+                      <option key={m.id} value={m.id}>
+                        {m.name} – {m.role}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
               <div className="obras-rdo-add-form">
                 <Input
                   type="text"
@@ -568,6 +637,39 @@ export default function RDOForm({
                   <FiPlus size={16} /> Adicionar
                 </Button>
               </div>
+              {projectEquipment.length > 0 && (
+                <div className="obras-rdo-add-form" style={{ marginBottom: "12px" }}>
+                  <label>Adicionar equipamento da obra:</label>
+                  <select
+                    className="obras-select"
+                    value=""
+                    onChange={(e) => {
+                      const id = e.target.value;
+                      if (!id) return;
+                      const eq = projectEquipment.find((x) => x.id === id);
+                      if (eq) {
+                        setEquipmentUsed([
+                          ...equipmentUsed,
+                          {
+                            id: eq.id || id,
+                            name: eq.name,
+                            code: eq.code || "",
+                            quantity: 1,
+                          },
+                        ]);
+                        e.target.value = "";
+                      }
+                    }}
+                  >
+                    <option value="">Selecione um equipamento</option>
+                    {projectEquipment.map((e) => (
+                      <option key={e.id} value={e.id}>
+                        {e.name} {e.code ? `– ${e.code}` : ""}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
               <div className="obras-rdo-add-form">
                 <Input
                   type="text"
@@ -860,6 +962,66 @@ export default function RDOForm({
             </div>
           )}
 
+          {/* Seção: Anexos (PDF e outros arquivos) */}
+          {activeSection === "attachments" && (
+            <div className="obras-rdo-section">
+              <h3 className="obras-section-title" style={{ color: "#ea580c" }}>
+                <FiFileText /> Anexos (PDF e outros arquivos)
+              </h3>
+              <p className="obras-rdo-instructions">
+                Adicione PDFs ou outros documentos ao relatório. Os arquivos serão enviados ao salvar.
+              </p>
+              <input
+                type="file"
+                accept=".pdf,image/*,.doc,.docx,.xls,.xlsx"
+                multiple
+                onChange={(e) => {
+                  const files = e.target.files;
+                  if (!files?.length) return;
+                  const newPending = Array.from(files).map((f) => ({
+                    file: f,
+                    name: f.name,
+                  }));
+                  setPendingAttachmentFiles((prev) => [...prev, ...newPending]);
+                  e.target.value = "";
+                }}
+                style={{ marginBottom: "12px" }}
+              />
+              {(attachments?.length || 0) + pendingAttachmentFiles.length > 0 && (
+                <div className="obras-rdo-list">
+                  {attachments?.map((a) => (
+                    <div key={a.id} className="obras-rdo-list-item">
+                      <div className="obras-rdo-item-info">
+                        <a href={a.fileUrl} target="_blank" rel="noopener noreferrer">
+                          {a.name}
+                        </a>
+                      </div>
+                    </div>
+                  ))}
+                  {pendingAttachmentFiles.map((p, i) => (
+                    <div key={`pending-${i}`} className="obras-rdo-list-item">
+                      <div className="obras-rdo-item-info">
+                        <strong>{p.name}</strong>
+                        <span> (pendente)</span>
+                      </div>
+                      <button
+                        type="button"
+                        className="obras-rdo-remove-btn"
+                        onClick={() =>
+                          setPendingAttachmentFiles((prev) =>
+                            prev.filter((_, idx) => idx !== i)
+                          )
+                        }
+                      >
+                        <FiTrash2 size={16} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Seção: Aprovação */}
           {activeSection === "approval" && (
             <div className="obras-rdo-section">
@@ -913,9 +1075,18 @@ export default function RDOForm({
                       <span>Assinatura</span>
                     )}
                   </div>
-                  <Button variant="primary" onClick={() => {}}>
+                  <Button variant="primary" onClick={() => setSignatureModalOpen(true)}>
                     <FiEdit2 size={16} /> Assinar
                   </Button>
+                  <SignatureCapture
+                    open={signatureModalOpen}
+                    onClose={() => setSignatureModalOpen(false)}
+                    onSave={(dataUrl) => {
+                      setSignature(dataUrl);
+                      setSignatureModalOpen(false);
+                    }}
+                    title="Assinatura do responsável"
+                  />
                 </div>
               </div>
             </div>

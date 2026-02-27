@@ -2,14 +2,14 @@ import { useState } from "react";
 import Button from "../../../../../components/ui/Button/Button";
 import { FiTruck, FiArrowLeft, FiPlus, FiEdit3, FiTrash2 } from "react-icons/fi";
 import type { Supplier, Project } from "../../../../../services/obrasService";
-import type { ViewMode } from "../../types";
+import type { ViewMode, ViewChangeContext } from "../../types";
 import ProjectFilter from "../shared/ProjectFilter";
 import ProjectBadge from "../shared/ProjectBadge";
 
 interface SuppliersListProps {
   suppliers: Supplier[];
   projects: Project[];
-  onViewChange: (mode: ViewMode) => void;
+  onViewChange: (mode: ViewMode, context?: ViewChangeContext) => void;
   onEdit: (supplier: Supplier) => void;
   onDelete: (id: string) => void;
 }
@@ -70,7 +70,7 @@ export default function SuppliersList({
           </Button>
           <Button
             variant="primary"
-            onClick={() => onViewChange("new-supplier")}
+            onClick={() => onViewChange("new-supplier", selectedProjectId ? { projectId: selectedProjectId } : undefined)}
             className="obras-create-btn"
           >
             <FiPlus size={20} aria-hidden />
@@ -97,7 +97,7 @@ export default function SuppliersList({
             <p>Adicione fornecedores ao sistema</p>
             <Button
               variant="primary"
-              onClick={() => onViewChange("new-supplier")}
+              onClick={() => onViewChange("new-supplier", selectedProjectId ? { projectId: selectedProjectId } : undefined)}
             >
               Cadastrar Primeiro Fornecedor
             </Button>

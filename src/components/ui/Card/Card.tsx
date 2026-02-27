@@ -14,6 +14,7 @@ interface CardProps {
   size?: "small" | "medium" | "large";
   className?: string;
   icon?: React.ReactNode;
+  role?: string;
 }
 
 const Card: React.FC<CardProps> = ({
@@ -29,6 +30,7 @@ const Card: React.FC<CardProps> = ({
   size = "medium",
   className = "",
   icon,
+  role,
 }) => {
   const handleClick = () => {
     if (onClick) {
@@ -43,6 +45,7 @@ const Card: React.FC<CardProps> = ({
   return (
     <div
       className={cardClasses}
+      role={role}
       style={{
         backgroundColor,
         color: textColor,
@@ -59,12 +62,16 @@ const Card: React.FC<CardProps> = ({
       <div className="card__content">
         <div className="card__header">
           <h2 className="card__title">{title}</h2>
-          <div className="card__subtitle-container">
-            <span className="card__subtitle">{subtitle}</span>
-          </div>
+          {subtitle != null && subtitle !== "" && (
+            <div className="card__subtitle-container">
+              <span className="card__subtitle">{subtitle}</span>
+            </div>
+          )}
         </div>
 
-        <p className="card__description">{description}</p>
+        {description != null && description !== "" && (
+          <p className="card__description">{description}</p>
+        )}
 
         {icon && <div className="card__icon">{icon}</div>}
 

@@ -15,6 +15,9 @@ import {
   FiTrendingUp,
   FiDollarSign,
   FiCheckCircle,
+  FiEye,
+  FiDownload,
+  FiPrinter,
 } from "react-icons/fi";
 import type {
   Project,
@@ -25,7 +28,9 @@ import type {
   Equipment,
   Schedule,
   SafetyRecord,
+  DocumentRecord,
 } from "../../../../../services/obrasService";
+import { generateObraConsolidatedPdf } from "../../../../../utils/obrasPdf";
 import { pluralize } from "../../../../../utils/pluralize";
 
 interface ProjectDetailViewProps {
@@ -39,6 +44,10 @@ interface ProjectDetailViewProps {
   safetyRecords: SafetyRecord[];
   onBack: () => void;
   onEditProject: (project: Project) => void;
+  onViewReport?: (entry: DiaryEntry) => void;
+  onExportPdf?: (entry: DiaryEntry) => void;
+  documents?: DocumentRecord[];
+  onAddDocument?: (projectId: string) => void;
 }
 
 type TabType =
@@ -48,7 +57,8 @@ type TabType =
   | "photos"
   | "info"
   | "comments"
-  | "resources";
+  | "resources"
+  | "attachments";
 
 export default function ProjectDetailView({
   project,
@@ -61,6 +71,10 @@ export default function ProjectDetailView({
   safetyRecords,
   onBack,
   onEditProject,
+  onViewReport,
+  onExportPdf,
+  documents = [],
+  onAddDocument,
 }: ProjectDetailViewProps) {
   const [activeTab, setActiveTab] = useState<TabType>("overview");
 
@@ -85,6 +99,9 @@ export default function ProjectDetailView({
   );
   const projectSafety = safetyRecords.filter(
     (safety) => safety.projectId === project.id
+  );
+  const projectDocuments = documents.filter(
+    (d) => d.projectId === project.id
   );
 
   // Coletar todas as fotos dos relatórios
@@ -122,6 +139,7 @@ export default function ProjectDetailView({
     { id: "photos", label: "Fotos", icon: FiImage },
     { id: "info", label: "Informações", icon: FiInfo },
     { id: "resources", label: "Recursos", icon: FiPackage },
+    { id: "attachments", label: "Anexos", icon: FiFileText },
     { id: "comments", label: "Comentários", icon: FiMessageSquare },
   ];
 
@@ -412,6 +430,18 @@ export default function ProjectDetailView({
                   </p>
                 )}
               </div>
+              <div className="report-card-actions" style={{ display: "flex", gap: "8px", marginTop: "12px", flexWrap: "wrap" }}>
+                {onViewReport && (
+                  <Button variant="secondary" onClick={() => onViewReport(report)}>
+                    <FiEye size={16} /> Ver
+                  </Button>
+                )}
+                {onExportPdf && (
+                  <Button variant="primary" onClick={() => onExportPdf(report)}>
+                    <FiDownload size={16} /> Gerar PDF
+                  </Button>
+                )}
+              </div>
             </div>
           ))}
         </div>
@@ -699,9 +729,31 @@ export default function ProjectDetailView({
             </span>
           </div>
         </div>
-        <Button variant="primary" onClick={() => onEditProject(project)}>
-          Editar Obra
-        </Button>
+        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+          <Button
+            variant="secondary"
+            onClick={() => {
+              try {
+                generateObraConsolidatedPdf(
+                  project,
+                  projectTeam,
+                  projectEquipment,
+                  projectInventory,
+                  projectSuppliers,
+                  projectReports,
+                  projectDocuments
+                );
+              } catch (err) {
+                console.error("Erro ao gerar PDF da obra:", err);
+              }
+            }}
+          >
+            <FiPrinter size={16} /> Imprimir Obra
+          </Button>
+          <Button variant="primary" onClick={() => onEditProject(project)}>
+            Editar Obra
+          </Button>
+        </div>
       </div>
 
       <div className="project-detail-tabs">
@@ -726,6 +778,49 @@ export default function ProjectDetailView({
         {activeTab === "photos" && renderPhotos()}
         {activeTab === "info" && renderInfo()}
         {activeTab === "resources" && renderResources()}
+        {activeTab === "attachments" && (
+          <div className="project-detail-reports">
+            <div className="reports-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px" }}>
+              <h3>Anexos / Documentos da Obra ({projectDocuments.length})</h3>
+              {onAddDocument && (
+                <Button variant="primary" onClick={() => onAddDocument(project.id!)}>
+                  <FiFileText size={16} /> Adicionar documento
+                </Button>
+              )}
+            </div>
+            {projectDocuments.length === 0 ? (
+              <div className="empty-state">
+                <FiFileText size={48} />
+                <p>Nenhum documento anexado a esta obra</p>
+                {onAddDocument && (
+                  <Button variant="primary" onClick={() => onAddDocument(project.id!)}>
+                    Adicionar documento
+                  </Button>
+                )}
+              </div>
+            ) : (
+              <div className="reports-list">
+                {projectDocuments.map((docRecord) => (
+                  <div key={docRecord.id} className="report-card">
+                    <div className="report-header">
+                      <div className="report-info">
+                        <h4>{docRecord.name}</h4>
+                        <span className="report-date">
+                          {new Date(docRecord.uploadDate).toLocaleDateString("pt-BR")} • {docRecord.type}
+                        </span>
+                      </div>
+                    </div>
+                    {docRecord.fileUrl && (
+                      <a href={docRecord.fileUrl} target="_blank" rel="noopener noreferrer" style={{ marginTop: "8px", display: "inline-block" }}>
+                        Abrir arquivo
+                      </a>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
         {activeTab === "comments" && renderComments()}
       </div>
     </div>
