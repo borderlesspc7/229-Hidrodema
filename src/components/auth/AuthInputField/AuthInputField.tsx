@@ -1,4 +1,3 @@
-import React from "react";
 import "./AuthInputField.css";
 
 export interface AuthInputFieldProps {

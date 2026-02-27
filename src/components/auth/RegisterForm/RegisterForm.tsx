@@ -134,7 +134,7 @@ export default function RegisterForm({
           onChange={setName}
           onBlur={() => setTouched((p) => ({ ...p, name: true }))}
           placeholder="Digite seu nome completo"
-          error={nameError}
+          error={nameError ?? undefined}
           required
           disabled={loading}
           autoComplete="name"
@@ -148,7 +148,7 @@ export default function RegisterForm({
           onChange={setEmail}
           onBlur={() => setTouched((p) => ({ ...p, email: true }))}
           placeholder="ex: seu@email.com"
-          error={emailError}
+          error={emailError ?? undefined}
           required
           disabled={loading}
           autoComplete="email"
@@ -162,7 +162,7 @@ export default function RegisterForm({
           onChange={setPassword}
           onBlur={() => setTouched((p) => ({ ...p, password: true }))}
           placeholder="Mínimo 6 caracteres"
-          error={passwordError}
+          error={passwordError ?? undefined}
           required
           disabled={loading}
           autoComplete="new-password"
@@ -176,7 +176,7 @@ export default function RegisterForm({
           onChange={setConfirmPassword}
           onBlur={() => setTouched((p) => ({ ...p, confirmPassword: true }))}
           placeholder="Repita a senha"
-          error={confirmError}
+          error={confirmError ?? undefined}
           required
           disabled={loading}
           autoComplete="new-password"

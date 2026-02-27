@@ -86,7 +86,7 @@ export default function LoginForm({
           onChange={setEmail}
           onBlur={() => setTouched((p) => ({ ...p, email: true }))}
           placeholder="ex: seu@email.com"
-          error={emailError}
+          error={emailError ?? undefined}
           required
           disabled={loading}
           autoComplete="email"
@@ -100,7 +100,7 @@ export default function LoginForm({
           onChange={setPassword}
           onBlur={() => setTouched((p) => ({ ...p, password: true }))}
           placeholder="Mínimo 6 caracteres"
-          error={passwordError}
+          error={passwordError ?? undefined}
           required
           disabled={loading}
           autoComplete="current-password"

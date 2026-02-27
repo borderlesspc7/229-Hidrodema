@@ -138,7 +138,7 @@ export default function DiarioObrasHistory({
                       <FiCalendar size={16} aria-hidden />
                       {dateFormatted}
                     </span>
-                    {entry.reportNumber != null && entry.reportNumber !== "" && (
+                    {entry.reportNumber != null && (
                       <span className="obras-report-number" role="listitem">
                         <FiFileText size={16} aria-hidden />
                         Nº {entry.reportNumber}

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import AuthLayout from "../../components/auth/AuthLayout/AuthLayout";
 import RegisterForm from "../../components/auth/RegisterForm/RegisterForm";
 import { useAuth } from "../../hooks/useAuth";

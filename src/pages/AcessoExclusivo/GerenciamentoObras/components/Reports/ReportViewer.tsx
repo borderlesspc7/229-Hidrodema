@@ -128,7 +128,7 @@ export default function ReportViewer({ entry, onBack, onEdit, onDelete }: Report
                 <span>{entry.dayOfWeek}</span>
               </div>
             )}
-            {(entry.approvalStatus != null && entry.approvalStatus !== "") && (
+            {entry.approvalStatus != null && (
               <div className="obras-report-viewer-field">
                 <label>Status de Aprovação</label>
                 <span className={`obras-status-badge obras-status-${entry.approvalStatus}`}>
