@@ -1,0 +1,23 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      allow read, write: if request.auth != null
+        && request.auth.uid == userId;
+    }
+
+    match /documentRegistry/{docId} {
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly(['uid'])
+        && request.resource.data.uid == request.auth.uid
+        && !exists(/databases/$(database)/documents/documentRegistry/$(docId));
+      allow read, update, delete: if false;
+    }
+
+    // As coleções do app usam dados globais para dashboard e catálogo.
+    match /{collection}/{docId} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
