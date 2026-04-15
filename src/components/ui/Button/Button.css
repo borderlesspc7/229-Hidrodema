@@ -1,0 +1,95 @@
+/* Estilos base do botão */
+.button {
+  width: auto;
+  min-width: 120px;
+  padding: 16px 24px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  border: none;
+}
+
+/* Variante Primary - Azul escuro (Login/Register) */
+.button--primary {
+  background: linear-gradient(135deg, #1a3a52 0%, #2c5f7a 100%);
+  color: white;
+}
+
+.button--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(26, 58, 82, 0.3);
+}
+
+.button--primary:active {
+  transform: translateY(0);
+}
+
+.button--primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Variante Secondary - Branco (Menu) */
+.button--secondary {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  color: #1a3a52;
+  border: 2px solid rgba(59, 130, 246, 0.3);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.button--secondary:hover {
+  background: rgba(255, 255, 255, 1);
+  border-color: #3b82f6;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+}
+
+.button--secondary:active {
+  transform: translateY(0);
+}
+
+.button--secondary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.button-text {
+  position: relative;
+  z-index: 1;
+}
+
+/* Efeito shimmer para ambas as variantes */
+.button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.button:hover::before {
+  left: 100%;
+}
+
+/* Classe para botões que precisam ocupar toda a largura */
+.button--full-width {
+  width: 100%;
+}

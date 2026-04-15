@@ -1,0 +1,44 @@
+@import "../MedicoesPage/MedicoesPage.css";
+
+.obra-doc-file-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.obra-doc-file-input {
+  flex: 1;
+  min-width: 200px;
+  font-size: 14px;
+}
+
+.obra-doc-card-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 6px;
+  word-break: break-word;
+}
+
+.obra-doc-meta {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0 0 10px;
+}
+
+.obra-doc-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1d4ed8;
+  text-decoration: none;
+  margin-bottom: 12px;
+}
+
+.obra-doc-link:hover {
+  text-decoration: underline;
+}
