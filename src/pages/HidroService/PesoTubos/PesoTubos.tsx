@@ -1,6 +1,6 @@
 import "./PesoTubos.css";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "../../../components/ui/Button/Button";
 import {
   FaTruck,
@@ -15,7 +15,8 @@ export default function PesoTubos() {
   const navigate = useNavigate();
 
   const handleBack = () => {
-    navigate("/service");
+    if (window.history.length > 1) navigate(-1);
+    else navigate("/service");
   };
 
   // Dados da tabela de pesos dos tubos
@@ -152,6 +153,9 @@ export default function PesoTubos() {
   ];
 
   const [selectedDiameter, setSelectedDiameter] = useState('12"');
+  const [selectedMetric, setSelectedMetric] = useState<"empty" | "water" | "full">(
+    "full"
+  );
 
   // Função para calcular a redução de peso dos termoplásticos
   const calculateWeightReduction = (diameter: string) => {
@@ -171,7 +175,7 @@ export default function PesoTubos() {
   // Função para gerar dados do gráfico
   const getChartData = () => {
     const data = pipeData[selectedDiameter as keyof typeof pipeData];
-    return materials
+    const rows = materials
       .map((material) => ({
         material: material,
         empty: data[material as keyof typeof data].empty,
@@ -179,7 +183,93 @@ export default function PesoTubos() {
         full: data[material as keyof typeof data].full,
       }))
       .filter((item) => item.empty > 0);
+
+    // Ordenar do menor para o maior (melhora leitura do gráfico e tabela)
+    const metric = selectedMetric;
+    return [...rows].sort((a, b) => (a[metric] ?? 0) - (b[metric] ?? 0));
   };
+
+  const formatKg = (v: number) =>
+    v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  const getSelectedLinearWeightSummary = () => {
+    const data = pipeData[selectedDiameter as keyof typeof pipeData];
+    const cpvc = data["CPVC / PVC-U"];
+    const steel = data["Tubo Aço SCH 40"];
+    return {
+      cpvcEmpty: cpvc?.empty ?? 0,
+      cpvcWater: cpvc?.water ?? 0,
+      cpvcFull: cpvc?.full ?? 0,
+      steelEmpty: steel?.empty ?? 0,
+      steelWater: steel?.water ?? 0,
+      steelFull: steel?.full ?? 0,
+    };
+  };
+
+  const chartData = getChartData();
+  const maxValue =
+    chartData.length === 0
+      ? 0
+      : Math.max(...chartData.map((d) => Math.max(d.empty, d.water, d.full)));
+  const CHART_HEIGHT_PX = 220;
+  const yTicks = (() => {
+    if (maxValue <= 0) return [];
+    const steps = 5;
+    return Array.from({ length: steps + 1 }, (_, i) =>
+      (maxValue * i) / steps
+    );
+  })();
+
+  useEffect(() => {
+    if (!import.meta.env.DEV) return;
+
+    const issues: { area: string; message: string }[] = [];
+    const EPS = 1e-6;
+
+    // 1) Varredura completa por diâmetro/material: sem negativos + total = tubo + água
+    for (const d of Object.keys(pipeData) as Array<keyof typeof pipeData>) {
+      const byMaterial = pipeData[d];
+      for (const m of Object.keys(byMaterial) as Array<keyof typeof byMaterial>) {
+        const v = byMaterial[m];
+        if (v.empty < -EPS || v.water < -EPS || v.full < -EPS) {
+          issues.push({
+            area: "dados",
+            message: `${String(d)} / ${String(m)} contém peso negativo`,
+          });
+        }
+        const expectedFull = v.empty + v.water;
+        if (Math.abs(v.full - expectedFull) > 0.02) {
+          issues.push({
+            area: "fórmula",
+            message: `${String(d)} / ${String(m)}: full (${v.full}) != empty+water (${expectedFull.toFixed(
+              2
+            )})`,
+          });
+        }
+      }
+    }
+
+    // 2) Escala do gráfico: maxValue precisa ser >= maior valor presente
+    const allValues: number[] = [];
+    for (const d of Object.keys(pipeData) as Array<keyof typeof pipeData>) {
+      const byMaterial = pipeData[d];
+      for (const m of Object.keys(byMaterial) as Array<keyof typeof byMaterial>) {
+        const v = byMaterial[m];
+        allValues.push(v.empty, v.water, v.full);
+      }
+    }
+    const globalMax = Math.max(...allValues);
+    if (globalMax < 0) {
+      issues.push({ area: "dados", message: "globalMax negativo (inesperado)" });
+    }
+
+    if (issues.length > 0) {
+      console.warn("[QA PesoTubos] Falhas detectadas:", issues);
+      console.table(issues);
+    } else {
+      console.info("[QA PesoTubos] OK — validação automática sem falhas.");
+    }
+  }, [pipeData]);
 
   return (
     <div className="peso-tubos-container">
@@ -260,6 +350,68 @@ export default function PesoTubos() {
           </div>
         </div>
 
+        <div className="diameter-selector">
+          <h3>Ordenar gráfico por:</h3>
+          <div className="diameter-buttons">
+            <button
+              className={`diameter-btn ${selectedMetric === "empty" ? "active" : ""}`}
+              onClick={() => setSelectedMetric("empty")}
+            >
+              Peso do Tubo
+            </button>
+            <button
+              className={`diameter-btn ${selectedMetric === "water" ? "active" : ""}`}
+              onClick={() => setSelectedMetric("water")}
+            >
+              Peso da Água
+            </button>
+            <button
+              className={`diameter-btn ${selectedMetric === "full" ? "active" : ""}`}
+              onClick={() => setSelectedMetric("full")}
+            >
+              Peso Total
+            </button>
+          </div>
+        </div>
+
+        <div className="table-section">
+          <h2 className="table-title">
+            <FaWeightHanging className="title-icon" />
+            RESUMO (kg/m) — DIÂMETRO {selectedDiameter}
+          </h2>
+          {(() => {
+            const s = getSelectedLinearWeightSummary();
+            return (
+              <div className="benefits-grid">
+                <div className="benefit-card">
+                  <h3>CPVC / PVC-U</h3>
+                  <p>
+                    <strong>Tubo:</strong> {formatKg(s.cpvcEmpty)} kg/m
+                  </p>
+                  <p>
+                    <strong>Água:</strong> {formatKg(s.cpvcWater)} kg/m
+                  </p>
+                  <p>
+                    <strong>Total:</strong> {formatKg(s.cpvcFull)} kg/m
+                  </p>
+                </div>
+                <div className="benefit-card">
+                  <h3>Tubo Aço SCH 40</h3>
+                  <p>
+                    <strong>Tubo:</strong> {formatKg(s.steelEmpty)} kg/m
+                  </p>
+                  <p>
+                    <strong>Água:</strong> {formatKg(s.steelWater)} kg/m
+                  </p>
+                  <p>
+                    <strong>Total:</strong> {formatKg(s.steelFull)} kg/m
+                  </p>
+                </div>
+              </div>
+            );
+          })()}
+        </div>
+
         <div className="table-section">
           <h2 className="table-title">
             <FaTable className="title-icon" />
@@ -321,57 +473,74 @@ export default function PesoTubos() {
             GRÁFICO COMPARATIVO - DIÂMETRO {selectedDiameter}
           </h2>
           <div className="chart-container">
-            <div className="chart-bars">
-              {getChartData().map((item) => (
-                <div key={item.material} className="chart-bar-group">
-                  <div className="bar-label">{item.material}</div>
-                  <div className="bars">
-                    <div
-                      className="bar empty-bar"
-                      style={{
-                        height: `${
-                          (item.empty /
-                            Math.max(...getChartData().map((d) => d.empty))) *
-                          200
-                        }px`,
-                      }}
-                      title={`Peso vazio: ${item.empty}kg`}
-                    >
-                      <span className="bar-value">{item.empty}kg</span>
-                    </div>
-                    <div
-                      className="bar water-bar"
-                      style={{
-                        height: `${
-                          (item.water /
-                            Math.max(...getChartData().map((d) => d.water))) *
-                          200
-                        }px`,
-                      }}
-                      title={`Peso da água: ${item.water}kg`}
-                    >
-                      <span className="bar-value">{item.water}kg</span>
-                    </div>
-                    <div
-                      className="bar full-bar"
-                      style={{
-                        height: `${
-                          (item.full /
-                            Math.max(...getChartData().map((d) => d.full))) *
-                          200
-                        }px`,
-                      }}
-                      title={`Peso total: ${item.full}kg`}
-                    >
-                      <span className="bar-value">{item.full}kg</span>
-                    </div>
-                  </div>
-                  <div className="obseration">
-                    Os valores são calculados por metro de tubo{" "}
-                  </div>
+            <div className="chart-area">
+              <div className="chart-y-axis" aria-hidden="true">
+                <div className="chart-y-axis-label">kg/m</div>
+                <div className="chart-y-ticks" style={{ height: CHART_HEIGHT_PX }}>
+                  {yTicks
+                    .slice()
+                    .reverse()
+                    .map((t) => (
+                      <div key={t} className="chart-y-tick">
+                        <div className="chart-y-grid" />
+                        <div className="chart-y-value">{formatKg(t)}</div>
+                      </div>
+                    ))}
                 </div>
-              ))}
+              </div>
+
+              <div className="chart-bars" style={{ height: CHART_HEIGHT_PX }}>
+                {chartData.map((item) => (
+                  <div key={item.material} className="chart-bar-group">
+                    <div className="bars">
+                      <div
+                        className="bar empty-bar"
+                        style={{
+                          height: `${
+                            maxValue > 0
+                              ? (item.empty / maxValue) * CHART_HEIGHT_PX
+                              : 0
+                          }px`,
+                        }}
+                        title={`Peso do tubo: ${formatKg(item.empty)} kg/m`}
+                      >
+                        <span className="bar-value">{formatKg(item.empty)}</span>
+                      </div>
+                      <div
+                        className="bar water-bar"
+                        style={{
+                          height: `${
+                            maxValue > 0
+                              ? (item.water / maxValue) * CHART_HEIGHT_PX
+                              : 0
+                          }px`,
+                        }}
+                        title={`Peso da água: ${formatKg(item.water)} kg/m`}
+                      >
+                        <span className="bar-value">{formatKg(item.water)}</span>
+                      </div>
+                      <div
+                        className="bar full-bar"
+                        style={{
+                          height: `${
+                            maxValue > 0
+                              ? (item.full / maxValue) * CHART_HEIGHT_PX
+                              : 0
+                          }px`,
+                        }}
+                        title={`Peso total: ${formatKg(item.full)} kg/m`}
+                      >
+                        <span className="bar-value">{formatKg(item.full)}</span>
+                      </div>
+                    </div>
+                    <div className="bar-label" title={item.material}>
+                      {item.material}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
+
             <div className="chart-legend">
               <div className="legend-item">
                 <div className="legend-color empty-color"></div>

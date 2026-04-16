@@ -104,6 +104,91 @@
   font-size: 0.9rem;
 }
 
+.product-type-section {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(10px);
+}
+
+.product-type-section--highlight {
+  margin-top: 0;
+  margin-bottom: 14px;
+  border: 1px solid rgba(96, 165, 250, 0.35);
+  background: linear-gradient(
+    135deg,
+    rgba(30, 64, 175, 0.28) 0%,
+    rgba(14, 116, 144, 0.16) 50%,
+    rgba(255, 255, 255, 0.06) 100%
+  );
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+.product-type-title {
+  color: #ffffff;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+}
+
+.product-type-toggle {
+  display: inline-flex;
+  gap: 8px;
+  padding: 6px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.product-type-toggle-btn {
+  appearance: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  color: #e2e8f0;
+  background: transparent;
+  transition: transform 0.12s ease, background 0.2s ease, color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.product-type-toggle-btn:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.product-type-toggle-btn.active {
+  color: #0f172a;
+  background: linear-gradient(135deg, #93c5fd 0%, #60a5fa 50%, #34d399 100%);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+.product-type-helper {
+  margin-top: 10px;
+  color: #e2e8f0;
+  font-size: 0.9rem;
+}
+
+.product-type-helper strong {
+  color: #ffffff;
+}
+
+.cpvc-config {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.cpvc-config-row {
+  margin-top: 12px;
+}
+
 .table-section {
   background: transparent;
   padding: 20px;
@@ -240,6 +325,90 @@
   color: #388e3c;
   font-weight: 700;
   font-size: 0.9rem;
+}
+
+.adhesive-row {
+  background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%);
+  font-weight: 700;
+}
+
+.adhesive-cell {
+  background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%) !important;
+  color: white !important;
+  font-size: 0.9rem;
+}
+
+.adhesive-value-cell {
+  background: #fff7ed !important;
+  color: #c2410c;
+  font-weight: 800;
+  font-size: 0.9rem;
+  letter-spacing: 0.5px;
+}
+
+.adhesive-value-cell--invalid {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%) !important;
+  color: #991b1b;
+}
+
+.viscosity-row {
+  background: linear-gradient(135deg, #f5f3ff 0%, #ddd6fe 100%);
+  font-weight: 700;
+}
+
+.viscosity-cell {
+  background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%) !important;
+  color: white !important;
+  font-size: 0.9rem;
+}
+
+.viscosity-value-cell {
+  background: #f5f3ff !important;
+  color: #5b21b6;
+  font-weight: 800;
+  font-size: 0.85rem;
+}
+
+.viscosity-value-cell--invalid {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%) !important;
+  color: #991b1b;
+}
+
+.technical-validation {
+  margin-top: 14px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(10px);
+}
+
+.technical-validation-title {
+  color: #ffffff;
+  font-weight: 900;
+  letter-spacing: 0.4px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+}
+
+.technical-validation-text {
+  color: #e2e8f0;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.technical-validation-text strong {
+  color: #ffffff;
+}
+
+.technical-validation-note {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  color: #cbd5e1;
+  font-size: 0.85rem;
+  line-height: 1.4;
 }
 
 .products-section {
@@ -382,6 +551,11 @@
   font-weight: 600;
   border: 1px solid #1e3a8a;
   font-size: 0.9rem;
+}
+
+.packaging-table .packaging-label strong,
+.packaging-table .packaging-value strong {
+  font-weight: 900;
 }
 
 .packaging-subheader {

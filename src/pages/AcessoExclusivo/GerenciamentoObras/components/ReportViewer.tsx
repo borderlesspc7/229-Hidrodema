@@ -24,7 +24,12 @@ export default function ReportViewer({ report, projects, onBack }: Props) {
             <ReportTypeBadge type={report.type} /> {project?.name ?? "Obra"}
           </h2>
           <p className="obras-form-subtitle">
-            Data: {new Date(report.date).toLocaleDateString()}
+            {report.reportNumber ? (
+              <>
+                <strong>Nº:</strong> {report.reportNumber} &nbsp;·&nbsp;
+              </>
+            ) : null}
+            <strong>Data:</strong> {new Date(report.date).toLocaleDateString()}
           </p>
           <div className="obras-form-actions" style={{ marginTop: 12 }}>
             <Button variant="secondary" onClick={onBack} className="obras-action-btn">

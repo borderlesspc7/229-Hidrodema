@@ -8,6 +8,8 @@ import ExclusiveRoutes from "./exclusiveRoutes";
 import { ProtectedRoute } from "./ProtectedRoute";
 import HidroService from "../pages/HidroService/HidroService";
 import AcessoExclusivo from "../pages/AcessoExclusivo/AcessoExclusivo";
+import { features } from "../lib/features";
+import { Navigate } from "react-router-dom";
 
 function Meeting() {
   return <div>Meeting</div>;
@@ -31,7 +33,7 @@ export const AppRoutes = () => {
         path={paths.meeting}
         element={
           <ProtectedRoute>
-            <Meeting />
+            {features.meeting ? <Meeting /> : <Navigate to={paths.menu} replace />}
           </ProtectedRoute>
         }
       />
@@ -39,7 +41,7 @@ export const AppRoutes = () => {
         path={paths.marketing}
         element={
           <ProtectedRoute>
-            <Marketing />
+            {features.marketing ? <Marketing /> : <Navigate to={paths.menu} replace />}
           </ProtectedRoute>
         }
       />

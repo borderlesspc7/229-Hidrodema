@@ -37,36 +37,78 @@ export function exportObraReportToPdf(report: ObraReport, project?: Project): vo
   let y = margin;
   const lineH = 16;
 
+  const brand = "HIDRODEMA";
   const title = `${formatType(report.type)} - ${project?.name ?? "Obra"}`;
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(16);
-  doc.text(title, margin, y);
-  y += lineH + 6;
 
-  doc.setFont("helvetica", "normal");
+  const drawHeader = () => {
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.text(brand, margin, 34);
+    doc.setFontSize(12);
+    doc.text(title, margin, 52);
+    doc.setDrawColor(226, 232, 240);
+    doc.line(margin, 62, pageWidth - margin, 62);
+  };
+
+  const drawFooter = (page: number, total: number) => {
+    const footerY = pageHeight - 24;
+    doc.setDrawColor(226, 232, 240);
+    doc.line(margin, footerY - 10, pageWidth - margin, footerY - 10);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.text(
+      `Página ${page} de ${total}`,
+      pageWidth - margin,
+      footerY,
+      { align: "right" }
+    );
+  };
+
+  const addPage = () => {
+    doc.addPage();
+    drawHeader();
+    y = 86;
+  };
+
+  drawHeader();
+  y = 86;
+
+  // Bloco: Dados da Obra
+  doc.setFont("helvetica", "bold");
   doc.setFontSize(11);
-  doc.text(`Data: ${new Date(report.date).toLocaleDateString()}`, margin, y);
+  doc.text("DADOS DA OBRA", margin, y);
   y += lineH;
-  if (project?.client) {
-    doc.text(`Cliente: ${project.client}`, margin, y);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  const metaLines = [
+    report.reportNumber ? `Nº: ${report.reportNumber}` : "",
+    `Data: ${new Date(report.date).toLocaleDateString()}`,
+    project?.client ? `Cliente: ${project.client}` : "",
+    `Gerado em: ${new Date().toLocaleString()}`,
+  ].filter(Boolean);
+  for (const ln of metaLines) {
+    doc.text(ln, margin, y);
     y += lineH;
   }
-  doc.text(`Gerado em: ${new Date().toLocaleString()}`, margin, y);
-  y += lineH + 10;
+  y += 6;
+  doc.setDrawColor(226, 232, 240);
+  doc.line(margin, y, pageWidth - margin, y);
+  y += 14;
 
   const addSection = (label: string, value: string) => {
     if (!value?.trim()) return;
 
     doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
     doc.text(label, margin, y);
     y += lineH;
 
     doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
     const lines = wrapLines(doc, value, maxWidth);
     for (const ln of lines) {
-      if (y > pageHeight - margin) {
-        doc.addPage();
-        y = margin;
+      if (y > pageHeight - margin - 30) {
+        addPage();
       }
       doc.text(ln, margin, y);
       y += lineH;
@@ -107,6 +149,14 @@ export function exportObraReportToPdf(report: ObraReport, project?: Project): vo
     .replaceAll(" ", "-")}-${(project?.name ?? "obra")
     .toLowerCase()
     .replaceAll(" ", "-")}-${report.date}.pdf`;
+
+  // Footer com paginação
+  const totalPages = doc.getNumberOfPages();
+  for (let p = 1; p <= totalPages; p++) {
+    doc.setPage(p);
+    drawFooter(p, totalPages);
+  }
+
   doc.save(fileName);
 }
 

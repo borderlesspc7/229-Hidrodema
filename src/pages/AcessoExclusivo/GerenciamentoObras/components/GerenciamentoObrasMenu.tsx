@@ -20,6 +20,8 @@ export type MenuCounts = {
   projects: number;
   diaries: number;
   inventory: number;
+  inventoryLow: number;
+  inventoryCritical: number;
   budgets: number;
   suppliers: number;
   checklists: number;
@@ -109,6 +111,12 @@ export default function GerenciamentoObrasMenu({
             </div>
             <p>Controle de estoque de materiais</p>
             <span className="obras-entry-count">{counts.inventory} itens</span>
+            {(counts.inventoryLow > 0 || counts.inventoryCritical > 0) && (
+              <span className="obras-entry-count" style={{ marginTop: 6 }}>
+                <FiAlertTriangle style={{ marginRight: 6 }} />
+                {counts.inventoryCritical} crítico / {counts.inventoryLow} baixo
+              </span>
+            )}
           </div>
         </Card>
 

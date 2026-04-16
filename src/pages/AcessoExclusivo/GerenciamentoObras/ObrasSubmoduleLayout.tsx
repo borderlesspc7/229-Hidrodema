@@ -19,7 +19,10 @@ export default function ObrasSubmoduleLayout({ title, subtitle, children }: Prop
         <Button
           variant="secondary"
           className="obras-back-button"
-          onClick={() => navigate(paths.obras.base)}
+          onClick={() => {
+            if (window.history.length > 1) navigate(-1);
+            else navigate(paths.obras.base);
+          }}
         >
           <FiArrowLeft size={16} />
           Voltar

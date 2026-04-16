@@ -22,6 +22,8 @@ export type GerenciamentoObrasViewMode =
   | "reports-completion-new"
   | "reports-completion-edit"
   | "new-inventory"
+  | "inventory-entry"
+  | "inventory-movements"
   | "new-budget"
   | "new-supplier"
   | "new-quality";

@@ -5,13 +5,16 @@ import {
   setDoc,
   deleteDoc,
   writeBatch,
+  runTransaction,
 } from "firebase/firestore";
 import { db } from "../lib/firebaseconfig";
 import { sanitizeForDatabase } from "../lib/validation";
+import { sortByCreatedAtDesc } from "../lib/firestoreSort";
 import type {
   Budget,
   DiaryEntry,
   InventoryItem,
+  InventoryMovement,
   ObraReport,
   QualityChecklist,
   Supplier,
@@ -23,6 +26,8 @@ const C_BUDGETS = "obrasBudgets";
 const C_SUPPLIERS = "obrasSuppliers";
 const C_QUALITY = "obrasQualityChecklists";
 const C_REPORTS = "obrasReports";
+const C_INVENTORY_MOVEMENTS = "obrasInventoryMovements";
+const C_COUNTERS = "obrasCounters";
 
 const LS_KEYS = {
   diaries: "obrasDiaries",
@@ -31,6 +36,7 @@ const LS_KEYS = {
   suppliers: "obrasSuppliers",
   quality: "obrasQualityChecklists",
   reports: "obrasReports",
+  inventoryMovements: "obrasInventoryMovements",
 } as const;
 
 const BATCH_MAX = 450;
@@ -97,14 +103,16 @@ function sortDiaries(entries: DiaryEntry[]): DiaryEntry[] {
 export async function loadGerenciamentoModuleData(): Promise<{
   diaries: DiaryEntry[];
   inventory: InventoryItem[];
+  inventoryMovements: InventoryMovement[];
   budgets: Budget[];
   suppliers: Supplier[];
   qualityChecklists: QualityChecklist[];
   reports: ObraReport[];
 }> {
-  const [dSnap, iSnap, bSnap, sSnap, qSnap, rSnap] = await Promise.all([
+  const [dSnap, iSnap, mSnap, bSnap, sSnap, qSnap, rSnap] = await Promise.all([
     getDocs(collection(db, C_DIARIES)),
     getDocs(collection(db, C_INVENTORY)),
+    getDocs(collection(db, C_INVENTORY_MOVEMENTS)),
     getDocs(collection(db, C_BUDGETS)),
     getDocs(collection(db, C_SUPPLIERS)),
     getDocs(collection(db, C_QUALITY)),
@@ -114,21 +122,35 @@ export async function loadGerenciamentoModuleData(): Promise<{
   const diaries = sortDiaries(
     dSnap.docs.map((d) => ({ id: d.id, ...d.data() }) as DiaryEntry)
   );
-  const inventory = iSnap.docs.map(
+  const inventory = iSnap.docs
+    .map(
     (d) => ({ id: d.id, ...d.data() }) as InventoryItem
+    )
+    .sort(
+      (a, b) =>
+        new Date(b.lastUpdated || 0).getTime() -
+        new Date(a.lastUpdated || 0).getTime()
+    );
+  const inventoryMovements = sortByCreatedAtDesc(
+    mSnap.docs.map((d) => ({ id: d.id, ...d.data() }) as InventoryMovement)
   );
-  const budgets = bSnap.docs.map((d) => ({ id: d.id, ...d.data() }) as Budget);
-  const suppliers = sSnap.docs.map(
-    (d) => ({ id: d.id, ...d.data() }) as Supplier
+  const budgets = sortByCreatedAtDesc(
+    bSnap.docs.map((d) => ({ id: d.id, ...d.data() }) as Budget)
   );
-  const qualityChecklists = qSnap.docs.map(
-    (d) => ({ id: d.id, ...d.data() }) as QualityChecklist
+  const suppliers = sortByCreatedAtDesc(
+    sSnap.docs.map((d) => ({ id: d.id, ...d.data() }) as Supplier)
   );
-  const reports = rSnap.docs.map((d) => ({ id: d.id, ...d.data() }) as ObraReport);
+  const qualityChecklists = sortByCreatedAtDesc(
+    qSnap.docs.map((d) => ({ id: d.id, ...d.data() }) as QualityChecklist)
+  );
+  const reports = sortByCreatedAtDesc(
+    rSnap.docs.map((d) => ({ id: d.id, ...d.data() }) as ObraReport)
+  );
 
   return {
     diaries,
     inventory,
+    inventoryMovements,
     budgets,
     suppliers,
     qualityChecklists,
@@ -153,6 +175,12 @@ export async function migrateGerenciamentoModuleFromLocalStorage(): Promise<void
       lsKey: LS_KEYS.inventory,
       replace: (items) =>
         replaceByIdCollection(C_INVENTORY, items as InventoryItem[]),
+    },
+    {
+      col: C_INVENTORY_MOVEMENTS,
+      lsKey: LS_KEYS.inventoryMovements,
+      replace: (items) =>
+        replaceByIdCollection(C_INVENTORY_MOVEMENTS, items as InventoryMovement[]),
     },
     {
       col: C_BUDGETS,
@@ -206,6 +234,12 @@ export async function saveInventoryToCloud(
   await replaceByIdCollection(C_INVENTORY, items);
 }
 
+export async function saveInventoryMovementsToCloud(
+  movements: InventoryMovement[]
+): Promise<void> {
+  await replaceByIdCollection(C_INVENTORY_MOVEMENTS, movements);
+}
+
 export async function saveBudgetsToCloud(budgets: Budget[]): Promise<void> {
   await replaceByIdCollection(C_BUDGETS, budgets);
 }
@@ -248,4 +282,48 @@ export async function updateReportInCloud(report: ObraReport): Promise<void> {
 
 export async function deleteReportInCloud(id: string): Promise<void> {
   await deleteDoc(doc(db, C_REPORTS, id));
+}
+
+function padNumber(n: number, width: number): string {
+  const s = String(Math.max(0, Math.trunc(n)));
+  return s.length >= width ? s : "0".repeat(width - s.length) + s;
+}
+
+function formatReportPrefix(type: import("../types/obrasGerenciamentoModule").ObraReportType): string {
+  switch (type) {
+    case "rdo":
+      return "RDO";
+    case "expense":
+      return "DESP";
+    case "hydrostatic-test":
+      return "HIDRO";
+    case "project-completion":
+      return "CONC";
+    default:
+      return "REL";
+  }
+}
+
+/**
+ * Reserva um número sequencial global para relatórios.
+ * Usa transaction para evitar duplicação mesmo com múltiplos usuários.
+ */
+export async function reserveNextReportNumber(params: {
+  type: import("../types/obrasGerenciamentoModule").ObraReportType;
+  date: string; // yyyy-mm-dd
+}): Promise<string> {
+  const { type, date } = params;
+  const ymd = String(date || "").replaceAll("-", "");
+  const ref = doc(db, C_COUNTERS, "reports");
+
+  const nextSeq = await runTransaction(db, async (tx) => {
+    const snap = await tx.get(ref);
+    const current = snap.exists() ? Number((snap.data() as { seq?: unknown }).seq ?? 0) : 0;
+    const next = Number.isFinite(current) ? current + 1 : 1;
+    tx.set(ref, { seq: next, updatedAt: new Date().toISOString() }, { merge: true });
+    return next;
+  });
+
+  const prefix = formatReportPrefix(type);
+  return `${prefix}-${ymd}-${padNumber(nextSeq, 5)}`;
 }

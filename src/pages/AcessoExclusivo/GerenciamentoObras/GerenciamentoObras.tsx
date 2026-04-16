@@ -12,9 +12,11 @@ import {
   createReportInCloud,
   deleteReportInCloud,
   updateReportInCloud,
+  reserveNextReportNumber,
   saveBudgetsToCloud,
   saveDiariesToCloud,
   saveInventoryToCloud,
+  saveInventoryMovementsToCloud,
   saveQualityChecklistsToCloud,
   saveSuppliersToCloud,
 } from "../../../services/obrasGerenciamentoModuleService";
@@ -24,6 +26,7 @@ import type {
   DiaryEntry,
   HydrostaticTestReport,
   InventoryItem,
+  InventoryMovement,
   Material,
   ObraReport,
   ExpenseReport,
@@ -50,6 +53,8 @@ import DiarioObrasHistory from "./components/DiarioObrasHistory";
 import ProjectManagement from "./components/ProjectManagement";
 import InventoryList from "./components/InventoryList";
 import InventoryForm from "./components/InventoryForm";
+import InventoryEntryForm from "./components/InventoryEntryForm";
+import InventoryMovementsList from "./components/InventoryMovementsList";
 import ObrasBudgetsPanel from "./components/ObrasBudgetsPanel";
 import ObrasSuppliersPanel from "./components/ObrasSuppliersPanel";
 import ObrasQualityPanel from "./components/ObrasQualityPanel";
@@ -77,6 +82,7 @@ export default function GerenciamentoObras() {
   // New state for expanded functionality
   const [projects, setProjects] = useState<Project[]>([]);
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
+  const [inventoryMovements, setInventoryMovements] = useState<InventoryMovement[]>([]);
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [qualityChecklists, setQualityChecklists] = useState<
@@ -169,6 +175,7 @@ export default function GerenciamentoObras() {
         if (cancelled) return;
         setDiaryEntries(data.diaries);
         setInventory(data.inventory);
+        setInventoryMovements(data.inventoryMovements ?? []);
         setBudgets(data.budgets);
         setSuppliers(data.suppliers);
         setQualityChecklists(data.qualityChecklists);
@@ -290,6 +297,16 @@ export default function GerenciamentoObras() {
     }
   };
 
+  const saveInventoryMovements = async (items: InventoryMovement[]) => {
+    try {
+      await saveInventoryMovementsToCloud(items);
+      setInventoryMovements(items);
+    } catch (e) {
+      console.error(e);
+      alert("Não foi possível salvar o histórico de estoque no Firebase.");
+    }
+  };
+
   const saveBudgets = async (next: Budget[]) => {
     try {
       await saveBudgetsToCloud(next);
@@ -373,27 +390,39 @@ export default function GerenciamentoObras() {
   };
 
   const createRdoReport = async (report: RDOReport) => {
-    await createReportInCloud(report);
-    setReports((prev) => [...prev, report]);
-    return report;
+    const reportNumber =
+      report.reportNumber ?? (await reserveNextReportNumber({ type: report.type, date: report.date }));
+    const next = { ...report, reportNumber } as RDOReport;
+    await createReportInCloud(next);
+    setReports((prev) => [...prev, next]);
+    return next;
   };
 
   const createExpenseReport = async (report: ExpenseReport) => {
-    await createReportInCloud(report);
-    setReports((prev) => [...prev, report]);
-    return report;
+    const reportNumber =
+      report.reportNumber ?? (await reserveNextReportNumber({ type: report.type, date: report.date }));
+    const next = { ...report, reportNumber } as ExpenseReport;
+    await createReportInCloud(next);
+    setReports((prev) => [...prev, next]);
+    return next;
   };
 
   const createHydrostaticTestReport = async (report: HydrostaticTestReport) => {
-    await createReportInCloud(report);
-    setReports((prev) => [...prev, report]);
-    return report;
+    const reportNumber =
+      report.reportNumber ?? (await reserveNextReportNumber({ type: report.type, date: report.date }));
+    const next = { ...report, reportNumber } as HydrostaticTestReport;
+    await createReportInCloud(next);
+    setReports((prev) => [...prev, next]);
+    return next;
   };
 
   const createProjectCompletionReport = async (report: ProjectCompletionReport) => {
-    await createReportInCloud(report);
-    setReports((prev) => [...prev, report]);
-    return report;
+    const reportNumber =
+      report.reportNumber ?? (await reserveNextReportNumber({ type: report.type, date: report.date }));
+    const next = { ...report, reportNumber } as ProjectCompletionReport;
+    await createReportInCloud(next);
+    setReports((prev) => [...prev, next]);
+    return next;
   };
 
   const resetForm = () => {
@@ -500,7 +529,24 @@ export default function GerenciamentoObras() {
     const files = e.target.files;
     if (!files) return;
 
-    Array.from(files).forEach((file) => {
+    const MAX_FILES_PER_UPLOAD = 10;
+    const MAX_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
+
+    const list = Array.from(files).slice(0, MAX_FILES_PER_UPLOAD);
+    if (files.length > MAX_FILES_PER_UPLOAD) {
+      alert(`Limite de ${MAX_FILES_PER_UPLOAD} fotos por envio. As demais foram ignoradas.`);
+    }
+
+    list.forEach((file) => {
+      if (!file.type.startsWith("image/")) {
+        alert(`Arquivo ignorado (não é imagem): ${file.name}`);
+        return;
+      }
+      if (file.size > MAX_SIZE_BYTES) {
+        alert(`Arquivo muito grande (máx 5MB): ${file.name}`);
+        return;
+      }
+
       const reader = new FileReader();
       reader.onload = (event) => {
         const photo: Photo = {
@@ -513,6 +559,9 @@ export default function GerenciamentoObras() {
       };
       reader.readAsDataURL(file);
     });
+
+    // Permite selecionar a mesma foto novamente
+    e.target.value = "";
   };
 
   const handleRemovePhoto = (id: string) => {
@@ -744,7 +793,8 @@ export default function GerenciamentoObras() {
 
   const handleBack = () => {
     if (viewMode === "menu") {
-      navigate(paths.acessoExclusivo);
+      if (window.history.length > 1) navigate(-1);
+      else navigate(paths.acessoExclusivo);
     } else {
       resetForm();
       setViewMode("menu");
@@ -804,6 +854,62 @@ export default function GerenciamentoObras() {
     };
     await saveInventory([...inventory, newItem]);
     return newItem;
+  };
+
+  const applyInventoryEntry = async (entry: {
+    projectId?: string;
+    itemId: string;
+    receivedAt: string;
+    quantity: number;
+    supplier?: string;
+    category?: string;
+    notes?: string;
+  }) => {
+    const target = inventory.find((i) => i.id === entry.itemId);
+    if (!target) {
+      alert("Selecione um item de estoque válido.");
+      return;
+    }
+    if (!entry.receivedAt) {
+      alert("Informe a data de recebimento.");
+      return;
+    }
+    if (!Number.isFinite(entry.quantity) || entry.quantity <= 0) {
+      alert("Informe uma quantidade válida (maior que zero).");
+      return;
+    }
+
+    const now = new Date().toISOString();
+    const movement: InventoryMovement = {
+      id: Date.now().toString(),
+      projectId: entry.projectId || target.projectId,
+      itemId: target.id,
+      type: "entrada",
+      quantityDelta: entry.quantity,
+      unit: target.unit,
+      supplier: entry.supplier ?? target.supplier ?? "",
+      category: entry.category ?? target.category ?? "",
+      receivedAt: entry.receivedAt,
+      notes: entry.notes ?? "",
+      createdAt: now,
+    };
+
+    const nextInventory = inventory.map((i) =>
+      i.id === target.id
+        ? {
+            ...i,
+            quantity: (i.quantity ?? 0) + entry.quantity,
+            supplier: entry.supplier ?? i.supplier,
+            category: entry.category ?? i.category,
+            lastUpdated: now,
+          }
+        : i
+    );
+    const nextMovements = [movement, ...inventoryMovements];
+
+    await saveInventory(nextInventory);
+    await saveInventoryMovements(nextMovements);
+    alert("Entrada registrada com sucesso!");
   };
 
   // Inventory alerts are derived from scoped inventory via memo below.
@@ -1024,8 +1130,12 @@ export default function GerenciamentoObras() {
 
   const inventoryReport = useMemo(() => generateInventoryReport(), [scopedInventory]);
 
+  const stockCritical = useMemo(
+    () => scopedInventory.filter((item) => (item.quantity ?? 0) <= 0),
+    [scopedInventory]
+  );
   const lowStockAlerts = useMemo(
-    () => scopedInventory.filter((item) => item.quantity <= item.minStock),
+    () => scopedInventory.filter((item) => (item.quantity ?? 0) <= (item.minStock ?? 0)),
     [scopedInventory]
   );
 
@@ -1058,6 +1168,8 @@ export default function GerenciamentoObras() {
             projects: projects.length,
             diaries: diaryEntries.length,
             inventory: inventory.length,
+            inventoryLow: lowStockAlerts.length,
+            inventoryCritical: stockCritical.length,
             budgets: budgets.length,
             suppliers: suppliers.length,
             checklists: qualityChecklists.length,
@@ -1160,6 +1272,26 @@ export default function GerenciamentoObras() {
           inventory={scopedInventory}
           lowStockAlerts={lowStockAlerts}
           projects={projects}
+          setViewMode={setViewMode}
+        />
+      )}
+      {viewMode === "inventory-entry" && (
+        <InventoryEntryForm
+          inventory={scopedInventory}
+          suppliers={suppliers}
+          projects={projects}
+          projectFilterId={projectFilterId}
+          onSubmit={applyInventoryEntry}
+          setViewMode={setViewMode}
+        />
+      )}
+      {viewMode === "inventory-movements" && (
+        <InventoryMovementsList
+          inventory={inventory}
+          movements={inventoryMovements}
+          suppliers={suppliers}
+          projects={projects}
+          projectFilterId={projectFilterId}
           setViewMode={setViewMode}
         />
       )}

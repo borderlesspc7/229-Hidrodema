@@ -87,11 +87,17 @@ export default function ObrasSuppliersPanel({ suppliers, projects, setViewMode }
                 </p>
               </div>
               <div className="obras-supplier-actions">
-                <Button variant="secondary">
+                <Button
+                  variant="secondary"
+                  onClick={() => alert("Edição de fornecedor: em desenvolvimento.")}
+                >
                   <FiEdit3 size={16} />
                   Editar
                 </Button>
-                <Button variant="primary">
+                <Button
+                  variant="primary"
+                  onClick={() => alert("Contato rápido: em desenvolvimento.")}
+                >
                   <FiUsers size={16} />
                   Contatar
                 </Button>

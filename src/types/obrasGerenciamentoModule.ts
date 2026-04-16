@@ -75,6 +75,22 @@ export interface InventoryItem {
   alerts: string[];
 }
 
+export type InventoryMovementType = "entrada" | "saida" | "ajuste";
+
+export interface InventoryMovement {
+  id: string;
+  projectId?: string;
+  itemId: string;
+  type: InventoryMovementType;
+  quantityDelta: number; // positivo (entrada) | negativo (saida) | pode ser +/- (ajuste)
+  unit: string;
+  supplier?: string;
+  category?: string;
+  receivedAt: string; // yyyy-mm-dd
+  notes?: string;
+  createdAt: string;
+}
+
 export interface Budget {
   id: string;
   projectId: string;
@@ -152,6 +168,7 @@ export type ObraReportType =
 
 export interface ObraReportBase {
   id: string;
+  reportNumber?: string; // numeração sequencial (ex: RDO-20260416-00001)
   type: ObraReportType;
   projectId: string;
   date: string; // yyyy-mm-dd

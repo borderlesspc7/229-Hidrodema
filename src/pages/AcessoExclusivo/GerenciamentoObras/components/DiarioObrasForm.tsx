@@ -1,3 +1,4 @@
+import { useState } from "react";
 import Button from "../../../../components/ui/Button/Button";
 import Input from "../../../../components/ui/Input/Input";
 import Card from "../../../../components/ui/Card/Card";
@@ -55,6 +56,7 @@ type Props = {
 };
 
 export default function DiarioObrasForm(props: Props) {
+  const [previewPhoto, setPreviewPhoto] = useState<Photo | null>(null);
   const {
     editingEntry,
     projects,
@@ -314,7 +316,14 @@ export default function DiarioObrasForm(props: Props) {
               <div className="obras-photos-grid">
                 {photos.map((photo) => (
                   <div key={photo.id} className="obras-photo-item">
-                    <img src={photo.dataUrl} alt={photo.name} />
+                    <button
+                      type="button"
+                      onClick={() => setPreviewPhoto(photo)}
+                      className="obras-photo-preview-btn"
+                      aria-label="Abrir foto"
+                    >
+                      <img src={photo.dataUrl} alt={photo.name} />
+                    </button>
                     <input
                       type="text"
                       placeholder="Descrição da foto"
@@ -336,6 +345,41 @@ export default function DiarioObrasForm(props: Props) {
               </div>
             )}
           </div>
+
+          {previewPhoto && (
+            <div
+              className="obras-photo-modal"
+              role="dialog"
+              aria-modal="true"
+              onClick={() => setPreviewPhoto(null)}
+            >
+              <div
+                className="obras-photo-modal-content"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="obras-photo-modal-header">
+                  <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                    <strong>{previewPhoto.description || previewPhoto.name}</strong>
+                    <span style={{ fontSize: 12, opacity: 0.8 }}>
+                      {previewPhoto.name}
+                    </span>
+                  </div>
+                  <Button
+                    variant="secondary"
+                    onClick={() => setPreviewPhoto(null)}
+                    className="obras-action-btn"
+                  >
+                    Fechar
+                  </Button>
+                </div>
+                <img
+                  src={previewPhoto.dataUrl}
+                  alt={previewPhoto.name}
+                  className="obras-photo-modal-img"
+                />
+              </div>
+            </div>
+          )}
 
           <div className="obras-section">
             <h3 className="obras-section-title">

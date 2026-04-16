@@ -71,11 +71,17 @@ export default function ObrasQualityPanel({
                 </p>
               </div>
               <div className="obras-quality-actions">
-                <Button variant="secondary">
+                <Button
+                  variant="secondary"
+                  onClick={() => alert("Edição de checklist: em desenvolvimento.")}
+                >
                   <FiEdit3 size={16} />
                   Editar
                 </Button>
-                <Button variant="primary">
+                <Button
+                  variant="primary"
+                  onClick={() => alert("Execução/inspeção: em desenvolvimento.")}
+                >
                   <FiTarget size={16} />
                   Executar
                 </Button>

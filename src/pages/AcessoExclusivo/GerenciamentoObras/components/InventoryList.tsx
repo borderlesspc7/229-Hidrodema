@@ -8,8 +8,11 @@ import {
   FiPackage,
   FiEdit3,
   FiShoppingCart,
+  FiTrendingUp,
+  FiList,
 } from "react-icons/fi";
 import ProjectBadge from "./ProjectBadge";
+import { useMemo, useState } from "react";
 
 type Props = {
   inventory: InventoryItem[];
@@ -18,12 +21,29 @@ type Props = {
   setViewMode: (mode: GerenciamentoObrasViewMode) => void;
 };
 
+function getStockStatus(item: InventoryItem) {
+  const q = Number(item.quantity ?? 0);
+  const min = Number(item.minStock ?? 0);
+  if (q <= 0) return { key: "out", label: "Sem estoque", severity: 3 };
+  if (min > 0 && q <= min) return { key: "critical", label: "Crítico", severity: 2 };
+  if (min > 0 && q <= min * 1.2) return { key: "low", label: "Baixo", severity: 1 };
+  return { key: "normal", label: "Normal", severity: 0 };
+}
+
 export default function InventoryList({
   inventory,
   lowStockAlerts,
   projects,
   setViewMode,
 }: Props) {
+  const [onlyAlerts, setOnlyAlerts] = useState(false);
+
+  const filteredInventory = useMemo(() => {
+    if (!onlyAlerts) return inventory;
+    const ids = new Set(lowStockAlerts.map((i) => i.id));
+    return inventory.filter((i) => ids.has(i.id));
+  }, [inventory, lowStockAlerts, onlyAlerts]);
+
   return (
     <div className="obras-inventory-container">
       <div className="obras-inventory-header">
@@ -53,10 +73,36 @@ export default function InventoryList({
           <FiPlus size={20} />
           Novo Item
         </Button>
+        <Button
+          variant="secondary"
+          onClick={() => setViewMode("inventory-entry")}
+          className="obras-create-btn"
+        >
+          <FiTrendingUp size={20} />
+          Entrada de Materiais
+        </Button>
+        <Button
+          variant="secondary"
+          onClick={() => setViewMode("inventory-movements")}
+          className="obras-create-btn"
+        >
+          <FiList size={20} />
+          Histórico
+        </Button>
+        {lowStockAlerts.length > 0 && (
+          <Button
+            variant={onlyAlerts ? "primary" : "secondary"}
+            onClick={() => setOnlyAlerts((v) => !v)}
+            className="obras-create-btn"
+          >
+            <FiAlertTriangle size={20} />
+            {onlyAlerts ? "Ver Todos" : "Só Alertas"}
+          </Button>
+        )}
       </div>
 
       <div className="obras-inventory-grid">
-        {inventory.length === 0 ? (
+        {filteredInventory.length === 0 ? (
           <div className="obras-empty-state">
             <div className="obras-empty-icon">
               <FiPackage size={64} />
@@ -71,20 +117,28 @@ export default function InventoryList({
             </Button>
           </div>
         ) : (
-          inventory.map((item) => (
+          filteredInventory.map((item) => (
             <div key={item.id} className="obras-inventory-item">
               <div className="obras-item-header">
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   <h3>{item.name}</h3>
                   <ProjectBadge projectId={item.projectId} projects={projects} />
                 </div>
-                <span
-                  className={`obras-item-status ${
-                    item.quantity <= item.minStock ? "low-stock" : "normal"
-                  }`}
-                >
-                  {item.quantity <= item.minStock ? "Estoque Baixo" : "Normal"}
-                </span>
+                {(() => {
+                  const s = getStockStatus(item);
+                  const title =
+                    s.key === "normal"
+                      ? "Dentro do limite"
+                      : `Status: ${s.label} (Qtd: ${item.quantity} / Mín: ${item.minStock})`;
+                  return (
+                    <span
+                      className={`obras-item-status ${s.key}`}
+                      title={title}
+                    >
+                      {s.label}
+                    </span>
+                  );
+                })()}
               </div>
               <div className="obras-item-info">
                 <p>

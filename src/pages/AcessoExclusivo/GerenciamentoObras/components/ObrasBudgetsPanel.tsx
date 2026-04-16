@@ -79,11 +79,17 @@ export default function ObrasBudgetsPanel({ budgets, setViewMode }: Props) {
                 </div>
               </div>
               <div className="obras-budget-actions">
-                <Button variant="secondary">
+                <Button
+                  variant="secondary"
+                  onClick={() => alert("Edição de orçamento: em desenvolvimento.")}
+                >
                   <FiEdit3 size={16} />
                   Editar
                 </Button>
-                <Button variant="primary">
+                <Button
+                  variant="primary"
+                  onClick={() => alert("Detalhes do orçamento: em desenvolvimento.")}
+                >
                   <FiPieChart size={16} />
                   Detalhes
                 </Button>

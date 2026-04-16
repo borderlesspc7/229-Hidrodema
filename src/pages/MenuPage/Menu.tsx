@@ -6,6 +6,7 @@ import Card from "../../components/ui/Card/Card";
 import Button from "../../components/ui/Button/Button";
 import { useState } from "react";
 import Toast from "../../components/ui/Toast/Toast";
+import { features } from "../../lib/features";
 
 export default function Menu() {
   const { logout, user } = useAuth();
@@ -68,25 +69,29 @@ export default function Menu() {
           size="large"
           onClick={() => navigate(paths.service)}
         />
-        <Card
-          variant="technology"
-          title="Hidro"
-          subtitle="meeting"
-          description="Tecnologia em termoplasticos industriais"
-          backgroundColor="#2c5f5f"
-          textColor="#fff"
-          size="large"
-          onClick={() => handleCardClick(paths.meeting)}
-        />
-        <Card
-          variant="marketing"
-          title="Marketing"
-          description="Gerencie seu marketing"
-          backgroundColor="#fff"
-          textColor="#000"
-          size="large"
-          onClick={() => handleCardClick(paths.marketing)}
-        />
+        {features.meeting && (
+          <Card
+            variant="technology"
+            title="Hidro"
+            subtitle="meeting"
+            description="Tecnologia em termoplasticos industriais"
+            backgroundColor="#2c5f5f"
+            textColor="#fff"
+            size="large"
+            onClick={() => handleCardClick(paths.meeting)}
+          />
+        )}
+        {features.marketing && (
+          <Card
+            variant="marketing"
+            title="Marketing"
+            description="Gerencie seu marketing"
+            backgroundColor="#fff"
+            textColor="#000"
+            size="large"
+            onClick={() => handleCardClick(paths.marketing)}
+          />
+        )}
       </div>
       <div className="menu-footer">
         <Button
