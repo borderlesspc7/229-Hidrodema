@@ -20,7 +20,7 @@ export default function Register() {
   // Redireciona para o menu se já estiver logado
   useEffect(() => {
     if (user) {
-      navigate(paths.menu);
+      navigate(paths.menu, { replace: true });
     }
   }, [user, navigate]);
 

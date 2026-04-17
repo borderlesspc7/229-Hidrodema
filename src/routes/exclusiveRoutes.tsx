@@ -2,7 +2,9 @@ import { Route, Routes } from "react-router-dom";
 import SolicitacaoServicos from "../pages/AcessoExclusivo/SolicitacaoServicos/SolicitacaoServicos";
 import RelatorioVisitas from "../pages/AcessoExclusivo/RelatorioVisitas/RelatorioVisitas";
 import EqualizadorServicos from "../pages/AcessoExclusivo/EqualizadorServicos/EqualizadorServicos";
+import GestaoVendedores from "../pages/AcessoExclusivo/GestaoVendedores/GestaoVendedores";
 import GerenciamentoObras from "../pages/AcessoExclusivo/GerenciamentoObras/GerenciamentoObras";
+import { RoleRoute } from "./RoleRoute";
 import MedicoesPage from "../pages/AcessoExclusivo/GerenciamentoObras/MedicoesPage/MedicoesPage";
 import ProblemasPage from "../pages/AcessoExclusivo/GerenciamentoObras/ProblemasPage/ProblemasPage";
 import DocumentosPage from "../pages/AcessoExclusivo/GerenciamentoObras/DocumentosPage/DocumentosPage";
@@ -31,6 +33,14 @@ export default function ExclusiveRoutes() {
       />
       <Route path="equalizador-servico" element={<EqualizadorServicos />} />
       <Route path="solicitacao-servicos" element={<SolicitacaoServicos />} />
+      <Route
+        path="gestao-vendedores"
+        element={
+          <RoleRoute allow={["admin", "gestor"]}>
+            <GestaoVendedores />
+          </RoleRoute>
+        }
+      />
     </Routes>
   );
 }

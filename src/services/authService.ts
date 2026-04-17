@@ -61,7 +61,7 @@ export const authService = {
       const userDoc = await getDoc(doc(db, "users", firebaseUser.uid));
 
       if (!userDoc.exists()) {
-        throw new Error("User not found");
+        throw new Error("USER_DOC_MISSING");
       }
 
       const userData = userDoc.data() as User;

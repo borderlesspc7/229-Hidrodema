@@ -3,14 +3,19 @@ interface FirebaseError {
   message?: string;
 }
 
+/** Mensagens para códigos atuais do Firebase Auth (incl. invalid-credential unificado). */
 export default function getFirebaseErrorMessage(
   error: string | FirebaseError
 ): string {
   if (typeof error === "string") {
+    if (error === "USER_DOC_MISSING") {
+      return "Conta autenticada, mas não há perfil no sistema. Contacte o administrador.";
+    }
     return error;
   }
 
   const errorCode = error?.code || "";
+  const rawMsg = (error?.message ?? "").toLowerCase();
 
   switch (errorCode) {
     case "auth/user-not-found":
@@ -18,6 +23,10 @@ export default function getFirebaseErrorMessage(
 
     case "auth/wrong-password":
       return "Senha incorreta. Tente novamente.";
+
+    case "auth/invalid-credential":
+    case "auth/invalid-login-credentials":
+      return "E-mail ou senha incorretos. Tente novamente.";
 
     case "auth/invalid-email":
       return "Email inválido. Verifique o formato.";
@@ -32,9 +41,21 @@ export default function getFirebaseErrorMessage(
       return "Erro de conexão. Verifique sua internet.";
 
     case "auth/invalid-api-key":
-      return "Erro de configuração. Entre em contato com o suporte.";
+      return "Chave API inválida ou restrições na Google Cloud. Verifique o .env e as restrições da chave (localhost).";
+
+    case "auth/operation-not-allowed":
+      return "Login por e-mail e senha não está ativo no Firebase. Ative em Authentication → Sign-in method.";
+
+    case "auth/configuration-not-found":
+      return "Projeto Firebase ou domínio de autenticação incorreto. Verifique authDomain e projectId no .env.";
 
     default:
+      if (rawMsg.includes("api key") || rawMsg.includes("api_key")) {
+        return "Problema com a API key (inválida ou bloqueada por referrer). Verifique credenciais na Google Cloud.";
+      }
+      if (rawMsg.includes("blocked") || rawMsg.includes("billing")) {
+        return "Pedido bloqueado pelo Firebase. Verifique consola do projeto e faturação.";
+      }
       return "Erro inesperado. Tente novamente.";
   }
 }

@@ -1,7 +1,8 @@
 import "./PesoTubos.css";
-import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Button from "../../../components/ui/Button/Button";
+import { useNavigateBack } from "../../../hooks/useNavigateBack";
+import { paths } from "../../../routes/paths";
 import {
   FaTruck,
   FaBolt,
@@ -12,12 +13,7 @@ import {
 } from "react-icons/fa";
 
 export default function PesoTubos() {
-  const navigate = useNavigate();
-
-  const handleBack = () => {
-    if (window.history.length > 1) navigate(-1);
-    else navigate("/service");
-  };
+  const handleBack = useNavigateBack(paths.service);
 
   // Dados da tabela de pesos dos tubos
   const pipeData = {

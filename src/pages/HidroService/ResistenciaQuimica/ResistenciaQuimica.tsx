@@ -1,7 +1,8 @@
 import "./ResistenciaQuimica.css";
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Button from "../../../components/ui/Button/Button";
+import { useNavigateBack } from "../../../hooks/useNavigateBack";
+import { paths } from "../../../routes/paths";
 import {
   FaFlask,
   FaSearch,
@@ -14,14 +15,10 @@ import {
 } from "react-icons/fa";
 
 export default function ResistenciaQuimica() {
-  const navigate = useNavigate();
+  const handleBack = useNavigateBack(paths.service);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedMaterial, setSelectedMaterial] = useState("all");
   const [selectedResistance, setSelectedResistance] = useState("all");
-
-  const handleBack = () => {
-    navigate("/service");
-  };
 
   // Dados de resistência química baseados nos catálogos Amanco
   const chemicalResistanceData = [

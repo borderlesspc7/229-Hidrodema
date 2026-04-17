@@ -1,10 +1,17 @@
+/** admin/gestor: visão macro; vendedor/user: dados próprios (visitas/obras escopadas). */
+export type UserRole = "admin" | "gestor" | "vendedor" | "user";
+
 export interface User {
   uid: string;
   name: string;
   email: string;
   createdAt: Date;
   updatedAt: Date;
-  role?: "admin" | "user";
+  role?: UserRole;
+  /** Código comercial (ex.: prefixo antes do nome nas listas do formulário). */
+  sellerCode?: string;
+  /** ID na API externa de vendedores (mapeamento). */
+  sellerExternalId?: string;
 }
 
 export interface AuthState {
@@ -22,5 +29,5 @@ export interface RegisterCredentials extends LoginCredentials {
   name: string;
   confirmPassword?: string; // Opcional, usado apenas para validação local
   phone?: string;
-  role?: "admin" | "user";
+  role?: UserRole;
 }

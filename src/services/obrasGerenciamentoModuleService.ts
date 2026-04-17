@@ -10,12 +10,17 @@ import {
 import { db } from "../lib/firebaseconfig";
 import { sanitizeForDatabase } from "../lib/validation";
 import { sortByCreatedAtDesc } from "../lib/firestoreSort";
+import {
+  REPORT_COUNTER_TYPES,
+  buildReportNumber,
+} from "../lib/obraReportNumber";
 import type {
   Budget,
   DiaryEntry,
   InventoryItem,
   InventoryMovement,
   ObraReport,
+  ObraReportType,
   QualityChecklist,
   Supplier,
 } from "../types/obrasGerenciamentoModule";
@@ -284,46 +289,53 @@ export async function deleteReportInCloud(id: string): Promise<void> {
   await deleteDoc(doc(db, C_REPORTS, id));
 }
 
-function padNumber(n: number, width: number): string {
-  const s = String(Math.max(0, Math.trunc(n)));
-  return s.length >= width ? s : "0".repeat(width - s.length) + s;
-}
-
-function formatReportPrefix(type: import("../types/obrasGerenciamentoModule").ObraReportType): string {
-  switch (type) {
-    case "rdo":
-      return "RDO";
-    case "expense":
-      return "DESP";
-    case "hydrostatic-test":
-      return "HIDRO";
-    case "project-completion":
-      return "CONC";
-    default:
-      return "REL";
-  }
-}
+type ReportsCounterDoc = {
+  /** Legado: contador único global (migrado para seqByType na primeira reserva). */
+  seq?: number;
+  /** Contador por tipo — evita “saltos” entre tipos e melhora rastreio. */
+  seqByType?: Partial<Record<ObraReportType, number>>;
+  updatedAt?: string;
+};
 
 /**
- * Reserva um número sequencial global para relatórios.
- * Usa transaction para evitar duplicação mesmo com múltiplos usuários.
+ * Reserva um número sequencial por tipo de relatório (documento `obrasCounters/reports`).
+ * Usa transação Firestore para evitar duplicidade com vários utilizadores em paralelo.
+ * Migra `seq` legado para `seqByType` na primeira utilização.
  */
 export async function reserveNextReportNumber(params: {
-  type: import("../types/obrasGerenciamentoModule").ObraReportType;
+  type: ObraReportType;
   date: string; // yyyy-mm-dd
 }): Promise<string> {
   const { type, date } = params;
-  const ymd = String(date || "").replaceAll("-", "");
   const ref = doc(db, C_COUNTERS, "reports");
 
   const nextSeq = await runTransaction(db, async (tx) => {
     const snap = await tx.get(ref);
-    const current = snap.exists() ? Number((snap.data() as { seq?: unknown }).seq ?? 0) : 0;
-    const next = Number.isFinite(current) ? current + 1 : 1;
-    tx.set(ref, { seq: next, updatedAt: new Date().toISOString() }, { merge: true });
+    const raw = snap.exists() ? (snap.data() as ReportsCounterDoc) : {};
+    const legacy = Number.isFinite(Number(raw.seq)) ? Math.max(0, Math.trunc(Number(raw.seq))) : 0;
+    const prevByType = { ...(raw.seqByType ?? {}) } as Partial<Record<ObraReportType, number>>;
+
+    for (const t of REPORT_COUNTER_TYPES) {
+      if (prevByType[t] == null) {
+        prevByType[t] = legacy;
+      }
+    }
+
+    const cur = Number(prevByType[type]);
+    const base = Number.isFinite(cur) ? cur : 0;
+    const next = base + 1;
+    prevByType[type] = next;
+
+    tx.set(
+      ref,
+      {
+        seqByType: prevByType,
+        updatedAt: new Date().toISOString(),
+      },
+      { merge: true }
+    );
     return next;
   });
 
-  const prefix = formatReportPrefix(type);
-  return `${prefix}-${ymd}-${padNumber(nextSeq, 5)}`;
+  return buildReportNumber(type, date, nextSeq);
 }

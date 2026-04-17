@@ -2,21 +2,21 @@ import "./AcessoExclusivo.css";
 import { useEffect } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import { useNavigateBack } from "../../hooks/useNavigateBack";
 import { paths } from "../../routes/paths";
 import Button from "../../components/ui/Button/Button";
 import Card from "../../components/ui/Card/Card";
+import { features } from "../../lib/features";
+import { hasMacroVisibility } from "../../lib/rbac";
 
 export default function AcessoExclusivo() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const handleBack = useNavigateBack(paths.menu);
 
   useEffect(() => {
     if (!user) navigate(paths.menu);
   }, [user, navigate]);
-
-  const handleBack = () => {
-    navigate(paths.service);
-  };
 
   return (
     <div className="acesso-exclusivo-container">
@@ -77,6 +77,17 @@ export default function AcessoExclusivo() {
           className="acesso-exclusivo-card"
           onClick={() => navigate("/acesso-exclusivo/solicitacao-servicos")}
         />
+        {features.gestaoVendedores && user && hasMacroVisibility(user) && (
+          <Card
+            variant="service"
+            title="GESTAO DE VENDEDORES (API)"
+            backgroundColor="#eef2ff"
+            textColor="#312e81"
+            size="medium"
+            className="acesso-exclusivo-card"
+            onClick={() => navigate("/acesso-exclusivo/gestao-vendedores")}
+          />
+        )}
       </div>
 
       <div className="acesso-exclusivo-footer">

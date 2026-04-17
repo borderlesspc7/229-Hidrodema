@@ -1,13 +1,10 @@
 import "./EspacamentoSuportes.css";
-import { useNavigate } from "react-router-dom";
 import Button from "../../../components/ui/Button/Button";
+import { useNavigateBack } from "../../../hooks/useNavigateBack";
+import { paths } from "../../../routes/paths";
 
 export default function EspacamentoSuportes() {
-  const navigate = useNavigate();
-
-  const handleBack = () => {
-    navigate("/service");
-  };
+  const handleBack = useNavigateBack(paths.service);
 
   // Dados da tabela de espaçamento de suportes
   const tableData = [

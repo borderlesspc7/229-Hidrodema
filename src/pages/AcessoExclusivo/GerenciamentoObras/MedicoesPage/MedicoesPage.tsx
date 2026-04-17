@@ -11,7 +11,10 @@ import {
   updateObraMedicao,
   type ObraMedicao,
 } from "../../../../services/obrasMedicoesService";
-import { listObraProjects, type ObraProject } from "../../../../services/obrasProjectsService";
+import {
+  listObraProjectsForUser,
+  type ObraProject,
+} from "../../../../services/obrasProjectsService";
 import { FiEdit3, FiPlus, FiTrash2, FiLayers } from "react-icons/fi";
 import "./MedicoesPage.css";
 
@@ -42,16 +45,17 @@ export default function MedicoesPage() {
   const selectedObra = projects.find((p) => p.id === projectId);
 
   useEffect(() => {
-    (async () => {
+    if (!user) return;
+    void (async () => {
       try {
-        const list = await listObraProjects();
+        const list = await listObraProjectsForUser(user);
         setProjects(list);
       } catch (e) {
         console.error(e);
         setProjects([]);
       }
     })();
-  }, []);
+  }, [user]);
 
   const load = useCallback(async () => {
     if (!projectId) {

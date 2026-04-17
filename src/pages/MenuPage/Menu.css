@@ -250,6 +250,17 @@
   z-index: 2;
 }
 
+/* Só Hidro Service visível: card mais largo e destaque (aproveita espaço das abas removidas) */
+.menu-cards--single-main {
+  max-width: min(560px, 100%);
+  gap: 0;
+}
+
+.menu-cards--single-main .card {
+  min-height: 220px;
+  padding: 8px 0;
+}
+
 /* Estilização específica para os cards do menu */
 .menu-cards .card {
   width: 100%;

@@ -8,6 +8,8 @@ import type {
   Project,
   Supplier,
 } from "../../../../types/obrasGerenciamentoModule";
+import type { User } from "../../../../types/user";
+import { canEditReport } from "../../../../lib/reportPermissions";
 import ReportTypeBadge from "./ReportTypeBadge";
 import {
   FiArrowLeft,
@@ -32,6 +34,7 @@ type InventoryReport = {
 };
 
 type Props = {
+  user: User | null;
   projects: Project[];
   diaryEntries: DiaryEntry[];
   inventory: InventoryItem[];
@@ -45,6 +48,7 @@ type Props = {
 };
 
 export default function ObrasReportsPanel({
+  user,
   projects,
   diaryEntries,
   inventory,
@@ -268,6 +272,7 @@ export default function ObrasReportsPanel({
                     const project = projects.find((p) => p.id === r.projectId);
                     const date =
                       "date" in r && typeof r.date === "string" ? r.date : "";
+                    const canEdit = canEditReport(user, r);
                     return (
                       <tr key={r.id}>
                         <td>
@@ -279,8 +284,14 @@ export default function ObrasReportsPanel({
                         <td>
                           <Button
                             variant="secondary"
-                            onClick={() => onEditReport(r)}
+                            onClick={() => canEdit && onEditReport(r)}
+                            disabled={!canEdit}
                             className="obras-remove-btn"
+                            title={
+                              canEdit
+                                ? "Editar"
+                                : "Relatório finalizado — só administradores podem editar."
+                            }
                           >
                             <FiEdit3 size={14} />
                           </Button>

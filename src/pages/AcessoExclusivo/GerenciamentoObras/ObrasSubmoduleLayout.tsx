@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
-import { useNavigate } from "react-router-dom";
 import Button from "../../../components/ui/Button/Button";
 import { FiArrowLeft } from "react-icons/fi";
 import { paths } from "../../../routes/paths";
+import { useNavigateBack } from "../../../hooks/useNavigateBack";
 
 type Props = {
   title: string;
@@ -11,7 +11,7 @@ type Props = {
 };
 
 export default function ObrasSubmoduleLayout({ title, subtitle, children }: Props) {
-  const navigate = useNavigate();
+  const handleBack = useNavigateBack(paths.obras.base);
 
   return (
     <div className="obras-container">
@@ -19,10 +19,7 @@ export default function ObrasSubmoduleLayout({ title, subtitle, children }: Prop
         <Button
           variant="secondary"
           className="obras-back-button"
-          onClick={() => {
-            if (window.history.length > 1) navigate(-1);
-            else navigate(paths.obras.base);
-          }}
+          onClick={handleBack}
         >
           <FiArrowLeft size={16} />
           Voltar

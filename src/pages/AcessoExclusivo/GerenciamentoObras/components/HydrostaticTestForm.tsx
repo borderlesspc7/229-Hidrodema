@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Card from "../../../../components/ui/Card/Card";
 import Button from "../../../../components/ui/Button/Button";
 import Input from "../../../../components/ui/Input/Input";
@@ -13,11 +13,18 @@ import {
   validateObraReportInput,
 } from "../../../../lib/validation";
 import { FiArrowLeft, FiCheckCircle } from "react-icons/fi";
+import {
+  useAutosaveLocalDraft,
+  clearDraftKey,
+  tryLoadDraft,
+} from "../../../../hooks/useAutosaveLocalDraft";
 
 type Props = {
   projects: Project[];
   initialProjectId?: string;
   initialReport?: HydrostaticTestReport;
+  /** Chave localStorage para auto-save (só formulários "novo") */
+  draftStorageKey?: string;
   onCancel: () => void;
   onSubmit: (report: HydrostaticTestReport) => void | Promise<void>;
 };
@@ -26,6 +33,7 @@ export default function HydrostaticTestForm({
   projects,
   initialProjectId = "",
   initialReport,
+  draftStorageKey,
   onCancel,
   onSubmit,
 }: Props) {
@@ -47,6 +55,51 @@ export default function HydrostaticTestForm({
   );
   const [notes, setNotes] = useState(initialReport?.notes ?? "");
 
+  useEffect(() => {
+    if (!draftStorageKey || initialReport) return;
+    const d = tryLoadDraft<{
+      projectId?: string;
+      date?: string;
+      pressure?: string;
+      durationMinutes?: string;
+      result?: HydrostaticTestReport["result"];
+      notes?: string;
+    }>(draftStorageKey);
+    if (!d || (!d.projectId && !d.notes?.trim() && d.pressure === "0" && d.durationMinutes === "0")) return;
+    if (!confirm("Existe um rascunho guardado automaticamente. Restaurar?")) {
+      clearDraftKey(draftStorageKey);
+      return;
+    }
+    if (d.projectId) setProjectId(d.projectId);
+    if (d.date) setDate(d.date);
+    if (d.pressure != null) setPressure(String(d.pressure));
+    if (d.durationMinutes != null) setDurationMinutes(String(d.durationMinutes));
+    if (d.result) setResult(d.result);
+    if (d.notes != null) setNotes(d.notes);
+  }, [draftStorageKey, initialReport]);
+
+  useAutosaveLocalDraft(
+    draftStorageKey && !initialReport ? draftStorageKey : null,
+    () => ({
+      projectId,
+      date,
+      pressure,
+      durationMinutes,
+      result,
+      notes,
+    }),
+    [
+      projectId,
+      date,
+      pressure,
+      durationMinutes,
+      result,
+      notes,
+      draftStorageKey,
+      initialReport,
+    ]
+  );
+
   const handleSave = async () => {
     const base: HydrostaticTestReport = {
       id: initialReport?.id ?? Date.now().toString(),
@@ -59,6 +112,8 @@ export default function HydrostaticTestForm({
       notes,
       createdAt: initialReport?.createdAt ?? new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      finalizedAt: initialReport?.finalizedAt,
+      finalizedByEmail: initialReport?.finalizedByEmail,
     };
 
     const v = validateObraReportInput(base);
@@ -78,6 +133,7 @@ export default function HydrostaticTestForm({
         durationMinutes: d.value,
       })
     );
+    if (draftStorageKey) clearDraftKey(draftStorageKey);
   };
 
   return (
@@ -92,7 +148,14 @@ export default function HydrostaticTestForm({
           <h2 className="obras-form-title">
             {initialReport ? "EDITAR TESTE" : "NOVO TESTE HIDROSTÁTICO"}
           </h2>
-          <p className="obras-form-subtitle">Registro de teste</p>
+          <p className="obras-form-subtitle">
+            Registro de teste
+            {draftStorageKey && !initialReport ? (
+              <span style={{ display: "block", marginTop: 6, fontSize: 12, opacity: 0.85 }}>
+                Rascunho guardado automaticamente a cada ~45 s neste dispositivo.
+              </span>
+            ) : null}
+          </p>
         </div>
 
         <div className="obras-form-content">

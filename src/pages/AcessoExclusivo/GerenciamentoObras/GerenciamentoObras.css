@@ -1645,6 +1645,59 @@
   font-size: 12px;
 }
 
+.obras-gallery-review-actions {
+  margin-top: 16px;
+}
+
+.obras-gallery-review-modal .obras-gallery-review-content {
+  max-width: min(960px, 96vw);
+  max-height: min(88vh, 900px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.obras-gallery-review-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+  overflow-y: auto;
+  padding: 4px 2px 12px;
+  max-height: calc(88vh - 120px);
+}
+
+.obras-gallery-review-tile {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(15, 23, 42, 0.6);
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+  color: #e2e8f0;
+  font-size: 11px;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.obras-gallery-review-tile:hover {
+  transform: translateY(-2px);
+  border-color: rgba(56, 189, 248, 0.5);
+}
+
+.obras-gallery-review-tile img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  display: block;
+}
+
+.obras-gallery-review-tile span {
+  display: block;
+  padding: 8px 10px 10px;
+  line-height: 1.3;
+}
+
 /* Report type badge */
 .obras-report-type {
   display: inline-flex;

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Card from "../../../../components/ui/Card/Card";
 import Button from "../../../../components/ui/Button/Button";
 import Input from "../../../../components/ui/Input/Input";
@@ -11,11 +11,18 @@ import {
   validateRequiredText,
 } from "../../../../lib/validation";
 import { FiArrowLeft, FiCheckCircle } from "react-icons/fi";
+import {
+  useAutosaveLocalDraft,
+  clearDraftKey,
+  tryLoadDraft,
+} from "../../../../hooks/useAutosaveLocalDraft";
 
 type Props = {
   projects: Project[];
   initialProjectId?: string;
   initialReport?: ExpenseReport;
+  /** Chave localStorage para auto-save (só formulários "novo") */
+  draftStorageKey?: string;
   onCancel: () => void;
   onSubmit: (report: ExpenseReport) => void | Promise<void>;
 };
@@ -24,6 +31,7 @@ export default function ExpenseForm({
   projects,
   initialProjectId = "",
   initialReport,
+  draftStorageKey,
   onCancel,
   onSubmit,
 }: Props) {
@@ -39,6 +47,42 @@ export default function ExpenseForm({
   const [amount, setAmount] = useState(String(initialReport?.amount ?? 0));
   const [notes, setNotes] = useState(initialReport?.notes ?? "");
 
+  useEffect(() => {
+    if (!draftStorageKey || initialReport) return;
+    const d = tryLoadDraft<{
+      projectId?: string;
+      date?: string;
+      description?: string;
+      category?: string;
+      amount?: string;
+      notes?: string;
+    }>(draftStorageKey);
+    if (!d || (!d.projectId && !d.description?.trim() && !d.category?.trim())) return;
+    if (!confirm("Existe um rascunho guardado automaticamente. Restaurar?")) {
+      clearDraftKey(draftStorageKey);
+      return;
+    }
+    if (d.projectId) setProjectId(d.projectId);
+    if (d.date) setDate(d.date);
+    if (d.description != null) setDescription(d.description);
+    if (d.category != null) setCategory(d.category);
+    if (d.amount != null) setAmount(String(d.amount));
+    if (d.notes != null) setNotes(d.notes);
+  }, [draftStorageKey, initialReport]);
+
+  useAutosaveLocalDraft(
+    draftStorageKey && !initialReport ? draftStorageKey : null,
+    () => ({
+      projectId,
+      date,
+      description,
+      category,
+      amount,
+      notes,
+    }),
+    [projectId, date, description, category, amount, notes, draftStorageKey, initialReport]
+  );
+
   const handleSave = async () => {
     const base: ExpenseReport = {
       id: initialReport?.id ?? Date.now().toString(),
@@ -51,6 +95,8 @@ export default function ExpenseForm({
       notes,
       createdAt: initialReport?.createdAt ?? new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      finalizedAt: initialReport?.finalizedAt,
+      finalizedByEmail: initialReport?.finalizedByEmail,
     };
 
     const v = validateObraReportInput(base);
@@ -72,6 +118,7 @@ export default function ExpenseForm({
         amount: money.value,
       })
     );
+    if (draftStorageKey) clearDraftKey(draftStorageKey);
   };
 
   return (
@@ -79,7 +126,14 @@ export default function ExpenseForm({
       <Card variant="service" className="obras-form-card" title="" textColor="#1e293b">
         <div className="obras-form-header">
           <h2 className="obras-form-title">{initialReport ? "EDITAR DESPESA" : "NOVA DESPESA"}</h2>
-          <p className="obras-form-subtitle">Despesa vinculada à obra</p>
+          <p className="obras-form-subtitle">
+            Despesa vinculada à obra
+            {draftStorageKey && !initialReport ? (
+              <span style={{ display: "block", marginTop: 6, fontSize: 12, opacity: 0.85 }}>
+                Rascunho guardado automaticamente a cada ~45 s neste dispositivo.
+              </span>
+            ) : null}
+          </p>
         </div>
 
         <div className="obras-form-content">

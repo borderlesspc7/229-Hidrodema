@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Card from "../../../../components/ui/Card/Card";
 import Button from "../../../../components/ui/Button/Button";
 import Input from "../../../../components/ui/Input/Input";
@@ -13,11 +13,18 @@ import {
   validateRequiredText,
 } from "../../../../lib/validation";
 import { FiArrowLeft, FiCheckCircle } from "react-icons/fi";
+import {
+  useAutosaveLocalDraft,
+  clearDraftKey,
+  tryLoadDraft,
+} from "../../../../hooks/useAutosaveLocalDraft";
 
 type Props = {
   projects: Project[];
   initialProjectId?: string;
   initialReport?: ProjectCompletionReport;
+  /** Chave localStorage para auto-save (só formulários "novo") */
+  draftStorageKey?: string;
   onCancel: () => void;
   onSubmit: (report: ProjectCompletionReport) => void | Promise<void>;
 };
@@ -26,6 +33,7 @@ export default function ProjectCompletionForm({
   projects,
   initialProjectId = "",
   initialReport,
+  draftStorageKey,
   onCancel,
   onSubmit,
 }: Props) {
@@ -44,6 +52,39 @@ export default function ProjectCompletionForm({
   const [summary, setSummary] = useState(initialReport?.summary ?? "");
   const [pendingItems, setPendingItems] = useState(initialReport?.pendingItems ?? "");
 
+  useEffect(() => {
+    if (!draftStorageKey || initialReport) return;
+    const d = tryLoadDraft<{
+      projectId?: string;
+      date?: string;
+      finalStatus?: ProjectCompletionReport["finalStatus"];
+      summary?: string;
+      pendingItems?: string;
+    }>(draftStorageKey);
+    if (!d || (!d.projectId && !d.summary?.trim() && !d.pendingItems?.trim())) return;
+    if (!confirm("Existe um rascunho guardado automaticamente. Restaurar?")) {
+      clearDraftKey(draftStorageKey);
+      return;
+    }
+    if (d.projectId) setProjectId(d.projectId);
+    if (d.date) setDate(d.date);
+    if (d.finalStatus) setFinalStatus(d.finalStatus);
+    if (d.summary != null) setSummary(d.summary);
+    if (d.pendingItems != null) setPendingItems(d.pendingItems);
+  }, [draftStorageKey, initialReport]);
+
+  useAutosaveLocalDraft(
+    draftStorageKey && !initialReport ? draftStorageKey : null,
+    () => ({
+      projectId,
+      date,
+      finalStatus,
+      summary,
+      pendingItems,
+    }),
+    [projectId, date, finalStatus, summary, pendingItems, draftStorageKey, initialReport]
+  );
+
   const handleSave = async () => {
     const base: ProjectCompletionReport = {
       id: initialReport?.id ?? Date.now().toString(),
@@ -55,6 +96,8 @@ export default function ProjectCompletionForm({
       pendingItems,
       createdAt: initialReport?.createdAt ?? new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      finalizedAt: initialReport?.finalizedAt,
+      finalizedByEmail: initialReport?.finalizedByEmail,
     };
 
     const v = validateObraReportInput(base);
@@ -69,6 +112,7 @@ export default function ProjectCompletionForm({
         summary: s.value,
       })
     );
+    if (draftStorageKey) clearDraftKey(draftStorageKey);
   };
 
   return (
@@ -78,7 +122,14 @@ export default function ProjectCompletionForm({
           <h2 className="obras-form-title">
             {initialReport ? "EDITAR CONCLUSÃO" : "CONCLUSÃO DE OBRA"}
           </h2>
-          <p className="obras-form-subtitle">Fechamento e pendências</p>
+          <p className="obras-form-subtitle">
+            Fechamento e pendências
+            {draftStorageKey && !initialReport ? (
+              <span style={{ display: "block", marginTop: 6, fontSize: 12, opacity: 0.85 }}>
+                Rascunho guardado automaticamente a cada ~45 s neste dispositivo.
+              </span>
+            ) : null}
+          </p>
         </div>
 
         <div className="obras-form-content">

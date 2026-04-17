@@ -1,8 +1,10 @@
-import { useState, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../../../hooks/useAuth";
 import Button from "../../../components/ui/Button/Button";
 import {
   listObraProjects,
+  listObraProjectsForUser,
   upsertObraProject,
   updateObraProject,
 } from "../../../services/obrasProjectsService";
@@ -21,6 +23,19 @@ import {
   saveSuppliersToCloud,
 } from "../../../services/obrasGerenciamentoModuleService";
 import { paths } from "../../../routes/paths";
+import { navigateBackOrFallback } from "../../../lib/navigation";
+import { compressImageFile } from "../../../lib/imageCompress";
+import {
+  finalizeDiaryPhotosForFirestore,
+  deleteDiaryPhotoAtPath,
+} from "../../../services/obrasDiaryPhotosService";
+import { getPhotoSrc } from "../../../lib/photoDisplay";
+import {
+  canDeleteFinalizedReport,
+  canEditReport,
+  isReportFinalized,
+} from "../../../lib/reportPermissions";
+import { scheduleCriticalDataBackup } from "../../../lib/criticalDataBackup";
 import type {
   Budget,
   DiaryEntry,
@@ -73,7 +88,9 @@ import ProjectOverview from "./components/ProjectOverview";
 import ProjectFilter from "./components/ProjectFilter";
 
 export default function GerenciamentoObras() {
+  const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [viewMode, setViewMode] =
     useState<GerenciamentoObrasViewMode>("menu");
   const [diaryEntries, setDiaryEntries] = useState<DiaryEntry[]>([]);
@@ -193,9 +210,10 @@ export default function GerenciamentoObras() {
   }, []);
 
   useEffect(() => {
-    (async () => {
+    void (async () => {
+      if (!user) return;
       try {
-        const list = await listObraProjects();
+        const list = await listObraProjectsForUser(user);
         if (list.length > 0) {
           setProjects(list as unknown as Project[]);
           return;
@@ -211,13 +229,14 @@ export default function GerenciamentoObras() {
                 upsertObraProject({
                   ...p,
                   id: p.id,
+                  ownerUid: p.ownerUid ?? user.uid,
                   createdAt: p.createdAt,
                   updatedAt: p.updatedAt,
                 } as unknown as Parameters<typeof upsertObraProject>[0])
               )
             );
             localStorage.removeItem("obrasProjects");
-            const migrated = await listObraProjects();
+            const migrated = await listObraProjectsForUser(user);
             setProjects(migrated as unknown as Project[]);
           }
         }
@@ -225,7 +244,7 @@ export default function GerenciamentoObras() {
         console.error(e);
       }
     })();
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     if (!selectedProjectId) return;
@@ -244,6 +263,37 @@ export default function GerenciamentoObras() {
     setNewQualityChecklist((prev) => ({ ...prev, projectId: prev.projectId || projectFilterId }));
     setNewSupplier((prev) => ({ ...prev, projectId: prev.projectId || projectFilterId }));
   }, [projectFilterId]);
+
+  const criticalBackupRef = useRef({
+    diaryEntries: [] as DiaryEntry[],
+    reports: [] as ObraReport[],
+    inventory: [] as InventoryItem[],
+    budgets: [] as Budget[],
+    suppliers: [] as Supplier[],
+    qualityChecklists: [] as QualityChecklist[],
+  });
+  criticalBackupRef.current = {
+    diaryEntries,
+    reports,
+    inventory,
+    budgets,
+    suppliers,
+    qualityChecklists,
+  };
+
+  useEffect(() => {
+    return scheduleCriticalDataBackup(
+      () => ({
+        diaries: criticalBackupRef.current.diaryEntries,
+        reports: criticalBackupRef.current.reports,
+        inventory: criticalBackupRef.current.inventory,
+        budgets: criticalBackupRef.current.budgets,
+        suppliers: criticalBackupRef.current.suppliers,
+        qualityChecklists: criticalBackupRef.current.qualityChecklists,
+      }),
+      12 * 60 * 1000
+    );
+  }, []);
 
   const scopedDiaryEntries = useMemo(() => {
     if (!projectFilterId) return diaryEntries;
@@ -338,9 +388,16 @@ export default function GerenciamentoObras() {
   };
 
   const deleteReport = async (id: string) => {
+    const r = reports.find((x) => x.id === id);
+    if (r && isReportFinalized(r) && !canDeleteFinalizedReport(user)) {
+      alert(
+        "Relatórios finalizados só podem ser excluídos por um administrador."
+      );
+      return;
+    }
     try {
       await deleteReportInCloud(id);
-      setReports((prev) => prev.filter((r) => r.id !== id));
+      setReports((prev) => prev.filter((x) => x.id !== id));
     } catch (e) {
       console.error(e);
       alert("Não foi possível excluir o relatório no Firebase.");
@@ -348,6 +405,12 @@ export default function GerenciamentoObras() {
   };
 
   const startEditingReport = (report: ObraReport) => {
+    if (user && !canEditReport(user, report)) {
+      alert(
+        "Este relatório está finalizado. Apenas administradores podem editá-lo."
+      );
+      return;
+    }
     setEditingReport(report);
     if (report.type === "rdo") setViewMode("reports-rdo-edit");
     else if (report.type === "expense") setViewMode("reports-expense-edit");
@@ -380,6 +443,12 @@ export default function GerenciamentoObras() {
       const nextUpdatedAt = new Date().toISOString();
       const current = reports.find((r) => r.id === id);
       if (!current) return;
+      if (isReportFinalized(current) && user && !canEditReport(user, current)) {
+        alert(
+          "Este relatório está finalizado. Apenas administradores podem alterá-lo."
+        );
+        return;
+      }
       const merged = { ...current, ...updates, updatedAt: nextUpdatedAt } as ObraReport;
       await updateReportInCloud(merged);
       setReports((prev) => prev.map((r) => (r.id === id ? merged : r)));
@@ -388,6 +457,52 @@ export default function GerenciamentoObras() {
       alert("Não foi possível atualizar o relatório no Firebase.");
     }
   };
+
+  const finalizeReport = async (id: string) => {
+    const current = reports.find((r) => r.id === id);
+    if (!current || isReportFinalized(current)) return;
+    if (
+      !confirm(
+        "Finalizar este relatório? Depois disso, só administradores poderão editá-lo."
+      )
+    ) {
+      return;
+    }
+    const finalizedAt = new Date().toISOString();
+    const finalizedByEmail = user?.email ?? undefined;
+    await updateReport(id, { finalizedAt, finalizedByEmail });
+    setViewingReport((prev) =>
+      prev && prev.id === id
+        ? ({ ...prev, finalizedAt, finalizedByEmail } as ObraReport)
+        : prev
+    );
+  };
+
+  const unlockReportForAdmin = async (id: string) => {
+    if (user?.role !== "admin") return;
+    const current = reports.find((r) => r.id === id);
+    if (!current || !isReportFinalized(current)) return;
+    if (!confirm("Reabrir este relatório para edição?")) return;
+    try {
+      const raw = { ...(current as unknown as Record<string, unknown>) };
+      delete raw.finalizedAt;
+      delete raw.finalizedByEmail;
+      raw.updatedAt = new Date().toISOString();
+      const merged = raw as unknown as ObraReport;
+      await updateReportInCloud(merged);
+      setReports((prev) => prev.map((r) => (r.id === id ? merged : r)));
+      setViewingReport((v) => (v && v.id === id ? merged : v));
+    } catch (e) {
+      console.error(e);
+      alert("Não foi possível reabrir o relatório.");
+    }
+  };
+
+  const draftKey = useCallback(
+    (kind: string) =>
+      user?.uid ? `hidrodema-draft-${kind}-${user.uid}` : undefined,
+    [user?.uid]
+  );
 
   const createRdoReport = async (report: RDOReport) => {
     const reportNumber =
@@ -529,42 +644,50 @@ export default function GerenciamentoObras() {
     const files = e.target.files;
     if (!files) return;
 
-    const MAX_FILES_PER_UPLOAD = 10;
-    const MAX_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
+    const MAX_FILES_PER_UPLOAD = 12;
+    const MAX_ORIGINAL_BYTES = 24 * 1024 * 1024;
 
     const list = Array.from(files).slice(0, MAX_FILES_PER_UPLOAD);
     if (files.length > MAX_FILES_PER_UPLOAD) {
       alert(`Limite de ${MAX_FILES_PER_UPLOAD} fotos por envio. As demais foram ignoradas.`);
     }
 
-    list.forEach((file) => {
-      if (!file.type.startsWith("image/")) {
-        alert(`Arquivo ignorado (não é imagem): ${file.name}`);
-        return;
+    void (async () => {
+      for (const file of list) {
+        if (!file.type.startsWith("image/")) {
+          alert(`Arquivo ignorado (não é imagem): ${file.name}`);
+          continue;
+        }
+        if (file.size > MAX_ORIGINAL_BYTES) {
+          alert(`Arquivo muito grande (máx ~24MB antes da compressão): ${file.name}`);
+          continue;
+        }
+        try {
+          const { dataUrl } = await compressImageFile(file);
+          const id = `${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
+          const photo: Photo = {
+            id,
+            name: file.name.replace(/\.[^.]+$/i, "") + ".jpg",
+            description: "",
+            dataUrl,
+          };
+          setPhotos((prev) => [...prev, photo]);
+        } catch (err) {
+          console.error(err);
+          alert(
+            `Não foi possível processar "${file.name}". Use JPG, PNG, WebP ou GIF.`
+          );
+        }
       }
-      if (file.size > MAX_SIZE_BYTES) {
-        alert(`Arquivo muito grande (máx 5MB): ${file.name}`);
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const photo: Photo = {
-          id: Date.now().toString() + Math.random(),
-          name: file.name,
-          description: "",
-          dataUrl: event.target?.result as string,
-        };
-        setPhotos((prev) => [...prev, photo]);
-      };
-      reader.readAsDataURL(file);
-    });
-
-    // Permite selecionar a mesma foto novamente
-    e.target.value = "";
+      e.target.value = "";
+    })();
   };
 
   const handleRemovePhoto = (id: string) => {
+    const target = photos.find((p) => p.id === id);
+    if (target?.storagePath) {
+      void deleteDiaryPhotoAtPath(target.storagePath);
+    }
     setPhotos(photos.filter((p) => p.id !== id));
   };
 
@@ -605,14 +728,30 @@ export default function GerenciamentoObras() {
       return;
     }
 
+    const entryId = editingEntry?.id || `${Date.now()}`;
+    let photoList = photos;
+    try {
+      photoList = await finalizeDiaryPhotosForFirestore(
+        photos,
+        entryId,
+        selectedProjectId
+      );
+    } catch (err) {
+      console.error(err);
+      alert(
+        "Erro ao enviar fotos para o armazenamento. Verifique rede e permissões do Firebase Storage."
+      );
+      return;
+    }
+
     const entry: DiaryEntry = {
-      id: editingEntry?.id || Date.now().toString(),
+      id: entryId,
       projectId: selectedProjectId,
       obraName: draftValidation.value.obraName,
       date: draftValidation.value.date,
       activities: draftValidation.value.activities,
       materials: sanitizeForDatabase(materials),
-      photos: sanitizeForDatabase(photos),
+      photos: sanitizeForDatabase(photoList),
       observations: sanitizeForDatabase(observations),
       weather: sanitizeForDatabase(weather),
       responsible: sanitizeForDatabase(responsible),
@@ -652,14 +791,30 @@ export default function GerenciamentoObras() {
       return;
     }
 
+    const entryId = editingEntry?.id || `${Date.now()}`;
+    let photoList = photos;
+    try {
+      photoList = await finalizeDiaryPhotosForFirestore(
+        photos,
+        entryId,
+        selectedProjectId
+      );
+    } catch (err) {
+      console.error(err);
+      alert(
+        "Erro ao enviar fotos para o armazenamento. Verifique rede e permissões do Firebase Storage."
+      );
+      return;
+    }
+
     const entry: DiaryEntry = {
-      id: editingEntry?.id || Date.now().toString(),
+      id: entryId,
       projectId: selectedProjectId,
       obraName: validation.value.obraName,
       date: validation.value.date,
       activities: validation.value.activities,
       materials: sanitizeForDatabase(materials),
-      photos: sanitizeForDatabase(photos),
+      photos: sanitizeForDatabase(photoList),
       observations: sanitizeForDatabase(observations),
       weather: sanitizeForDatabase(weather),
       responsible: sanitizeForDatabase(responsible),
@@ -702,9 +857,14 @@ export default function GerenciamentoObras() {
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm("Tem certeza que deseja excluir este registro?")) {
-      await saveDiaries(diaryEntries.filter((e) => e.id !== id));
+    if (!confirm("Tem certeza que deseja excluir este registro?")) return;
+    const entry = diaryEntries.find((e) => e.id === id);
+    if (entry) {
+      for (const p of entry.photos ?? []) {
+        if (p.storagePath) void deleteDiaryPhotoAtPath(p.storagePath);
+      }
     }
+    await saveDiaries(diaryEntries.filter((e) => e.id !== id));
   };
 
   const handleExportPDF = (entry: DiaryEntry) => {
@@ -776,9 +936,11 @@ export default function GerenciamentoObras() {
                 ${entry.photos
                   .map(
                     (p) =>
-                      `<div class="photo-item"><img src="${p.dataUrl}" alt="${
-                        p.name
-                      }"/><p>${p.description || p.name}</p></div>`
+                      `<div class="photo-item"><img src="${getPhotoSrc(
+                        p
+                      )}" alt="${p.name}"/><p>${
+                        p.description || p.name
+                      }</p></div>`
                   )
                   .join("")}
               </div>
@@ -793,8 +955,7 @@ export default function GerenciamentoObras() {
 
   const handleBack = () => {
     if (viewMode === "menu") {
-      if (window.history.length > 1) navigate(-1);
-      else navigate(paths.acessoExclusivo);
+      navigateBackOrFallback(navigate, location.key, paths.acessoExclusivo);
     } else {
       resetForm();
       setViewMode("menu");
@@ -808,13 +969,14 @@ export default function GerenciamentoObras() {
     const newProject: Project = {
       ...project,
       id: Date.now().toString(),
+      ownerUid: user?.uid,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
     void (async () => {
       try {
         await upsertObraProject(newProject as unknown as Parameters<typeof upsertObraProject>[0]);
-        const list = await listObraProjects();
+        const list = user ? await listObraProjectsForUser(user) : await listObraProjects();
         setProjects(list as unknown as Project[]);
       } catch (e) {
         console.error(e);
@@ -1309,6 +1471,7 @@ export default function GerenciamentoObras() {
       )}
       {viewMode === "reports" && (
         <ObrasReportsPanel
+          user={user}
           projects={projects}
           diaryEntries={scopedDiaryEntries}
           inventory={scopedInventory}
@@ -1333,7 +1496,10 @@ export default function GerenciamentoObras() {
         <ReportViewer
           report={viewingReport}
           projects={projects}
+          user={user}
           setViewMode={setViewMode}
+          onFinalize={() => void finalizeReport(viewingReport.id)}
+          onUnlockAdmin={() => void unlockReportForAdmin(viewingReport.id)}
           onBack={() => {
             setViewingReport(null);
             setViewMode(viewerBackMode);
@@ -1347,6 +1513,7 @@ export default function GerenciamentoObras() {
         <RDOForm
           projects={projects}
           initialProjectId={selectedProjectId}
+          draftStorageKey={draftKey("rdo")}
           onCancel={() => setViewMode("reports-select")}
           onSubmit={async (report) => {
             const v = validateObraReportInput(report);
@@ -1381,6 +1548,7 @@ export default function GerenciamentoObras() {
         <ExpenseForm
           projects={projects}
           initialProjectId={selectedProjectId}
+          draftStorageKey={draftKey("expense")}
           onCancel={() => setViewMode("reports-select")}
           onSubmit={async (report) => {
             const v = validateObraReportInput(report);
@@ -1415,6 +1583,7 @@ export default function GerenciamentoObras() {
         <HydrostaticTestForm
           projects={projects}
           initialProjectId={selectedProjectId}
+          draftStorageKey={draftKey("hydrostatic")}
           onCancel={() => setViewMode("reports-select")}
           onSubmit={async (report) => {
             const v = validateObraReportInput(report);
@@ -1451,6 +1620,7 @@ export default function GerenciamentoObras() {
         <ProjectCompletionForm
           projects={projects}
           initialProjectId={selectedProjectId}
+          draftStorageKey={draftKey("completion")}
           onCancel={() => setViewMode("reports-select")}
           onSubmit={async (report) => {
             const v = validateObraReportInput(report);

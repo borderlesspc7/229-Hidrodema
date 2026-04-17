@@ -133,7 +133,14 @@ export default function UnifiedReportsList({
                             </Button>
                             <Button
                               variant="secondary"
-                              onClick={() => exportObraReportToPdf(r, project)}
+                              onClick={() =>
+                                void exportObraReportToPdf(r, project).catch(
+                                  () =>
+                                    alert(
+                                      "Não foi possível gerar o PDF (verifique rede e fotos na nuvem)."
+                                    )
+                                )
+                              }
                             >
                               PDF
                             </Button>

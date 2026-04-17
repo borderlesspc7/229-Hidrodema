@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Button from "../../../components/ui/Button/Button";
 import Card from "../../../components/ui/Card/Card";
 import Input from "../../../components/ui/Input/Input";
@@ -24,6 +24,8 @@ import {
 } from "react-icons/fi";
 import "./EqualizadorServicos.css";
 import { useAuth } from "../../../hooks/useAuth";
+import { paths } from "../../../routes/paths";
+import { navigateBackOrFallback } from "../../../lib/navigation";
 import {
   createServiceMDS,
   getAllServiceMDS,
@@ -86,6 +88,7 @@ interface ServiceMDS {
 
 const EqualizadorServicos = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const displayName =
     user?.name?.trim() || user?.email?.trim() || "Usuário";
@@ -971,7 +974,7 @@ const EqualizadorServicos = () => {
   // Voltar
   const handleBack = () => {
     if (viewMode === "menu") {
-      navigate("/acesso-exclusivo");
+      navigateBackOrFallback(navigate, location.key, paths.acessoExclusivo);
     } else if (viewMode === "comments") {
       setViewMode("history");
       setSelectedService(null);

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Button from "../../../components/ui/Button/Button";
 import Input from "../../../components/ui/Input/Input";
 import Card from "../../../components/ui/Card/Card";
@@ -24,11 +24,12 @@ import {
 } from "react-icons/fi";
 import "./RelatorioVisitas.css";
 import { useAuth } from "../../../hooks/useAuth";
+import { paths } from "../../../routes/paths";
+import { navigateBackOrFallback } from "../../../lib/navigation";
 import {
   createVisitRequest,
   createVisitReport,
-  getAllVisitRequests,
-  getAllVisitReports,
+  loadVisitDataScoped,
   updateVisitRequest,
   updateVisitReport,
   deleteVisitRequest,
@@ -39,8 +40,14 @@ import {
   generateRequestId,
   type VisitRequest,
   type VisitComment,
+  type VisitReport,
 } from "../../../services/visitasService";
 import { sanitizeForDatabase, validateVisitFormData } from "../../../lib/validation";
+import {
+  canDeleteVisitRequest,
+  canMutateVisitReport,
+  hasMacroVisibility,
+} from "../../../lib/rbac";
 
 interface FormData {
   [key: string]: string | string[];
@@ -82,10 +89,13 @@ interface DisplayVisit {
   followUpDate?: string;
   hasReport?: boolean;
   isRequest?: boolean; // true se for solicitação, false se for relatório
+  /** Editar/excluir/alterar status (RBAC). */
+  canMutate: boolean;
 }
 
 export default function RelatorioVisitas() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const displayName =
     user?.name?.trim() || user?.email?.trim() || "Usuário";
@@ -531,11 +541,9 @@ export default function RelatorioVisitas() {
     try {
       setLoading(true);
 
-      // Carregar solicitações
-      const requests = await getAllVisitRequests();
-
-      // Carregar relatórios
-      const reports = await getAllVisitReports();
+      const { requests, reports, byRequestId } = await loadVisitDataScoped(
+        user ?? null
+      );
 
       // Filtrar solicitações que ainda não têm relatório (disponíveis para fazer relatório)
       const requestsWithoutReport = requests.filter((req) => !req.hasReport);
@@ -564,23 +572,30 @@ export default function RelatorioVisitas() {
           comments: [],
           hasReport: req.hasReport,
           isRequest: true,
+          canMutate: user ? canDeleteVisitRequest(user, req) : false,
         })),
-        ...reports.map((rep) => ({
-          id: rep.id || "",
-          requestId: rep.requestId,
-          title: `Relatório - ${rep.requestId}`,
-          status: "completed" as const,
-          visitType: "technical" as const,
-          client: "",
-          salesperson: "",
-          scheduledDate: rep.visitDate,
-          createdAt: rep.createdAt,
-          updatedAt: rep.updatedAt,
-          formData: rep.formData,
-          comments: [],
-          followUpDate: rep.followUpDate,
-          isRequest: false,
-        })),
+        ...reports.map((rep: VisitReport) => {
+          const parent = rep.requestId
+            ? byRequestId.get(rep.requestId)
+            : undefined;
+          return {
+            id: rep.id || "",
+            requestId: rep.requestId,
+            title: `Relatório - ${rep.requestId}`,
+            status: "completed" as const,
+            visitType: "technical" as const,
+            client: "",
+            salesperson: "",
+            scheduledDate: rep.visitDate,
+            createdAt: rep.createdAt,
+            updatedAt: rep.updatedAt,
+            formData: rep.formData,
+            comments: [],
+            followUpDate: rep.followUpDate,
+            isRequest: false,
+            canMutate: canMutateVisitReport(user ?? null, rep, parent),
+          };
+        }),
       ];
 
       setVisitReports(displayData);
@@ -698,6 +713,7 @@ export default function RelatorioVisitas() {
           status: "pending",
           hasReport: false,
           formData: sanitizeForDatabase({ ...formData }),
+          createdBy: user?.uid,
         });
 
         alert(
@@ -752,6 +768,7 @@ export default function RelatorioVisitas() {
           status: "scheduled",
           hasReport: false,
           formData: sanitizeForDatabase({ ...formData }),
+          createdBy: user?.uid,
         });
 
         alert(
@@ -772,6 +789,7 @@ export default function RelatorioVisitas() {
 
         await createVisitReport({
           requestId,
+          createdBy: user?.uid,
           visitDate:
             (formData.q23 as string) || new Date().toISOString().split("T")[0],
           isOnline:
@@ -806,6 +824,10 @@ export default function RelatorioVisitas() {
   };
 
   const handleEditReport = (report: DisplayVisit) => {
+    if (!report.canMutate) {
+      alert("Sem permissão para editar este registro.");
+      return;
+    }
     setEditingReport(report);
     setFormData(report.formData);
     setViewMode("edit");
@@ -855,6 +877,11 @@ export default function RelatorioVisitas() {
       setLoading(true);
       const report = visitReports.find((r) => r.id === reportId);
 
+      if (report && !report.canMutate) {
+        alert("Sem permissão para excluir este registro.");
+        return;
+      }
+
       if (report) {
         if (report.isRequest) {
           await deleteVisitRequest(reportId);
@@ -879,6 +906,10 @@ export default function RelatorioVisitas() {
   ) => {
     try {
       const report = visitReports.find((r) => r.id === reportId);
+
+      if (report && !report.canMutate) {
+        return;
+      }
 
       if (report && report.isRequest) {
         await updateVisitRequest(reportId, {
@@ -1024,7 +1055,7 @@ export default function RelatorioVisitas() {
 
   const handleBack = () => {
     if (viewMode === "menu") {
-      navigate("/acesso-exclusivo");
+      navigateBackOrFallback(navigate, location.key, paths.acessoExclusivo);
     } else if (viewMode === "comments") {
       setViewMode("history");
       setSelectedReport(null);
@@ -1325,14 +1356,34 @@ export default function RelatorioVisitas() {
   );
   const progress = ((currentSection + 1) / sections.length) * 100;
 
-  // Carregar dados na inicialização
+  // Carregar dados na inicialização e quando o perfil muda
   useEffect(() => {
-    loadVisitData();
-  }, []);
+    void loadVisitData();
+    // Intencional: recarregar lista ao mudar sessão/perfil, não ao mudar a função.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.uid]);
 
   // Renderizar menu principal
   const renderMenu = () => (
     <div className="visitas-menu-container">
+      {user && !hasMacroVisibility(user) && (
+        <p
+          className="visitas-rbac-banner"
+          style={{
+            padding: "10px 16px",
+            marginBottom: 16,
+            background: "#eff6ff",
+            border: "1px solid #bfdbfe",
+            borderRadius: 8,
+            color: "#1e3a8a",
+            fontSize: 14,
+          }}
+        >
+          Visão restrita: você vê apenas solicitações e relatórios associados ao seu
+          perfil (criação, vendedor ou responsável). Gestores e administradores têm
+          visão consolidada.
+        </p>
+      )}
       <div className="visitas-menu-cards">
         <Card
           variant="service"
@@ -1442,6 +1493,7 @@ export default function RelatorioVisitas() {
                 <select
                   className={`visitas-status-select status-${report.status}`}
                   value={report.status}
+                  disabled={!report.canMutate}
                   onChange={(e) =>
                     handleChangeStatus(
                       report.id,
@@ -1457,13 +1509,15 @@ export default function RelatorioVisitas() {
               </div>
               <div className="visitas-table-cell">
                 <div className="visitas-table-actions">
-                  <Button
-                    variant="secondary"
-                    onClick={() => handleEditReport(report)}
-                    className="visitas-action-button"
-                  >
-                    <FiEdit3 size={14} />
-                  </Button>
+                  {report.canMutate && (
+                    <Button
+                      variant="secondary"
+                      onClick={() => handleEditReport(report)}
+                      className="visitas-action-button"
+                    >
+                      <FiEdit3 size={14} />
+                    </Button>
+                  )}
                   <Button
                     variant="primary"
                     onClick={() => handleExportPDF(report)}
@@ -1551,14 +1605,16 @@ export default function RelatorioVisitas() {
                 </div>
               </div>
               <div className="visitas-request-actions">
-                <Button
-                  variant="secondary"
-                  onClick={() => handleEditReport(report)}
-                  className="visitas-action-button"
-                >
-                  <FiEdit3 size={16} />
-                  Editar
-                </Button>
+                {report.canMutate && (
+                  <Button
+                    variant="secondary"
+                    onClick={() => handleEditReport(report)}
+                    className="visitas-action-button"
+                  >
+                    <FiEdit3 size={16} />
+                    Editar
+                  </Button>
+                )}
                 <Button
                   variant="primary"
                   onClick={() => handleViewComments(report)}
@@ -1574,14 +1630,16 @@ export default function RelatorioVisitas() {
                   <FiFile size={16} />
                   PDF
                 </Button>
-                <Button
-                  variant="secondary"
-                  onClick={() => handleDeleteReport(report.id)}
-                  className="visitas-action-button visitas-delete"
-                >
-                  <FiTrash2 size={16} />
-                  Excluir
-                </Button>
+                {report.canMutate && (
+                  <Button
+                    variant="secondary"
+                    onClick={() => handleDeleteReport(report.id)}
+                    className="visitas-action-button visitas-delete"
+                  >
+                    <FiTrash2 size={16} />
+                    Excluir
+                  </Button>
+                )}
               </div>
             </div>
           ))

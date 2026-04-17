@@ -1,54 +1,79 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
+import { ChevronDown } from "lucide-react";
+import "./ScrollToBottomFab.css";
+
+const SCROLL_REVEAL_PX = 160;
+const NEAR_BOTTOM_PX = 96;
+const MIN_SCROLLABLE_PX = 140;
+
+function getScrollMetrics() {
+  const docEl = document.documentElement;
+  const body = document.body;
+  const scrollTop = window.scrollY ?? docEl.scrollTop ?? body.scrollTop ?? 0;
+  const scrollHeight = Math.max(
+    docEl.scrollHeight,
+    body.scrollHeight,
+    docEl.offsetHeight,
+    body.offsetHeight
+  );
+  const clientHeight = window.innerHeight || docEl.clientHeight || body.clientHeight;
+  return { scrollTop, scrollHeight, clientHeight };
+}
+
+function shouldShowFab(
+  scrollTop: number,
+  scrollHeight: number,
+  clientHeight: number
+): boolean {
+  const maxScroll = Math.max(0, scrollHeight - clientHeight);
+  if (maxScroll < MIN_SCROLLABLE_PX) return false;
+  if (scrollTop < SCROLL_REVEAL_PX) return false;
+  return scrollTop < maxScroll - NEAR_BOTTOM_PX;
+}
 
 export default function ScrollToBottomFab() {
   const [visible, setVisible] = useState(false);
+  const location = useLocation();
 
-  useEffect(() => {
-    const onScroll = () => {
-      const doc = document.documentElement;
-      const scrollTop = window.scrollY || doc.scrollTop || 0;
-      const height = doc.scrollHeight - doc.clientHeight;
-      // aparece quando já rolou um pouco e ainda não chegou perto do fim
-      setVisible(scrollTop > 300 && scrollTop < Math.max(0, height - 300));
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+  const update = useCallback(() => {
+    const { scrollTop, scrollHeight, clientHeight } = getScrollMetrics();
+    setVisible(shouldShowFab(scrollTop, scrollHeight, clientHeight));
   }, []);
 
-  const style = useMemo(
-    () => ({
-      position: "fixed" as const,
-      right: 18,
-      bottom: 18,
-      zIndex: 9999,
-      width: 46,
-      height: 46,
-      borderRadius: 999,
-      border: "1px solid rgba(255,255,255,0.25)",
-      background: "rgba(15, 23, 42, 0.75)",
-      color: "#fff",
-      display: visible ? "flex" : "none",
-      alignItems: "center",
-      justifyContent: "center",
-      cursor: "pointer",
-      boxShadow: "0 10px 30px rgba(0,0,0,0.25)",
-      backdropFilter: "blur(10px)",
-      fontWeight: 900,
-      userSelect: "none" as const,
-    }),
-    [visible]
-  );
+  useEffect(() => {
+    update();
+  }, [update, location.pathname]);
+
+  useEffect(() => {
+    const onScroll = () => update();
+    const onResize = () => update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onResize, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onResize);
+    };
+  }, [update]);
+
+  const scrollToBottom = () => {
+    const docEl = document.documentElement;
+    const top = Math.max(docEl.scrollHeight, document.body.scrollHeight);
+    const prefersReduced =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top, behavior: prefersReduced ? "auto" : "smooth" });
+  };
 
   return (
     <button
       type="button"
-      style={style}
-      onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" })}
+      className={`scroll-to-bottom-fab${visible ? " scroll-to-bottom-fab--visible" : ""}`}
+      onClick={scrollToBottom}
+      title="Ir ao final da página"
       aria-label="Ir ao final da página"
     >
-      ↓
+      <ChevronDown size={26} strokeWidth={2.4} aria-hidden />
     </button>
   );
 }
-

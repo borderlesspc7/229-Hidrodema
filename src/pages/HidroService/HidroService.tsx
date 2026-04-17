@@ -1,5 +1,6 @@
 import "./HidroService.css";
 import { useNavigate } from "react-router-dom";
+import { useNavigateBack } from "../../hooks/useNavigateBack";
 import { paths } from "../../routes/paths";
 import { Button, Container, Box, ThemeProvider, createTheme } from "@mui/material";
 import { ArrowBack } from "@mui/icons-material";
@@ -59,10 +60,7 @@ const services = [
 
 export default function HidroService() {
   const navigate = useNavigate();
-
-  const handleBack = () => {
-    navigate(paths.menu);
-  };
+  const handleBack = useNavigateBack(paths.menu);
 
   return (
     <ThemeProvider theme={darkTheme}>

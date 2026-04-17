@@ -1,16 +1,27 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Card from "../../../../components/ui/Card/Card";
 import Button from "../../../../components/ui/Button/Button";
 import Input from "../../../../components/ui/Input/Input";
 import type { Project, RDOReport } from "../../../../types/obrasGerenciamentoModule";
 import ProjectSelector from "./ProjectSelector";
-import { sanitizeForDatabase, validateObraReportInput, validateRequiredText } from "../../../../lib/validation";
+import {
+  sanitizeForDatabase,
+  validateObraReportInput,
+  validateRequiredText,
+} from "../../../../lib/validation";
 import { FiArrowLeft, FiCheckCircle } from "react-icons/fi";
+import {
+  useAutosaveLocalDraft,
+  clearDraftKey,
+  tryLoadDraft,
+} from "../../../../hooks/useAutosaveLocalDraft";
 
 type Props = {
   projects: Project[];
   initialProjectId?: string;
   initialReport?: RDOReport;
+  /** Chave localStorage para auto-save (só formulários "novo") */
+  draftStorageKey?: string;
   onCancel: () => void;
   onSubmit: (report: RDOReport) => void | Promise<void>;
 };
@@ -19,6 +30,7 @@ export default function RDOForm({
   projects,
   initialProjectId = "",
   initialReport,
+  draftStorageKey,
   onCancel,
   onSubmit,
 }: Props) {
@@ -34,6 +46,45 @@ export default function RDOForm({
   const [weather, setWeather] = useState(initialReport?.weather ?? "");
   const [responsible, setResponsible] = useState(initialReport?.responsible ?? "");
   const [teamText, setTeamText] = useState((initialReport?.team ?? []).join(", "));
+
+  useEffect(() => {
+    if (!draftStorageKey || initialReport) return;
+    const d = tryLoadDraft<{
+      projectId?: string;
+      date?: string;
+      activities?: string;
+      observations?: string;
+      weather?: string;
+      responsible?: string;
+      teamText?: string;
+    }>(draftStorageKey);
+    if (!d || (!d.activities && !d.projectId)) return;
+    if (!confirm("Existe um rascunho guardado automaticamente. Restaurar?")) {
+      clearDraftKey(draftStorageKey);
+      return;
+    }
+    if (d.projectId) setProjectId(d.projectId);
+    if (d.date) setDate(d.date);
+    if (d.activities != null) setActivities(d.activities);
+    if (d.observations != null) setObservations(d.observations);
+    if (d.weather != null) setWeather(d.weather);
+    if (d.responsible != null) setResponsible(d.responsible);
+    if (d.teamText != null) setTeamText(d.teamText);
+  }, [draftStorageKey, initialReport]);
+
+  useAutosaveLocalDraft(
+    draftStorageKey && !initialReport ? draftStorageKey : null,
+    () => ({
+      projectId,
+      date,
+      activities,
+      observations,
+      weather,
+      responsible,
+      teamText,
+    }),
+    [projectId, date, activities, observations, weather, responsible, teamText, draftStorageKey, initialReport]
+  );
 
   const handleSave = async () => {
     const team = teamText
@@ -54,6 +105,8 @@ export default function RDOForm({
       responsible,
       createdAt: initialReport?.createdAt ?? new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      finalizedAt: initialReport?.finalizedAt,
+      finalizedByEmail: initialReport?.finalizedByEmail,
     };
 
     const v = validateObraReportInput(base);
@@ -68,6 +121,7 @@ export default function RDOForm({
     }
 
     await onSubmit(sanitizeForDatabase({ ...base, activities: act.value }));
+    if (draftStorageKey) clearDraftKey(draftStorageKey);
   };
 
   return (
@@ -75,7 +129,14 @@ export default function RDOForm({
       <Card variant="service" className="obras-form-card" title="" textColor="#1e293b">
         <div className="obras-form-header">
           <h2 className="obras-form-title">{initialReport ? "EDITAR RDO" : "NOVO RDO"}</h2>
-          <p className="obras-form-subtitle">Relatório Diário de Obra</p>
+          <p className="obras-form-subtitle">
+            Relatório Diário de Obra
+            {draftStorageKey && !initialReport ? (
+              <span style={{ display: "block", marginTop: 6, fontSize: 12, opacity: 0.85 }}>
+                Rascunho guardado automaticamente a cada ~45 s neste dispositivo.
+              </span>
+            ) : null}
+          </p>
         </div>
 
         <div className="obras-form-content">
@@ -141,4 +202,3 @@ export default function RDOForm({
     </div>
   );
 }
-

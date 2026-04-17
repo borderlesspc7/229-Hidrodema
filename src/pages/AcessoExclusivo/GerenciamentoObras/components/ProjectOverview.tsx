@@ -2,7 +2,8 @@ import { useMemo } from "react";
 import Button from "../../../../components/ui/Button/Button";
 import Card from "../../../../components/ui/Card/Card";
 import type { GerenciamentoObrasViewMode } from "../gerenciamentoObras.types";
-import type { DiaryEntry, InventoryItem, ObraReport, Project, Supplier } from "../../../../types/obrasGerenciamentoModule";
+import type { DiaryEntry, InventoryItem, ObraReport, Photo, Project, Supplier } from "../../../../types/obrasGerenciamentoModule";
+import { getPhotoSrc } from "../../../../lib/photoDisplay";
 import ReportTypeBadge from "./ReportTypeBadge";
 import { FiArrowLeft, FiBarChart2, FiCamera, FiClipboard, FiDollarSign, FiFileText, FiTrendingUp, FiUsers } from "react-icons/fi";
 
@@ -68,7 +69,7 @@ export default function ProjectOverview({
         id: `diary-${d.id}-${p.id}`,
         name: p.name,
         description: p.description,
-        dataUrl: p.dataUrl,
+        src: getPhotoSrc(p as Photo),
         createdAt: d.createdAt,
         source: "Diário",
       }))
@@ -80,7 +81,7 @@ export default function ProjectOverview({
           id: `rdo-${r.id}-${p.id}`,
           name: p.name,
           description: p.description,
-          dataUrl: p.dataUrl,
+          src: getPhotoSrc(p as Photo),
           createdAt: r.createdAt,
           source: "RDO",
         }))
@@ -374,7 +375,7 @@ export default function ProjectOverview({
               {photoGallery.map((p) => (
                 <div key={p.id} className="obras-photo-card">
                   <div className="obras-photo-thumb">
-                    <img src={p.dataUrl} alt={p.name} />
+                    <img src={p.src} alt={p.name} />
                   </div>
                   <div className="obras-photo-meta">
                     <div className="obras-photo-title" title={p.name}>

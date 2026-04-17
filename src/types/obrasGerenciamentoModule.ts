@@ -28,7 +28,12 @@ export interface Photo {
   id: string;
   name: string;
   description: string;
-  dataUrl: string;
+  /** Pré-visualização local antes de gravar, ou legado em registos antigos */
+  dataUrl?: string;
+  /** URL HTTPS do Firebase Storage (persistente; preferir em relação a dataUrl) */
+  storageUrl?: string;
+  /** Caminho no bucket (para eliminação segura) */
+  storagePath?: string;
 }
 
 export interface Milestone {
@@ -55,6 +60,8 @@ export interface Project {
   team: string[];
   labor?: string;
   client: string;
+  /** Dono da obra no Firebase Auth (escopo para vendedor). */
+  ownerUid?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -174,6 +181,9 @@ export interface ObraReportBase {
   date: string; // yyyy-mm-dd
   createdAt: string;
   updatedAt: string;
+  /** Quando definido, o relatório está finalizado (edição restrita a admin). */
+  finalizedAt?: string;
+  finalizedByEmail?: string;
 }
 
 export interface RDOReport extends ObraReportBase {

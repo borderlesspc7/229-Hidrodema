@@ -13,7 +13,10 @@ import {
   type ProblemaPrioridade,
   type ProblemaStatus,
 } from "../../../../services/obrasProblemasService";
-import { listObraProjects, type ObraProject } from "../../../../services/obrasProjectsService";
+import {
+  listObraProjectsForUser,
+  type ObraProject,
+} from "../../../../services/obrasProjectsService";
 import { FiAlertTriangle, FiEdit3, FiPlus, FiTrash2 } from "react-icons/fi";
 import "./ProblemasPage.css";
 
@@ -60,16 +63,17 @@ export default function ProblemasPage() {
   const selectedObra = projects.find((p) => p.id === projectId);
 
   useEffect(() => {
-    (async () => {
+    if (!user) return;
+    void (async () => {
       try {
-        const list = await listObraProjects();
+        const list = await listObraProjectsForUser(user);
         setProjects(list);
       } catch (e) {
         console.error(e);
         setProjects([]);
       }
     })();
-  }, []);
+  }, [user]);
 
   const load = useCallback(async () => {
     if (!projectId) {

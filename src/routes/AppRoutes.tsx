@@ -32,17 +32,25 @@ export const AppRoutes = () => {
       <Route
         path={paths.meeting}
         element={
-          <ProtectedRoute>
-            {features.meeting ? <Meeting /> : <Navigate to={paths.menu} replace />}
-          </ProtectedRoute>
+          features.meeting ? (
+            <ProtectedRoute>
+              <Meeting />
+            </ProtectedRoute>
+          ) : (
+            <Navigate to={paths.menu} replace />
+          )
         }
       />
       <Route
         path={paths.marketing}
         element={
-          <ProtectedRoute>
-            {features.marketing ? <Marketing /> : <Navigate to={paths.menu} replace />}
-          </ProtectedRoute>
+          features.marketing ? (
+            <ProtectedRoute>
+              <Marketing />
+            </ProtectedRoute>
+          ) : (
+            <Navigate to={paths.menu} replace />
+          )
         }
       />
 

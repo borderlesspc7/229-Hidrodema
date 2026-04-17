@@ -38,6 +38,8 @@ export default function Menu() {
     }
   };
 
+  const showMeetingMarketing = features.meeting || features.marketing;
+
   return (
     <div className="menu-container">
       <div className="menu-header">
@@ -58,7 +60,11 @@ export default function Menu() {
         </div>
         <div className="header-spacer"></div>
       </div>
-      <div className="menu-cards">
+      <div
+        className={
+          showMeetingMarketing ? "menu-cards" : "menu-cards menu-cards--single-main"
+        }
+      >
         <Card
           variant="service"
           title="Hidro"

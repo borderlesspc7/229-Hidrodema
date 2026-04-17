@@ -17,7 +17,10 @@ import {
   FiPlus,
   FiTrash2,
   FiCheckCircle,
+  FiGrid,
 } from "react-icons/fi";
+import { ACCEPTED_IMAGE_MIME } from "../../../../lib/imageCompress";
+import { getPhotoSrc } from "../../../../lib/photoDisplay";
 
 type Props = {
   editingEntry: DiaryEntry | null;
@@ -57,6 +60,7 @@ type Props = {
 
 export default function DiarioObrasForm(props: Props) {
   const [previewPhoto, setPreviewPhoto] = useState<Photo | null>(null);
+  const [galleryOpen, setGalleryOpen] = useState(false);
   const {
     editingEntry,
     projects,
@@ -304,7 +308,7 @@ export default function DiarioObrasForm(props: Props) {
                 <span>Adicionar Fotos</span>
                 <input
                   type="file"
-                  accept="image/*"
+                  accept={ACCEPTED_IMAGE_MIME.join(",")}
                   multiple
                   onChange={onPhotoUpload}
                   style={{ display: "none" }}
@@ -322,7 +326,7 @@ export default function DiarioObrasForm(props: Props) {
                       className="obras-photo-preview-btn"
                       aria-label="Abrir foto"
                     >
-                      <img src={photo.dataUrl} alt={photo.name} />
+                      <img src={getPhotoSrc(photo)} alt={photo.name} />
                     </button>
                     <input
                       type="text"
@@ -342,6 +346,19 @@ export default function DiarioObrasForm(props: Props) {
                     </Button>
                   </div>
                 ))}
+              </div>
+            )}
+            {photos.length > 0 && (
+              <div className="obras-gallery-review-actions">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="obras-action-btn"
+                  onClick={() => setGalleryOpen(true)}
+                >
+                  <FiGrid size={16} />
+                  Revisar galeria antes de enviar
+                </Button>
               </div>
             )}
           </div>
@@ -373,10 +390,52 @@ export default function DiarioObrasForm(props: Props) {
                   </Button>
                 </div>
                 <img
-                  src={previewPhoto.dataUrl}
+                  src={getPhotoSrc(previewPhoto)}
                   alt={previewPhoto.name}
                   className="obras-photo-modal-img"
                 />
+              </div>
+            </div>
+          )}
+
+          {galleryOpen && (
+            <div
+              className="obras-photo-modal obras-gallery-review-modal"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Galeria de revisão"
+              onClick={() => setGalleryOpen(false)}
+            >
+              <div
+                className="obras-gallery-review-content"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="obras-photo-modal-header">
+                  <strong>Revisão — {photos.length} foto(s)</strong>
+                  <Button
+                    variant="secondary"
+                    onClick={() => setGalleryOpen(false)}
+                    className="obras-action-btn"
+                  >
+                    Fechar
+                  </Button>
+                </div>
+                <div className="obras-gallery-review-grid">
+                  {photos.map((photo) => (
+                    <button
+                      key={photo.id}
+                      type="button"
+                      className="obras-gallery-review-tile"
+                      onClick={() => {
+                        setGalleryOpen(false);
+                        setPreviewPhoto(photo);
+                      }}
+                    >
+                      <img src={getPhotoSrc(photo)} alt={photo.name} />
+                      <span>{photo.description || photo.name}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           )}

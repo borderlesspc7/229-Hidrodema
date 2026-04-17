@@ -11,6 +11,11 @@ import {
 } from "firebase/firestore";
 import { db } from "../lib/firebaseconfig";
 import { sortByCreatedAtDesc } from "../lib/firestoreSort";
+import type { User } from "../types/user";
+import {
+  filterVisitReportsForUser,
+  filterVisitRequestsForUser,
+} from "../lib/rbac";
 
 // Interface para Solicitação de Visita
 export interface VisitRequest {
@@ -41,6 +46,7 @@ export interface VisitRequest {
 export interface VisitReport {
   id?: string;
   requestId: string; // ID da solicitação vinculada
+  createdBy?: string;
   visitDate: string;
   isOnline: boolean;
   participants: string[];
@@ -52,7 +58,6 @@ export interface VisitReport {
   formData: { [key: string]: string | string[] };
   createdAt: string;
   updatedAt: string;
-  createdBy?: string;
 }
 
 // Interface para Comentários
@@ -81,7 +86,7 @@ export const createVisitRequest = async (
     
     // Remover campos undefined (Firebase não aceita)
     const cleanData = Object.fromEntries(
-      Object.entries({ ...requestData }).filter(([_, value]) => value !== undefined)
+      Object.entries({ ...requestData }).filter(([, value]) => value !== undefined)
     );
     
     const docRef = await addDoc(collection(db, REQUESTS_COLLECTION), {
@@ -175,7 +180,7 @@ export const updateVisitRequest = async (
     
     // Remover campos undefined (Firebase não aceita)
     const cleanUpdates = Object.fromEntries(
-      Object.entries({ ...updates }).filter(([_, value]) => value !== undefined)
+      Object.entries({ ...updates }).filter(([, value]) => value !== undefined)
     );
     
     await updateDoc(docRef, {
@@ -214,7 +219,7 @@ export const createVisitReport = async (
     
     // Remover campos undefined (Firebase não aceita)
     const cleanData = Object.fromEntries(
-      Object.entries({ ...reportData }).filter(([_, value]) => value !== undefined)
+      Object.entries({ ...reportData }).filter(([, value]) => value !== undefined)
     );
     
     const docRef = await addDoc(collection(db, REPORTS_COLLECTION), {
@@ -318,7 +323,7 @@ export const updateVisitReport = async (
     
     // Remover campos undefined (Firebase não aceita)
     const cleanUpdates = Object.fromEntries(
-      Object.entries({ ...updates }).filter(([_, value]) => value !== undefined)
+      Object.entries({ ...updates }).filter(([, value]) => value !== undefined)
     );
     
     await updateDoc(docRef, {
@@ -411,3 +416,25 @@ export const generateRequestId = (): string => {
   const random = Math.floor(10000 + Math.random() * 90000);
   return `REQ-${year}${month}${day}-${random}`;
 };
+
+/** Índice completo para checagem de permissão no relatório (pai da solicitação). */
+export async function loadVisitDataScoped(user: User | null): Promise<{
+  requests: VisitRequest[];
+  reports: VisitReport[];
+  byRequestId: Map<string, VisitRequest>;
+}> {
+  const [allReq, allRep] = await Promise.all([
+    getAllVisitRequests(),
+    getAllVisitReports(),
+  ]);
+  const byRequestId = new Map<string, VisitRequest>();
+  for (const r of allReq) {
+    if (r.requestId) byRequestId.set(r.requestId, r);
+  }
+  if (!user) {
+    return { requests: [], reports: [], byRequestId };
+  }
+  const requests = filterVisitRequestsForUser(user, allReq);
+  const reports = filterVisitReportsForUser(user, allRep, byRequestId);
+  return { requests, reports, byRequestId };
+}

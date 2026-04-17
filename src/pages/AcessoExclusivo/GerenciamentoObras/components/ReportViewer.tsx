@@ -2,19 +2,33 @@ import Card from "../../../../components/ui/Card/Card";
 import Button from "../../../../components/ui/Button/Button";
 import type { ObraReport, Project } from "../../../../types/obrasGerenciamentoModule";
 import type { GerenciamentoObrasViewMode } from "../gerenciamentoObras.types";
+import type { User } from "../../../../types/user";
 import ReportTypeBadge from "./ReportTypeBadge";
-import { FiArrowLeft } from "react-icons/fi";
+import { FiArrowLeft, FiLock, FiUnlock } from "react-icons/fi";
 import { exportObraReportToPdf } from "../../../../lib/obrasReportPdf";
+import { isReportFinalized } from "../../../../lib/reportPermissions";
 
 type Props = {
   report: ObraReport;
   projects: Project[];
+  user: User | null;
   setViewMode: (mode: GerenciamentoObrasViewMode) => void;
   onBack: () => void;
+  onFinalize: () => void;
+  onUnlockAdmin: () => void;
 };
 
-export default function ReportViewer({ report, projects, onBack }: Props) {
+export default function ReportViewer({
+  report,
+  projects,
+  user,
+  onBack,
+  onFinalize,
+  onUnlockAdmin,
+}: Props) {
   const project = projects.find((p) => p.id === report.projectId);
+  const finalized = isReportFinalized(report);
+  const isAdmin = user?.role === "admin";
 
   return (
     <div className="obras-form-container">
@@ -30,15 +44,45 @@ export default function ReportViewer({ report, projects, onBack }: Props) {
               </>
             ) : null}
             <strong>Data:</strong> {new Date(report.date).toLocaleDateString()}
+            {finalized ? (
+              <>
+                {" "}
+                &nbsp;·&nbsp; <FiLock size={14} style={{ verticalAlign: "middle" }} />{" "}
+                <strong>Finalizado</strong>
+                {report.finalizedAt ? (
+                  <span style={{ fontWeight: 400 }}>
+                    {" "}
+                    ({new Date(report.finalizedAt).toLocaleString()})
+                  </span>
+                ) : null}
+              </>
+            ) : null}
           </p>
-          <div className="obras-form-actions" style={{ marginTop: 12 }}>
+          <div className="obras-form-actions" style={{ marginTop: 12, flexWrap: "wrap", gap: 8 }}>
             <Button variant="secondary" onClick={onBack} className="obras-action-btn">
               <FiArrowLeft size={16} />
               Voltar
             </Button>
+            {!finalized ? (
+              <Button variant="secondary" onClick={onFinalize} className="obras-action-btn">
+                <FiLock size={16} />
+                Finalizar relatório
+              </Button>
+            ) : isAdmin ? (
+              <Button variant="secondary" onClick={onUnlockAdmin} className="obras-action-btn">
+                <FiUnlock size={16} />
+                Reabrir edição (admin)
+              </Button>
+            ) : null}
             <Button
               variant="primary"
-              onClick={() => exportObraReportToPdf(report, project)}
+              onClick={() =>
+                void exportObraReportToPdf(report, project).catch(() =>
+                  alert(
+                    "Não foi possível gerar o PDF (verifique rede e fotos na nuvem)."
+                  )
+                )
+              }
               className="obras-action-btn"
             >
               Exportar PDF
@@ -123,4 +167,3 @@ export default function ReportViewer({ report, projects, onBack }: Props) {
     </div>
   );
 }
-

@@ -3,6 +3,7 @@ import { useAuth } from "../hooks/useAuth";
 import { useEffect, useState, type ReactNode } from "react";
 import { paths } from "./paths";
 import { SESSION_EXPIRED_MESSAGE, authService } from "../services/authService";
+import PageLoading from "../components/PageLoading";
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -13,13 +14,12 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const [sessionChecked, setSessionChecked] = useState(false);
   const [sessionValid, setSessionValid] = useState(true);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      if (loading) {
+        return;
+      }
       if (!user) {
         if (!cancelled) {
           setSessionChecked(true);
@@ -40,7 +40,11 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     return () => {
       cancelled = true;
     };
-  }, [logout, user]);
+  }, [loading, logout, user]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   if (!user) {
     return (
@@ -52,7 +56,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     );
   }
 
-  if (!sessionChecked) return <div>Loading...</div>;
+  if (!sessionChecked) return <PageLoading />;
 
   if (!sessionValid) {
     return (

@@ -8,6 +8,8 @@ import {
 } from "firebase/firestore";
 import { db } from "../lib/firebaseconfig";
 import { sortByCreatedAtDesc } from "../lib/firestoreSort";
+import type { User } from "../types/user";
+import { hasMacroVisibility } from "../lib/rbac";
 
 export interface ObraProject {
   id?: string;
@@ -23,6 +25,7 @@ export interface ObraProject {
   team: string[];
   labor?: string;
   client: string;
+  ownerUid?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -41,6 +44,16 @@ export async function listObraProjects(): Promise<ObraProject[]> {
     (d) => ({ id: d.id, ...(d.data() as object) })
   ) as ObraProject[];
   return sortByCreatedAtDesc(rows);
+}
+
+/** Gestor/admin: todas; vendedor: apenas obras com `ownerUid` = usuário. */
+export async function listObraProjectsForUser(
+  user: User | null
+): Promise<ObraProject[]> {
+  const all = await listObraProjects();
+  if (!user) return [];
+  if (hasMacroVisibility(user)) return all;
+  return all.filter((p) => p.ownerUid === user.uid);
 }
 
 export async function upsertObraProject(

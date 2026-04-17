@@ -21,7 +21,7 @@ export default function Login() {
   // Redireciona para o menu se já estiver logado
   useEffect(() => {
     if (user) {
-      navigate(paths.menu);
+      navigate(paths.menu, { replace: true });
     }
   }, [user, navigate]);
 
@@ -119,7 +119,7 @@ export default function Login() {
         </div>
 
         <Button
-          onClick={() => navigate(paths.menu)}
+          onClick={() => navigate(paths.menu, { replace: true })}
           variant="secondary"
           className="button--full-width"
         >
