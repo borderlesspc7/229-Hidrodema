@@ -51,7 +51,9 @@ const services = [
   },
   {
     label: "Curso SENAI",
-    to: "https://www.senai.br/cursos/hidroservice",
+    // www.senai.br tem apresentado erro de certificado (NET::ERR_CERT_COMMON_NAME_INVALID).
+    // Usar página oficial SENAI-SP (HTTPS válido) como destino externo.
+    to: "https://www.sp.senai.br/cursos/",
     Icon: School,
     external: true,
   },
