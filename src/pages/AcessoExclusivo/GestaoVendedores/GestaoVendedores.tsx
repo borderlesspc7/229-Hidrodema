@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import Button from "../../../components/ui/Button/Button";
 import Card from "../../../components/ui/Card/Card";
-import { useNavigateBack } from "../../../hooks/useNavigateBack";
 import { paths } from "../../../routes/paths";
 import {
   fetchExternalSellers,
@@ -12,9 +11,9 @@ import {
   type SellerDirectoryDoc,
 } from "../../../services/sellerDirectoryService";
 import "./GestaoVendedores.css";
+import BackButton from "../../../components/ui/BackButton/BackButton";
 
 export default function GestaoVendedores() {
-  const handleBack = useNavigateBack(paths.acessoExclusivo);
   const [rows, setRows] = useState<(SellerDirectoryDoc & { id: string })[]>(
     []
   );
@@ -50,9 +49,10 @@ export default function GestaoVendedores() {
   return (
     <div className="gestao-vendedores">
       <header className="gestao-vendedores__header">
-        <Button variant="secondary" type="button" onClick={handleBack}>
-          Voltar
-        </Button>
+        <BackButton
+          fallbackPath={paths.acessoExclusivo}
+          className="gestao-vendedores__back"
+        />
         <h1 className="gestao-vendedores__title">Gestão de vendedores (API)</h1>
         <span />
       </header>

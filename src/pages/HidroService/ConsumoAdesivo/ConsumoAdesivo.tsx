@@ -1,7 +1,6 @@
 import "./ConsumoAdesivo.css";
 import { useEffect, useState } from "react";
-import Button from "../../../components/ui/Button/Button";
-import { useNavigateBack } from "../../../hooks/useNavigateBack";
+import BackButton from "../../../components/ui/BackButton/BackButton";
 import { paths } from "../../../routes/paths";
 
 type ProductType = "PVC-U" | "CPVC";
@@ -9,8 +8,6 @@ type CpvcApplication = "Água Quente" | "Industrial";
 type CpvcCureMode = "Padrão" | "Cura rápida / Alta temperatura";
 
 export default function ConsumoAdesivo() {
-  const handleBack = useNavigateBack(paths.service);
-
   const [productType, setProductType] = useState<ProductType>("PVC-U");
   const [cpvcApplication, setCpvcApplication] =
     useState<CpvcApplication>("Água Quente");
@@ -471,13 +468,7 @@ export default function ConsumoAdesivo() {
   return (
     <div className="consumo-adesivo-container">
       <div className="consumo-adesivo-header">
-        <Button
-          variant="secondary"
-          className="back-button"
-          onClick={handleBack}
-        >
-          Voltar
-        </Button>
+        <BackButton fallbackPath={paths.service} className="back-button" />
         <div className="consumo-adesivo-title-section">
           <h1 className="consumo-adesivo-title">CONSUMO DE ADESIVO</h1>
           <span className="consumo-adesivo-subtitle">

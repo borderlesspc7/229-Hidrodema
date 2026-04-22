@@ -1,5 +1,6 @@
 import { jsPDF } from "jspdf";
 import type { ObraReport, Photo, Project } from "../types/obrasGerenciamentoModule";
+import { fetchWithTimeout } from "./networkResilience";
 
 /** Paleta alinhada à identidade da app (botões primários / texto). */
 const PDF = {
@@ -55,7 +56,10 @@ async function resolvePhotoDataUrlForPdf(photo: Photo): Promise<string | null> {
   if (photo.dataUrl?.startsWith("data:")) return photo.dataUrl;
   if (photo.storageUrl?.startsWith("http")) {
     try {
-      const res = await fetch(photo.storageUrl, { mode: "cors" });
+      const res = await fetchWithTimeout(photo.storageUrl, {
+        mode: "cors",
+        timeoutMs: 45_000,
+      });
       if (!res.ok) return null;
       const blob = await res.blob();
       return await new Promise<string>((resolve, reject) => {

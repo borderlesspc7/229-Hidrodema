@@ -1,8 +1,6 @@
 import type { ReactNode } from "react";
-import Button from "../../../components/ui/Button/Button";
-import { FiArrowLeft } from "react-icons/fi";
 import { paths } from "../../../routes/paths";
-import { useNavigateBack } from "../../../hooks/useNavigateBack";
+import BackButton from "../../../components/ui/BackButton/BackButton";
 
 type Props = {
   title: string;
@@ -11,19 +9,10 @@ type Props = {
 };
 
 export default function ObrasSubmoduleLayout({ title, subtitle, children }: Props) {
-  const handleBack = useNavigateBack(paths.obras.base);
-
   return (
     <div className="obras-container">
       <div className="obras-header">
-        <Button
-          variant="secondary"
-          className="obras-back-button"
-          onClick={handleBack}
-        >
-          <FiArrowLeft size={16} />
-          Voltar
-        </Button>
+        <BackButton fallbackPath={paths.obras.base} className="obras-back-button" />
         <div className="obras-company-brand">
           <h1 className="obras-company-title">{title}</h1>
           <span className="obras-company-subtitle">{subtitle}</span>

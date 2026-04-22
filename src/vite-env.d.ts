@@ -10,6 +10,10 @@ interface ImportMetaEnv {
   /** Base URL da API externa de vendedores (ex.: https://api.exemplo.com/v1). */
   readonly VITE_SELLER_API_BASE_URL?: string;
   readonly VITE_SELLER_API_TOKEN?: string;
+  readonly VITE_FEATURE_MEETING?: string;
+  readonly VITE_FEATURE_MARKETING?: string;
+  readonly VITE_FEATURE_GESTAO_VENDEDORES?: string;
+  readonly VITE_SENTRY_DSN?: string;
 }
 
 interface ImportMeta {

@@ -1,9 +1,7 @@
 import "./HidroService.css";
 import { useNavigate } from "react-router-dom";
-import { useNavigateBack } from "../../hooks/useNavigateBack";
 import { paths } from "../../routes/paths";
 import { Button, Container, Box, ThemeProvider, createTheme } from "@mui/material";
-import { ArrowBack } from "@mui/icons-material";
 import {
   Science,
   Straighten,
@@ -12,6 +10,7 @@ import {
   School,
 } from "@mui/icons-material";
 import ServiceTile from "../../components/ServiceTile/ServiceTile";
+import BackButton from "../../components/ui/BackButton/BackButton";
 
 // Tema escuro customizado para MUI
 const darkTheme = createTheme({
@@ -60,7 +59,6 @@ const services = [
 
 export default function HidroService() {
   const navigate = useNavigate();
-  const handleBack = useNavigateBack(paths.menu);
 
   return (
     <ThemeProvider theme={darkTheme}>
@@ -76,22 +74,11 @@ export default function HidroService() {
               width: "100%",
             }}
           >
-            <Button
-              variant="outlined"
-              startIcon={<ArrowBack />}
-              onClick={handleBack}
-              aria-label="Voltar para o menu"
-              sx={{
-                color: "#fff",
-                borderColor: "rgba(255, 255, 255, 0.3)",
-                "&:hover": {
-                  borderColor: "rgba(255, 255, 255, 0.5)",
-                  bgcolor: "rgba(255, 255, 255, 0.1)",
-                },
-              }}
-            >
-              Voltar
-            </Button>
+            <BackButton
+              fallbackPath={paths.menu}
+              className="logout-button-left"
+              title="Voltar para o menu"
+            />
             <Box sx={{ flex: 1, display: "flex", justifyContent: "center" }}>
               <div className="hidro-service-company-brand">
                 <img

@@ -24,9 +24,14 @@ export default function ServiceTile({
   const prefersReducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
 
   const cardSx: SxProps<Theme> = {
+    // Card é um Link/anchor (component={Link}/component="a") → garantir que não herda sublinhado
+    textDecoration: "none",
+    color: "inherit",
     bgcolor: "rgba(255, 255, 255, 0.06)",
-    border: "1px solid rgba(255, 255, 255, 0.15)",
-    borderRadius: 4,
+    backgroundImage:
+      "linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.03) 100%)",
+    border: "1px solid rgba(255, 255, 255, 0.16)",
+    borderRadius: 5,
     backdropFilter: "blur(10px)",
     transition: "all 150ms cubic-bezier(0.4, 0, 0.2, 1)",
     height: "100%",
@@ -35,6 +40,7 @@ export default function ServiceTile({
       bgcolor: "rgba(255, 255, 255, 0.1)",
       borderColor: "rgba(59, 130, 246, 0.3)",
       transform: prefersReducedMotion ? "none" : "translateY(-4px)",
+      textDecoration: "none",
     },
     "&:active": {
       transform: prefersReducedMotion ? "none" : "scale(0.98)",
@@ -68,6 +74,7 @@ export default function ServiceTile({
     textTransform: "uppercase",
     letterSpacing: "0.5px",
     lineHeight: 1.2,
+    textDecoration: "none",
     display: "-webkit-box",
     WebkitLineClamp: 2,
     WebkitBoxOrient: "vertical",

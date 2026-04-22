@@ -652,11 +652,35 @@
 /* Menu Container - Relatório de Visitas */
 .visitas-menu-container {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
   position: relative;
   z-index: 2;
   background: #1e3a5f;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  gap: 16px;
+}
+
+.visitas-rbac-banner {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 12px 16px;
+  background: rgba(239, 246, 255, 0.95);
+  border: 1px solid rgba(191, 219, 254, 0.9);
+  border-radius: 12px;
+  color: #0f2a66;
+  font-size: 14px;
+  line-height: 1.35;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.visitas-rbac-banner strong {
+  font-weight: 800;
+  color: #1e40af;
 }
 
 .visitas-menu-cards {
@@ -666,6 +690,7 @@
   max-width: 900px;
   width: 100%;
   border-radius: 16px;
+  margin: 0 auto;
 }
 
 .visitas-menu-card {
@@ -789,6 +814,40 @@
 
 .visitas-table-row:hover {
   background: rgba(59, 130, 246, 0.05);
+}
+
+.visitas-schedule-block {
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.visitas-schedule-block:last-child {
+  border-bottom: none;
+}
+
+.visitas-workflow-row {
+  padding: 0 20px 12px;
+  background: rgba(248, 250, 252, 0.95);
+}
+
+.visitas-workflow-details {
+  font-size: 13px;
+  color: #334155;
+}
+
+.visitas-workflow-details summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: #1e40af;
+  list-style-position: inside;
+}
+
+.visitas-workflow-list {
+  margin: 8px 0 0 1.1rem;
+  padding: 0;
+}
+
+.visitas-workflow-list li {
+  margin-bottom: 4px;
 }
 
 .visitas-table-cell {

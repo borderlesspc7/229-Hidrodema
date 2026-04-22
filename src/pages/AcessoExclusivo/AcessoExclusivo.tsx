@@ -2,17 +2,15 @@ import "./AcessoExclusivo.css";
 import { useEffect } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import { useNavigateBack } from "../../hooks/useNavigateBack";
 import { paths } from "../../routes/paths";
-import Button from "../../components/ui/Button/Button";
 import Card from "../../components/ui/Card/Card";
 import { features } from "../../lib/features";
 import { hasMacroVisibility } from "../../lib/rbac";
+import BackButton from "../../components/ui/BackButton/BackButton";
 
 export default function AcessoExclusivo() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const handleBack = useNavigateBack(paths.menu);
 
   useEffect(() => {
     if (!user) navigate(paths.menu);
@@ -21,13 +19,7 @@ export default function AcessoExclusivo() {
   return (
     <div className="acesso-exclusivo-container">
       <div className="hidro-service-header">
-        <Button
-          variant="secondary"
-          className="logout-button-left"
-          onClick={handleBack}
-        >
-          Voltar
-        </Button>
+        <BackButton fallbackPath={paths.menu} className="logout-button-left" />
         <div className="acesso-exclusivo-company-brand">
           <img
             src="/Logo HidroService.png"

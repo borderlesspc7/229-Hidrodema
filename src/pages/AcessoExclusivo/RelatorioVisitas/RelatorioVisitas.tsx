@@ -48,6 +48,14 @@ import {
   canMutateVisitReport,
   hasMacroVisibility,
 } from "../../../lib/rbac";
+import {
+  getSuggestedNextStepsForVisitWorkflow,
+  type VisitWorkflowUiStatus,
+} from "../../../lib/visitWorkflow";
+import {
+  buildHidrodemaPrintDocument,
+  escapeHtml,
+} from "../../../lib/printPdfBranding";
 
 interface FormData {
   [key: string]: string | string[];
@@ -926,53 +934,42 @@ export default function RelatorioVisitas() {
   const handleExportPDF = (report: DisplayVisit) => {
     const printWindow = window.open("", "_blank");
     if (printWindow) {
-      printWindow.document.write(`
-        <html>
-          <head>
-            <title>Relatório de Visita - ${report.title}</title>
-            <style>
-              body { font-family: Arial, sans-serif; margin: 20px; }
-              .header { text-align: center; margin-bottom: 30px; }
-              .section { margin-bottom: 25px; }
-              .question { margin-bottom: 15px; }
-              .label { font-weight: bold; color: #1e40af; }
-              .value { margin-left: 10px; }
-              .comments { margin-top: 30px; }
-              .comment { margin-bottom: 15px; padding: 10px; background: #f5f5f5; border-radius: 5px; }
-            </style>
-          </head>
-          <body>
-            <div class="header">
-              <h1>RELATÓRIO DE VISITA</h1>
-              <h2>Cliente: ${report.client}</h2>
-              ${
-                report.requestId
-                  ? `<p>ID Solicitação: ${report.requestId}</p>`
-                  : ""
-              }
-              <p>Data: ${new Date(
-                report.scheduledDate
-              ).toLocaleDateString()}</p>
-              <p>Vendedor: ${report.salesperson}</p>
-            </div>
-            <div class="section">
-              <h3>Dados da Visita</h3>
+      const metaLinesHtml = [
+        `<p><span class="print-label">Cliente:</span> <span class="print-value">${escapeHtml(report.client)}</span></p>`,
+        report.requestId
+          ? `<p><span class="print-label">ID solicitação:</span> <span class="print-value">${escapeHtml(report.requestId)}</span></p>`
+          : "",
+        `<p><span class="print-label">Data:</span> <span class="print-value">${escapeHtml(
+          new Date(report.scheduledDate).toLocaleDateString()
+        )}</span></p>`,
+        `<p><span class="print-label">Vendedor:</span> <span class="print-value">${escapeHtml(report.salesperson)}</span></p>`,
+      ]
+        .filter(Boolean)
+        .join("");
+      const bodyHtml = `
+            <section class="print-section">
+              <h3>Dados da visita</h3>
               ${Object.entries(report.formData)
                 .map(
                   ([key, value]) => `
-                <div class="question">
-                  <span class="label">${key}:</span>
-                  <span class="value">${
-                    Array.isArray(value) ? value.join(", ") : value
-                  }</span>
+                <div class="print-question">
+                  <span class="print-label">${escapeHtml(key)}:</span>
+                  <span class="print-value">${escapeHtml(
+                    Array.isArray(value) ? value.join(", ") : String(value ?? "")
+                  )}</span>
                 </div>
               `
                 )
                 .join("")}
-            </div>
-          </body>
-        </html>
-      `);
+            </section>`;
+      printWindow.document.write(
+        buildHidrodemaPrintDocument({
+          pageTitle: `Relatório de Visita — ${report.title}`,
+          mainTitle: "Relatório de visita",
+          metaLinesHtml,
+          bodyHtml,
+        })
+      );
       printWindow.document.close();
       printWindow.print();
     }
@@ -1367,21 +1364,10 @@ export default function RelatorioVisitas() {
   const renderMenu = () => (
     <div className="visitas-menu-container">
       {user && !hasMacroVisibility(user) && (
-        <p
-          className="visitas-rbac-banner"
-          style={{
-            padding: "10px 16px",
-            marginBottom: 16,
-            background: "#eff6ff",
-            border: "1px solid #bfdbfe",
-            borderRadius: 8,
-            color: "#1e3a8a",
-            fontSize: 14,
-          }}
-        >
-          Visão restrita: você vê apenas solicitações e relatórios associados ao seu
-          perfil (criação, vendedor ou responsável). Gestores e administradores têm
-          visão consolidada.
+        <p className="visitas-rbac-banner" role="note">
+          <strong>Visão restrita:</strong> você vê apenas solicitações e relatórios
+          associados ao seu perfil (criação, vendedor ou responsável). Gestores e
+          administradores têm visão consolidada.
         </p>
       )}
       <div className="visitas-menu-cards">
@@ -1479,56 +1465,77 @@ export default function RelatorioVisitas() {
             </Button>
           </div>
         ) : (
-          visitReports.map((report) => (
-            <div key={report.id} className="visitas-table-row">
-              <div className="visitas-table-cell">{report.client}</div>
-              <div className="visitas-table-cell">{report.salesperson}</div>
-              <div className="visitas-table-cell">
-                {new Date(report.scheduledDate).toLocaleDateString()}
-              </div>
-              <div className="visitas-table-cell">
-                {report.visitType === "technical" ? "Técnica" : "Comercial"}
-              </div>
-              <div className="visitas-table-cell">
-                <select
-                  className={`visitas-status-select status-${report.status}`}
-                  value={report.status}
-                  disabled={!report.canMutate}
-                  onChange={(e) =>
-                    handleChangeStatus(
-                      report.id,
-                      e.target.value as DisplayVisit["status"]
-                    )
-                  }
-                >
-                  <option value="scheduled">Agendada</option>
-                  <option value="awaiting-report">Aguardando Relatório</option>
-                  <option value="cancelled">Cancelada</option>
-                  <option value="completed">Concluída</option>
-                </select>
-              </div>
-              <div className="visitas-table-cell">
-                <div className="visitas-table-actions">
-                  {report.canMutate && (
-                    <Button
-                      variant="secondary"
-                      onClick={() => handleEditReport(report)}
-                      className="visitas-action-button"
+          visitReports.map((report) => {
+            const workflowSteps = getSuggestedNextStepsForVisitWorkflow({
+              status: report.status as VisitWorkflowUiStatus,
+              hasReport: Boolean(report.hasReport),
+              isRequest: Boolean(report.isRequest),
+            });
+            return (
+              <div key={report.id} className="visitas-schedule-block">
+                <div className="visitas-table-row">
+                  <div className="visitas-table-cell">{report.client}</div>
+                  <div className="visitas-table-cell">{report.salesperson}</div>
+                  <div className="visitas-table-cell">
+                    {new Date(report.scheduledDate).toLocaleDateString()}
+                  </div>
+                  <div className="visitas-table-cell">
+                    {report.visitType === "technical" ? "Técnica" : "Comercial"}
+                  </div>
+                  <div className="visitas-table-cell">
+                    <select
+                      className={`visitas-status-select status-${report.status}`}
+                      value={report.status}
+                      disabled={!report.canMutate}
+                      onChange={(e) =>
+                        handleChangeStatus(
+                          report.id,
+                          e.target.value as DisplayVisit["status"]
+                        )
+                      }
                     >
-                      <FiEdit3 size={14} />
-                    </Button>
-                  )}
-                  <Button
-                    variant="primary"
-                    onClick={() => handleExportPDF(report)}
-                    className="visitas-action-button"
-                  >
-                    <FiFile size={14} />
-                  </Button>
+                      <option value="scheduled">Agendada</option>
+                      <option value="awaiting-report">Aguardando Relatório</option>
+                      <option value="cancelled">Cancelada</option>
+                      <option value="completed">Concluída</option>
+                    </select>
+                  </div>
+                  <div className="visitas-table-cell">
+                    <div className="visitas-table-actions">
+                      {report.canMutate && (
+                        <Button
+                          variant="secondary"
+                          onClick={() => handleEditReport(report)}
+                          className="visitas-action-button"
+                        >
+                          <FiEdit3 size={14} />
+                        </Button>
+                      )}
+                      <Button
+                        variant="primary"
+                        onClick={() => handleExportPDF(report)}
+                        className="visitas-action-button"
+                      >
+                        <FiFile size={14} />
+                      </Button>
+                    </div>
+                  </div>
                 </div>
+                {workflowSteps.length > 0 && (
+                  <div className="visitas-workflow-row">
+                    <details className="visitas-workflow-details">
+                      <summary>Próximos passos sugeridos</summary>
+                      <ul className="visitas-workflow-list">
+                        {workflowSteps.map((step, i) => (
+                          <li key={i}>{step}</li>
+                        ))}
+                      </ul>
+                    </details>
+                  </div>
+                )}
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>

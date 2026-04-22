@@ -5,6 +5,7 @@ import {
   deleteObject,
 } from "firebase/storage";
 import { storage } from "../lib/firebaseconfig";
+import { fetchWithTimeout } from "../lib/networkResilience";
 import type { Photo } from "../types/obrasGerenciamentoModule";
 
 function diaryPhotoPath(
@@ -62,7 +63,7 @@ export async function finalizeDiaryPhotosForFirestore(
       out.push(p);
       continue;
     }
-    const res = await fetch(p.dataUrl);
+    const res = await fetchWithTimeout(p.dataUrl, { timeoutMs: 60_000 });
     const blob = await res.blob();
     const { storagePath, storageUrl } = await uploadDiaryPhoto(blob, {
       projectId,

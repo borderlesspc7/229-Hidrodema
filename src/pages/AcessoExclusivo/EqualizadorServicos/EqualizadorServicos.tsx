@@ -27,6 +27,10 @@ import { useAuth } from "../../../hooks/useAuth";
 import { paths } from "../../../routes/paths";
 import { navigateBackOrFallback } from "../../../lib/navigation";
 import {
+  PRINT_PDF_BASE_STYLES,
+  formatPrintFooterGeneratedAt,
+} from "../../../lib/printPdfBranding";
+import {
   createServiceMDS,
   getAllServiceMDS,
   updateServiceMDS,
@@ -895,7 +899,7 @@ const EqualizadorServicos = () => {
           <head>
             <title>MDS ${safe(mdsNumber)}</title>
             <style>
-              body { font-family: Arial, sans-serif; margin: 24px; color: #0f172a; }
+              ${PRINT_PDF_BASE_STYLES}
               .header { text-align: center; margin-bottom: 18px; }
               .brand { font-size: 20px; font-weight: 800; letter-spacing: 2px; color: #1e40af; }
               .doc-title { font-size: 18px; font-weight: 800; margin-top: 6px; }
@@ -924,13 +928,13 @@ const EqualizadorServicos = () => {
                 <div class="meta-item"><span class="label">Cliente:</span> <span class="value">${safe(client)}</span></div>
                 <div class="meta-item"><span class="label">Local da obra:</span> <span class="value">${safe(workLocation)}</span></div>
                 <div class="meta-item"><span class="label">Data:</span> <span class="value">${safe(visitDate)}</span></div>
-                <div class="meta-item"><span class="label">Gerado em:</span> <span class="value">${safe(new Date().toLocaleString())}</span></div>
               </div>
             </div>
 
             <div class="section-title">Dados do MDS</div>
             ${rowsHtml}
             ${commentsHtml}
+            <footer class="print-footer">${formatPrintFooterGeneratedAt()}</footer>
           </body>
         </html>
       `);

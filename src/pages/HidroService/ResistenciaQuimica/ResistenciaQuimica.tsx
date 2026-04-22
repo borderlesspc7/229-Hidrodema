@@ -1,7 +1,6 @@
 import "./ResistenciaQuimica.css";
 import { useState } from "react";
-import Button from "../../../components/ui/Button/Button";
-import { useNavigateBack } from "../../../hooks/useNavigateBack";
+import BackButton from "../../../components/ui/BackButton/BackButton";
 import { paths } from "../../../routes/paths";
 import {
   FaFlask,
@@ -15,7 +14,6 @@ import {
 } from "react-icons/fa";
 
 export default function ResistenciaQuimica() {
-  const handleBack = useNavigateBack(paths.service);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedMaterial, setSelectedMaterial] = useState("all");
   const [selectedResistance, setSelectedResistance] = useState("all");
@@ -225,13 +223,7 @@ export default function ResistenciaQuimica() {
   return (
     <div className="resistencia-quimica-container">
       <div className="resistencia-quimica-header">
-        <Button
-          variant="secondary"
-          className="back-button"
-          onClick={handleBack}
-        >
-          Voltar
-        </Button>
+        <BackButton fallbackPath={paths.service} className="back-button" />
         <div className="resistencia-quimica-title-section">
           <h1 className="resistencia-quimica-title">RESISTÊNCIA QUÍMICA</h1>
           <span className="resistencia-quimica-subtitle">

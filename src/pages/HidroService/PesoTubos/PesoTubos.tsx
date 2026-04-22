@@ -1,7 +1,6 @@
 import "./PesoTubos.css";
 import { useEffect, useState } from "react";
-import Button from "../../../components/ui/Button/Button";
-import { useNavigateBack } from "../../../hooks/useNavigateBack";
+import BackButton from "../../../components/ui/BackButton/BackButton";
 import { paths } from "../../../routes/paths";
 import {
   FaTruck,
@@ -13,8 +12,6 @@ import {
 } from "react-icons/fa";
 
 export default function PesoTubos() {
-  const handleBack = useNavigateBack(paths.service);
-
   // Dados da tabela de pesos dos tubos
   const pipeData = {
     '½"': {
@@ -270,13 +267,7 @@ export default function PesoTubos() {
   return (
     <div className="peso-tubos-container">
       <div className="peso-tubos-header">
-        <Button
-          variant="secondary"
-          className="back-button"
-          onClick={handleBack}
-        >
-          Voltar
-        </Button>
+        <BackButton fallbackPath={paths.service} className="back-button" />
         <div className="peso-tubos-title-section">
           <h1 className="peso-tubos-title">PESO DOS TUBOS</h1>
           <span className="peso-tubos-subtitle">Comparação de Materiais</span>

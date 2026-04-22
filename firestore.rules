@@ -1,0 +1,100 @@
+rules_version = '2';
+
+/**
+ * Regras de segurança Firestore — HIDRODEMA
+ *
+ * IMPORTANTE:
+ * - A lógica fina de RBAC (vendedor por código, etc.) está em `src/lib/rbac.ts` na app.
+ *   Replicar tudo nas rules exigiria queries por `createdBy` / claims ou Cloud Functions.
+ * - Aqui: utilizador autenticado pode aceder às coleções de negócio; perfil em `users/{uid}`
+ *   só pelo próprio utilizador. Isto bloqueia anónimos; reforço por documento deve ser
+ *   planeado (consultar docs internos).
+ */
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    match /users/{userId} {
+      allow read: if signedIn() && request.auth.uid == userId;
+      allow create: if signedIn() && request.auth.uid == userId;
+      allow update: if signedIn() && request.auth.uid == userId;
+      allow delete: if false;
+    }
+
+    match /visitRequests/{id} {
+      allow read, create, update, delete: if signedIn();
+    }
+    match /visitReports/{id} {
+      allow read, create, update, delete: if signedIn();
+    }
+    match /visitComments/{id} {
+      allow read, create, update, delete: if signedIn();
+    }
+
+    match /serviceRequests/{id} {
+      allow read, create, update, delete: if signedIn();
+    }
+    match /serviceComments/{id} {
+      allow read, create, update, delete: if signedIn();
+    }
+
+    match /serviceMDS/{id} {
+      allow read, create, update, delete: if signedIn();
+    }
+    match /mdsQuotations/{id} {
+      allow read, create, update, delete: if signedIn();
+    }
+    match /mdsComments/{id} {
+      allow read, create, update, delete: if signedIn();
+    }
+
+    match /sellerDirectory/{id} {
+      allow read, create, update, delete: if signedIn();
+    }
+
+    match /obrasProjects/{id} {
+      allow read, create, update, delete: if signedIn();
+    }
+    match /obraMedicoes/{id} {
+      allow read, create, update, delete: if signedIn();
+    }
+    match /obraProblemas/{id} {
+      allow read, create, update, delete: if signedIn();
+    }
+    match /obraDocumentos/{id} {
+      allow read, create, update, delete: if signedIn();
+    }
+
+    match /obrasDiaries/{id} {
+      allow read, create, update, delete: if signedIn();
+    }
+    match /obrasInventory/{id} {
+      allow read, create, update, delete: if signedIn();
+    }
+    match /obrasBudgets/{id} {
+      allow read, create, update, delete: if signedIn();
+    }
+    match /obrasSuppliers/{id} {
+      allow read, create, update, delete: if signedIn();
+    }
+    match /obrasQualityChecklists/{id} {
+      allow read, create, update, delete: if signedIn();
+    }
+    match /obrasReports/{id} {
+      allow read, create, update, delete: if signedIn();
+    }
+    match /obrasInventoryMovements/{id} {
+      allow read, create, update, delete: if signedIn();
+    }
+    match /obrasCounters/{id} {
+      allow read, create, update, delete: if signedIn();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

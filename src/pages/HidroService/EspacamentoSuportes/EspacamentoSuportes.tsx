@@ -1,11 +1,8 @@
 import "./EspacamentoSuportes.css";
-import Button from "../../../components/ui/Button/Button";
-import { useNavigateBack } from "../../../hooks/useNavigateBack";
+import BackButton from "../../../components/ui/BackButton/BackButton";
 import { paths } from "../../../routes/paths";
 
 export default function EspacamentoSuportes() {
-  const handleBack = useNavigateBack(paths.service);
-
   // Dados da tabela de espaçamento de suportes
   const tableData = [
     {
@@ -153,13 +150,7 @@ export default function EspacamentoSuportes() {
   return (
     <div className="espacamento-suportes-container">
       <div className="espacamento-suportes-header">
-        <Button
-          variant="secondary"
-          className="back-button"
-          onClick={handleBack}
-        >
-          Voltar
-        </Button>
+        <BackButton fallbackPath={paths.service} className="back-button" />
         <div className="espacamento-suportes-title-section">
           <h1 className="espacamento-suportes-title">
             ESPAÇAMENTO DE SUPORTES
