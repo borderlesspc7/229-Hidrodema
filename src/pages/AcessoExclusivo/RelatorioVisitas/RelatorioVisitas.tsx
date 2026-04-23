@@ -122,6 +122,24 @@ export default function RelatorioVisitas() {
     []
   );
 
+  const selectedRegional = (formData.q1 as string) || "";
+  const isRegionalVendedorQuestion = (id: string) =>
+    id === "q2" || id === "q3" || id === "q4" || id === "q5";
+
+  const shouldShowQuestion = (q: Question) => {
+    // Seção 1: ao escolher a regional, mostrar apenas o select de vendedores correspondente.
+    if (q.section === "Informações Regionais e Vendedores") {
+      if (q.id === "q1") return true;
+      if (q.id === "q2") return selectedRegional.includes("VEND I & II");
+      if (q.id === "q3") return selectedRegional.toUpperCase().includes("HUNTERS");
+      if (q.id === "q4") return selectedRegional.includes("HVAC");
+      if (q.id === "q5") return selectedRegional.includes("Expansão");
+      // Por segurança: qualquer outro campo dessa seção segue visível.
+      return !isRegionalVendedorQuestion(q.id);
+    }
+    return true;
+  };
+
   // Estrutura preparada para receber 25 perguntas sobre visitas
   const questions: Question[] = [
     // Seção 1: Informações Regionais e Vendedores
@@ -649,10 +667,24 @@ export default function RelatorioVisitas() {
   };
 
   const handleInputChange = (questionId: string, value: string | string[]) => {
-    setFormData((prev) => ({
-      ...prev,
-      [questionId]: value,
-    }));
+    setFormData((prev) => {
+      // Ao trocar a regional (q1), limpa os selects de vendedor para evitar “vendedor de outra regional”.
+      if (questionId === "q1") {
+        return {
+          ...prev,
+          q1: value,
+          q2: "",
+          q3: "",
+          q4: "",
+          q5: "",
+        };
+      }
+
+      return {
+        ...prev,
+        [questionId]: value,
+      };
+    });
 
     // Se mudou a seleção de ação (q6), resetar para a seção Geral
     if (questionId === "q6") {
@@ -1349,7 +1381,7 @@ export default function RelatorioVisitas() {
   };
 
   const currentQuestions = questions.filter(
-    (q) => q.section === sections[currentSection]
+    (q) => q.section === sections[currentSection] && shouldShowQuestion(q)
   );
   const progress = ((currentSection + 1) / sections.length) * 100;
 

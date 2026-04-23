@@ -325,7 +325,11 @@ export default function ResistenciaQuimica() {
             <FaTable className="title-icon" />
             TABELA DE RESISTÊNCIA QUÍMICA
           </h2>
-          <div className="table-container">
+          <div
+            className="table-container"
+            role="region"
+            aria-label="Tabela de resistência química (rolagem interna, cabeçalho fixo)"
+          >
             <table className="resistencia-table">
               <thead>
                 <tr>

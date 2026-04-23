@@ -185,6 +185,21 @@ export default function PesoTubos() {
   const formatKg = (v: number) =>
     v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
+  /** Linhas 0/0/0 = sem dados na planilha (ex.: NBR 5580 a completar) — evita exibir "0,00" enganoso. */
+  const isMaterialWithoutTabulatedData = (diameter: string, material: string) => {
+    const d = pipeData[diameter as keyof typeof pipeData];
+    if (!d) return true;
+    const v = d[material as keyof typeof d] as
+      | { empty: number; water: number; full: number }
+      | undefined;
+    if (!v) return true;
+    return v.empty === 0 && v.water === 0 && v.full === 0;
+  };
+
+  const hasMaterialsPendingData = materials.some((m) =>
+    isMaterialWithoutTabulatedData(selectedDiameter, m)
+  );
+
   const getSelectedLinearWeightSummary = () => {
     const data = pipeData[selectedDiameter as keyof typeof pipeData];
     const cpvc = data["CPVC / PVC-U"];
@@ -204,14 +219,28 @@ export default function PesoTubos() {
     chartData.length === 0
       ? 0
       : Math.max(...chartData.map((d) => Math.max(d.empty, d.water, d.full)));
-  const CHART_HEIGHT_PX = 220;
+  // Escala do gráfico: adiciona “headroom” para o valor máximo não encostar no topo.
+  const CHART_BAR_AREA_PX = 220;
+  const HEADROOM_FACTOR = 1.12;
+  const chartMax = maxValue > 0 ? maxValue * HEADROOM_FACTOR : 0;
+
   const yTicks = (() => {
-    if (maxValue <= 0) return [];
+    if (chartMax <= 0) return [];
     const steps = 5;
-    return Array.from({ length: steps + 1 }, (_, i) =>
-      (maxValue * i) / steps
-    );
+    return Array.from({ length: steps + 1 }, (_, i) => (chartMax * i) / steps);
   })();
+
+  const pctY = (v: number) => {
+    if (!chartMax || chartMax <= 0) return 0;
+    const clamped = Math.max(0, Math.min(v, chartMax));
+    return (clamped / chartMax) * 100;
+  };
+
+  const heightPx = (v: number) => {
+    if (!chartMax || chartMax <= 0) return 0;
+    const clamped = Math.max(0, Math.min(v, chartMax));
+    return (clamped / chartMax) * CHART_BAR_AREA_PX;
+  };
 
   useEffect(() => {
     if (!import.meta.env.DEV) return;
@@ -419,39 +448,63 @@ export default function PesoTubos() {
               <tbody>
                 <tr className="data-row">
                   <td className="category-cell">Peso 1m Tubo (kg)</td>
-                  {materials.map((material) => (
-                    <td key={material} className="data-cell">
-                      {pipeData[selectedDiameter as keyof typeof pipeData][
+                  {materials.map((material) => {
+                    const v =
+                      pipeData[selectedDiameter as keyof typeof pipeData][
                         material as keyof (typeof pipeData)['12"']
-                      ].empty.toFixed(2)}
-                    </td>
-                  ))}
+                      ];
+                    return (
+                      <td key={material} className="data-cell">
+                        {isMaterialWithoutTabulatedData(selectedDiameter, material)
+                          ? "—"
+                          : formatKg(v.empty)}
+                      </td>
+                    );
+                  })}
                 </tr>
                 <tr className="data-row">
                   <td className="category-cell">Peso de Água 1m Tubo (kg)</td>
-                  {materials.map((material) => (
-                    <td key={material} className="data-cell">
-                      {pipeData[selectedDiameter as keyof typeof pipeData][
+                  {materials.map((material) => {
+                    const v =
+                      pipeData[selectedDiameter as keyof typeof pipeData][
                         material as keyof (typeof pipeData)['12"']
-                      ].water.toFixed(2)}
-                    </td>
-                  ))}
+                      ];
+                    return (
+                      <td key={material} className="data-cell">
+                        {isMaterialWithoutTabulatedData(selectedDiameter, material)
+                          ? "—"
+                          : formatKg(v.water)}
+                      </td>
+                    );
+                  })}
                 </tr>
                 <tr className="data-row total-row">
                   <td className="category-cell total-cell">
                     Peso 1m Tubo cheio de água (kg)
                   </td>
-                  {materials.map((material) => (
-                    <td key={material} className="data-cell total-value-cell">
-                      {pipeData[selectedDiameter as keyof typeof pipeData][
+                  {materials.map((material) => {
+                    const v =
+                      pipeData[selectedDiameter as keyof typeof pipeData][
                         material as keyof (typeof pipeData)['12"']
-                      ].full.toFixed(2)}
-                    </td>
-                  ))}
+                      ];
+                    return (
+                      <td key={material} className="data-cell total-value-cell">
+                        {isMaterialWithoutTabulatedData(selectedDiameter, material)
+                          ? "—"
+                          : formatKg(v.full)}
+                      </td>
+                    );
+                  })}
                 </tr>
               </tbody>
             </table>
           </div>
+          {hasMaterialsPendingData && (
+            <p className="peso-tubos-data-footnote">
+              Colunas com &quot;—&quot; aguardam dados da tabela de referência (NBR
+              5580); o gráfico exibe só materiais com peso publicado.
+            </p>
+          )}
         </div>
 
         <div className="chart-section">
@@ -463,31 +516,34 @@ export default function PesoTubos() {
             <div className="chart-area">
               <div className="chart-y-axis" aria-hidden="true">
                 <div className="chart-y-axis-label">kg/m</div>
-                <div className="chart-y-ticks" style={{ height: CHART_HEIGHT_PX }}>
+                <div className="chart-y-ticks" style={{ height: CHART_BAR_AREA_PX }}>
                   {yTicks
                     .slice()
                     .reverse()
-                    .map((t) => (
-                      <div key={t} className="chart-y-tick">
-                        <div className="chart-y-grid" />
-                        <div className="chart-y-value">{formatKg(t)}</div>
-                      </div>
-                    ))}
+                    .map((t) => {
+                      const topPct = 100 - pctY(t);
+                      return (
+                        <div
+                          key={t}
+                          className="chart-y-tick"
+                          style={{ top: `${topPct}%` }}
+                        >
+                          <div className="chart-y-grid" />
+                          <div className="chart-y-value">{formatKg(t)}</div>
+                        </div>
+                      );
+                    })}
                 </div>
               </div>
 
-              <div className="chart-bars" style={{ height: CHART_HEIGHT_PX }}>
+              <div className="chart-bars" style={{ height: CHART_BAR_AREA_PX }}>
                 {chartData.map((item) => (
                   <div key={item.material} className="chart-bar-group">
                     <div className="bars">
                       <div
                         className="bar empty-bar"
                         style={{
-                          height: `${
-                            maxValue > 0
-                              ? (item.empty / maxValue) * CHART_HEIGHT_PX
-                              : 0
-                          }px`,
+                          height: `${heightPx(item.empty)}px`,
                         }}
                         title={`Peso do tubo: ${formatKg(item.empty)} kg/m`}
                       >
@@ -496,11 +552,7 @@ export default function PesoTubos() {
                       <div
                         className="bar water-bar"
                         style={{
-                          height: `${
-                            maxValue > 0
-                              ? (item.water / maxValue) * CHART_HEIGHT_PX
-                              : 0
-                          }px`,
+                          height: `${heightPx(item.water)}px`,
                         }}
                         title={`Peso da água: ${formatKg(item.water)} kg/m`}
                       >
@@ -509,11 +561,7 @@ export default function PesoTubos() {
                       <div
                         className="bar full-bar"
                         style={{
-                          height: `${
-                            maxValue > 0
-                              ? (item.full / maxValue) * CHART_HEIGHT_PX
-                              : 0
-                          }px`,
+                          height: `${heightPx(item.full)}px`,
                         }}
                         title={`Peso total: ${formatKg(item.full)} kg/m`}
                       >

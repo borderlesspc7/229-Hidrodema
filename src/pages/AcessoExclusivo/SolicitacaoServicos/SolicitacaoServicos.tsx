@@ -39,6 +39,10 @@ import {
   sanitizeForDatabase,
   validateServiceRequestFormData,
 } from "../../../lib/validation";
+import {
+  buildHidrodemaPrintDocument,
+  escapeHtml,
+} from "../../../lib/printPdfBranding";
 
 interface FormData {
   [key: string]: string | string[];
@@ -1023,72 +1027,90 @@ export default function SolicitacaoServicos() {
   };
 
   const handleExportPDF = (request: ServiceRequest) => {
-    // Implementação básica de exportação para PDF
     const printWindow = window.open("", "_blank");
-    if (printWindow) {
-      printWindow.document.write(`
-        <html>
-          <head>
-            <title>Solicitação de Serviço - ${request.title}</title>
-            <style>
-              body { font-family: Arial, sans-serif; margin: 20px; }
-              .header { text-align: center; margin-bottom: 30px; }
-              .section { margin-bottom: 25px; }
-              .question { margin-bottom: 15px; }
-              .label { font-weight: bold; color: #1e40af; }
-              .value { margin-left: 10px; }
-              .comments { margin-top: 30px; }
-              .comment { margin-bottom: 15px; padding: 10px; background: #f5f5f5; border-radius: 5px; }
-            </style>
-          </head>
-          <body>
-            <div class="header">
-              <h1>HIDRO SERVICE</h1>
-              <h2>Solicitação de Serviço</h2>
-              <p>Data: ${new Date(request.createdAt).toLocaleDateString()}</p>
-            </div>
-            <div class="section">
-              <h3>Dados da Solicitação</h3>
-              ${Object.entries(request.formData)
-                .map(
-                  ([key, value]) => `
-                <div class="question">
-                  <span class="label">${key}:</span>
-                  <span class="value">${
-                    Array.isArray(value) ? value.join(", ") : value
-                  }</span>
-                </div>
-              `
-                )
-                .join("")}
-            </div>
-            ${
-              request.comments.length > 0
-                ? `
-              <div class="comments">
-                <h3>Comentários</h3>
-                ${request.comments
-                  .map(
-                    (comment) => `
-                  <div class="comment">
-                    <strong>${comment.author}</strong> - ${new Date(
-                      comment.createdAt
-                    ).toLocaleDateString()}
-                    <p>${comment.text}</p>
-                  </div>
-                `
-                  )
-                  .join("")}
-              </div>
-            `
-                : ""
-            }
-          </body>
-        </html>
-      `);
-      printWindow.document.close();
-      printWindow.print();
-    }
+    if (!printWindow) return;
+
+    const labelForField = (key: string) => {
+      const q = questions.find((x) => x.id === key);
+      return q?.question ?? key;
+    };
+
+    const formatFieldValue = (value: string | string[]) =>
+      Array.isArray(value) ? value.join(", ") : String(value ?? "");
+
+    const statusPt: Record<ServiceRequest["status"], string> = {
+      draft: "Rascunho",
+      submitted: "Enviada",
+      "needs-review": "Em análise",
+      "in-progress": "Em andamento",
+      completed: "Concluída",
+      rejected: "Rejeitada",
+      cancelled: "Cancelada",
+    };
+
+    const formRows = Object.entries(request.formData)
+      .map(
+        ([key, value]) => `<div class="print-question">
+  <div><span class="print-label">${escapeHtml(
+    labelForField(key)
+  )}</span></div>
+  <div class="print-value-block">${escapeHtml(formatFieldValue(value))}</div>
+</div>`
+      )
+      .join("");
+
+    const commentsBlock =
+      request.comments.length > 0
+        ? `<div class="print-section print-comments">
+  <h3>Comentários</h3>
+  ${request.comments
+    .map(
+      (c) => `<div class="print-comment">
+  <strong>${escapeHtml(c.author)}</strong> — ${escapeHtml(
+        new Date(c.createdAt).toLocaleString("pt-BR")
+      )}
+  <p>${escapeHtml(c.text)}</p>
+</div>`
+    )
+    .join("")}
+</div>`
+        : "";
+
+    const metaLinesHtml = `<p><strong>Protocolo / ID:</strong> ${escapeHtml(
+      request.requestId || request.id
+    )}</p>
+<p><strong>Status:</strong> ${escapeHtml(
+      statusPt[request.status] ?? request.status
+    )}</p>
+<p><strong>Criada em:</strong> ${escapeHtml(
+      new Date(request.createdAt).toLocaleString("pt-BR")
+    )} · <strong>Atualizada:</strong> ${escapeHtml(
+      new Date(request.updatedAt).toLocaleString("pt-BR")
+    )}</p>`;
+
+    const bodyHtml = `<div class="print-section">
+  <h3>Dados do formulário</h3>
+  ${formRows}
+</div>
+${commentsBlock}`;
+
+    const extraStyles = `
+  .print-value-block { margin-top: 4px; white-space: pre-wrap; color: #0f172a; }
+  .print-question { margin-bottom: 16px; }
+`;
+
+    const html = buildHidrodemaPrintDocument({
+      pageTitle: `Solicitação de serviço — ${request.title}`,
+      mainTitle: "Hidro Service — solicitação",
+      subtitle: request.title,
+      metaLinesHtml,
+      bodyHtml,
+      extraStyles,
+    });
+
+    printWindow.document.write(html);
+    printWindow.document.close();
+    printWindow.print();
   };
 
   const handleViewComments = async (request: ServiceRequest) => {
