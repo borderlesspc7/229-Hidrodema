@@ -23,6 +23,19 @@
       "
     />
     <title>Hidrodema</title>
+    <script>
+      // GitHub Pages SPA fallback: reidrata rota vinda do 404.html (?p=...)
+      (function () {
+        var params = new URLSearchParams(window.location.search);
+        var p = params.get("p");
+        if (!p) return;
+        params.delete("p");
+        var next =
+          p +
+          (params.toString() ? (p.indexOf("?") >= 0 ? "&" : "?") + params.toString() : "");
+        window.history.replaceState(null, "", next);
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hidrodema</title>
+    <script>
+      // GitHub Pages SPA fallback:
+      // redireciona para index.html preservando o caminho como query (ver index.html handler se necessário).
+      (function () {
+        var l = window.location;
+        var base = l.pathname.split("/").slice(0, 2).join("/");
+        var target = base + "/?p=" + encodeURIComponent(l.pathname + l.search + l.hash);
+        l.replace(target);
+      })();
+    </script>
+  </head>
+  <body></body>
+</html>
