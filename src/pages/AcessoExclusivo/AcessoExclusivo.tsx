@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { paths } from "../../routes/paths";
 import Card from "../../components/ui/Card/Card";
 import { features } from "../../lib/features";
-import { hasMacroVisibility } from "../../lib/rbac";
+import { hasMacroVisibility, isAdmin } from "../../lib/rbac";
 import BackButton from "../../components/ui/BackButton/BackButton";
 
 export default function AcessoExclusivo() {
@@ -78,6 +78,17 @@ export default function AcessoExclusivo() {
             size="medium"
             className="acesso-exclusivo-card"
             onClick={() => navigate("/acesso-exclusivo/gestao-vendedores")}
+          />
+        )}
+        {user && isAdmin(user) && (
+          <Card
+            variant="service"
+            title="CONTROLE DE FUNCIONARIOS"
+            backgroundColor="#ecfeff"
+            textColor="#155e75"
+            size="medium"
+            className="acesso-exclusivo-card"
+            onClick={() => navigate("/acesso-exclusivo/controle-funcionarios")}
           />
         )}
       </div>

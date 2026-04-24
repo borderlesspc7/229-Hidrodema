@@ -362,13 +362,78 @@
   isolation: isolate;
 }
 
+/* Responsividade do gráfico (mobile) */
+@media (max-width: 640px) {
+  .chart-container {
+    padding: 14px;
+  }
+
+  .chart-area {
+    grid-template-columns: 62px 1fr;
+    gap: 8px;
+  }
+
+  .chart-bars {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    justify-content: unset;
+  }
+
+  .chart-bar-group {
+    flex: unset;
+    width: 100%;
+  }
+
+  .bars {
+    gap: 8px;
+  }
+
+  .bar {
+    width: 14px;
+  }
+
+  .bar-value {
+    font-size: 0.6rem;
+  }
+
+  .chart-x-labels {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    justify-content: unset;
+    margin-top: 8px;
+  }
+
+  .chart-x-label {
+    flex: unset;
+    width: 100%;
+    font-size: 0.85rem;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+    line-height: 1.15;
+  }
+}
+
+@media (max-width: 420px) {
+  .chart-area {
+    grid-template-columns: 54px 1fr;
+  }
+
+  .chart-y-value {
+    font-size: 0.7rem;
+  }
+}
+
+/* Layout do gráfico (eixo Y + área de plot) */
 .chart-area {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  gap: 10px;
+  align-items: end;
   width: 100%;
   min-width: 0;
-  /* Espaço reservado para os valores acima das barras */
-  padding-top: 28px;
-  padding-bottom: 14px;
-  /* Evita “sobras” enormes nas laterais em telas largas */
   max-width: 980px;
   margin: 0 auto;
 }
@@ -377,7 +442,7 @@
   display: flex;
   justify-content: center;
   align-items: end;
-  margin-bottom: 20px;
+  margin-bottom: 0;
   padding: 0;
   flex-wrap: nowrap;
   min-width: 0;
@@ -392,28 +457,30 @@
   flex: 0 1 360px;
   min-width: 0;
   margin: 0;
+  height: 100%;
 }
 
-.bar-label {
+/* Labels do eixo X (fora da área de barras, para não distorcer a escala) */
+.chart-x-labels {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: clamp(28px, 6vw, 96px);
+  margin-top: 10px;
+}
+
+.chart-x-label {
+  flex: 0 1 360px;
+  min-width: 0;
   color: #ffffff;
   font-size: 1rem;
-  font-weight: bold;
-  margin-bottom: 10px;
+  font-weight: 800;
   text-align: center;
-  writing-mode: vertical-1;
-  text-orientation: mixed;
-  height: 70px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
   text-transform: uppercase;
-}
-
-.bar-label:hover {
-  transform: translateY(-5px);
-  transition: all 0.3s ease;
-  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .bars {
@@ -423,6 +490,7 @@
   height: 100%;
   min-width: 0;
   overflow: visible;
+  justify-content: center;
 }
 
 .bar {
@@ -432,7 +500,8 @@
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  min-height: 20px;
+  /* Sem min-height para manter proporção real com o eixo Y */
+  min-height: 0;
   transition: all 0.3s ease;
   cursor: pointer;
   overflow: visible;
@@ -483,7 +552,7 @@
 .bar-value {
   position: absolute;
   top: auto;
-  bottom: calc(100% + 6px);
+  bottom: calc(100% + 10px);
   color: #ffffff;
   font-size: 0.68rem;
   font-weight: 700;
@@ -511,13 +580,6 @@
   margin-top: 6px;
 }
 
-.chart-area {
-  display: grid;
-  grid-template-columns: 90px 1fr;
-  gap: 10px;
-  align-items: end;
-}
-
 .chart-y-axis {
   display: flex;
   flex-direction: column;
@@ -531,10 +593,9 @@
   text-align: right;
   margin-bottom: 0;
   font-size: 0.85rem;
-  /* Não empurra os ticks para baixo (mantém alinhado com as barras) */
   position: absolute;
   right: 0;
-  top: -22px;
+  top: 10px;
 }
 
 .chart-y-ticks {
@@ -542,7 +603,6 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  /* alinhamento deve vir do padding do `.chart-area` */
   margin-top: 0;
   box-sizing: border-box;
 }
@@ -554,23 +614,44 @@
   height: 0;
 }
 
-.chart-y-grid {
+.chart-y-tick-mark {
   position: absolute;
-  right: -10px;
-  left: 0;
+  right: 0;
   top: 0;
+  width: 10px;
   height: 1px;
-  background: rgba(226, 232, 240, 0.15);
+  background: rgba(226, 232, 240, 0.4);
+  transform: translateY(-0.5px);
 }
 
 .chart-y-value {
   position: absolute;
-  right: 0;
-  top: -9px;
+  right: 14px;
+  top: 0;
   color: rgba(226, 232, 240, 0.85);
   font-size: 0.75rem;
   font-weight: 700;
-  transform: translateX(-4px);
+  transform: translate(-4px, -50%);
+  line-height: 1;
+}
+
+.chart-plot {
+  position: relative;
+  min-width: 0;
+}
+
+.chart-gridlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.chart-gridline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(226, 232, 240, 0.15);
 }
 
 .chart-bars {
@@ -578,13 +659,7 @@
   margin-top: 0;
 }
 
-.chart-bar-group .bar-label {
-  max-width: 140px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  margin-top: 10px;
-}
+/* (removido) bar-label dentro do plot */
 
 .legend-item {
   display: flex;
@@ -728,38 +803,7 @@
     padding: 8px 4px;
   }
 
-  .chart-bars {
-    height: 250px;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-  }
-
-  .chart-bar-group {
-    flex-direction: row;
-    width: 100%;
-    justify-content: space-around;
-  }
-
-  .bar-label {
-    writing-mode: horizontal-tb;
-    text-orientation: initial;
-    height: auto;
-    margin-bottom: 0;
-    margin-right: 10px;
-  }
-
-  .bars {
-    height: 150px;
-  }
-
-  .bar {
-    width: 15px;
-  }
-
-  .bar-value {
-    font-size: 0.6rem;
-  }
+  /* O layout responsivo do gráfico está em @media (max-width: 640px). */
 
   .chart-legend {
     gap: 15px;
@@ -802,11 +846,11 @@
   }
 
   .chart-bars {
-    height: 200px;
+    /* altura vem do layout do gráfico (JS) */
   }
 
   .bars {
-    height: 120px;
+    height: 100%;
   }
 
   .footer-logo {

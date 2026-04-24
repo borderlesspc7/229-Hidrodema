@@ -54,7 +54,7 @@
 
 .acesso-exclusivo-logo {
   height: 180px;
-  width: 1000px;
+  width: min(1000px, 100%);
   object-fit: contain;
   filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.5));
   transition: all 0.3s ease;
@@ -229,7 +229,7 @@
 
 .acesso-exclusivo-footer-logo {
   height: 80px;
-  width: 1000px;
+  width: min(1000px, 100%);
 
   object-fit: contain;
   filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.4));

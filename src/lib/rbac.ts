@@ -13,6 +13,11 @@ export function hasMacroVisibility(user: User | null): boolean {
   return r === "admin" || r === "gestor";
 }
 
+export function isAdmin(user: User | null): boolean {
+  if (!user) return false;
+  return normalizeRole(user.role) === "admin";
+}
+
 export function isVendedorProfile(user: User | null): boolean {
   if (!user) return false;
   const r = normalizeRole(user.role);

@@ -14,6 +14,8 @@
   font-weight: 400;
 
   color: #335f85;
+  /* Tipografia fluida (melhor no mobile) */
+  font-size: clamp(14px, 1.6vw, 16px);
 }
 
 html,
@@ -23,6 +25,24 @@ body {
   min-height: 100vh;
   font-family: inherit;
   overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Mídia nunca deve estourar o container */
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Inputs/botões não “vazam” em telas pequenas */
+button,
+input,
+textarea,
+select {
+  max-width: 100%;
 }
 
 /* Estilos básicos para desenvolvimento */
@@ -59,7 +79,7 @@ select {
 /* Container principal */
 #root {
   min-height: 100vh;
-  width: 100vw;
+  width: 100%;
   padding: 0;
   margin: 0;
 }

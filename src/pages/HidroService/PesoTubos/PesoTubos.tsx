@@ -219,15 +219,35 @@ export default function PesoTubos() {
     chartData.length === 0
       ? 0
       : Math.max(...chartData.map((d) => Math.max(d.empty, d.water, d.full)));
-  // Escala do gráfico: adiciona “headroom” para o valor máximo não encostar no topo.
+
+  // Escala do gráfico: usa “ticks bonitos” (25/50/75...) para leitura correta.
+  // A área do gráfico é dividida em:
+  // - topo (valores acima das barras)
+  // - plot (barras)
+  // - rodapé (rótulos no eixo X)
   const CHART_BAR_AREA_PX = 220;
-  const HEADROOM_FACTOR = 1.12;
-  const chartMax = maxValue > 0 ? maxValue * HEADROOM_FACTOR : 0;
+  const VALUE_LABEL_PAD_PX = 88;
+  const X_LABEL_ROW_PX = 72;
+
+  const niceStep = (raw: number) => {
+    if (!Number.isFinite(raw) || raw <= 0) return 1;
+    const exp = Math.floor(Math.log10(raw));
+    const base = raw / 10 ** exp; // [1..10)
+    const niceBase = base <= 1 ? 1 : base <= 2 ? 2 : base <= 5 ? 5 : 10;
+    return niceBase * 10 ** exp;
+  };
+
+  // Queremos ~6 divisões (0..150 em vez de 0..250 para max=146,83).
+  const targetDivisions = 6;
+  const step = maxValue > 0 ? niceStep(maxValue / targetDivisions) : 0;
+  const chartMax =
+    step > 0 ? Math.ceil(maxValue / step) * step : 0;
+  const plotHeightPx = CHART_BAR_AREA_PX + VALUE_LABEL_PAD_PX + X_LABEL_ROW_PX;
 
   const yTicks = (() => {
     if (chartMax <= 0) return [];
-    const steps = 5;
-    return Array.from({ length: steps + 1 }, (_, i) => (chartMax * i) / steps);
+    const count = Math.round(chartMax / step);
+    return Array.from({ length: count + 1 }, (_, i) => step * i);
   })();
 
   const pctY = (v: number) => {
@@ -240,6 +260,12 @@ export default function PesoTubos() {
     if (!chartMax || chartMax <= 0) return 0;
     const clamped = Math.max(0, Math.min(v, chartMax));
     return (clamped / chartMax) * CHART_BAR_AREA_PX;
+  };
+
+  const yTopPx = (v: number) => {
+    if (!chartMax || chartMax <= 0) return VALUE_LABEL_PAD_PX + CHART_BAR_AREA_PX;
+    const clamped = Math.max(0, Math.min(v, chartMax));
+    return VALUE_LABEL_PAD_PX + (1 - clamped / chartMax) * CHART_BAR_AREA_PX;
   };
 
   useEffect(() => {
@@ -516,19 +542,18 @@ export default function PesoTubos() {
             <div className="chart-area">
               <div className="chart-y-axis" aria-hidden="true">
                 <div className="chart-y-axis-label">kg/m</div>
-                <div className="chart-y-ticks" style={{ height: CHART_BAR_AREA_PX }}>
+                <div className="chart-y-ticks" style={{ height: plotHeightPx }}>
                   {yTicks
                     .slice()
                     .reverse()
                     .map((t) => {
-                      const topPct = 100 - pctY(t);
                       return (
                         <div
                           key={t}
                           className="chart-y-tick"
-                          style={{ top: `${topPct}%` }}
+                          style={{ top: `${yTopPx(t)}px` }}
                         >
-                          <div className="chart-y-grid" />
+                          <div className="chart-y-tick-mark" aria-hidden="true" />
                           <div className="chart-y-value">{formatKg(t)}</div>
                         </div>
                       );
@@ -536,43 +561,73 @@ export default function PesoTubos() {
                 </div>
               </div>
 
-              <div className="chart-bars" style={{ height: CHART_BAR_AREA_PX }}>
-                {chartData.map((item) => (
-                  <div key={item.material} className="chart-bar-group">
-                    <div className="bars">
+              <div className="chart-plot" style={{ height: plotHeightPx }}>
+                <div className="chart-gridlines" aria-hidden="true">
+                  {yTicks
+                    .slice()
+                    .reverse()
+                    .map((t) => (
                       <div
-                        className="bar empty-bar"
-                        style={{
-                          height: `${heightPx(item.empty)}px`,
-                        }}
-                        title={`Peso do tubo: ${formatKg(item.empty)} kg/m`}
-                      >
-                        <span className="bar-value">{formatKg(item.empty)}</span>
-                      </div>
-                      <div
-                        className="bar water-bar"
-                        style={{
-                          height: `${heightPx(item.water)}px`,
-                        }}
-                        title={`Peso da água: ${formatKg(item.water)} kg/m`}
-                      >
-                        <span className="bar-value">{formatKg(item.water)}</span>
-                      </div>
-                      <div
-                        className="bar full-bar"
-                        style={{
-                          height: `${heightPx(item.full)}px`,
-                        }}
-                        title={`Peso total: ${formatKg(item.full)} kg/m`}
-                      >
-                        <span className="bar-value">{formatKg(item.full)}</span>
+                        key={t}
+                        className="chart-gridline"
+                        style={{ top: `${yTopPx(t)}px` }}
+                      />
+                    ))}
+                </div>
+
+                <div
+                  className="chart-bars"
+                  style={{
+                    height: CHART_BAR_AREA_PX,
+                    marginTop: VALUE_LABEL_PAD_PX,
+                  }}
+                >
+                  {chartData.map((item) => (
+                    <div key={item.material} className="chart-bar-group">
+                      <div className="bars">
+                        <div
+                          className="bar empty-bar"
+                          style={{
+                            height: `${heightPx(item.empty)}px`,
+                          }}
+                          title={`Peso do tubo: ${formatKg(item.empty)} kg/m`}
+                        >
+                          <span className="bar-value">{formatKg(item.empty)}</span>
+                        </div>
+                        <div
+                          className="bar water-bar"
+                          style={{
+                            height: `${heightPx(item.water)}px`,
+                          }}
+                          title={`Peso da água: ${formatKg(item.water)} kg/m`}
+                        >
+                          <span className="bar-value">{formatKg(item.water)}</span>
+                        </div>
+                        <div
+                          className="bar full-bar"
+                          style={{
+                            height: `${heightPx(item.full)}px`,
+                          }}
+                          title={`Peso total: ${formatKg(item.full)} kg/m`}
+                        >
+                          <span className="bar-value">{formatKg(item.full)}</span>
+                        </div>
                       </div>
                     </div>
-                    <div className="bar-label" title={item.material}>
+                  ))}
+                </div>
+
+                <div
+                  className="chart-x-labels"
+                  style={{ height: X_LABEL_ROW_PX }}
+                  aria-hidden="true"
+                >
+                  {chartData.map((item) => (
+                    <div key={item.material} className="chart-x-label" title={item.material}>
                       {item.material}
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
 
