@@ -16,6 +16,7 @@ export default function Register() {
     password: "",
     confirmPassword: "",
   });
+  const [localError, setLocalError] = useState<string | null>(null);
 
   // Redireciona para o menu se já estiver logado
   useEffect(() => {
@@ -26,29 +27,25 @@ export default function Register() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setLocalError(null);
 
     if (formData.confirmPassword !== formData.password) {
-      console.error("As senhas não coincidem");
+      setLocalError("As senhas não coincidem.");
       return;
     }
 
     if (formData.password.length < 6) {
-      console.error("A senha deve ter pelo menos 6 caracteres");
+      setLocalError("A senha deve ter pelo menos 6 caracteres.");
       return;
     }
 
     if (!formData.name.trim()) {
-      console.error("O nome é obrigatório");
+      setLocalError("O nome é obrigatório.");
       return;
     }
 
     if (!formData.email.trim()) {
-      console.error("O email é obrigatório");
-      return;
-    }
-
-    if (formData.password.length < 6) {
-      console.error("A senha deve ter pelo menos 6 caracteres");
+      setLocalError("O email é obrigatório.");
       return;
     }
 
@@ -89,12 +86,14 @@ export default function Register() {
         </div>
 
         <form onSubmit={handleSubmit} className="register-form">
+          {localError ? <p className="error-message">{localError}</p> : null}
           <Input
             type="text"
             placeholder="Digite seu nome completo"
             value={formData.name}
             onChange={(value) => handleChange("name", value)}
             required
+            error={Boolean(localError) && !formData.name.trim()}
           />
           <Input
             type="email"
@@ -102,6 +101,7 @@ export default function Register() {
             value={formData.email}
             onChange={(value) => handleChange("email", value)}
             required
+            error={Boolean(localError) && !formData.email.trim()}
           />
           <Input
             type="password"
@@ -109,6 +109,12 @@ export default function Register() {
             value={formData.password}
             onChange={(value) => handleChange("password", value)}
             required
+            error={Boolean(localError) && formData.password.length > 0 && formData.password.length < 6}
+            helperText={
+              formData.password.length > 0 && formData.password.length < 6
+                ? "Mínimo de 6 caracteres."
+                : undefined
+            }
           />
           <Input
             type="password"
@@ -116,6 +122,17 @@ export default function Register() {
             value={formData.confirmPassword}
             onChange={(value) => handleChange("confirmPassword", value)}
             required
+            error={
+              Boolean(localError) &&
+              Boolean(formData.confirmPassword) &&
+              formData.confirmPassword !== formData.password
+            }
+            helperText={
+              Boolean(formData.confirmPassword) &&
+              formData.confirmPassword !== formData.password
+                ? "As senhas precisam ser iguais."
+                : undefined
+            }
           />
 
           <div className="form-options">

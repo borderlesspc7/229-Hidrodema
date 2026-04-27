@@ -250,12 +250,6 @@ export default function PesoTubos() {
     return Array.from({ length: count + 1 }, (_, i) => step * i);
   })();
 
-  const pctY = (v: number) => {
-    if (!chartMax || chartMax <= 0) return 0;
-    const clamped = Math.max(0, Math.min(v, chartMax));
-    return (clamped / chartMax) * 100;
-  };
-
   const heightPx = (v: number) => {
     if (!chartMax || chartMax <= 0) return 0;
     const clamped = Math.max(0, Math.min(v, chartMax));

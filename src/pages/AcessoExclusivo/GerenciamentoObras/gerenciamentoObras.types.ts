@@ -27,3 +27,7 @@ export type GerenciamentoObrasViewMode =
   | "new-budget"
   | "new-supplier"
   | "new-quality";
+
+export type ViewChangeContext = {
+  projectId?: string;
+};

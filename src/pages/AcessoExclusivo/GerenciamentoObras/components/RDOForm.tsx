@@ -4,6 +4,7 @@ import Button from "../../../../components/ui/Button/Button";
 import Input from "../../../../components/ui/Input/Input";
 import type { Project, RDOReport } from "../../../../types/obrasGerenciamentoModule";
 import ProjectSelector from "./ProjectSelector";
+import SignatureCapture from "../../../../components/ui/SignatureCapture/SignatureCapture";
 import {
   sanitizeForDatabase,
   validateObraReportInput,
@@ -15,6 +16,7 @@ import {
   clearDraftKey,
   tryLoadDraft,
 } from "../../../../hooks/useAutosaveLocalDraft";
+import { finalizeSignatureForFirestore } from "../../../../services/obrasSignaturesService";
 
 type Props = {
   projects: Project[];
@@ -46,6 +48,25 @@ export default function RDOForm({
   const [weather, setWeather] = useState(initialReport?.weather ?? "");
   const [responsible, setResponsible] = useState(initialReport?.responsible ?? "");
   const [teamText, setTeamText] = useState((initialReport?.team ?? []).join(", "));
+  const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(
+    initialReport?.signature?.dataUrl ??
+      (initialReport?.signature?.storageUrl ? initialReport.signature.storageUrl : null)
+  );
+  const [teamPick, setTeamPick] = useState("");
+
+  const selectedProject = useMemo(
+    () => projects.find((p) => p.id === projectId) ?? null,
+    [projectId, projects]
+  );
+
+  const availableTeamMembers = useMemo(() => {
+    if (!selectedProject) return [];
+    const base = [...(selectedProject.team ?? [])];
+    if (selectedProject.labor) base.push(selectedProject.labor);
+    return [...new Set(base.map((s) => s.trim()).filter(Boolean))].sort((a, b) =>
+      a.localeCompare(b)
+    );
+  }, [selectedProject]);
 
   useEffect(() => {
     if (!draftStorageKey || initialReport) return;
@@ -103,6 +124,15 @@ export default function RDOForm({
       team,
       weather,
       responsible,
+      signature: signatureDataUrl
+        ? ({
+            id: "signature",
+            name: "signature.png",
+            description: "Assinatura",
+            dataUrl: signatureDataUrl.startsWith("data:") ? signatureDataUrl : undefined,
+            storageUrl: signatureDataUrl.startsWith("http") ? signatureDataUrl : undefined,
+          } as RDOReport["signature"])
+        : undefined,
       createdAt: initialReport?.createdAt ?? new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       finalizedAt: initialReport?.finalizedAt,
@@ -120,7 +150,19 @@ export default function RDOForm({
       return;
     }
 
-    await onSubmit(sanitizeForDatabase({ ...base, activities: act.value }));
+    const finalizedSignature = await finalizeSignatureForFirestore({
+      signature: base.signature,
+      projectId,
+      reportId: base.id,
+    });
+
+    await onSubmit(
+      sanitizeForDatabase({
+        ...base,
+        activities: act.value,
+        signature: finalizedSignature,
+      })
+    );
     if (draftStorageKey) clearDraftKey(draftStorageKey);
   };
 
@@ -158,6 +200,46 @@ export default function RDOForm({
             <Input type="text" value={teamText} onChange={setTeamText} placeholder="Ex: João, Maria" />
           </div>
 
+          {availableTeamMembers.length > 0 ? (
+            <div className="obras-form-row">
+              <div className="obras-form-field">
+                <label>Adicionar membro da obra</label>
+                <select
+                  className="obras-select"
+                  value={teamPick}
+                  onChange={(e) => setTeamPick(e.target.value)}
+                >
+                  <option value="">Selecione…</option>
+                  {availableTeamMembers.map((m) => (
+                    <option key={m} value={m}>
+                      {m}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="obras-form-field" style={{ alignSelf: "end" }}>
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    if (!teamPick) return;
+                    setTeamText((prev) => {
+                      const list = prev
+                        .split(",")
+                        .map((s) => s.trim())
+                        .filter(Boolean);
+                      if (!list.includes(teamPick)) list.push(teamPick);
+                      return list.join(", ");
+                    });
+                    setTeamPick("");
+                  }}
+                  disabled={!teamPick}
+                >
+                  Adicionar
+                </Button>
+              </div>
+            </div>
+          ) : null}
+
           <div className="obras-form-row">
             <div className="obras-form-field">
               <label>Clima</label>
@@ -184,6 +266,14 @@ export default function RDOForm({
               onChange={(e) => setObservations(e.target.value)}
               rows={4}
               placeholder="Observações gerais"
+            />
+          </div>
+
+          <div className="obras-section">
+            <h3 className="obras-section-title">Assinatura</h3>
+            <SignatureCapture
+              value={signatureDataUrl ?? undefined}
+              onChange={(v) => setSignatureDataUrl(v)}
             />
           </div>
 

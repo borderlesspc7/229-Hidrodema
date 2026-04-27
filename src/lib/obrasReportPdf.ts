@@ -1,5 +1,5 @@
 import { jsPDF } from "jspdf";
-import type { ObraReport, Photo, Project } from "../types/obrasGerenciamentoModule";
+import type { AttachmentFile, ObraReport, Photo, Project } from "../types/obrasGerenciamentoModule";
 import { fetchWithTimeout } from "./networkResilience";
 
 /** Paleta alinhada à identidade da app (botões primários / texto). */
@@ -73,6 +73,12 @@ async function resolvePhotoDataUrlForPdf(photo: Photo): Promise<string | null> {
     }
   }
   return null;
+}
+
+async function resolveAttachmentName(attachment: AttachmentFile): Promise<string> {
+  const name = attachment.name?.trim();
+  if (name) return name;
+  return "Anexo";
 }
 
 export async function exportObraReportToPdf(
@@ -295,6 +301,75 @@ export async function exportObraReportToPdf(
     }
   };
 
+  const addSignature = async () => {
+    if (!report.signature) return;
+    const dataUrl = await resolvePhotoDataUrlForPdf(report.signature);
+    if (!dataUrl) return;
+
+    const titleH = PDF.lineH + PDF.sectionGap + 8;
+    ensureSpace(titleH);
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.setTextColor(...PDF.primary);
+    doc.text("ASSINATURA", margin, y);
+    y += PDF.lineH + 8;
+
+    try {
+      const fmt = imageFormatFromDataUrl(dataUrl);
+      const props = doc.getImageProperties(dataUrl);
+      const iw = props.width || 1;
+      const ih = props.height || 1;
+      const maxW = Math.min(maxWidth, 420);
+      const maxH = 160;
+      const scale = Math.min(maxW / iw, maxH / ih);
+      const w = iw * scale;
+      const h = ih * scale;
+
+      ensureSpace(h + 22);
+      doc.addImage(dataUrl, fmt, margin, y, w, h);
+      y += h + 14;
+    } catch {
+      ensureSpace(PDF.lineH * 2);
+      doc.setFontSize(9);
+      doc.setTextColor(...PDF.muted);
+      doc.text("(Assinatura não pôde ser incluída.)", margin, y);
+      y += PDF.lineH + 8;
+      doc.setTextColor(...PDF.text);
+    }
+  };
+
+  const addAttachments = async () => {
+    const list = report.attachments ?? [];
+    if (!list.length) return;
+
+    const titleH = PDF.lineH + PDF.sectionGap + 8;
+    ensureSpace(titleH);
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.setTextColor(...PDF.primary);
+    doc.text("ANEXOS", margin, y);
+    y += PDF.lineH + 8;
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(...PDF.text);
+
+    for (const a of list.slice(0, 30)) {
+      const line = `${await resolveAttachmentName(a)}${a.sizeBytes ? ` (${Math.round(a.sizeBytes / 1024)} KB)` : ""}`;
+      const lines = wrapLines(doc, `• ${line}`, maxWidth);
+      const rowH = Math.max(PDF.lineH, lines.length * PDF.lineH);
+      ensureSpace(rowH + 4);
+      for (const ln of lines) {
+        doc.text(ln, margin, y);
+        y += PDF.lineH;
+      }
+      y += 2;
+    }
+    y += 6;
+  };
+
   drawHeader();
   y = contentTop();
 
@@ -307,6 +382,8 @@ export async function exportObraReportToPdf(
     if (report.responsible) addSection("Responsável", report.responsible);
     if (report.team?.length) addSection("Equipe", report.team.join(", "));
     await addPhotos();
+    await addSignature();
+    await addAttachments();
   }
 
   if (report.type === "expense") {
@@ -314,6 +391,8 @@ export async function exportObraReportToPdf(
     addTableRow("Descrição", report.description);
     addTableRow("Valor", `R$ ${report.amount.toLocaleString("pt-BR")}`);
     addSection("Observações", report.notes);
+    await addSignature();
+    await addAttachments();
   }
 
   if (report.type === "hydrostatic-test") {
@@ -321,12 +400,16 @@ export async function exportObraReportToPdf(
     addTableRow("Duração (min)", String(report.durationMinutes));
     addTableRow("Resultado", report.result);
     addSection("Observações", report.notes);
+    await addSignature();
+    await addAttachments();
   }
 
   if (report.type === "project-completion") {
     addTableRow("Status final", report.finalStatus);
     addSection("Resumo", report.summary);
     addSection("Pendências", report.pendingItems);
+    await addSignature();
+    await addAttachments();
   }
 
   const fileName = `relatorio-${formatType(report.type)

@@ -7,6 +7,7 @@ import type {
   Project,
 } from "../../../../types/obrasGerenciamentoModule";
 import ProjectSelector from "./ProjectSelector";
+import SignatureCapture from "../../../../components/ui/SignatureCapture/SignatureCapture";
 import {
   sanitizeForDatabase,
   validateNonNegativeNumber,
@@ -18,6 +19,7 @@ import {
   clearDraftKey,
   tryLoadDraft,
 } from "../../../../hooks/useAutosaveLocalDraft";
+import { finalizeSignatureForFirestore } from "../../../../services/obrasSignaturesService";
 
 type Props = {
   projects: Project[];
@@ -54,6 +56,10 @@ export default function HydrostaticTestForm({
     initialReport?.result ?? "aprovado"
   );
   const [notes, setNotes] = useState(initialReport?.notes ?? "");
+  const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(
+    initialReport?.signature?.dataUrl ??
+      (initialReport?.signature?.storageUrl ? initialReport.signature.storageUrl : null)
+  );
 
   useEffect(() => {
     if (!draftStorageKey || initialReport) return;
@@ -110,6 +116,15 @@ export default function HydrostaticTestForm({
       durationMinutes: Number(durationMinutes),
       result,
       notes,
+      signature: signatureDataUrl
+        ? ({
+            id: "signature",
+            name: "signature.png",
+            description: "Assinatura",
+            dataUrl: signatureDataUrl.startsWith("data:") ? signatureDataUrl : undefined,
+            storageUrl: signatureDataUrl.startsWith("http") ? signatureDataUrl : undefined,
+          } as HydrostaticTestReport["signature"])
+        : undefined,
       createdAt: initialReport?.createdAt ?? new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       finalizedAt: initialReport?.finalizedAt,
@@ -126,11 +141,18 @@ export default function HydrostaticTestForm({
       return;
     }
 
+    const finalizedSignature = await finalizeSignatureForFirestore({
+      signature: base.signature,
+      projectId,
+      reportId: base.id,
+    });
+
     await onSubmit(
       sanitizeForDatabase({
         ...base,
         pressure: p.value,
         durationMinutes: d.value,
+        signature: finalizedSignature,
       })
     );
     if (draftStorageKey) clearDraftKey(draftStorageKey);
@@ -209,6 +231,14 @@ export default function HydrostaticTestForm({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={4}
+            />
+          </div>
+
+          <div className="obras-section">
+            <h3 className="obras-section-title">Assinatura</h3>
+            <SignatureCapture
+              value={signatureDataUrl ?? undefined}
+              onChange={(v) => setSignatureDataUrl(v)}
             />
           </div>
 

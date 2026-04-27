@@ -8,7 +8,14 @@ import { paths } from "../../routes/paths";
 import { SESSION_EXPIRED_MESSAGE } from "../../services/authService";
 
 export default function Login() {
-  const { login, loading: authLoading, error: authError, user } = useAuth();
+  const {
+    login,
+    sendPasswordRecovery,
+    loading: authLoading,
+    error: authError,
+    clearError,
+    user,
+  } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -17,6 +24,10 @@ export default function Login() {
     password: "",
   });
   const [sessionMessage, setSessionMessage] = useState<string | null>(null);
+  const [localError, setLocalError] = useState<string | null>(null);
+  const [recoveryOpen, setRecoveryOpen] = useState(false);
+  const [recoveryEmail, setRecoveryEmail] = useState("");
+  const [recoverySent, setRecoverySent] = useState(false);
 
   // Redireciona para o menu se já estiver logado
   useEffect(() => {
@@ -37,6 +48,13 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    setLocalError(null);
+    clearError();
+    if (!formData.email.trim() || !formData.password) {
+      setLocalError("Informe email e senha para continuar.");
+      return;
+    }
+
     try {
       await login({
         email: formData.email,
@@ -49,6 +67,30 @@ export default function Login() {
 
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const openRecovery = () => {
+    setRecoveryEmail(formData.email);
+    setRecoverySent(false);
+    setRecoveryOpen(true);
+    setLocalError(null);
+    clearError();
+  };
+
+  const closeRecovery = () => {
+    setRecoveryOpen(false);
+  };
+
+  const submitRecovery = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLocalError(null);
+    clearError();
+    try {
+      await sendPasswordRecovery(recoveryEmail);
+      setRecoverySent(true);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -77,17 +119,34 @@ export default function Login() {
               {sessionMessage}
             </div>
           ) : null}
+          {localError ? (
+            <div className="error-message" style={{ marginBottom: 12 }}>
+              {localError}
+            </div>
+          ) : null}
           <Input
             type="email"
             placeholder="Digite seu email"
             value={formData.email}
             onChange={(value) => handleChange("email", value)}
+            error={Boolean(localError) && !formData.email.trim()}
+            helperText={
+              Boolean(localError) && !formData.email.trim()
+                ? "O email é obrigatório."
+                : undefined
+            }
           />
           <Input
             type="password"
             placeholder="Digite sua senha"
             value={formData.password}
             onChange={(value) => handleChange("password", value)}
+            error={Boolean(localError) && !formData.password}
+            helperText={
+              Boolean(localError) && !formData.password
+                ? "A senha é obrigatória."
+                : undefined
+            }
           />
           <div className="form-options">
             <label className="checkbox-container">
@@ -95,9 +154,13 @@ export default function Login() {
               <span className="checkmark"></span>
               <span>Lembrar-me</span>
             </label>
-            <a href="#" className="forgot-password">
+            <button
+              type="button"
+              className="forgot-password"
+              onClick={openRecovery}
+            >
               Esqueceu sua senha?
-            </a>
+            </button>
           </div>
 
           <Button
@@ -133,6 +196,47 @@ export default function Login() {
           </Link>
         </div>
       </div>
+
+      {recoveryOpen ? (
+        <div className="recovery-overlay" role="dialog" aria-modal="true">
+          <div className="recovery-modal hd-scale-in">
+            <div className="recovery-header">
+              <h2>Recuperar senha</h2>
+              <Button variant="icon" onClick={closeRecovery} aria-label="Fechar">
+                ✕
+              </Button>
+            </div>
+            {recoverySent ? (
+              <div className="recovery-body">
+                <p className="recovery-success">
+                  Se o email existir, enviamos um link de recuperação.
+                </p>
+                <Button variant="secondary" className="button--full-width" onClick={closeRecovery}>
+                  Ok
+                </Button>
+              </div>
+            ) : (
+              <form onSubmit={submitRecovery} className="recovery-body">
+                <Input
+                  type="email"
+                  placeholder="Digite seu email"
+                  value={recoveryEmail}
+                  onChange={setRecoveryEmail}
+                  required
+                />
+                <Button
+                  type="submit"
+                  variant="primary"
+                  className="button--full-width"
+                  disabled={authLoading}
+                >
+                  Enviar link
+                </Button>
+              </form>
+            )}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

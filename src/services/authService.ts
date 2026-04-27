@@ -6,6 +6,7 @@ import {
   type Unsubscribe,
   onAuthStateChanged,
   getIdTokenResult,
+  sendPasswordResetEmail,
 } from "firebase/auth";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import type {
@@ -112,6 +113,17 @@ export const authService = {
       return userData;
     } catch (error) {
       console.error("Erro detalhado no registro:", error);
+      const message = getFirebaseErrorMessage(error as string | FirebaseError);
+      throw new Error(message);
+    }
+  },
+
+  async sendPasswordRecovery(email: string): Promise<void> {
+    try {
+      const e = email?.trim();
+      if (!e) throw new Error("Informe um email válido.");
+      await sendPasswordResetEmail(auth, e);
+    } catch (error) {
       const message = getFirebaseErrorMessage(error as string | FirebaseError);
       throw new Error(message);
     }

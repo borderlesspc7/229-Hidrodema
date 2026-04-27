@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import Card from "../../../../components/ui/Card/Card";
 import Button from "../../../../components/ui/Button/Button";
 import Input from "../../../../components/ui/Input/Input";
@@ -35,6 +36,7 @@ function formatSize(n: number): string {
 
 export default function DocumentosPage() {
   const { user } = useAuth();
+  const location = useLocation();
   const [projects, setProjects] = useState<ObraProject[]>([]);
   const [projectId, setProjectId] = useState("");
   const [rows, setRows] = useState<ObraDocumentoMeta[]>([]);
@@ -60,6 +62,12 @@ export default function DocumentosPage() {
       }
     })();
   }, [user]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const pid = params.get("projectId");
+    if (pid) setProjectId(pid);
+  }, [location.search]);
 
   const load = useCallback(async () => {
     if (!projectId) {
@@ -190,7 +198,7 @@ export default function DocumentosPage() {
             </div>
             {projects.length === 0 && (
               <p className="obra-submodule-hint">
-                Cadastre obras em Gerenciamento de Obras → Criar obra.
+                Cadastre obras em Gerenciamento de Obras → Obras.
               </p>
             )}
           </div>

@@ -24,6 +24,7 @@ import "./SolicitacaoServicos.css";
 import { useAuth } from "../../../hooks/useAuth";
 import { paths } from "../../../routes/paths";
 import { navigateBackOrFallback } from "../../../lib/navigation";
+import { canEditServiceRequest, canModerateServiceRequest } from "../../../lib/rbac";
 import {
   createServiceRequest,
   getAllServiceRequests,
@@ -33,6 +34,7 @@ import {
   getServiceCommentsByRequestId,
   deleteServiceComment,
   generateServiceRequestId,
+  type ServiceRequest,
   type ServiceComment,
 } from "../../../services/servicosService";
 import {
@@ -59,24 +61,11 @@ interface Question {
 
 type ViewMode = "menu" | "new" | "history" | "edit" | "comments";
 
-// Interface local para display
-interface ServiceRequest {
+type DisplayServiceRequest = Omit<ServiceRequest, "id"> & {
   id: string;
-  requestId?: string;
   title: string;
-  status:
-    | "draft"
-    | "submitted"
-    | "needs-review"
-    | "in-progress"
-    | "completed"
-    | "rejected"
-    | "cancelled";
-  createdAt: string;
-  updatedAt: string;
-  formData: FormData;
   comments: ServiceComment[];
-}
+};
 
 export default function SolicitacaoServicos() {
   const navigate = useNavigate();
@@ -84,19 +73,40 @@ export default function SolicitacaoServicos() {
   const { user } = useAuth();
   const displayName =
     user?.name?.trim() || user?.email?.trim() || "Usuário";
+  const canModerate = canModerateServiceRequest(user);
   const [viewMode, setViewMode] = useState<ViewMode>("menu");
   const [currentSection, setCurrentSection] = useState(0);
   const [formData, setFormData] = useState<FormData>({});
-  const [serviceRequests, setServiceRequests] = useState<ServiceRequest[]>([]);
-  const [editingRequest, setEditingRequest] = useState<ServiceRequest | null>(
+  const [serviceRequests, setServiceRequests] = useState<DisplayServiceRequest[]>([]);
+  const [editingRequest, setEditingRequest] = useState<DisplayServiceRequest | null>(
     null
   );
-  const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(
+  const [selectedRequest, setSelectedRequest] = useState<DisplayServiceRequest | null>(
     null
   );
   const [newComment, setNewComment] = useState("");
   const [loading, setLoading] = useState(false);
   const selectedRegional = (formData.q11 as string) || "";
+
+  useEffect(() => {
+    // Ao trocar a regional, limpa o vendedor anterior (evita enviar campo errado).
+    setFormData((prev) => {
+      const next = { ...prev };
+      const isCarlos = selectedRegional.includes("Carlos Moraes");
+      const isRogerio =
+        selectedRegional.includes("Rogério Foltran") ||
+        selectedRegional.toUpperCase().includes("HUNTERS");
+      const isDavi = selectedRegional.includes("Davi Salgado") || selectedRegional.includes("HVAC");
+      const isNic = selectedRegional.includes("Nic Romano") || selectedRegional.includes("Expansão");
+
+      if (!isCarlos) delete next.q12;
+      if (!isRogerio) delete next.q13;
+      if (!isDavi) delete next.q14;
+      if (!isNic) delete next.q15;
+      return next;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedRegional]);
 
   const shouldShowQuestion = (q: Question) => {
     if (q.id === "q12") return selectedRegional.includes("Carlos Moraes");
@@ -209,7 +219,21 @@ export default function SolicitacaoServicos() {
       question: "12 - VEND I & II",
       section: "Responsável pelo Acompanhamento Interno",
       required: true,
-      options: ["Selecionar sua resposta"],
+      options: [
+        "Selecionar sua resposta",
+        "002620 - ALESSANDRO APARECIDO DE RESENDE",
+        "035184 - ALEXANDRE DI RIENZO GANDARA",
+        "002630 - CHRISTIAN NONATO MATOS",
+        "002617 - CLAUDINEI RODRIGUES MARQUES",
+        "035174 - CZ",
+        "035163 - ELTON DA COSTA GONCALO",
+        "035179 - GABRIEL LUIS OLIVEIRA ALVES",
+        "035178 - HERBERT LOPES",
+        "035139 - LEONARDO AMARAL MONARI",
+        "035180 - MARIO PESCUMA FILHO",
+        "035183 - GUILHERME ALVES NOGUEIRA",
+        "035168 - JOAO VITOR DA SILVA PEREIRA",
+      ],
     },
     {
       id: "q13",
@@ -217,7 +241,20 @@ export default function SolicitacaoServicos() {
       question: "13 - HUNTERS",
       section: "Responsável pelo Acompanhamento Interno",
       required: true,
-      options: ["Selecionar sua resposta"],
+      options: [
+        "Selecionar sua resposta",
+        "035202 - ANA CAROLINE",
+        "035192 - ANA JULYA",
+        "035104 - LUCAS NASCIMENTO GONCALVES",
+        "035185 - GUILHERME CAMPOS DO CARMO",
+        "035201 - JULIA CINTRA",
+        "035195 - JULIA SANTANA",
+        "035189 - MARIA ROBERTA",
+        "035203 - MILENA RIBEIRO",
+        "035191 - PAOLA LINO",
+        "035190 - PEDRO HENRIQUE PEREIRA SOUZA",
+        "020719 - ROGERIO PINHEIRO FOLTRAN",
+      ],
     },
     {
       id: "q14",
@@ -225,7 +262,30 @@ export default function SolicitacaoServicos() {
       question: "14 - HVAC",
       section: "Responsável pelo Acompanhamento Interno",
       required: true,
-      options: ["Selecionar sua resposta"],
+      options: [
+        "Selecionar sua resposta",
+        "99999G - CEOS CONSULTORIA, ASSESSORIA E REPRESENT",
+        "000356 - DAVI SALGADO DE A. MARTINS",
+        "035140 - DDK REPRESENTACOES LTDA",
+        "99999X - EMB REPRESENTACOES",
+        "A00000 - ENGINE - COMERCIO E SERVICOS EIRELI - EP",
+        "99999E - FAMAC REPRESENTACOES LTDA",
+        "035194 - GERSON SOUZA",
+        "99999Y - ISOLEX NE - PROJETOS, REPRESENTACOES",
+        "035144 - JOSE ROMERO JUNIOR",
+        "035141 - MARCO SOUTO",
+        "99999B - MAURICIO COSTA",
+        "99999D - MULT-ELETRIC REPRESENTACOES",
+        "A00001 - ONIX SP REPRESENTACOES LTDA",
+        "035175 - RC VEDACOES LTDA / RAFAEL",
+        "99999F - SAFETY CONTROL REPRESENTACOES LTDA",
+        "99999J - SAFETY/ZOEGA",
+        "99999N - SIMEY",
+        "99999O - TITO REPRESENTACOES LTDA",
+        "99999Q - TITO/ZOEGA",
+        "99999W - TROMPOWSKY REPRESENTACOES COMERCIAIS LTD",
+        "035176 - VEREDA REPRESENTACOES COMERCIAIS LTDA",
+      ],
     },
     {
       id: "q15",
@@ -233,7 +293,14 @@ export default function SolicitacaoServicos() {
       question: "15 - Expansão & Novos Negócios",
       section: "Responsável pelo Acompanhamento Interno",
       required: true,
-      options: ["Selecionar sua resposta"],
+      options: [
+        "Selecionar sua resposta",
+        "035197 - DANILO TRIPOLI",
+        "035199 - EDSON RANGEL",
+        "035200 - MARCO TULIO",
+        "035193 - NILZA ROMANO",
+        "035198 - RAFAEL SOUZA DA COSTA",
+      ],
     },
     // Seção 4: Cadastrais dados do solicitante de serviço
     {
@@ -782,14 +849,11 @@ export default function SolicitacaoServicos() {
       const requests = await getAllServiceRequests();
 
       // Converter para formato local com comentários vazios inicialmente
-      const displayRequests: ServiceRequest[] = requests.map((req) => ({
-        id: req.id || "",
+      const displayRequests: DisplayServiceRequest[] = requests.map((req) => ({
+        ...(req as Omit<ServiceRequest, "id">),
+        id: req.id ?? "",
         requestId: req.requestId,
         title: `${req.category} - ${req.company}`,
-        status: req.status,
-        createdAt: req.createdAt,
-        updatedAt: req.updatedAt,
-        formData: req.formData,
         comments: [],
       }));
 
@@ -883,6 +947,7 @@ export default function SolicitacaoServicos() {
         }`,
         status: "draft",
         formData: sanitizeForDatabase({ ...formData }),
+        createdBy: user?.uid,
       });
 
       await loadServiceRequests();
@@ -942,6 +1007,7 @@ export default function SolicitacaoServicos() {
         }`,
         status: "submitted",
         formData: sanitizeForDatabase({ ...formData }),
+        createdBy: user?.uid,
       });
 
       await loadServiceRequests();
@@ -959,7 +1025,7 @@ export default function SolicitacaoServicos() {
     }
   };
 
-  const handleEditRequest = (request: ServiceRequest) => {
+  const handleEditRequest = (request: DisplayServiceRequest) => {
     setEditingRequest(request);
     setFormData(request.formData);
     setViewMode("edit");
@@ -994,10 +1060,14 @@ export default function SolicitacaoServicos() {
   };
 
   const handleChangeStatus = async (
-    request: ServiceRequest,
+    request: DisplayServiceRequest,
     status: ServiceRequest["status"]
   ) => {
     try {
+      if (!canModerate) {
+        alert("Sem permissão para aprovar/reprovar/alterar status.");
+        return;
+      }
       setLoading(true);
       await updateServiceRequest(request.id, { status });
       await loadServiceRequests();
@@ -1015,6 +1085,12 @@ export default function SolicitacaoServicos() {
 
     try {
       setLoading(true);
+      const req = serviceRequests.find((r) => r.id === requestId);
+      if (!req) return;
+      if (!canEditServiceRequest(user, req)) {
+        alert("Sem permissão para excluir esta solicitação.");
+        return;
+      }
       await deleteServiceRequest(requestId);
       await loadServiceRequests();
       alert("Solicitação excluída com sucesso!");
@@ -1026,7 +1102,7 @@ export default function SolicitacaoServicos() {
     }
   };
 
-  const handleExportPDF = (request: ServiceRequest) => {
+  const handleExportPDF = (request: DisplayServiceRequest) => {
     const printWindow = window.open("", "_blank");
     if (!printWindow) return;
 
@@ -1065,7 +1141,7 @@ export default function SolicitacaoServicos() {
   <h3>Comentários</h3>
   ${request.comments
     .map(
-      (c) => `<div class="print-comment">
+      (c: ServiceComment) => `<div class="print-comment">
   <strong>${escapeHtml(c.author)}</strong> — ${escapeHtml(
         new Date(c.createdAt).toLocaleString("pt-BR")
       )}
@@ -1113,7 +1189,7 @@ ${commentsBlock}`;
     printWindow.print();
   };
 
-  const handleViewComments = async (request: ServiceRequest) => {
+  const handleViewComments = async (request: DisplayServiceRequest) => {
     try {
       setLoading(true);
       const requestId = request.requestId || request.id;
@@ -1498,6 +1574,12 @@ ${commentsBlock}`;
                         Reprovado
                       </>
                     )}
+                    {request.status === "cancelled" && (
+                      <>
+                        <FiX size={16} />
+                        Cancelado
+                      </>
+                    )}
                   </span>
                   <span className="date">
                     {new Date(request.createdAt).toLocaleDateString()}
@@ -1505,8 +1587,9 @@ ${commentsBlock}`;
                 </div>
               </div>
               <div className="request-actions">
-                {(request.status === "submitted" ||
-                  request.status === "needs-review") && (
+                {canModerate &&
+                  (request.status === "submitted" ||
+                    request.status === "needs-review") && (
                   <>
                     <Button
                       variant="primary"
@@ -1534,8 +1617,49 @@ ${commentsBlock}`;
                       <FiX size={16} />
                       Reprovar
                     </Button>
+                    <Button
+                      variant="secondary"
+                      onClick={() => void handleChangeStatus(request, "cancelled")}
+                      className="action-button delete"
+                    >
+                      <FiX size={16} />
+                      Cancelar
+                    </Button>
                   </>
                 )}
+                {canModerate && request.status === "in-progress" && (
+                  <>
+                    <Button
+                      variant="primary"
+                      onClick={() => void handleChangeStatus(request, "completed")}
+                      className="action-button"
+                    >
+                      <FiCheck size={16} />
+                      Concluir
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      onClick={() => void handleChangeStatus(request, "cancelled")}
+                      className="action-button delete"
+                    >
+                      <FiX size={16} />
+                      Cancelar
+                    </Button>
+                  </>
+                )}
+                {canModerate &&
+                  (request.status === "completed" ||
+                    request.status === "rejected" ||
+                    request.status === "cancelled") && (
+                    <Button
+                      variant="secondary"
+                      onClick={() => void handleChangeStatus(request, "needs-review")}
+                      className="action-button"
+                    >
+                      <FiFileText size={16} />
+                      Reabrir
+                    </Button>
+                  )}
                 <Button
                   variant="secondary"
                   onClick={() => handleEditRequest(request)}
@@ -1620,7 +1744,7 @@ ${commentsBlock}`;
               <p>Nenhum comentário ainda. Seja o primeiro a comentar!</p>
             </div>
           ) : (
-            selectedRequest?.comments.map((comment) => (
+            selectedRequest?.comments.map((comment: ServiceComment) => (
               <div key={comment.id} className="comment-item">
                 <div className="comment-header">
                   <div className="comment-author">

@@ -72,7 +72,7 @@
 }
 
 .company-title {
-  font-size: 48px;
+  font-size: clamp(1.6rem, 3.4vw, 3rem);
   font-weight: 900;
   background: linear-gradient(
     135deg,
@@ -87,7 +87,7 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   color: #ffffff;
-  letter-spacing: 6px;
+  letter-spacing: clamp(1px, 0.6vw, 6px);
   margin: 0 0 10px 0;
   line-height: 1.1;
   text-transform: uppercase;
@@ -267,6 +267,14 @@
   overflow-y: auto;
   padding-right: 10px;
   margin-bottom: 30px;
+}
+
+@media (max-width: 768px) {
+  .questions-container {
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
+  }
 }
 
 .questions-container::-webkit-scrollbar {
@@ -1070,7 +1078,7 @@
   }
 
   .questions-container {
-    max-height: 400px;
+    max-height: none;
   }
 
   .form-navigation {
@@ -1155,7 +1163,7 @@
   }
 
   .questions-container {
-    max-height: 350px;
+    max-height: none;
   }
 
   .section-indicators {

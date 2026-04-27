@@ -33,6 +33,43 @@
   pointer-events: none;
 }
 
+/* Noise texture sutil + drift leve */
+.login-page::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+      circle at 30% 20%,
+      rgba(78, 205, 196, 0.14) 0%,
+      transparent 45%
+    ),
+    radial-gradient(
+      circle at 70% 80%,
+      rgba(59, 130, 246, 0.16) 0%,
+      transparent 50%
+    ),
+    repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.03),
+      rgba(255, 255, 255, 0.03) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+  mix-blend-mode: overlay;
+  opacity: 0.35;
+  pointer-events: none;
+  animation: drift 14s ease-in-out infinite alternate;
+}
+
+@keyframes drift {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(10px, -12px, 0);
+  }
+}
+
 /* Marca da empresa */
 .company-brand {
   text-align: center;
@@ -171,6 +208,27 @@
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.2);
   position: relative;
   z-index: 1;
+  animation: hd-slide-up var(--dur-slow, 400ms) var(--ease-spring, ease) both;
+}
+
+.auth-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.16),
+    transparent
+  );
+  transform: translateX(-120%);
+  transition: transform var(--dur-slow, 400ms) var(--ease-standard, ease);
+  pointer-events: none;
+}
+
+.auth-card:hover::before {
+  transform: translateX(120%);
 }
 
 .auth-header {
@@ -293,6 +351,9 @@
   justify-content: center;
   align-items: center;
   gap: 10px;
+  background: transparent;
+  border: 0;
+  padding: 0;
 }
 
 .forgot-password:hover {
@@ -309,6 +370,56 @@
   font-size: 14px;
   text-align: center;
   margin-top: 16px;
+}
+
+/* Recovery modal */
+.recovery-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.35);
+  backdrop-filter: blur(10px);
+  display: grid;
+  place-items: center;
+  z-index: var(--z-modal, 40);
+  padding: 18px;
+}
+
+.recovery-modal {
+  width: min(520px, 94vw);
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 18px;
+  box-shadow: var(--shadow-lg, 0 18px 50px rgba(0, 0, 0, 0.22));
+  padding: 18px;
+}
+
+.recovery-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.recovery-header h2 {
+  margin: 0;
+  font-size: 18px;
+  color: #1a3a52;
+}
+
+.recovery-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.recovery-success {
+  margin: 0;
+  color: #0f172a;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.22);
+  padding: 12px;
+  border-radius: 12px;
 }
 
 /* Responsividade */

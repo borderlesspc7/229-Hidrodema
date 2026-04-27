@@ -3,14 +3,23 @@ import type { Project, Supplier } from "../../../../types/obrasGerenciamentoModu
 import type { GerenciamentoObrasViewMode } from "../gerenciamentoObras.types";
 import { FiArrowLeft, FiPlus, FiTruck, FiEdit3, FiUsers, FiStar } from "react-icons/fi";
 import ProjectBadge from "./ProjectBadge";
+import type { ViewChangeContext } from "../gerenciamentoObras.types";
 
 type Props = {
   suppliers: Supplier[];
   projects: Project[];
   setViewMode: (mode: GerenciamentoObrasViewMode) => void;
+  projectId?: string;
+  onCreateNew?: (ctx: ViewChangeContext) => void;
 };
 
-export default function ObrasSuppliersPanel({ suppliers, projects, setViewMode }: Props) {
+export default function ObrasSuppliersPanel({
+  suppliers,
+  projects,
+  setViewMode,
+  projectId,
+  onCreateNew,
+}: Props) {
   return (
     <div className="obras-suppliers-container">
       <div className="obras-suppliers-header">
@@ -28,11 +37,13 @@ export default function ObrasSuppliersPanel({ suppliers, projects, setViewMode }
       <div className="obras-suppliers-actions">
         <Button
           variant="primary"
-          onClick={() => setViewMode("new-supplier")}
+          onClick={() =>
+            onCreateNew ? onCreateNew({ projectId }) : setViewMode("new-supplier")
+          }
           className="obras-create-btn"
         >
           <FiPlus size={20} />
-          Novo Fornecedor
+          Novo Fornecedor{projectId ? " (nesta obra)" : ""}
         </Button>
       </div>
 

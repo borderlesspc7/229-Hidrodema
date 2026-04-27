@@ -13,7 +13,7 @@ export async function updateUserAdminFields(
   uid: string,
   patch: Partial<Pick<User, "role" | "sellerCode" | "sellerExternalId" | "name">>
 ): Promise<void> {
-  const safe: Record<string, unknown> = {};
+  const safe: Record<string, any> = {};
   if (patch.role) safe.role = patch.role satisfies UserRole;
   if (patch.sellerCode !== undefined) safe.sellerCode = patch.sellerCode;
   if (patch.sellerExternalId !== undefined) safe.sellerExternalId = patch.sellerExternalId;

@@ -6,18 +6,20 @@
 .input-field {
   width: 100%;
   padding: 16px 16px 16px 16px;
-  border: 2px solid #e5e7eb;
-  border-radius: 12px;
+  border: 2px solid var(--neutral-200, #e2e8f0);
+  border-radius: var(--radius-md, 12px);
   font-size: 16px;
   background: #ffffff;
-  transition: all 0.3s ease;
+  transition: border-color var(--dur-base, 250ms) var(--ease-standard, ease),
+    box-shadow var(--dur-base, 250ms) var(--ease-standard, ease),
+    background var(--dur-base, 250ms) var(--ease-standard, ease);
   outline: none;
   box-sizing: border-box;
 }
 
 .input-field:focus {
-  border-color: #1a3a52;
-  box-shadow: 0 0 0 3px rgba(26, 58, 82, 0.1);
+  border-color: var(--primary-500, #3b82f6);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.14);
 }
 
 .input-label {
@@ -25,10 +27,10 @@
   left: 16px;
   top: 50%;
   transform: translateY(-50%);
-  color: #9ca3af;
+  color: var(--neutral-500, #64748b);
   font-size: 16px;
   pointer-events: none;
-  transition: all 0.3s ease;
+  transition: all var(--dur-base, 250ms) var(--ease-standard, ease);
   background: #ffffff;
   padding: 0 4px;
 }
@@ -37,11 +39,35 @@
 .input-container.has-value .input-label {
   top: 0;
   font-size: 12px;
-  color: #1a3a52;
-  font-weight: 500;
+  color: var(--primary-800, #1e40af);
+  font-weight: var(--weight-medium, 500);
 }
 
 .input-container.focused .input-field {
-  border-color: #1a3a52;
-  box-shadow: 0 0 0 3px rgba(26, 58, 82, 0.1);
+  border-color: var(--primary-500, #3b82f6);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.14);
+}
+
+.input-container.has-error .input-field {
+  border-color: rgba(239, 68, 68, 0.9);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+}
+
+.input-helper {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--neutral-500, #64748b);
+}
+
+.input-helper--error {
+  color: rgba(239, 68, 68, 0.92);
+}
+
+/* Variante clara para modais (superfície mais “clean”) */
+.input--modal .input-field {
+  background: var(--neutral-50, #f8fafc);
+}
+
+.input--modal .input-label {
+  background: var(--neutral-50, #f8fafc);
 }

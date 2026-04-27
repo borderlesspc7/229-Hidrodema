@@ -52,7 +52,7 @@ export default function Toast({
         <span className="toast-icon">{getIcon()}</span>
         <p className="toast-message">{message}</p>
         {onClose && (
-          <Button className="toast-close" onClick={onClose} aria-label="Close">
+          <Button variant="icon" className="toast-close" onClick={onClose} aria-label="Close">
             <FaTimes />
           </Button>
         )}

@@ -4,34 +4,57 @@
   right: 20px;
   min-width: 300px;
   max-width: 400px;
-  padding: 16px 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  animation: slideIn 0.3s ease-out;
-  z-index: 1000;
+  padding: 14px 16px 12px;
+  border-radius: var(--radius-lg, 16px);
+  box-shadow: var(--shadow-lg, 0 18px 50px rgba(0, 0, 0, 0.22));
+  animation: toastIn 280ms var(--ease-spring, cubic-bezier(0.22, 1, 0.36, 1));
+  z-index: var(--z-toast, 50);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  overflow: hidden;
 }
+
+/* barra superior por tipo */
+.toast::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.35);
+}
+
 .toast--success {
-  background: linear-gradient(135deg, #10b981, #059669);
+  background: rgba(16, 185, 129, 0.14);
   color: white;
-  border-left: 4px solid #047857;
+}
+.toast--success::before {
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.95), rgba(6, 214, 160, 0.8));
 }
 
 .toast--error {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
+  background: rgba(239, 68, 68, 0.14);
   color: white;
-  border-left: 4px solid #b91c1c;
+}
+.toast--error::before {
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.95), rgba(185, 28, 28, 0.85));
 }
 
 .toast--warning {
-  background: linear-gradient(135deg, #f59e0b, #d97706);
+  background: rgba(245, 158, 11, 0.16);
   color: white;
-  border-left: 4px solid #b45309;
+}
+.toast--warning::before {
+  background: linear-gradient(90deg, rgba(245, 158, 11, 0.95), rgba(217, 119, 6, 0.85));
 }
 
 .toast--info {
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  background: rgba(59, 130, 246, 0.14);
   color: white;
-  border-left: 4px solid #1d4ed8;
+}
+.toast--info::before {
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.95), rgba(14, 165, 233, 0.85));
 }
 
 .toast-content {
@@ -55,37 +78,21 @@
 
 .toast-close {
   flex-shrink: 0;
-  background: none;
-  border: none;
-  color: inherit;
-  cursor: pointer;
-  padding: 2px;
-  border-radius: 4px;
-  transition: background-color 0.2s ease;
+  color: rgba(255, 255, 255, 0.92) !important;
 }
 
 .toast-close:hover {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.14) !important;
 }
 
-@keyframes slideIn {
+@keyframes toastIn {
   from {
-    transform: translateX(100%);
+    transform: translateX(18px) scale(0.98);
     opacity: 0;
   }
   to {
-    transform: translateX(0);
+    transform: translateX(0) scale(1);
     opacity: 1;
-  }
-}
-
-@keyframes slideOut {
-  from {
-    transform: translateX(0);
-    opacity: 1;
-  }
-  to {
-    transform: translateX(100%);
   }
 }
 

@@ -11,6 +11,7 @@ import type {
 import type { User } from "../../../../types/user";
 import { canEditReport } from "../../../../lib/reportPermissions";
 import ReportTypeBadge from "./ReportTypeBadge";
+import { exportObraReportToPdf } from "../../../../lib/obrasReportPdf";
 import {
   FiArrowLeft,
   FiFileText,
@@ -42,6 +43,7 @@ type Props = {
   reports: ObraReport[];
   onDeleteReport: (id: string) => void | Promise<void>;
   onEditReport: (report: ObraReport) => void;
+  onOpenReport: (report: ObraReport) => void;
   projectCount: number;
   inventoryReport: InventoryReport;
   setViewMode: (mode: GerenciamentoObrasViewMode) => void;
@@ -56,6 +58,7 @@ export default function ObrasReportsPanel({
   reports,
   onDeleteReport,
   onEditReport,
+  onOpenReport,
   projectCount,
   inventoryReport,
   setViewMode,
@@ -311,6 +314,77 @@ export default function ObrasReportsPanel({
             </div>
           )}
         </div>
+      </div>
+
+      <div className="obras-reports-list">
+        <h3 className="obras-projects-list-title">Relatórios recentes</h3>
+        {scopedReports.length === 0 ? (
+          <div className="obras-empty-state">
+            <h3>Nenhum relatório encontrado</h3>
+            <p>Crie um novo relatório na obra ou ajuste o filtro.</p>
+            <Button variant="primary" onClick={() => setViewMode("reports-select")}>
+              Novo Relatório
+            </Button>
+          </div>
+        ) : (
+          <div className="obras-materials-list">
+            <table className="obras-materials-table">
+              <thead>
+                <tr>
+                  <th>Tipo</th>
+                  <th>Data</th>
+                  <th>Obra</th>
+                  <th>Criado em</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {scopedReports.slice(0, 50).map((r) => {
+                  const project = projects.find((p) => p.id === r.projectId);
+                  return (
+                    <tr key={r.id}>
+                      <td>
+                        <ReportTypeBadge type={r.type} />
+                      </td>
+                      <td>{new Date(r.date).toLocaleDateString()}</td>
+                      <td>{project?.name ?? "-"}</td>
+                      <td>{new Date(r.createdAt).toLocaleString()}</td>
+                      <td>
+                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                          <Button variant="primary" onClick={() => onOpenReport(r)}>
+                            Ver
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            onClick={() =>
+                              void exportObraReportToPdf(r, project).catch(() =>
+                                alert(
+                                  "Não foi possível gerar o PDF (verifique rede e fotos na nuvem)."
+                                )
+                              )
+                            }
+                          >
+                            Gerar PDF
+                          </Button>
+                          {user && canEditReport(user, r) && (
+                            <Button variant="secondary" onClick={() => onEditReport(r)}>
+                              <FiEdit3 size={16} />
+                              Editar
+                            </Button>
+                          )}
+                          <Button variant="danger" onClick={() => void onDeleteReport(r.id)}>
+                            <FiTrash2 size={16} />
+                            Excluir
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );

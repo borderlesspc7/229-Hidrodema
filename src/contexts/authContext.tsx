@@ -16,6 +16,7 @@ interface AuthContextType {
   login: (credentials: LoginCredentials) => Promise<void>;
   register: (credentials: RegisterCredentials) => Promise<void>;
   logout: () => Promise<void>;
+  sendPasswordRecovery: (email: string) => Promise<void>;
   clearError: () => void;
 }
 
@@ -76,6 +77,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const sendPasswordRecovery = async (email: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      await authService.sendPasswordRecovery(email);
+      setLoading(false);
+    } catch (error) {
+      const message = getFirebaseErrorMessage(error as string | FirebaseError);
+      setError(message);
+      setLoading(false);
+    }
+  };
+
   const clearError = () => {
     setError(null);
   };
@@ -87,6 +101,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     login,
     register,
     logout,
+    sendPasswordRecovery,
     clearError,
   };
 

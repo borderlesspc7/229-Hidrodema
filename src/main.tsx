@@ -4,8 +4,10 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./App.tsx";
 import "./index.css";
 import { initErrorMonitoring } from "./lib/errorMonitoring";
+import { applyGithubPagesSpaFallback } from "./lib/githubPagesSpaFallback";
 
 initErrorMonitoring();
+applyGithubPagesSpaFallback();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

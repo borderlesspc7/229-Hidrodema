@@ -1,4 +1,5 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Button from "../../../../components/ui/Button/Button";
 import Card from "../../../../components/ui/Card/Card";
 import type { GerenciamentoObrasViewMode } from "../gerenciamentoObras.types";
@@ -6,6 +7,8 @@ import type { DiaryEntry, InventoryItem, ObraReport, Photo, Project, Supplier } 
 import { getPhotoSrc } from "../../../../lib/photoDisplay";
 import ReportTypeBadge from "./ReportTypeBadge";
 import { FiArrowLeft, FiBarChart2, FiCamera, FiClipboard, FiDollarSign, FiFileText, FiTrendingUp, FiUsers } from "react-icons/fi";
+import { listDocumentosByProject, type ObraDocumentoMeta } from "../../../../services/obrasDocumentosService";
+import { paths } from "../../../../routes/paths";
 
 type Props = {
   project: Project;
@@ -14,6 +17,7 @@ type Props = {
   inventory: InventoryItem[];
   suppliers: Supplier[];
   onOpenReport: (report: ObraReport) => void;
+  onPrintProject: () => void;
   setViewMode: (mode: GerenciamentoObrasViewMode) => void;
 };
 
@@ -51,8 +55,13 @@ export default function ProjectOverview({
   inventory,
   suppliers,
   onOpenReport,
+  onPrintProject,
   setViewMode,
 }: Props) {
+  const navigate = useNavigate();
+  const [docs, setDocs] = useState<ObraDocumentoMeta[]>([]);
+  const [docsLoading, setDocsLoading] = useState(false);
+
   const projectReports = useMemo(
     () => reports.filter((r) => r.projectId === project.id).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
     [project.id, reports]
@@ -90,6 +99,27 @@ export default function ProjectOverview({
       (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
   }, [projectDiaries, projectReports]);
+
+  useEffect(() => {
+    let alive = true;
+    setDocsLoading(true);
+    void (async () => {
+      try {
+        const list = await listDocumentosByProject(project.id);
+        if (!alive) return;
+        setDocs(list);
+      } catch {
+        if (!alive) return;
+        setDocs([]);
+      } finally {
+        if (!alive) return;
+        setDocsLoading(false);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [project.id]);
 
   const photosCount = useMemo(() => {
     const fromDiaries = projectDiaries.reduce((acc, d) => acc + (d.photos?.length ?? 0), 0);
@@ -157,14 +187,19 @@ export default function ProjectOverview({
     <div className="obras-reports-container">
       <div className="obras-reports-header">
         <h2>Overview da Obra</h2>
-        <Button
-          variant="primary"
-          onClick={() => setViewMode("projects")}
-          className="obras-back-to-menu"
-        >
-          <FiArrowLeft size={16} />
-          Voltar às Obras
-        </Button>
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+          <Button variant="secondary" onClick={onPrintProject} className="obras-back-to-menu">
+            Imprimir obra
+          </Button>
+          <Button
+            variant="primary"
+            onClick={() => setViewMode("projects")}
+            className="obras-back-to-menu"
+          >
+            <FiArrowLeft size={16} />
+            Voltar às Obras
+          </Button>
+        </div>
       </div>
 
       <div className="obras-reports-dashboard">
@@ -305,6 +340,59 @@ export default function ProjectOverview({
                 </div>
               )}
             </div>
+          </div>
+
+          <div className="obras-section">
+            <h3 className="obras-section-title">
+              <FiFileText /> Anexos (Documentos)
+            </h3>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 10 }}>
+              <Button
+                variant="secondary"
+                onClick={() =>
+                  navigate(`${paths.obras.documentos}?projectId=${encodeURIComponent(project.id)}`)
+                }
+              >
+                Adicionar documento
+              </Button>
+            </div>
+            {docsLoading ? (
+              <div className="obras-helper-text">Carregando documentos…</div>
+            ) : docs.length === 0 ? (
+              <div className="obras-helper-text">Nenhum documento vinculado a esta obra.</div>
+            ) : (
+              <div className="obras-materials-list">
+                <table className="obras-materials-table">
+                  <thead>
+                    <tr>
+                      <th>Categoria</th>
+                      <th>Arquivo</th>
+                      <th>Enviado em</th>
+                      <th>Abrir</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {docs.slice(0, 20).map((d) => (
+                      <tr key={d.id ?? d.storagePath}>
+                        <td>{d.category}</td>
+                        <td>{d.fileName}</td>
+                        <td>{new Date(d.uploadedAt).toLocaleString()}</td>
+                        <td>
+                          <a href={d.downloadUrl} target="_blank" rel="noreferrer">
+                            Ver
+                          </a>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {docs.length > 20 ? (
+                  <div className="obras-helper-text">
+                    Mostrando 20 de {docs.length}. (Para upload/edição, use o módulo de Documentos.)
+                  </div>
+                ) : null}
+              </div>
+            )}
           </div>
         </Card>
 

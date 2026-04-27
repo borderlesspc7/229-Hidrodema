@@ -46,6 +46,13 @@ export default function ProjectManagement({
   onOpenOverview,
   onUpdateProjectStatus,
 }: Props) {
+  const statusLabel: Record<Project["status"], string> = {
+    planejamento: "Planejamento",
+    "em-andamento": "Em andamento",
+    pausada: "Pausada",
+    concluida: "Concluída",
+  };
+
   return (
     <div className="obras-projects-container">
       <div className="obras-projects-header">
@@ -68,9 +75,9 @@ export default function ProjectManagement({
           textColor="#1e293b"
         >
           <div className="obras-form-header">
-            <h2 className="obras-form-title">Cadastrar Nova Obra</h2>
+            <h2 className="obras-form-title">OBRAS</h2>
             <p className="obras-form-subtitle">
-              Registre uma obra para utilizá-la em relatórios e acompanhamentos
+              Cadastre e gerencie obras para relatórios e acompanhamentos
             </p>
           </div>
 
@@ -129,23 +136,6 @@ export default function ProjectManagement({
                       setNewProject({ ...newProject, endDate: value })
                     }
                     required
-                  />
-                </div>
-              </div>
-
-              <div className="obras-form-row">
-                <div className="obras-form-field">
-                  <label>Orçamento (R$)</label>
-                  <Input
-                    type="number"
-                    placeholder="Valor do orçamento"
-                    value={newProject.budget.toString()}
-                    onChange={(value) =>
-                      setNewProject({
-                        ...newProject,
-                        budget: parseFloat(value) || 0,
-                      })
-                    }
                   />
                 </div>
               </div>
@@ -209,7 +199,7 @@ export default function ProjectManagement({
                     <span
                       className={`obras-project-status obras-status-${project.status}`}
                     >
-                      {project.status}
+                      {statusLabel[project.status]}
                     </span>
                     <select
                       className="obras-select"
@@ -222,10 +212,10 @@ export default function ProjectManagement({
                       }
                       aria-label="Editar status da obra"
                     >
-                      <option value="planejamento">planejamento</option>
-                      <option value="em-andamento">em-andamento</option>
-                      <option value="pausada">pausada</option>
-                      <option value="concluida">concluida</option>
+                      <option value="planejamento">Planejamento</option>
+                      <option value="em-andamento">Em andamento</option>
+                      <option value="pausada">Pausada</option>
+                      <option value="concluida">Concluída</option>
                     </select>
                   </div>
                 </div>

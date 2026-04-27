@@ -2,6 +2,9 @@ import {
   collection,
   doc,
   getDocs,
+  query,
+  where,
+  orderBy,
   setDoc,
   deleteDoc,
   writeBatch,
@@ -33,6 +36,49 @@ const C_QUALITY = "obrasQualityChecklists";
 const C_REPORTS = "obrasReports";
 const C_INVENTORY_MOVEMENTS = "obrasInventoryMovements";
 const C_COUNTERS = "obrasCounters";
+
+export async function getInventoryItemsByProject(
+  projectId: string
+): Promise<InventoryItem[]> {
+  const q = query(
+    collection(db, C_INVENTORY),
+    where("projectId", "==", projectId),
+    orderBy("lastUpdated", "desc")
+  );
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => d.data() as InventoryItem);
+}
+
+export async function getSuppliersByProject(projectId: string): Promise<Supplier[]> {
+  const q = query(
+    collection(db, C_SUPPLIERS),
+    where("projectId", "==", projectId),
+    orderBy("createdAt", "desc")
+  );
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => d.data() as Supplier);
+}
+
+// Reservado para evolução: equipe/equipamentos por obra (coleções dedicadas)
+export async function getTeamMembersByProject(projectId: string): Promise<unknown[]> {
+  const q = query(
+    collection(db, "obrasTeamMembers"),
+    where("projectId", "==", projectId),
+    orderBy("createdAt", "desc")
+  );
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => d.data());
+}
+
+export async function getEquipmentByProject(projectId: string): Promise<unknown[]> {
+  const q = query(
+    collection(db, "obrasEquipment"),
+    where("projectId", "==", projectId),
+    orderBy("createdAt", "desc")
+  );
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => d.data());
+}
 
 const LS_KEYS = {
   diaries: "obrasDiaries",

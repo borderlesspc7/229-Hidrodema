@@ -1,0 +1,20 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // Estrutura usada pelo app: obras/** (diários, relatórios, anexos, documentos)
+    match /obras/{allPaths=**} {
+      allow read, write: if signedIn();
+    }
+
+    // fallback: bloquear qualquer outra coisa
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
+

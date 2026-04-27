@@ -33,6 +33,42 @@
   pointer-events: none;
 }
 
+.register-page::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+      circle at 30% 20%,
+      rgba(78, 205, 196, 0.14) 0%,
+      transparent 45%
+    ),
+    radial-gradient(
+      circle at 70% 80%,
+      rgba(59, 130, 246, 0.16) 0%,
+      transparent 50%
+    ),
+    repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.03),
+      rgba(255, 255, 255, 0.03) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+  mix-blend-mode: overlay;
+  opacity: 0.35;
+  pointer-events: none;
+  animation: drift 14s ease-in-out infinite alternate;
+}
+
+@keyframes drift {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(10px, -12px, 0);
+  }
+}
+
 /* Marca da empresa */
 .company-brand {
   text-align: center;
@@ -171,6 +207,27 @@
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.2);
   position: relative;
   z-index: 1;
+  animation: hd-slide-up var(--dur-slow, 400ms) var(--ease-spring, ease) both;
+}
+
+.auth-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.16),
+    transparent
+  );
+  transform: translateX(-120%);
+  transition: transform var(--dur-slow, 400ms) var(--ease-standard, ease);
+  pointer-events: none;
+}
+
+.auth-card:hover::before {
+  transform: translateX(120%);
 }
 
 .auth-header {

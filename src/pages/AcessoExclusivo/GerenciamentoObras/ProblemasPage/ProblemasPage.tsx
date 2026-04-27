@@ -199,7 +199,7 @@ export default function ProblemasPage() {
             </div>
             {projects.length === 0 && (
               <p className="obra-submodule-hint">
-                Cadastre obras em Gerenciamento de Obras → Criar obra.
+                Cadastre obras em Gerenciamento de Obras → Obras.
               </p>
             )}
           </div>

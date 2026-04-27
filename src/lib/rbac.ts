@@ -1,5 +1,6 @@
 import type { User, UserRole } from "../types/user";
 import type { VisitRequest, VisitReport } from "../services/visitasService";
+import type { ServiceRequest } from "../services/servicosService";
 
 export function normalizeRole(role: User["role"]): UserRole {
   if (role === "admin" || role === "gestor" || role === "vendedor") return role;
@@ -100,4 +101,36 @@ export function canMutateVisitReport(
   if (report.createdBy && report.createdBy === user.uid) return true;
   if (parentRequest) return userOwnsVisitRow(user, parentRequest);
   return false;
+}
+
+export function userOwnsServiceRequest(user: User, row: ServiceRequest): boolean {
+  if (row.createdBy && row.createdBy === user.uid) return true;
+
+  const email = user.email?.trim();
+  if (email) {
+    if (row.requesterEmail?.trim() && norm(row.requesterEmail).includes(norm(email)))
+      return true;
+    if (row.internalEmail?.trim() && norm(row.internalEmail).includes(norm(email)))
+      return true;
+  }
+
+  const name = user.name?.trim();
+  if (name) {
+    if (row.requesterName?.trim() && norm(row.requesterName).includes(norm(name))) return true;
+    if (row.internalName?.trim() && norm(row.internalName).includes(norm(name))) return true;
+  }
+
+  return false;
+}
+
+/** Criador da solicitação ou visão macro pode editar. */
+export function canEditServiceRequest(user: User | null, row: ServiceRequest): boolean {
+  if (!user?.email) return false;
+  if (hasMacroVisibility(user)) return true;
+  return userOwnsServiceRequest(user, row);
+}
+
+/** Mudança de status (aprovar/reprovar/concluir/cancelar) só admin/gestor. */
+export function canModerateServiceRequest(user: User | null): boolean {
+  return hasMacroVisibility(user);
 }

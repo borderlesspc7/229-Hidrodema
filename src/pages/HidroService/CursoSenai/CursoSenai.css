@@ -1,0 +1,219 @@
+.curso-senai-page {
+  min-height: 100vh;
+  background: radial-gradient(circle at 20% 10%, rgba(78, 205, 196, 0.18), transparent 45%),
+    radial-gradient(circle at 90% 30%, rgba(59, 130, 246, 0.18), transparent 45%),
+    linear-gradient(135deg, #0f2332 0%, #102c40 40%, #0b1f2d 100%);
+  color: #eaf2ff;
+  display: flex;
+  flex-direction: column;
+}
+
+.curso-senai-topbar {
+  display: grid;
+  grid-template-columns: 120px 1fr 120px;
+  align-items: center;
+  padding: 18px 18px 0;
+}
+
+.curso-senai-brand {
+  text-align: center;
+  line-height: 1.05;
+}
+
+.curso-senai-brand-title {
+  font-weight: 900;
+  letter-spacing: clamp(1px, 0.55vw, 6px);
+  font-size: 18px;
+  color: #ffffff;
+}
+
+.curso-senai-brand-subtitle {
+  font-size: 10px;
+  letter-spacing: 4px;
+  opacity: 0.8;
+}
+
+.curso-senai-back {
+  justify-self: start;
+}
+
+.curso-senai-topbar-spacer {
+  width: 120px;
+  justify-self: end;
+}
+
+.curso-senai-shell {
+  width: min(1080px, 100%);
+  margin: 0 auto;
+  padding: 26px 18px 40px;
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: clamp(18px, 3vw, 40px);
+  align-items: center;
+}
+
+.curso-senai-kicker {
+  font-size: 12px;
+  opacity: 0.9;
+  margin-bottom: 10px;
+}
+
+.curso-senai-title {
+  margin: 0;
+  font-size: clamp(2rem, 4.8vw, 3.2rem);
+  line-height: 1.02;
+  font-weight: 900;
+  color: #78e2d5;
+  letter-spacing: 0.3px;
+}
+
+.curso-senai-lead {
+  margin: 18px 0 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(234, 242, 255, 0.95);
+  max-width: 52ch;
+}
+
+.curso-senai-copy {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.55;
+  color: rgba(234, 242, 255, 0.85);
+  max-width: 60ch;
+}
+
+.curso-senai-form {
+  background: rgba(14, 40, 58, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(10px);
+}
+
+.curso-senai-form-header {
+  text-align: center;
+  color: rgba(120, 226, 213, 0.95);
+  font-weight: 800;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.curso-senai-field {
+  display: block;
+  margin-top: 12px;
+}
+
+.curso-senai-label {
+  display: block;
+  font-size: 12px;
+  margin-bottom: 8px;
+  color: rgba(234, 242, 255, 0.9);
+}
+
+.curso-senai-required {
+  color: #ff6b6b;
+  margin-left: 2px;
+}
+
+.curso-senai-input {
+  width: 100%;
+  min-height: 44px;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+  background: rgba(255, 255, 255, 0.95);
+  color: #0b1f2d;
+  padding: 12px 14px;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.curso-senai-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.14);
+}
+
+.curso-senai-select {
+  appearance: auto;
+}
+
+.curso-senai-phone {
+  display: grid;
+  grid-template-columns: 92px 1fr;
+  align-items: center;
+  min-height: 44px;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+  background: rgba(255, 255, 255, 0.95);
+  overflow: hidden;
+}
+
+.curso-senai-phone-prefix {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.05);
+  color: #0b1f2d;
+  font-size: 14px;
+}
+
+.curso-senai-flag {
+  font-size: 14px;
+}
+
+.curso-senai-ddi {
+  font-weight: 700;
+}
+
+.curso-senai-phone-input {
+  height: 100%;
+  border: 0;
+  outline: none;
+  background: transparent;
+  padding: 12px 14px;
+  font-size: 14px;
+  color: #0b1f2d;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.curso-senai-error {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #ff6b6b;
+}
+
+.is-invalid {
+  border-color: rgba(239, 68, 68, 0.9) !important;
+}
+
+.curso-senai-submit {
+  margin-top: 14px;
+  border-radius: 999px !important;
+  background: linear-gradient(135deg, #78e2d5 0%, #5fd1a8 100%) !important;
+  color: #0b1f2d !important;
+  font-weight: 900 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  padding: 12px 18px !important;
+}
+
+.curso-senai-submit:disabled {
+  opacity: 0.6;
+}
+
+@media (max-width: 900px) {
+  .curso-senai-shell {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+  .curso-senai-form {
+    max-width: 420px;
+    margin: 0 auto;
+  }
+}
+

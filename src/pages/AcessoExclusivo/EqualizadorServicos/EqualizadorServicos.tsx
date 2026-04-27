@@ -27,8 +27,8 @@ import { useAuth } from "../../../hooks/useAuth";
 import { paths } from "../../../routes/paths";
 import { navigateBackOrFallback } from "../../../lib/navigation";
 import {
-  PRINT_PDF_BASE_STYLES,
-  formatPrintFooterGeneratedAt,
+  buildHidrodemaPrintDocument,
+  escapeHtml,
 } from "../../../lib/printPdfBranding";
 import {
   createServiceMDS,
@@ -823,46 +823,6 @@ const EqualizadorServicos = () => {
       const getValue = (v: unknown) =>
         Array.isArray(v) ? v.join(", ") : String(v ?? "");
 
-      const safe = (s: string) =>
-        s
-          .replaceAll("&", "&amp;")
-          .replaceAll("<", "&lt;")
-          .replaceAll(">", "&gt;")
-          .replaceAll('"', "&quot;")
-          .replaceAll("'", "&#039;");
-
-      const rowsHtml = questions
-        .filter((q) => q.section) // ignora eventuais itens sem seção
-        .map((q) => {
-          if (q.type === "responsibility-matrix") {
-            const lines =
-              q.matrix
-                ?.map((r) => {
-                  const key = `${q.id}_${r.key}`;
-                  const val = getValue((data as Record<string, unknown>)[key]);
-                  return `<div class="q"><span class="label">${safe(
-                    r.item
-                  )}:</span><span class="value">${safe(val || "-")}</span></div>`;
-                })
-                .join("") ?? "";
-            return `
-              <div class="block">
-                <div class="block-title">${safe(q.question)}</div>
-                ${lines || `<div class="q"><span class="value">-</span></div>`}
-              </div>
-            `;
-          }
-
-          const val = getValue((data as Record<string, unknown>)[q.id]);
-          return `
-            <div class="q">
-              <span class="label">${safe(q.question)}:</span>
-              <span class="value">${safe(val || "-")}</span>
-            </div>
-          `;
-        })
-        .join("");
-
       const commentsSorted = [...(comments ?? [])].sort(
         (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
       );
@@ -870,22 +830,22 @@ const EqualizadorServicos = () => {
         commentsSorted.length === 0
           ? ""
           : `
-            <div class="comments">
-              <div class="section-title">Comentários</div>
+            <section class="print-comments">
+              <h3>Comentários</h3>
               ${commentsSorted
                 .map(
                   (c) => `
-                    <div class="comment">
+                    <div class="print-comment">
                       <div class="comment-meta">
-                        <strong>${safe(c.author || "Usuário")}</strong>
-                        <span>${safe(new Date(c.createdAt).toLocaleString())}</span>
+                        <strong>${escapeHtml(c.author || "Usuário")}</strong>
+                        <span>${escapeHtml(new Date(c.createdAt).toLocaleString())}</span>
                       </div>
-                      <div class="comment-text">${safe(c.text)}</div>
+                      <div class="comment-text">${escapeHtml(c.text)}</div>
                     </div>
                   `
                 )
                 .join("")}
-            </div>
+            </section>
           `;
 
       const printWindow = window.open("", "_blank");
@@ -894,50 +854,87 @@ const EqualizadorServicos = () => {
         return;
       }
 
-      printWindow.document.write(`
-        <html>
-          <head>
-            <title>MDS ${safe(mdsNumber)}</title>
-            <style>
-              ${PRINT_PDF_BASE_STYLES}
-              .header { text-align: center; margin-bottom: 18px; }
-              .brand { font-size: 20px; font-weight: 800; letter-spacing: 2px; color: #1e40af; }
-              .doc-title { font-size: 18px; font-weight: 800; margin-top: 6px; }
-              .mds-number { margin-top: 10px; display: inline-block; padding: 8px 12px; border: 2px solid #1e40af; border-radius: 10px; font-weight: 800; }
-              .meta { margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; text-align: left; max-width: 820px; margin-left: auto; margin-right: auto; }
-              .meta-item .label { color: #1e40af; font-weight: 700; }
-              .section-title { margin-top: 18px; font-size: 14px; font-weight: 800; color: #1e40af; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
-              .q { margin: 10px 0; }
-              .label { font-weight: 700; color: #1e40af; }
-              .value { margin-left: 8px; white-space: pre-wrap; }
-              .block { margin-top: 14px; padding-top: 10px; border-top: 1px solid #e2e8f0; }
-              .block-title { font-weight: 800; color: #0f172a; margin-bottom: 6px; }
-              .comments { margin-top: 18px; }
-              .comment { margin-top: 10px; padding: 12px; background: #f1f5f9; border-radius: 10px; border: 1px solid #e2e8f0; }
-              .comment-meta { display: flex; justify-content: space-between; gap: 12px; color: #334155; font-size: 12px; margin-bottom: 6px; }
-              .comment-text { white-space: pre-wrap; }
-              @media print { body { margin: 12mm; } }
-            </style>
-          </head>
-          <body>
-            <div class="header">
-              <div class="brand">HIDRO SERVICE</div>
-              <div class="doc-title">Memorando de Serviços (MDS)</div>
-              <div class="mds-number">MDS Nº ${safe(mdsNumber)}</div>
-              <div class="meta">
-                <div class="meta-item"><span class="label">Cliente:</span> <span class="value">${safe(client)}</span></div>
-                <div class="meta-item"><span class="label">Local da obra:</span> <span class="value">${safe(workLocation)}</span></div>
-                <div class="meta-item"><span class="label">Data:</span> <span class="value">${safe(visitDate)}</span></div>
-              </div>
-            </div>
+      const bySection = questions.reduce<Record<string, Question[]>>((acc, q) => {
+        const s = q.section?.trim() || "Dados do MDS";
+        (acc[s] ||= []).push(q);
+        return acc;
+      }, {});
 
-            <div class="section-title">Dados do MDS</div>
-            ${rowsHtml}
-            ${commentsHtml}
-            <footer class="print-footer">${formatPrintFooterGeneratedAt()}</footer>
-          </body>
-        </html>
-      `);
+      const sectionOrder = Object.keys(bySection);
+      const bodyHtml = `
+        ${sectionOrder
+          .map((section) => {
+            const items = bySection[section] ?? [];
+            const sectionBody = items
+              .map((q) => {
+                if (q.type === "responsibility-matrix") {
+                  const lines =
+                    q.matrix
+                      ?.map((r) => {
+                        const key = `${q.id}_${r.key}`;
+                        const val = getValue((data as Record<string, unknown>)[key]);
+                        return `<div class="print-question"><span class="print-label">${escapeHtml(
+                          r.item
+                        )}:</span><span class="print-value">${escapeHtml(val || "-")}</span></div>`;
+                      })
+                      .join("") ?? "";
+                  return `
+                    <div class="print-section">
+                      <h3>${escapeHtml(q.question)}</h3>
+                      ${lines || `<div class="print-question"><span class="print-value">-</span></div>`}
+                    </div>
+                  `;
+                }
+
+                const val = getValue((data as Record<string, unknown>)[q.id]);
+                return `
+                  <div class="print-question">
+                    <span class="print-label">${escapeHtml(q.question)}:</span>
+                    <span class="print-value">${escapeHtml(val || "-")}</span>
+                  </div>
+                `;
+              })
+              .join("");
+
+            return `
+              <section class="print-section">
+                <h3>${escapeHtml(section)}</h3>
+                ${sectionBody}
+              </section>
+            `;
+          })
+          .join("")}
+        ${commentsHtml}
+      `;
+
+      const html = buildHidrodemaPrintDocument({
+        pageTitle: `MDS ${mdsNumber}`,
+        mainTitle: "Memorando de Serviços (MDS)",
+        brandLine: "HIDRO SERVICE",
+        metaLinesHtml: `
+          <p><span class="print-label">MDS Nº:</span><span class="print-value">${escapeHtml(
+            mdsNumber
+          )}</span></p>
+          <p><span class="print-label">Cliente:</span><span class="print-value">${escapeHtml(
+            client
+          )}</span></p>
+          <p><span class="print-label">Local da obra:</span><span class="print-value">${escapeHtml(
+            workLocation
+          )}</span></p>
+          <p><span class="print-label">Data:</span><span class="print-value">${escapeHtml(
+            visitDate
+          )}</span></p>
+        `,
+        bodyHtml,
+        extraStyles: `
+          .print-meta { max-width: 820px; margin-left: auto; margin-right: auto; }
+          .print-meta p { display: grid; grid-template-columns: 110px 1fr; gap: 8px; text-align: left; }
+          .comment-meta { display: flex; justify-content: space-between; gap: 12px; color: #334155; font-size: 12px; margin-bottom: 6px; }
+          .comment-text { white-space: pre-wrap; }
+        `,
+      });
+
+      printWindow.document.write(html);
       printWindow.document.close();
       printWindow.print();
     } catch (e) {

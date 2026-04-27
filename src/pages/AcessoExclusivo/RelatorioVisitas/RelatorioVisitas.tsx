@@ -123,8 +123,32 @@ export default function RelatorioVisitas() {
   );
 
   const selectedRegional = (formData.q1 as string) || "";
+  const selectedVendor =
+    ((formData.q2 as string) ||
+      (formData.q3 as string) ||
+      (formData.q4 as string) ||
+      (formData.q5 as string) ||
+      "") as string;
   const isRegionalVendedorQuestion = (id: string) =>
     id === "q2" || id === "q3" || id === "q4" || id === "q5";
+
+  useEffect(() => {
+    // Mantém o "vendedor responsável" alinhado ao vendedor selecionado por regional.
+    if (!selectedVendor) return;
+    if ((formData.q17 as string) === selectedVendor) return;
+    setFormData((prev) => ({ ...prev, q17: selectedVendor }));
+  }, [formData.q17, selectedVendor]);
+
+  useEffect(() => {
+    // Evita inconsistência entre campos duplicados de ID da solicitação.
+    const q19 = String(formData.q19 ?? "").trim();
+    const q21 = String(formData.q21 ?? "").trim();
+    if (q19 && q21 !== q19) {
+      setFormData((prev) => ({ ...prev, q21: q19 }));
+    } else if (q21 && q19 !== q21) {
+      setFormData((prev) => ({ ...prev, q19: q21 }));
+    }
+  }, [formData.q19, formData.q21]);
 
   const shouldShowQuestion = (q: Question) => {
     // Seção 1: ao escolher a regional, mostrar apenas o select de vendedores correspondente.
@@ -137,6 +161,8 @@ export default function RelatorioVisitas() {
       // Por segurança: qualquer outro campo dessa seção segue visível.
       return !isRegionalVendedorQuestion(q.id);
     }
+    // Evita campo redundante quando já foi selecionado por regional.
+    if (q.id === "q17" && selectedVendor) return false;
     return true;
   };
 
@@ -966,6 +992,21 @@ export default function RelatorioVisitas() {
   const handleExportPDF = (report: DisplayVisit) => {
     const printWindow = window.open("", "_blank");
     if (printWindow) {
+      const questionById = new Map(questions.map((q) => [q.id, q]));
+      const formatValue = (v: unknown) =>
+        Array.isArray(v) ? v.join(", ") : String(v ?? "");
+
+      const sections = new Map<string, { label: string; value: string }[]>();
+      for (const [key, value] of Object.entries(report.formData ?? {})) {
+        const q = questionById.get(key);
+        const label = q?.question ?? key;
+        const section = q?.section ?? "Dados";
+        const val = formatValue(value).trim();
+        if (!val) continue;
+        if (!sections.has(section)) sections.set(section, []);
+        sections.get(section)!.push({ label, value: val });
+      }
+
       const metaLinesHtml = [
         `<p><span class="print-label">Cliente:</span> <span class="print-value">${escapeHtml(report.client)}</span></p>`,
         report.requestId
@@ -975,31 +1016,49 @@ export default function RelatorioVisitas() {
           new Date(report.scheduledDate).toLocaleDateString()
         )}</span></p>`,
         `<p><span class="print-label">Vendedor:</span> <span class="print-value">${escapeHtml(report.salesperson)}</span></p>`,
+        `<p><span class="print-label">Tipo:</span> <span class="print-value">${escapeHtml(
+          report.isRequest ? "Solicitação" : "Relatório"
+        )}</span></p>`,
+        `<p><span class="print-label">Status:</span> <span class="print-value">${escapeHtml(
+          report.status
+        )}</span></p>`,
       ]
         .filter(Boolean)
         .join("");
+
       const bodyHtml = `
-            <section class="print-section">
-              <h3>Dados da visita</h3>
-              ${Object.entries(report.formData)
-                .map(
-                  ([key, value]) => `
-                <div class="print-question">
-                  <span class="print-label">${escapeHtml(key)}:</span>
-                  <span class="print-value">${escapeHtml(
-                    Array.isArray(value) ? value.join(", ") : String(value ?? "")
-                  )}</span>
-                </div>
-              `
-                )
-                .join("")}
-            </section>`;
+        ${Array.from(sections.entries())
+          .map(
+            ([section, items]) => `
+              <section class="print-section">
+                <h3>${escapeHtml(section)}</h3>
+                ${items
+                  .map(
+                    (it) => `
+                    <div class="visit-print-row">
+                      <div class="visit-print-q">${escapeHtml(it.label)}</div>
+                      <div class="visit-print-a">${escapeHtml(it.value)}</div>
+                    </div>
+                  `
+                  )
+                  .join("")}
+              </section>
+            `
+          )
+          .join("")}
+      `;
       printWindow.document.write(
         buildHidrodemaPrintDocument({
           pageTitle: `Relatório de Visita — ${report.title}`,
           mainTitle: "Relatório de visita",
           metaLinesHtml,
           bodyHtml,
+          extraStyles: `
+            .visit-print-row { padding: 10px 0; border-bottom: 1px solid rgba(226,232,240,0.9); }
+            .visit-print-row:last-child { border-bottom: 0; }
+            .visit-print-q { font-weight: 800; color: #0f172a; margin-bottom: 6px; }
+            .visit-print-a { white-space: pre-wrap; overflow-wrap: anywhere; color: #1f2937; }
+          `,
         })
       );
       printWindow.document.close();

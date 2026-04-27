@@ -29,7 +29,7 @@ import {
   finalizeDiaryPhotosForFirestore,
   deleteDiaryPhotoAtPath,
 } from "../../../services/obrasDiaryPhotosService";
-import { getPhotoSrc } from "../../../lib/photoDisplay";
+import { generateObraConsolidatedPdf } from "../../../lib/obrasConsolidatedPrint";
 import {
   canDeleteFinalizedReport,
   canEditReport,
@@ -421,6 +421,12 @@ export default function GerenciamentoObras() {
   const openReportViewer = (report: ObraReport) => {
     setViewingReport(report);
     setViewerBackMode("reports-unified");
+    setViewMode("report-viewer");
+  };
+
+  const openReportViewerFromReportsPanel = (report: ObraReport) => {
+    setViewingReport(report);
+    setViewerBackMode("reports");
     setViewMode("report-viewer");
   };
 
@@ -867,89 +873,33 @@ export default function GerenciamentoObras() {
     await saveDiaries(diaryEntries.filter((e) => e.id !== id));
   };
 
-  const handleExportPDF = (entry: DiaryEntry) => {
-    const printWindow = window.open("", "_blank");
-    if (printWindow) {
-      printWindow.document.write(`
-        <html>
-          <head>
-            <title>Diário de Obra - ${entry.obraName}</title>
-            <style>
-              body { font-family: Arial, sans-serif; margin: 20px; }
-              .header { text-align: center; margin-bottom: 30px; }
-              .section { margin-bottom: 25px; }
-              .label { font-weight: bold; color: #1e40af; }
-              .value { margin-left: 10px; }
-              .materials-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-              .materials-table th, .materials-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-              .materials-table th { background-color: #1e40af; color: white; }
-              .photos { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 10px; }
-              .photo-item { text-align: center; }
-              .photo-item img { max-width: 100%; height: auto; border: 1px solid #ddd; }
-              .photo-item p { font-size: 12px; margin-top: 5px; }
-            </style>
-          </head>
-          <body>
-            <div class="header">
-              <h1>DIÁRIO DE OBRA</h1>
-              <h2>${entry.obraName}</h2>
-              <p>Data: ${new Date(entry.date).toLocaleDateString()}</p>
-            </div>
-            <div class="section">
-              <p><span class="label">Responsável:</span><span class="value">${
-                entry.responsible
-              }</span></p>
-              <p><span class="label">Clima:</span><span class="value">${
-                entry.weather
-              }</span></p>
-              <p><span class="label">Status:</span><span class="value">${
-                entry.status
-              }</span></p>
-            </div>
-            <div class="section">
-              <h3>Atividades Realizadas</h3>
-              <p>${entry.activities.replace(/\n/g, "<br>")}</p>
-            </div>
-            <div class="section">
-              <h3>Materiais Utilizados</h3>
-              <table class="materials-table">
-                <thead>
-                  <tr><th>Material</th><th>Quantidade</th><th>Unidade</th></tr>
-                </thead>
-                <tbody>
-                  ${entry.materials
-                    .map(
-                      (m) =>
-                        `<tr><td>${m.name}</td><td>${m.quantity}</td><td>${m.unit}</td></tr>`
-                    )
-                    .join("")}
-                </tbody>
-              </table>
-            </div>
-            <div class="section">
-              <h3>Observações</h3>
-              <p>${entry.observations.replace(/\n/g, "<br>")}</p>
-            </div>
-            <div class="section">
-              <h3>Fotos</h3>
-              <div class="photos">
-                ${entry.photos
-                  .map(
-                    (p) =>
-                      `<div class="photo-item"><img src="${getPhotoSrc(
-                        p
-                      )}" alt="${p.name}"/><p>${
-                        p.description || p.name
-                      }</p></div>`
-                  )
-                  .join("")}
-              </div>
-            </div>
-          </body>
-        </html>
-      `);
-      printWindow.document.close();
-      printWindow.print();
+  const handleExportPDF = async (entry: DiaryEntry) => {
+    const project =
+      projects.find((p) => p.id === entry.projectId) ??
+      projects.find((p) => p.name === entry.obraName);
+
+    try {
+      const { exportObraReportToPdf } = await import("../../../lib/obrasReportPdf");
+      await exportObraReportToPdf(
+        {
+          id: entry.id,
+          type: "rdo",
+          projectId: entry.projectId,
+          date: entry.date,
+          activities: entry.activities,
+          observations: entry.observations,
+          weather: entry.weather,
+          responsible: entry.responsible,
+          team: [],
+          photos: entry.photos ?? [],
+          createdAt: entry.createdAt,
+          updatedAt: entry.updatedAt,
+        },
+        project
+      );
+    } catch (e) {
+      console.error(e);
+      alert("Não foi possível gerar o PDF (verifique rede e fotos na nuvem).");
     }
   };
 
@@ -1426,6 +1376,26 @@ export default function GerenciamentoObras() {
           inventory={inventory}
           suppliers={suppliers}
           onOpenReport={openReportViewerFromOverview}
+          onPrintProject={() => {
+            const project =
+              projects.find((p) => p.id === overviewProjectId) ?? projects[0];
+            if (!project) return;
+            const html = generateObraConsolidatedPdf({
+              project,
+              diaries: diaryEntries.filter((d) => d.projectId === project.id),
+              inventory: inventory.filter((i) => i.projectId === project.id),
+              suppliers: suppliers.filter((s) => s.projectId === project.id),
+              reports: reports.filter((r) => r.projectId === project.id),
+            });
+            const w = window.open("", "_blank");
+            if (!w) {
+              alert("Não foi possível abrir a janela de impressão. Verifique o bloqueador de pop-ups.");
+              return;
+            }
+            w.document.write(html);
+            w.document.close();
+            w.print();
+          }}
           setViewMode={setViewMode}
         />
       )}
@@ -1435,6 +1405,13 @@ export default function GerenciamentoObras() {
           lowStockAlerts={lowStockAlerts}
           projects={projects}
           setViewMode={setViewMode}
+          projectId={projectFilterId || undefined}
+          onCreateNew={(ctx) => {
+            if (ctx.projectId) {
+              setNewInventoryItem((p) => ({ ...p, projectId: ctx.projectId ?? "" }));
+            }
+            setViewMode("new-inventory");
+          }}
         />
       )}
       {viewMode === "inventory-entry" && (
@@ -1461,7 +1438,18 @@ export default function GerenciamentoObras() {
         <ObrasBudgetsPanel budgets={scopedBudgets} setViewMode={setViewMode} />
       )}
       {viewMode === "suppliers" && (
-        <ObrasSuppliersPanel suppliers={scopedSuppliers} projects={projects} setViewMode={setViewMode} />
+        <ObrasSuppliersPanel
+          suppliers={scopedSuppliers}
+          projects={projects}
+          setViewMode={setViewMode}
+          projectId={projectFilterId || undefined}
+          onCreateNew={(ctx) => {
+            if (ctx.projectId) {
+              setNewSupplier((p) => ({ ...p, projectId: ctx.projectId ?? "" }));
+            }
+            setViewMode("new-supplier");
+          }}
+        />
       )}
       {viewMode === "quality" && (
         <ObrasQualityPanel
@@ -1479,6 +1467,7 @@ export default function GerenciamentoObras() {
           reports={scopedReports}
           onDeleteReport={deleteReport}
           onEditReport={startEditingReport}
+          onOpenReport={openReportViewerFromReportsPanel}
           projectCount={projectFilterId ? 1 : projects.length}
           inventoryReport={inventoryReport}
           setViewMode={setViewMode}
@@ -1500,6 +1489,7 @@ export default function GerenciamentoObras() {
           setViewMode={setViewMode}
           onFinalize={() => void finalizeReport(viewingReport.id)}
           onUnlockAdmin={() => void unlockReportForAdmin(viewingReport.id)}
+          onUpdateReport={(id, updates) => updateReport(id, updates)}
           onBack={() => {
             setViewingReport(null);
             setViewMode(viewerBackMode);

@@ -13,12 +13,15 @@ import {
 } from "react-icons/fi";
 import ProjectBadge from "./ProjectBadge";
 import { useMemo, useState } from "react";
+import type { ViewChangeContext } from "../gerenciamentoObras.types";
 
 type Props = {
   inventory: InventoryItem[];
   lowStockAlerts: InventoryItem[];
   projects: Project[];
   setViewMode: (mode: GerenciamentoObrasViewMode) => void;
+  projectId?: string;
+  onCreateNew?: (ctx: ViewChangeContext) => void;
 };
 
 function getStockStatus(item: InventoryItem) {
@@ -35,6 +38,8 @@ export default function InventoryList({
   lowStockAlerts,
   projects,
   setViewMode,
+  projectId,
+  onCreateNew,
 }: Props) {
   const [onlyAlerts, setOnlyAlerts] = useState(false);
 
@@ -67,11 +72,13 @@ export default function InventoryList({
       <div className="obras-inventory-actions">
         <Button
           variant="primary"
-          onClick={() => setViewMode("new-inventory")}
+          onClick={() =>
+            onCreateNew ? onCreateNew({ projectId }) : setViewMode("new-inventory")
+          }
           className="obras-create-btn"
         >
           <FiPlus size={20} />
-          Novo Item
+          Novo Item{projectId ? " (nesta obra)" : ""}
         </Button>
         <Button
           variant="secondary"

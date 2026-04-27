@@ -36,6 +36,18 @@ export interface Photo {
   storagePath?: string;
 }
 
+export interface AttachmentFile {
+  id: string;
+  name: string;
+  description?: string;
+  mimeType?: string;
+  sizeBytes?: number;
+  uploadedAt?: string;
+  uploadedByEmail?: string;
+  storageUrl: string;
+  storagePath: string;
+}
+
 export interface Milestone {
   id: string;
   name: string;
@@ -184,6 +196,10 @@ export interface ObraReportBase {
   /** Quando definido, o relatório está finalizado (edição restrita a admin). */
   finalizedAt?: string;
   finalizedByEmail?: string;
+  /** Assinatura digital (Storage preferencial). */
+  signature?: Photo;
+  /** Arquivos anexados ao relatório (Storage). */
+  attachments?: AttachmentFile[];
 }
 
 export interface RDOReport extends ObraReportBase {
