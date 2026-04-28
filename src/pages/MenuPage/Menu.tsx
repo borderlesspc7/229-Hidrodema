@@ -2,11 +2,8 @@ import { useAuth } from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { paths } from "../../routes/paths";
 import "./Menu.css";
-import Card from "../../components/ui/Card/Card";
-import Button from "../../components/ui/Button/Button";
 import { useState } from "react";
 import Toast from "../../components/ui/Toast/Toast";
-import { features } from "../../lib/features";
 
 export default function Menu() {
   const { logout, user } = useAuth();
@@ -38,75 +35,68 @@ export default function Menu() {
     }
   };
 
-  const showMeetingMarketing = features.meeting || features.marketing;
-
   return (
     <div className="menu-container">
-      <div className="menu-header">
-        <Button
-          variant="secondary"
-          className="logout-button-left"
-          onClick={handleLogout}
-        >
-          Sair
-        </Button>
-        <div className="company-brand">
-          <img
-            src="/HIDRODEMA_LogoNovo_Branco (2).png"
-            alt="HIDRODEMA"
-            className="company-logo"
-          />
-          <div className="company-underline"></div>
+      <div className="menu-topbar">
+        <button type="button" className="menu-back" onClick={() => void handleLogout()}>
+          VOLTAR
+        </button>
+
+        <div className="menu-breadcrumb" aria-label="Breadcrumb">
+          <span className="menu-breadcrumb__home" aria-hidden="true">
+            ⌂
+          </span>
+          <span className="menu-breadcrumb__pill">Acesso Exclusivo</span>
         </div>
-        <div className="header-spacer"></div>
+
+        <div className="menu-topbar-spacer" />
       </div>
-      <div
-        className={
-          showMeetingMarketing ? "menu-cards" : "menu-cards menu-cards--single-main"
-        }
-      >
-        <Card
-          variant="service"
-          title="Hidro"
-          subtitle="Service"
-          description="Engenharia de aplicaçao e serviços Hidrodema"
-          backgroundColor="#f5f5f5"
-          textColor="#333"
-          size="large"
-          onClick={() => navigate(paths.service)}
-        />
-        {features.meeting && (
-          <Card
-            variant="technology"
-            title="Hidro"
-            subtitle="meeting"
-            description="Tecnologia em termoplasticos industriais"
-            backgroundColor="#2c5f5f"
-            textColor="#fff"
-            size="large"
-            onClick={() => handleCardClick(paths.meeting)}
-          />
-        )}
-        {features.marketing && (
-          <Card
-            variant="marketing"
-            title="Marketing"
-            description="Gerencie seu marketing"
-            backgroundColor="#fff"
-            textColor="#000"
-            size="large"
-            onClick={() => handleCardClick(paths.marketing)}
-          />
-        )}
+
+      <div className="menu-center">
+        <div className="menu-brand">
+          <img src="/Logo HidroService.png" alt="HIDRO SERVICE" className="menu-brand__logo" />
+          <div className="menu-brand__underline" />
+        </div>
+
+        <div className="menu-block">
+          <div className="menu-block__title">ACESSO EXCLUSIVO</div>
+          <div className="menu-block__actions">
+            <button
+              type="button"
+              className="menu-pill"
+              onClick={() => handleCardClick("/acesso-exclusivo/relatorio-visitas")}
+            >
+              RELATÓRIO DE VISITAS
+            </button>
+            <button
+              type="button"
+              className="menu-pill"
+              onClick={() => handleCardClick("/acesso-exclusivo/gerenciamento-obras")}
+            >
+              GERENCIAMENTO DE OBRAS
+            </button>
+            <button
+              type="button"
+              className="menu-pill"
+              onClick={() => handleCardClick("/acesso-exclusivo/equalizador-servico")}
+            >
+              EQUALIZADOR DE SERVIÇOS
+            </button>
+            <button
+              type="button"
+              className="menu-pill"
+              onClick={() => handleCardClick("/acesso-exclusivo/solicitacao-servicos")}
+            >
+              SOLICITAÇÃO DE SERVIÇOS
+            </button>
+          </div>
+        </div>
       </div>
-      <div className="menu-footer">
-        <Button
-          variant="secondary"
-          onClick={() => handleCardClick(paths.acessoExclusivo)}
-        >
-          Acesso Exclusivo
-        </Button>
+
+      <div className="menu-watermark" aria-hidden="true">
+        HIDRODEMA
       </div>
+
       {showToast && (
         <Toast
           message={toastMessage}

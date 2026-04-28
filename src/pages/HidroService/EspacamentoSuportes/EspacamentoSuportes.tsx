@@ -148,7 +148,7 @@ export default function EspacamentoSuportes() {
   ];
 
   return (
-    <div className="espacamento-suportes-container">
+    <div className="espacamento-suportes-container hd-page-bg">
       <div className="espacamento-suportes-header">
         <BackButton fallbackPath={paths.service} className="back-button" />
         <div className="espacamento-suportes-title-section">

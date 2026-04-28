@@ -102,12 +102,44 @@
   --neutral-700: #334155;
   --neutral-900: #0f172a;
 
-  /* Surfaces / glass */
+  /* Surfaces / glass (legacy) */
   --surface: #ffffff;
   --surface-2: var(--neutral-50);
   --glass-bg: rgba(255, 255, 255, 0.12);
   --glass-border: rgba(255, 255, 255, 0.18);
   --glass-blur: 14px;
+
+  /* ==========================
+     Semantic tokens (dark-glass)
+     Fonte da verdade p/ páginas
+     ========================== */
+
+  /* Background base (page) */
+  --hd-bg-0: #071021;
+  --hd-bg-1: #0b1b34;
+  --hd-bg-2: #102a4a;
+
+  /* Text */
+  --hd-text: #e2e8f0;
+  --hd-text-muted: rgba(226, 232, 240, 0.74);
+  --hd-text-faint: rgba(226, 232, 240, 0.56);
+
+  /* Glass surfaces */
+  --hd-surface-1: rgba(7, 16, 33, 0.46);
+  --hd-surface-2: rgba(7, 16, 33, 0.62);
+  --hd-surface-3: rgba(15, 23, 42, 0.55);
+  --hd-border: rgba(148, 163, 184, 0.12);
+  --hd-border-strong: rgba(148, 163, 184, 0.18);
+  --hd-blur: 18px;
+
+  /* Shadows & glow */
+  --hd-shadow-1: 0 18px 50px rgba(0, 0, 0, 0.28);
+  --hd-shadow-2: 0 26px 70px rgba(0, 0, 0, 0.38);
+  --hd-glow-brand: 0 0 70px rgba(37, 99, 235, 0.12);
+  --hd-glow-brand-soft: 0 0 40px rgba(37, 99, 235, 0.10);
+
+  /* Focus ring */
+  --hd-focus-ring: 0 0 0 3px rgba(59, 130, 246, 0.22);
 
   /* Shadows */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
@@ -125,7 +157,7 @@
   font-family: var(--font-sans);
   line-height: var(--leading-base);
   font-weight: var(--weight-regular);
-  color: var(--primary-900);
+  color: var(--hd-text);
   /* Tipografia fluida (melhor no mobile) */
   font-size: clamp(14px, 1.6vw, 16px);
 }
@@ -138,6 +170,8 @@ body {
   font-family: inherit;
   overflow-x: hidden;
   -webkit-text-size-adjust: 100%;
+  background: var(--hd-bg-0);
+  color: var(--hd-text);
 }
 
 /* Seleção */
@@ -231,6 +265,78 @@ select {
 /* ==========================
    Utilitários globais
    ========================== */
+
+.hd-page-bg {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(59, 130, 246, 0.22), transparent 55%),
+    radial-gradient(circle at 70% 65%, rgba(139, 92, 246, 0.18), transparent 60%),
+    linear-gradient(180deg, var(--hd-bg-1) 0%, var(--hd-bg-2) 55%, var(--hd-bg-1) 100%);
+  overflow: hidden;
+}
+
+.hd-page-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.55;
+  background-image:
+    radial-gradient(circle at 30% 40%, rgba(139, 92, 246, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 70% 60%, rgba(59, 130, 246, 0.06) 0%, transparent 50%),
+    radial-gradient(circle at 40% 20%, rgba(236, 72, 153, 0.04) 0%, transparent 50%),
+    repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.022),
+      rgba(255, 255, 255, 0.022) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+}
+
+.hd-layer {
+  position: relative;
+  z-index: 1;
+}
+
+.hd-glass {
+  background: var(--hd-surface-1);
+  border: 1px solid var(--hd-border);
+  backdrop-filter: blur(var(--hd-blur));
+  box-shadow: var(--hd-shadow-1), var(--hd-glow-brand-soft);
+}
+
+.hd-glass-strong {
+  background: var(--hd-surface-2);
+  border: 1px solid var(--hd-border);
+  backdrop-filter: blur(var(--hd-blur));
+  box-shadow: var(--hd-shadow-2), var(--hd-glow-brand);
+}
+
+.hd-topbar {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+}
+
+.hd-watermark {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 18px;
+  font-weight: 900;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: rgba(226, 232, 240, 0.06);
+  user-select: none;
+  pointer-events: none;
+  white-space: nowrap;
+}
 
 .glass-card {
   background: var(--glass-bg);

@@ -66,7 +66,7 @@ export default function Register() {
   };
 
   return (
-    <div className="register-page">
+    <div className="register-page hd-page-bg">
       {/* Título da Empresa */}
       <div className="company-brand">
         <img
@@ -89,7 +89,9 @@ export default function Register() {
           {localError ? <p className="error-message">{localError}</p> : null}
           <Input
             type="text"
-            placeholder="Digite seu nome completo"
+            variant="auth"
+            label="Nome completo"
+            placeholder="Ex: Seu nome"
             value={formData.name}
             onChange={(value) => handleChange("name", value)}
             required
@@ -97,7 +99,9 @@ export default function Register() {
           />
           <Input
             type="email"
-            placeholder="Digite seu email"
+            variant="auth"
+            label="Email"
+            placeholder="ex: seu@email.com"
             value={formData.email}
             onChange={(value) => handleChange("email", value)}
             required
@@ -105,7 +109,9 @@ export default function Register() {
           />
           <Input
             type="password"
-            placeholder="Digite sua senha"
+            variant="auth"
+            label="Senha"
+            placeholder="Mínimo 6 caracteres"
             value={formData.password}
             onChange={(value) => handleChange("password", value)}
             required
@@ -118,7 +124,9 @@ export default function Register() {
           />
           <Input
             type="password"
-            placeholder="Confirme sua senha"
+            variant="auth"
+            label="Confirmar senha"
+            placeholder="Repita a senha"
             value={formData.confirmPassword}
             onChange={(value) => handleChange("confirmPassword", value)}
             required

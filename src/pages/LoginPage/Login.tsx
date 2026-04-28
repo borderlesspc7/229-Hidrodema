@@ -94,7 +94,7 @@ export default function Login() {
   };
 
   return (
-    <div className="login-page">
+    <div className="login-page hd-page-bg">
       {/* Título da Empresa */}
       <div className="company-brand">
         <img
@@ -126,7 +126,9 @@ export default function Login() {
           ) : null}
           <Input
             type="email"
-            placeholder="Digite seu email"
+            variant="auth"
+            label="Email"
+            placeholder="ex: seu@email.com"
             value={formData.email}
             onChange={(value) => handleChange("email", value)}
             error={Boolean(localError) && !formData.email.trim()}
@@ -138,6 +140,8 @@ export default function Login() {
           />
           <Input
             type="password"
+            variant="auth"
+            label="Senha"
             placeholder="Digite sua senha"
             value={formData.password}
             onChange={(value) => handleChange("password", value)}

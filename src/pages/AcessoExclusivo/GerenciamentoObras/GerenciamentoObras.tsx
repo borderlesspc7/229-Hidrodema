@@ -1475,9 +1475,12 @@ export default function GerenciamentoObras() {
       )}
       {viewMode === "reports-unified" && (
         <UnifiedReportsList
+          user={user}
           projects={projects}
           reports={scopedReports}
           onOpenReport={openReportViewer}
+          onEditReport={startEditingReport}
+          onDeleteReport={deleteReport}
           setViewMode={setViewMode}
         />
       )}

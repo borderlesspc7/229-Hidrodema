@@ -3,13 +3,34 @@
   margin-bottom: 0;
 }
 
+.input-top-label {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin: 0 0 8px 2px;
+}
+
+.input-top-label__text {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(226, 232, 240, 0.92);
+}
+
+.input-top-label__req {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(147, 197, 253, 0.95);
+}
+
 .input-field {
   width: 100%;
   padding: 16px 16px 16px 16px;
-  border: 2px solid var(--neutral-200, #e2e8f0);
+  border: 1px solid rgba(148, 163, 184, 0.18);
   border-radius: var(--radius-md, 12px);
   font-size: 16px;
-  background: #ffffff;
+  background: rgba(15, 23, 42, 0.45);
+  color: var(--hd-text, rgba(226, 232, 240, 0.96));
+  backdrop-filter: blur(var(--hd-blur, 18px));
   transition: border-color var(--dur-base, 250ms) var(--ease-standard, ease),
     box-shadow var(--dur-base, 250ms) var(--ease-standard, ease),
     background var(--dur-base, 250ms) var(--ease-standard, ease);
@@ -18,8 +39,9 @@
 }
 
 .input-field:focus {
-  border-color: var(--primary-500, #3b82f6);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.14);
+  border-color: rgba(59, 130, 246, 0.85);
+  box-shadow: var(--hd-focus-ring, 0 0 0 3px rgba(59, 130, 246, 0.22)),
+    0 10px 34px rgba(37, 99, 235, 0.14);
 }
 
 .input-label {
@@ -27,11 +49,11 @@
   left: 16px;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--neutral-500, #64748b);
+  color: var(--hd-text-faint, rgba(226, 232, 240, 0.56));
   font-size: 16px;
   pointer-events: none;
   transition: all var(--dur-base, 250ms) var(--ease-standard, ease);
-  background: #ffffff;
+  background: rgba(7, 16, 33, 0.72);
   padding: 0 4px;
 }
 
@@ -39,13 +61,14 @@
 .input-container.has-value .input-label {
   top: 0;
   font-size: 12px;
-  color: var(--primary-800, #1e40af);
+  color: rgba(147, 197, 253, 0.92);
   font-weight: var(--weight-medium, 500);
 }
 
 .input-container.focused .input-field {
-  border-color: var(--primary-500, #3b82f6);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.14);
+  border-color: rgba(59, 130, 246, 0.85);
+  box-shadow: var(--hd-focus-ring, 0 0 0 3px rgba(59, 130, 246, 0.22)),
+    0 10px 34px rgba(37, 99, 235, 0.14);
 }
 
 .input-container.has-error .input-field {
@@ -70,4 +93,25 @@
 
 .input--modal .input-label {
   background: var(--neutral-50, #f8fafc);
+}
+
+/* Variante auth (login/register): dark + glow azul */
+.input--auth .input-field {
+  background: rgba(15, 23, 42, 0.55);
+  border-color: rgba(148, 163, 184, 0.25);
+  color: rgba(226, 232, 240, 0.96);
+}
+
+.input--auth .input-field::placeholder {
+  color: rgba(148, 163, 184, 0.75);
+}
+
+.input--auth .input-field:focus {
+  border-color: rgba(59, 130, 246, 0.85);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.22), 0 10px 34px rgba(37, 99, 235, 0.18);
+}
+
+.input--auth.has-error .input-field {
+  border-color: rgba(248, 113, 113, 0.85);
+  box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.16);
 }

@@ -4,8 +4,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  background: #1e3a5f;
+  justify-content: flex-start;
   padding: 40px 20px;
   margin: 0;
   width: 100%;
@@ -16,14 +15,7 @@
 
 /* Padrão moderno de fundo com elementos flutuantes */
 .acesso-exclusivo-container::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: #1e3a5f;
-  pointer-events: none;
+  content: none;
 }
 
 /* Header igual ao HidroService */
@@ -108,10 +100,10 @@
 }
 
 .logout-button-left {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  color: #1a3a52;
-  border: 2px solid rgba(59, 130, 246, 0.3);
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(18px);
+  color: rgba(226, 232, 240, 0.96);
+  border: 1px solid rgba(148, 163, 184, 0.18);
   padding: 10px 12px;
   border-radius: 12px;
   font-size: 16px;
@@ -123,12 +115,18 @@
   min-width: 100px;
 }
 
+.logout-button-left:hover {
+  background: rgba(15, 23, 42, 0.7);
+  border-color: rgba(59, 130, 246, 0.35);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.25), 0 0 0 3px rgba(59, 130, 246, 0.14);
+}
+
 /* Container dos cards - baseado no HidroService */
 .acesso-exclusivo-container .acesso-exclusivo-content {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  max-width: 400px;
+  max-width: 520px;
   width: 100%;
   position: relative;
   z-index: 2;
@@ -157,14 +155,15 @@
   width: 100%;
   min-height: 70px;
   backdrop-filter: blur(16px);
-  background: #1e3a5f;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(7, 16, 33, 0.58);
+  border: 1px solid rgba(148, 163, 184, 0.14);
   transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   cursor: pointer;
   position: relative;
   border-radius: 70px;
   padding: 20px 30px;
   overflow: hidden;
+  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.35), 0 0 40px rgba(37, 99, 235, 0.12);
 }
 
 .acesso-exclusivo-container .acesso-exclusivo-content .card::before {
@@ -187,8 +186,8 @@
   transform: translateY(-6px) scale(1.02);
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3), 0 0 30px rgba(139, 92, 246, 0.15),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(139, 92, 246, 0.3);
+  background: rgba(7, 16, 33, 0.66);
+  border-color: rgba(59, 130, 246, 0.28);
 }
 
 .acesso-exclusivo-container .acesso-exclusivo-content .card:hover::before {
@@ -212,6 +211,7 @@
   align-items: center;
   justify-content: center;
   min-height: 70px;
+  color: rgba(226, 232, 240, 0.96);
 }
 
 /* Footer - baseado no HidroService */

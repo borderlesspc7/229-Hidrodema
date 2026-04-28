@@ -5,17 +5,21 @@ import "./Input.css";
 
 interface InputProps {
   type: string;
-  placeholder: string;
+  /** Texto do label (ou label flutuante no modo default) */
+  label?: string;
+  /** Placeholder do input (principalmente no modo auth) */
+  placeholder?: string;
   value: string;
   onChange: (value: string) => void;
   required?: boolean;
   error?: boolean;
   helperText?: string;
-  variant?: "default" | "modal";
+  variant?: "default" | "modal" | "auth";
 }
 
 export default function Input({
   type,
+  label,
   placeholder,
   value,
   onChange,
@@ -27,6 +31,9 @@ export default function Input({
   const [isFocused, setIsFocused] = useState(false);
   const id = useId();
 
+  const floatingLabelText = label ?? placeholder ?? "";
+  const showTopLabel = variant === "auth" && Boolean(label);
+
   return (
     <div
       className={`input-container input--${variant} ${error ? "has-error" : ""} ${
@@ -35,6 +42,14 @@ export default function Input({
         value ? "has-value" : ""
       }`}
     >
+      {showTopLabel ? (
+        <div className="input-top-label">
+          <label className="input-top-label__text" htmlFor={id}>
+            {label}
+          </label>
+          {required ? <span className="input-top-label__req">*</span> : null}
+        </div>
+      ) : null}
       <input
         id={id}
         type={type}
@@ -44,11 +59,14 @@ export default function Input({
         onBlur={() => setIsFocused(false)}
         required={required}
         className="input-field"
+        placeholder={showTopLabel ? placeholder : undefined}
         aria-invalid={error ? "true" : "false"}
       />
-      <label className="input-label" htmlFor={id}>
-        {placeholder}
-      </label>
+      {!showTopLabel ? (
+        <label className="input-label" htmlFor={id}>
+          {floatingLabelText}
+        </label>
+      ) : null}
       {helperText ? (
         <div className={`input-helper ${error ? "input-helper--error" : ""}`}>
           {helperText}

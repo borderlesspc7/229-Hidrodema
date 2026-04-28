@@ -64,7 +64,7 @@ export default function HidroService() {
 
   return (
     <ThemeProvider theme={darkTheme}>
-      <div className="hidro-service-container">
+      <div className="hidro-service-container hd-page-bg">
         <Container maxWidth="lg" sx={{ width: "100%", py: { xs: 3, sm: 4 } }}>
           {/* Header */}
           <Box

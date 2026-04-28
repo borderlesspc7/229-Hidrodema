@@ -17,7 +17,7 @@ export default function AcessoExclusivo() {
   }, [user, navigate]);
 
   return (
-    <div className="acesso-exclusivo-container">
+    <div className="acesso-exclusivo-container hd-page-bg">
       <div className="hidro-service-header">
         <BackButton fallbackPath={paths.menu} className="logout-button-left" />
         <div className="acesso-exclusivo-company-brand">
@@ -34,47 +34,42 @@ export default function AcessoExclusivo() {
       <div className="acesso-exclusivo-content">
         <h2 className="acesso-exclusivo-content-title">ACESSO EXCLUSIVO</h2>
         <Card
-          variant="service"
+          variant="technology"
           title="RELATORIO DE VISITAS"
-          backgroundColor="#f5f5f5"
-          textColor="#333"
+          textColor="#e2e8f0"
           size="medium"
           className="acesso-exclusivo-card"
           onClick={() => navigate("/acesso-exclusivo/relatorio-visitas")}
         />
         <Card
-          variant="service"
+          variant="technology"
           title="GERENCIAMENTO DE OBRAS"
-          backgroundColor="#f5f5f5"
-          textColor="#333"
+          textColor="#e2e8f0"
           size="medium"
           className="acesso-exclusivo-card"
           onClick={() => navigate("/acesso-exclusivo/gerenciamento-obras")}
         />
         <Card
-          variant="service"
+          variant="technology"
           title="EQUALIZADOR DE SERVICOS"
-          backgroundColor="#f5f5f5"
-          textColor="#333"
+          textColor="#e2e8f0"
           size="medium"
           className="acesso-exclusivo-card"
           onClick={() => navigate("/acesso-exclusivo/equalizador-servico")}
         />
         <Card
-          variant="service"
+          variant="technology"
           title="SOLICITACAO DE SERVICOS"
-          backgroundColor="#f5f5f5"
-          textColor="#333"
+          textColor="#e2e8f0"
           size="medium"
           className="acesso-exclusivo-card"
           onClick={() => navigate("/acesso-exclusivo/solicitacao-servicos")}
         />
         {features.gestaoVendedores && user && hasMacroVisibility(user) && (
           <Card
-            variant="service"
+            variant="technology"
             title="GESTAO DE VENDEDORES (API)"
-            backgroundColor="#eef2ff"
-            textColor="#312e81"
+            textColor="#e2e8f0"
             size="medium"
             className="acesso-exclusivo-card"
             onClick={() => navigate("/acesso-exclusivo/gestao-vendedores")}
@@ -82,10 +77,9 @@ export default function AcessoExclusivo() {
         )}
         {user && isAdmin(user) && (
           <Card
-            variant="service"
+            variant="technology"
             title="CONTROLE DE FUNCIONARIOS"
-            backgroundColor="#ecfeff"
-            textColor="#155e75"
+            textColor="#e2e8f0"
             size="medium"
             className="acesso-exclusivo-card"
             onClick={() => navigate("/acesso-exclusivo/controle-funcionarios")}

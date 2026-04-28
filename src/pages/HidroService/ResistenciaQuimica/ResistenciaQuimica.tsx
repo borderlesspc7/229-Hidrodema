@@ -221,7 +221,7 @@ export default function ResistenciaQuimica() {
   const filteredData = getFilteredData();
 
   return (
-    <div className="resistencia-quimica-container">
+    <div className="resistencia-quimica-container hd-page-bg">
       <div className="resistencia-quimica-header">
         <BackButton fallbackPath={paths.service} className="back-button" />
         <div className="resistencia-quimica-title-section">

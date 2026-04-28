@@ -26,6 +26,7 @@ import "./RelatorioVisitas.css";
 import { useAuth } from "../../../hooks/useAuth";
 import { paths } from "../../../routes/paths";
 import { navigateBackOrFallback } from "../../../lib/navigation";
+import Breadcrumb from "../../../components/ui/Breadcrumb/Breadcrumb";
 import {
   createVisitRequest,
   createVisitReport,
@@ -107,8 +108,9 @@ export default function RelatorioVisitas() {
   const { user } = useAuth();
   const displayName =
     user?.name?.trim() || user?.email?.trim() || "Usuário";
-  const [viewMode, setViewMode] = useState<ViewMode>("menu");
-  const [currentSection, setCurrentSection] = useState(0);
+  // Primeira tela ao entrar no módulo (como no print): formulário já na seção "Geral".
+  const [viewMode, setViewMode] = useState<ViewMode>("new");
+  const [currentSection, setCurrentSection] = useState(1);
   const [formData, setFormData] = useState<FormData>({});
   const [visitReports, setVisitReports] = useState<DisplayVisit[]>([]);
   const [editingReport, setEditingReport] = useState<DisplayVisit | null>(null);
@@ -650,7 +652,32 @@ export default function RelatorioVisitas() {
         }),
       ];
 
-      setVisitReports(displayData);
+      // Seed visual (apenas DEV): deixa a planilha com 1 linha igual ao mock do layout.
+      // Não afeta produção e não sobrescreve dados reais.
+      const seeded =
+        import.meta.env.DEV && displayData.length === 0
+          ? ([
+              {
+                id: "mock-visit-1",
+                requestId: "REQ-20260324-38347",
+                title: "Mitsui - 23/03/2026",
+                status: "completed",
+                visitType: "commercial",
+                client: "Mitsui",
+                salesperson: "035184 - ALEXANDRE DI RIENZO",
+                scheduledDate: "2026-03-23",
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                formData: {},
+                comments: [],
+                hasReport: true,
+                isRequest: true,
+                canMutate: false,
+              } satisfies DisplayVisit,
+            ] as DisplayVisit[])
+          : displayData;
+
+      setVisitReports(seeded);
     } catch (err) {
       console.error("Erro ao carregar dados:", err);
       alert("Erro ao carregar dados. Tente novamente.");
@@ -1463,10 +1490,9 @@ export default function RelatorioVisitas() {
       )}
       <div className="visitas-menu-cards">
         <Card
-          variant="service"
+          variant="technology"
           title="NOVA SOLICITAÇÃO"
-          textColor="#1e40af"
-          backgroundColor="#f0f9ff"
+          textColor="#e2e8f0"
           size="large"
           className="visitas-menu-card"
           onClick={() => setViewMode("new")}
@@ -1480,10 +1506,9 @@ export default function RelatorioVisitas() {
         </Card>
 
         <Card
-          variant="service"
+          variant="technology"
           title="PLANILHA DE VISITAS"
-          textColor="#059669"
-          backgroundColor="#f0fdf4"
+          textColor="#e2e8f0"
           size="large"
           className="visitas-menu-card"
           onClick={() => setViewMode("schedule")}
@@ -1500,10 +1525,9 @@ export default function RelatorioVisitas() {
         </Card>
 
         <Card
-          variant="service"
+          variant="technology"
           title="HISTÓRICO"
-          textColor="#7c3aed"
-          backgroundColor="#faf5ff"
+          textColor="#e2e8f0"
           size="large"
           className="visitas-menu-card"
           onClick={() => setViewMode("history")}
@@ -2006,22 +2030,36 @@ export default function RelatorioVisitas() {
 
       {/* Header */}
       <div className="visitas-header">
-        <Button
-          variant="secondary"
-          className="visitas-back-button"
-          onClick={handleBack}
-        >
-          <FiArrowLeft size={16} />
-          Voltar
-        </Button>
-        <div className="visitas-company-brand">
-          <h1 className="visitas-company-title">RELATÓRIO DE VISITAS</h1>
-          <span className="visitas-company-subtitle">
-            Gestão de visitas técnicas e comerciais
-          </span>
-          <div className="visitas-company-underline"></div>
+        <div className="visitas-header-inner">
+          <div className="visitas-header-left">
+            <div className="visitas-header-menu">
+              <Button
+                variant="secondary"
+                className="visitas-back-button"
+                onClick={handleBack}
+              >
+                <FiArrowLeft size={16} />
+                Voltar
+              </Button>
+              <Breadcrumb
+                compact
+                className="visitas-header-breadcrumb"
+                items={[
+                  { label: "Acesso Exclusivo", to: paths.acessoExclusivo },
+                  { label: "Relatório de Visitas" },
+                ]}
+              />
+            </div>
+          </div>
+          <div className="visitas-company-brand">
+            <h1 className="visitas-company-title">RELATÓRIO DE VISITAS</h1>
+            <span className="visitas-company-subtitle">
+              Gestão de visitas técnicas e comerciais
+            </span>
+            <div className="visitas-company-underline"></div>
+          </div>
+          <div className="visitas-header-spacer"></div>
         </div>
-        <div className="visitas-header-spacer"></div>
       </div>
 
       {/* Main Content */}
@@ -2032,12 +2070,8 @@ export default function RelatorioVisitas() {
       {(viewMode === "new" || viewMode === "edit") && renderForm()}
 
       {/* Footer */}
-      <div className="visitas-footer">
-        <img
-          src="/HIDRODEMA_LogoNovo_Branco (2).png"
-          alt="HIDRODEMA"
-          className="visitas-footer-logo"
-        />
+      <div className="visitas-watermark" aria-hidden="true">
+        HIDRODEMA
       </div>
     </div>
   );

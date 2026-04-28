@@ -314,7 +314,7 @@ export default function PesoTubos() {
   }, [pipeData]);
 
   return (
-    <div className="peso-tubos-container">
+    <div className="peso-tubos-container hd-page-bg">
       <div className="peso-tubos-header">
         <BackButton fallbackPath={paths.service} className="back-button" />
         <div className="peso-tubos-title-section">

@@ -93,7 +93,7 @@ export default function CursoSenai() {
   };
 
   return (
-    <div className="curso-senai-page">
+    <div className="curso-senai-page hd-page-bg">
       <div className="curso-senai-topbar">
         <BackButton fallbackPath={paths.service} className="curso-senai-back" />
         <div className="curso-senai-brand">

@@ -12,7 +12,7 @@ export default function CursoSenaiRedirect() {
   }, []);
 
   return (
-    <div className="curso-senai-redirect-page">
+    <div className="curso-senai-redirect-page hd-page-bg">
       <Card
         variant="service"
         title=""

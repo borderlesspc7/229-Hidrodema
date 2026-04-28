@@ -466,7 +466,7 @@ export default function ConsumoAdesivo() {
   ]);
 
   return (
-    <div className="consumo-adesivo-container">
+    <div className="consumo-adesivo-container hd-page-bg">
       <div className="consumo-adesivo-header">
         <BackButton fallbackPath={paths.service} className="back-button" />
         <div className="consumo-adesivo-title-section">

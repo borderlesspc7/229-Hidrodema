@@ -4,12 +4,14 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  background: #1e3a5f;
-  padding: 40px 20px;
+  justify-content: flex-start;
+  background: radial-gradient(circle at 30% 20%, rgba(59, 130, 246, 0.22), transparent 55%),
+    radial-gradient(circle at 70% 65%, rgba(139, 92, 246, 0.18), transparent 60%),
+    linear-gradient(180deg, #0b1b34 0%, #102a4a 55%, #0b1b34 100%);
+  padding: 14px 20px 70px;
   margin: 0;
   width: 100%;
-  gap: 40px;
+  gap: 26px;
   position: relative;
   overflow: hidden;
 }
@@ -22,131 +24,219 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: radial-gradient(
-      circle at 30% 40%,
-      rgba(139, 92, 246, 0.08) 0%,
-      transparent 50%
-    ),
-    radial-gradient(
-      circle at 70% 60%,
-      rgba(59, 130, 246, 0.06) 0%,
-      transparent 50%
-    ),
-    radial-gradient(
-      circle at 40% 20%,
-      rgba(236, 72, 153, 0.04) 0%,
-      transparent 50%
+  background-image: radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.06) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.04) 0%, transparent 50%),
+    repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.03),
+      rgba(255, 255, 255, 0.03) 1px,
+      transparent 1px,
+      transparent 3px
     );
-  animation: floatingOrbs 20s ease-in-out infinite alternate;
   pointer-events: none;
   z-index: 0;
+  opacity: 0.55;
 }
 
 /* Header - Relatório de Visitas */
 .visitas-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  position: sticky;
+  top: 0;
   width: 100%;
-  max-width: 1200px;
   position: relative;
   z-index: 2;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+  height: 104px;
+}
+
+/* Conteúdo centralizado dentro da faixa */
+.visitas-header-inner {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  height: 104px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  position: relative;
+  padding: 0 12px;
+}
+
+/* Breadcrumb (“menu em cima”) dentro do header */
+.visitas-header-left {
+  grid-column: 1;
+  justify-self: start;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  z-index: 1;
+  padding-left: 16px;
+  padding-top: 8px;
+  min-width: 0;
+}
+
+.visitas-header-menu {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: 999px;
+  background: rgba(7, 16, 33, 0.28);
+  border: 1px solid rgba(148, 163, 184, 0.10);
+  backdrop-filter: blur(12px);
+  max-width: min(46vw, 560px);
+}
+
+.visitas-header-breadcrumb {
+  width: auto;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  border: 0;
+  backdrop-filter: none;
+  max-width: min(48vw, 520px);
+  font-size: 11px;
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.visitas-header-breadcrumb .breadcrumb__sep {
+  opacity: 0.4;
+}
+
+.visitas-header-breadcrumb .breadcrumb__link,
+.visitas-header-breadcrumb .breadcrumb__current {
+  color: rgba(226, 232, 240, 0.92);
+}
+
+.visitas-header-breadcrumb .breadcrumb__link {
+  opacity: 0.88;
+}
+
+.visitas-header-breadcrumb .breadcrumb__current {
+  opacity: 0.98;
+}
+
+/* Faixa superior escura (como no print) */
+.visitas-header::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: -14px;
+  width: 100vw;
+  height: 104px;
+  border-radius: 0;
+  background: rgba(7, 16, 33, 0.46);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28), 0 0 40px rgba(37, 99, 235, 0.10);
+  z-index: -1;
+}
+
+.visitas-header::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: -14px;
+  width: 100vw;
+  height: 104px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.06),
+    rgba(255, 255, 255, 0.02),
+    rgba(255, 255, 255, 0.06)
+  );
+  opacity: 0.22;
+  pointer-events: none;
+  z-index: -1;
 }
 
 .visitas-back-button {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  color: #1a3a52;
-  border: 2px solid rgba(59, 130, 246, 0.3);
-  padding: 12px 20px;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 700;
+  justify-self: start;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(10px);
+  color: rgba(226, 232, 240, 0.96);
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
   cursor: pointer;
   transition: all 0.3s ease;
   text-transform: uppercase;
   letter-spacing: 1px;
-  min-width: 120px;
+  min-width: 112px;
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
 .visitas-back-button:hover {
-  background: rgba(59, 130, 246, 0.1);
-  color: #ffffff;
-  border-color: rgba(59, 130, 246, 0.5);
+  background: rgba(15, 23, 42, 0.7);
+  border-color: rgba(59, 130, 246, 0.35);
   transform: translateY(-2px);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.25), 0 0 0 3px rgba(59, 130, 246, 0.14);
 }
 
 .visitas-company-brand {
+  justify-self: center;
   text-align: center;
   position: relative;
   z-index: 2;
-  flex: 1;
+  width: auto;
+  padding-top: 0;
 }
 
 .visitas-company-title {
-  font-size: 48px;
+  font-size: 18px;
   font-weight: 900;
-  background: linear-gradient(
-    135deg,
-    #ffffff 0%,
-    #60a5fa 25%,
-    #3b82f6 50%,
-    #8b5cf6 75%,
-    #ffffff 100%
-  );
-  background-size: 300% 300%;
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: #ffffff;
-  letter-spacing: 6px;
-  margin: 0 0 10px 0;
+  color: rgba(226, 232, 240, 0.98);
+  letter-spacing: 5px;
+  margin: 0 0 4px 0;
   line-height: 1.1;
   text-transform: uppercase;
   position: relative;
-  font-family: "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont,
-    sans-serif;
-  filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.5));
-  animation: titleGlow 3s ease-in-out infinite alternate,
-    gradientShift 4s ease-in-out infinite;
+  font-family: "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+  text-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
 }
 
 .visitas-company-subtitle {
-  font-size: 16px;
-  color: rgba(255, 255, 255, 0.9);
+  font-size: 12px;
+  color: rgba(148, 163, 184, 0.95);
   display: block;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
   font-weight: 400;
   letter-spacing: 1px;
 }
 
 .visitas-company-underline {
-  width: 150px;
-  height: 6px;
-  background: linear-gradient(90deg, #ffffff 0%, #3b82f6 50%, #1e40af 100%);
+  width: 44px;
+  height: 3px;
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.95), rgba(59, 130, 246, 0.15));
   margin: 0 auto;
   border-radius: 3px;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
-  animation: underlinePulse 2s ease-in-out infinite alternate;
+  box-shadow: 0 10px 30px rgba(37, 99, 235, 0.22);
 }
 
 .visitas-header-spacer {
-  width: 120px;
+  width: 1px;
 }
 
-/* Progress Bar - Relatório de Visitas */
+/* No layout “print”, não existe barra de progresso no topo */
 .visitas-progress-container {
-  position: relative;
-  z-index: 2;
-  max-width: 800px;
-  width: 100%;
-  margin-bottom: 20px;
+  display: none !important;
 }
 
 .visitas-progress-bar {
@@ -197,18 +287,17 @@
 .visitas-form-container {
   position: relative;
   z-index: 2;
-  max-width: 800px;
+  max-width: 720px;
   width: 100%;
 }
 
 .visitas-form-card {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 24px;
+  background: rgba(7, 16, 33, 0.62);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 18px;
   padding: 40px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.38), 0 0 70px rgba(37, 99, 235, 0.12);
   position: relative;
   overflow: hidden;
 }
@@ -241,7 +330,7 @@
 .visitas-form-title {
   font-size: 32px;
   font-weight: 900;
-  color: #1a3a52;
+  color: rgba(226, 232, 240, 0.98);
   margin: 0 0 12px 0;
   text-transform: uppercase;
   letter-spacing: 2px;
@@ -250,7 +339,7 @@
 
 .visitas-form-subtitle {
   font-size: 16px;
-  color: #64748b;
+  color: rgba(148, 163, 184, 0.92);
   margin: 0;
   font-weight: 500;
 }
@@ -259,14 +348,14 @@
 .visitas-section-title {
   margin-bottom: 30px;
   padding-bottom: 15px;
-  border-bottom: 2px solid #e2e8f0;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.22);
   position: relative;
 }
 
 .visitas-section-title h3 {
   font-size: 24px;
   font-weight: 700;
-  color: #1e40af;
+  color: rgba(147, 197, 253, 0.95);
   margin: 0;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -312,25 +401,25 @@
 .visitas-form-question {
   margin-bottom: 30px;
   padding: 24px;
-  background: rgba(248, 250, 252, 0.8);
-  border: 1px solid rgba(226, 232, 240, 0.8);
+  background: rgba(15, 23, 42, 0.38);
+  border: 1px solid rgba(148, 163, 184, 0.16);
   border-radius: 16px;
   transition: all 0.3s ease;
   position: relative;
 }
 
 .visitas-form-question:hover {
-  background: rgba(241, 245, 249, 0.9);
-  border-color: rgba(59, 130, 246, 0.3);
+  background: rgba(15, 23, 42, 0.5);
+  border-color: rgba(59, 130, 246, 0.24);
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.28), 0 0 40px rgba(37, 99, 235, 0.12);
 }
 
 .visitas-question-label {
   display: block;
   font-size: 16px;
   font-weight: 600;
-  color: #1e40af;
+  color: rgba(226, 232, 240, 0.92);
   margin-bottom: 12px;
   line-height: 1.5;
 }
@@ -569,9 +658,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: 30px;
-  border-top: 2px solid #e2e8f0;
-  margin-top: 30px;
+  padding-top: 18px;
+  padding-bottom: 12px;
+  border-top: 1px solid rgba(148, 163, 184, 0.22);
+  margin-top: 22px;
+  gap: 18px;
 }
 
 .visitas-nav-button {
@@ -587,6 +678,14 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
+}
+
+/* Em telas menores, evita “apertar” tudo */
+@media (max-width: 920px) {
+  .visitas-form-navigation {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
 }
 
 .visitas-nav-button:hover {
@@ -614,8 +713,10 @@
 /* Section Indicators - Relatório de Visitas */
 .visitas-section-indicators {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   align-items: center;
+  justify-content: center;
+  min-width: 140px;
 }
 
 .visitas-section-dot {
@@ -657,7 +758,7 @@
   justify-content: flex-start;
   position: relative;
   z-index: 2;
-  background: #1e3a5f;
+  background: transparent;
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
@@ -685,9 +786,9 @@
 
 .visitas-menu-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 30px;
-  max-width: 900px;
+  grid-template-columns: 1fr;
+  gap: 22px;
+  max-width: 520px;
   width: 100%;
   border-radius: 16px;
   margin: 0 auto;
@@ -700,11 +801,15 @@
   overflow: hidden;
   border-radius: 16px;
   padding: 20px;
+  background: rgba(7, 16, 33, 0.58) !important;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.35), 0 0 40px rgba(37, 99, 235, 0.12);
 }
 
 .visitas-menu-card:hover {
   transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 40px rgba(59, 130, 246, 0.2);
+  border-color: rgba(59, 130, 246, 0.28);
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.42), 0 0 55px rgba(37, 99, 235, 0.18);
 }
 
 .visitas-menu-card-content {
@@ -722,8 +827,8 @@
 }
 
 .visitas-menu-card-content p {
-  font-size: 10px;
-  color: #64748b;
+  font-size: 12px;
+  color: rgba(148, 163, 184, 0.95);
   margin: 0 0 15px 0;
   font-weight: 500;
 }
@@ -731,9 +836,10 @@
 .visitas-request-count {
   display: block;
   font-size: 14px;
-  color: #059669;
+  color: rgba(226, 232, 240, 0.92);
   font-weight: 700;
-  background: rgba(5, 150, 105, 0.1);
+  background: rgba(15, 23, 42, 0.45);
+  border: 1px solid rgba(148, 163, 184, 0.12);
   padding: 8px 16px;
   border-radius: 20px;
   margin-top: 10px;
@@ -743,77 +849,76 @@
 .visitas-schedule-container {
   position: relative;
   z-index: 2;
-  max-width: 1200px;
+  max-width: 720px;
   width: 100%;
+  margin: 0 auto;
 }
 
 .visitas-schedule-header {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
-  margin-bottom: 30px;
-  padding-bottom: 20px;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  justify-content: center;
+  gap: 6px;
+  margin: 0 0 14px 0;
+  padding: 0;
+  border-bottom: 0;
 }
 
 .visitas-schedule-header h2 {
-  font-size: 28px;
-  font-weight: 700;
-  color: #ffffff;
+  font-size: 20px;
+  font-weight: 900;
+  color: rgba(226, 232, 240, 0.96);
   margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.6px;
 }
 
 .visitas-back-to-menu {
-  background: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  display: none;
 }
 
 .visitas-back-to-menu:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.3);
+  background: transparent;
+  border-color: transparent;
 }
 
 /* Schedule Table */
 .visitas-schedule-table {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 16px;
+  background: rgba(7, 16, 33, 0.62);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 18px;
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.38), 0 0 70px rgba(37, 99, 235, 0.12);
+  width: 100%;
 }
 
 .visitas-table-header {
   display: grid;
   grid-template-columns: 2fr 1.5fr 1fr 1fr 1.2fr 1fr;
-  gap: 16px;
-  padding: 20px;
-  background: linear-gradient(135deg, #1e40af, #3b82f6);
+  gap: 12px;
+  padding: 14px 16px;
+  background: rgba(15, 23, 42, 0.55);
   color: #ffffff;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  font-size: 14px;
+  font-size: 12px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.12);
 }
 
 .visitas-table-row {
   display: grid;
   grid-template-columns: 2fr 1.5fr 1fr 1fr 1.2fr 1fr;
-  gap: 16px;
-  padding: 16px 20px;
-  border-bottom: 1px solid #e2e8f0;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.14);
   transition: all 0.3s ease;
   align-items: center;
 }
 
 .visitas-table-row:hover {
-  background: rgba(59, 130, 246, 0.05);
+  background: rgba(15, 23, 42, 0.35);
 }
 
 .visitas-schedule-block {
@@ -825,19 +930,19 @@
 }
 
 .visitas-workflow-row {
-  padding: 0 20px 12px;
-  background: rgba(248, 250, 252, 0.95);
+  padding: 0 16px 12px;
+  background: rgba(15, 23, 42, 0.28);
 }
 
 .visitas-workflow-details {
   font-size: 13px;
-  color: #334155;
+  color: rgba(226, 232, 240, 0.82);
 }
 
 .visitas-workflow-details summary {
   cursor: pointer;
   font-weight: 600;
-  color: #1e40af;
+  color: rgba(147, 197, 253, 0.95);
   list-style-position: inside;
 }
 
@@ -851,9 +956,16 @@
 }
 
 .visitas-table-cell {
-  font-size: 14px;
-  color: #374151;
+  font-size: 13px;
+  color: rgba(226, 232, 240, 0.9);
   font-weight: 500;
+}
+
+.visitas-table-cell,
+.visitas-table-header .visitas-table-cell {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .visitas-table-header .visitas-table-cell {
@@ -867,7 +979,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border: none;
+  border: 1px solid rgba(148, 163, 184, 0.14);
   cursor: pointer;
   transition: all 0.3s ease;
 }
@@ -940,8 +1052,9 @@
 .visitas-history-container {
   position: relative;
   z-index: 2;
-  max-width: 1200px;
+  max-width: 820px;
   width: 100%;
+  margin: 0 auto;
 }
 
 .visitas-history-header {
@@ -970,28 +1083,29 @@
 }
 
 .visitas-request-item {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 16px;
-  padding: 24px;
+  background: rgba(7, 16, 33, 0.62);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 18px;
+  padding: 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   transition: all 0.3s ease;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28), 0 0 40px rgba(37, 99, 235, 0.12);
 }
 
 .visitas-request-item:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
-  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.38), 0 0 70px rgba(37, 99, 235, 0.16);
+  background: rgba(7, 16, 33, 0.7);
+  border-color: rgba(59, 130, 246, 0.22);
 }
 
 .visitas-request-info h3 {
   font-size: 18px;
   font-weight: 700;
-  color: #1e40af;
+  color: rgba(226, 232, 240, 0.96);
   margin: 0 0 8px 0;
 }
 
@@ -1037,7 +1151,7 @@
 .visitas-date,
 .visitas-salesperson {
   font-size: 14px;
-  color: #64748b;
+  color: rgba(148, 163, 184, 0.92);
   font-weight: 500;
   display: flex;
   align-items: center;
@@ -1332,15 +1446,7 @@
   }
 }
 
-@keyframes floatingOrbs {
-  0%,
-  100% {
-    transform: scale(1) rotate(0deg);
-  }
-  50% {
-    transform: scale(1.1) rotate(180deg);
-  }
-}
+/* @keyframes floatingOrbs removido (fundo agora é estático) */
 
 @keyframes headerGradient {
   0%,
@@ -1590,24 +1696,24 @@
 }
 
 /* Elementos decorativos */
+/* Removido cilindro lateral para bater com o layout “limpo” do print */
 .visitas-container::after {
-  content: "";
+  content: none;
+}
+
+/* Marca d’água inferior */
+.visitas-watermark {
   position: absolute;
-  right: 30px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 60px;
-  height: 180px;
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.08) 0%,
-    rgba(255, 255, 255, 0.03) 50%,
-    rgba(255, 255, 255, 0.08) 100%
-  );
-  border-radius: 30px;
-  opacity: 0.6;
+  bottom: 18px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-weight: 900;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  color: rgba(226, 232, 240, 0.16);
   z-index: 1;
-  box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.1);
+  pointer-events: none;
 }
 
 /* Responsividade - esconder elemento decorativo em mobile */
