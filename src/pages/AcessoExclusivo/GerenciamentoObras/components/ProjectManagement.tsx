@@ -70,9 +70,10 @@ export default function ProjectManagement({
       <div className="obras-projects-form-section">
         <Card
           variant="service"
-          className="obras-form-card"
+          className="obras-form-card obras-form-card--dark"
           title=""
-          textColor="#1e293b"
+          textColor="rgba(226, 232, 240, 0.98)"
+          backgroundColor="rgba(7, 16, 33, 0.62)"
         >
           <div className="obras-form-header">
             <h2 className="obras-form-title">OBRAS</h2>

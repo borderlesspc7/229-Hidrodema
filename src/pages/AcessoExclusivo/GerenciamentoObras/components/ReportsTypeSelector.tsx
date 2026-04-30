@@ -1,10 +1,8 @@
-import Card from "../../../../components/ui/Card/Card";
 import type { GerenciamentoObrasViewMode } from "../gerenciamentoObras.types";
 import {
   FiFileText,
   FiDollarSign,
-  FiActivity,
-  FiCheckCircle,
+  FiDroplet,
 } from "react-icons/fi";
 
 type Props = {
@@ -13,67 +11,92 @@ type Props = {
 
 export default function ReportsTypeSelector({ setViewMode }: Props) {
   return (
-    <div className="obras-form-container">
-      <div className="obras-reports-type-grid">
-        <Card
-          variant="service"
-          title="RDO"
-          textColor="#1e293b"
-          backgroundColor="#f0f9ff"
-          size="large"
-          className="obras-report-type-card"
-          onClick={() => setViewMode("reports-rdo-new")}
-        >
-          <div className="obras-report-type">
-            <FiFileText size={36} />
-            <p>Relatório Diário de Obra</p>
-          </div>
-        </Card>
+    <div className="obras-report-select">
+      <div className="obras-report-select-header">
+        <h2>SELECIONE O TIPO DE REGISTRO</h2>
+        <p>Escolha o tipo de registro que deseja criar</p>
+      </div>
 
-        <Card
-          variant="service"
-          title="DESPESAS"
-          textColor="#1e293b"
-          backgroundColor="#f0fdf4"
-          size="large"
-          className="obras-report-type-card"
-          onClick={() => setViewMode("reports-expense-new")}
-        >
-          <div className="obras-report-type">
-            <FiDollarSign size={36} />
-            <p>Despesas da Obra</p>
+      <div className="obras-report-select-grid">
+        <div className="obras-report-select-card">
+          <div className="obras-report-select-icon obras-report-select-icon--blue">
+            <FiFileText size={28} />
           </div>
-        </Card>
+          <h3 className="obras-report-select-title obras-report-select-title--blue">
+            RDO - Relatório Diário de Obra
+          </h3>
+          <p className="obras-report-select-desc">
+            Registro completo do dia: horário de trabalho, mão de obra,
+            equipamentos, atividades, ocorrências, fotos e aprovação.
+          </p>
+          <button
+            className="obras-report-select-cta"
+            type="button"
+            onClick={() => setViewMode("reports-rdo-new")}
+          >
+            Criar Registro
+          </button>
+        </div>
 
-        <Card
-          variant="service"
-          title="TESTE HIDROSTÁTICO"
-          textColor="#1e293b"
-          backgroundColor="#faf5ff"
-          size="large"
-          className="obras-report-type-card"
-          onClick={() => setViewMode("reports-hydrostatic-new")}
-        >
-          <div className="obras-report-type">
-            <FiActivity size={36} />
-            <p>Registro de teste</p>
+        <div className="obras-report-select-card">
+          <div className="obras-report-select-icon obras-report-select-icon--green">
+            <FiDollarSign size={28} />
           </div>
-        </Card>
+          <h3 className="obras-report-select-title obras-report-select-title--green">
+            Lançamento de Gastos
+          </h3>
+          <p className="obras-report-select-desc">
+            Registro de despesas e gastos da obra com comprovantes, valores e
+            aprovação.
+          </p>
+          <button
+            className="obras-report-select-cta"
+            type="button"
+            onClick={() => setViewMode("reports-expense-new")}
+          >
+            Criar Registro
+          </button>
+        </div>
 
-        <Card
-          variant="service"
-          title="CONCLUSÃO"
-          textColor="#1e293b"
-          backgroundColor="#fff7ed"
-          size="large"
-          className="obras-report-type-card"
-          onClick={() => setViewMode("reports-completion-new")}
-        >
-          <div className="obras-report-type">
-            <FiCheckCircle size={36} />
-            <p>Conclusão de Obra</p>
+        <div className="obras-report-select-card">
+          <div className="obras-report-select-icon obras-report-select-icon--cyan">
+            <FiDroplet size={28} />
           </div>
-        </Card>
+          <h3 className="obras-report-select-title obras-report-select-title--cyan">
+            RTH - Relatório de Teste Hidrostático
+          </h3>
+          <p className="obras-report-select-desc">
+            Registro de testes hidrostáticos com parâmetros de pressão, horários,
+            resultados, fotos, vídeos e aprovação.
+          </p>
+          <button
+            className="obras-report-select-cta"
+            type="button"
+            onClick={() => setViewMode("reports-hydrostatic-new")}
+          >
+            Criar Registro
+          </button>
+        </div>
+
+        <div className="obras-report-select-card">
+          <div className="obras-report-select-icon obras-report-select-icon--violet">
+            <FiFileText size={28} />
+          </div>
+          <h3 className="obras-report-select-title obras-report-select-title--violet">
+            RCO - Relatório de Conclusão de Obra
+          </h3>
+          <p className="obras-report-select-desc">
+            Relatório final de conclusão com atividades, ocorrências, comentários,
+            fotos, vídeos e assinaturas múltiplas.
+          </p>
+          <button
+            className="obras-report-select-cta"
+            type="button"
+            onClick={() => setViewMode("reports-completion-new")}
+          >
+            Criar Registro
+          </button>
+        </div>
       </div>
     </div>
   );

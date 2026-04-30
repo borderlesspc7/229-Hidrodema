@@ -12,6 +12,10 @@ export interface User {
   sellerCode?: string;
   /** ID na API externa de vendedores (mapeamento). */
   sellerExternalId?: string;
+  /** Agrupamento de hierarquia (regional/filial). */
+  regionId?: string;
+  /** Agrupamento de hierarquia (time/unidade de negócio). */
+  teamId?: string;
 }
 
 export interface AuthState {

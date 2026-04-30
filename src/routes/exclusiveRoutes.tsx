@@ -5,6 +5,7 @@ import EqualizadorServicos from "../pages/AcessoExclusivo/EqualizadorServicos/Eq
 import GestaoVendedores from "../pages/AcessoExclusivo/GestaoVendedores/GestaoVendedores";
 import GerenciamentoObras from "../pages/AcessoExclusivo/GerenciamentoObras/GerenciamentoObras";
 import ControleFuncionarios from "../pages/AcessoExclusivo/ControleFuncionarios/ControleFuncionarios";
+import DashboardPerformance from "../pages/AcessoExclusivo/DashboardPerformance/DashboardPerformance";
 import { RoleRoute } from "./RoleRoute";
 import MedicoesPage from "../pages/AcessoExclusivo/GerenciamentoObras/MedicoesPage/MedicoesPage";
 import ProblemasPage from "../pages/AcessoExclusivo/GerenciamentoObras/ProblemasPage/ProblemasPage";
@@ -34,6 +35,14 @@ export default function ExclusiveRoutes() {
       />
       <Route path="equalizador-servico" element={<EqualizadorServicos />} />
       <Route path="solicitacao-servicos" element={<SolicitacaoServicos />} />
+      <Route
+        path="dashboard-performance"
+        element={
+          <RoleRoute allow={["admin", "gestor"]}>
+            <DashboardPerformance />
+          </RoleRoute>
+        }
+      />
       <Route
         path="controle-funcionarios"
         element={

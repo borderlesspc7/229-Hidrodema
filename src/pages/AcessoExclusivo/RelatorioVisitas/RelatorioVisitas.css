@@ -5,9 +5,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  background: radial-gradient(circle at 30% 20%, rgba(59, 130, 246, 0.22), transparent 55%),
-    radial-gradient(circle at 70% 65%, rgba(139, 92, 246, 0.18), transparent 60%),
-    linear-gradient(180deg, #0b1b34 0%, #102a4a 55%, #0b1b34 100%);
+  background: transparent;
   padding: 14px 20px 70px;
   margin: 0;
   width: 100%;
@@ -287,7 +285,7 @@
 .visitas-form-container {
   position: relative;
   z-index: 2;
-  max-width: 720px;
+  max-width: 980px;
   width: 100%;
 }
 
@@ -296,7 +294,7 @@
   backdrop-filter: blur(18px);
   border: 1px solid rgba(148, 163, 184, 0.14);
   border-radius: 18px;
-  padding: 40px;
+  padding: 26px 32px;
   box-shadow: 0 26px 70px rgba(0, 0, 0, 0.38), 0 0 70px rgba(37, 99, 235, 0.12);
   position: relative;
   overflow: hidden;
@@ -324,7 +322,7 @@
 /* Form Header - Relatório de Visitas */
 .visitas-form-header {
   text-align: center;
-  margin-bottom: 40px;
+  margin-bottom: 18px;
 }
 
 .visitas-form-title {
@@ -346,8 +344,8 @@
 
 /* Section Title - Relatório de Visitas */
 .visitas-section-title {
-  margin-bottom: 30px;
-  padding-bottom: 15px;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
   border-bottom: 1px solid rgba(148, 163, 184, 0.22);
   position: relative;
 }
@@ -373,10 +371,10 @@
 
 /* Questions Container - Relatório de Visitas */
 .visitas-questions-container {
-  max-height: 500px;
+  max-height: 420px;
   overflow-y: auto;
   padding-right: 10px;
-  margin-bottom: 30px;
+  margin-bottom: 18px;
 }
 
 .visitas-questions-container::-webkit-scrollbar {
@@ -399,8 +397,8 @@
 
 /* Form Questions - Relatório de Visitas */
 .visitas-form-question {
-  margin-bottom: 30px;
-  padding: 24px;
+  margin-bottom: 18px;
+  padding: 18px 18px;
   background: rgba(15, 23, 42, 0.38);
   border: 1px solid rgba(148, 163, 184, 0.16);
   border-radius: 16px;
@@ -417,10 +415,10 @@
 
 .visitas-question-label {
   display: block;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
   color: rgba(226, 232, 240, 0.92);
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   line-height: 1.5;
 }
 
@@ -532,22 +530,33 @@
   gap: 12px;
 }
 
+/* No print (q6), as duas opções ficam lado a lado */
+.visitas-options-container--inline {
+  flex-direction: row;
+  gap: 14px;
+}
+
+.visitas-options-container--inline .visitas-radio-option {
+  flex: 1 1 0;
+  justify-content: flex-start;
+}
+
 /* Radio Options - Relatório de Visitas */
 .visitas-radio-option {
   display: flex;
   align-items: center;
   padding: 12px 16px;
-  background: #ffffff;
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.35);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 14px;
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
 }
 
 .visitas-radio-option:hover {
-  background: #f8fafc;
-  border-color: #3b82f6;
+  background: rgba(15, 23, 42, 0.5);
+  border-color: rgba(59, 130, 246, 0.35);
 }
 
 .visitas-radio-option input[type="radio"] {
@@ -557,7 +566,7 @@
 .visitas-radio-custom {
   width: 20px;
   height: 20px;
-  border: 2px solid #d1d5db;
+  border: 2px solid rgba(148, 163, 184, 0.5);
   border-radius: 50%;
   margin-right: 12px;
   position: relative;
@@ -566,7 +575,7 @@
 
 .visitas-radio-option input[type="radio"]:checked + .visitas-radio-custom {
   border-color: #3b82f6;
-  background: #3b82f6;
+  background: rgba(59, 130, 246, 0.95);
 }
 
 .visitas-radio-option
@@ -635,9 +644,18 @@
 }
 
 .visitas-option-text {
-  font-size: 16px;
-  color: #374151;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Texto claro nos rádios (fundo escuro) */
+.visitas-radio-option .visitas-option-text {
+  color: rgba(226, 232, 240, 0.92);
+}
+
+/* Texto escuro nos checkboxes (fundo branco) */
+.visitas-checkbox-option .visitas-option-text {
+  color: #0f172a;
 }
 
 /* Placeholder Message - Relatório de Visitas */
@@ -659,17 +677,17 @@
   align-items: center;
   justify-content: space-between;
   padding-top: 18px;
-  padding-bottom: 12px;
+  padding-bottom: 6px;
   border-top: 1px solid rgba(148, 163, 184, 0.22);
-  margin-top: 22px;
+  margin-top: 16px;
   gap: 18px;
 }
 
 .visitas-nav-button {
-  padding: 14px 28px;
-  font-size: 16px;
+  padding: 12px 22px;
+  font-size: 14px;
   font-weight: 700;
-  border-radius: 12px;
+  border-radius: 14px;
   text-transform: uppercase;
   letter-spacing: 1px;
   transition: all 0.3s ease;
@@ -699,15 +717,15 @@
 }
 
 .visitas-submit-button {
-  background: linear-gradient(135deg, #06d6a0, #10b981);
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
   border: none;
   color: #ffffff;
-  box-shadow: 0 8px 25px rgba(6, 214, 160, 0.3);
+  box-shadow: 0 10px 30px rgba(37, 99, 235, 0.35);
 }
 
 .visitas-submit-button:hover {
-  box-shadow: 0 12px 35px rgba(6, 214, 160, 0.4);
-  background: linear-gradient(135deg, #05c59a, #0f9175);
+  box-shadow: 0 14px 40px rgba(37, 99, 235, 0.45);
+  background: linear-gradient(135deg, #1d4ed8, #2563eb);
 }
 
 /* Section Indicators - Relatório de Visitas */

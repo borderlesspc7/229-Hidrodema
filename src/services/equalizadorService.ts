@@ -11,6 +11,8 @@ import {
 } from "firebase/firestore";
 import { db } from "../lib/firebaseconfig";
 import { sortByCreatedAtDesc } from "../lib/firestoreSort";
+import type { User } from "../types/user";
+import { hasMacroVisibility } from "../lib/rbac";
 
 // Interface para Memorando de Serviços (MDS)
 export interface ServiceMDS {
@@ -47,6 +49,7 @@ export interface ServiceMDS {
   createdAt: string;
   updatedAt: string;
   createdBy?: string;
+  ownerUid?: string;
 }
 
 // Interface para Cotações
@@ -89,6 +92,7 @@ export const createServiceMDS = async (
 
     const docRef = await addDoc(collection(db, MDS_COLLECTION), {
       ...cleanData,
+      ownerUid: (mdsData as any).createdBy ?? undefined,
       createdAt: now,
       updatedAt: now,
     });
@@ -159,6 +163,19 @@ export const getAllServiceMDS = async (): Promise<ServiceMDS[]> => {
     throw error;
   }
 };
+
+export async function getServiceMDSScoped(user: User | null): Promise<ServiceMDS[]> {
+  if (!user) return [];
+  if (hasMacroVisibility(user)) return getAllServiceMDS();
+
+  const q1 = query(
+    collection(db, MDS_COLLECTION),
+    where("createdBy", "==", user.uid)
+  );
+  const snap = await getDocs(q1);
+  const rows = snap.docs.map((d) => ({ id: d.id, ...d.data() })) as ServiceMDS[];
+  return sortByCreatedAtDesc(rows);
+}
 
 /**
  * Listar MDS por status

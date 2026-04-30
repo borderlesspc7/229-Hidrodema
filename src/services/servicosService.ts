@@ -11,6 +11,9 @@ import {
 } from "firebase/firestore";
 import { db } from "../lib/firebaseconfig";
 import { sortByCreatedAtDesc } from "../lib/firestoreSort";
+import type { User } from "../types/user";
+import { hasMacroVisibility, userOwnsServiceRequest } from "../lib/rbac";
+import { extractSellerCode } from "../lib/sellerIdentity";
 
 // Interface para Solicitação de Serviço
 export interface ServiceRequest {
@@ -58,6 +61,8 @@ export interface ServiceRequest {
   createdAt: string;
   updatedAt: string;
   createdBy?: string;
+  ownerUid?: string;
+  ownerSellerCode?: string;
 }
 
 // Interface para Comentários
@@ -86,8 +91,11 @@ export const createServiceRequest = async (
       )
     );
 
+    const ownerSellerCode = extractSellerCode((requestData as any).salesperson);
     const docRef = await addDoc(collection(db, REQUESTS_COLLECTION), {
       ...cleanData,
+      ownerUid: (requestData as any).createdBy ?? undefined,
+      ownerSellerCode: ownerSellerCode ?? undefined,
       createdAt: now,
       updatedAt: now,
     });
@@ -161,6 +169,41 @@ export const getAllServiceRequests = async (): Promise<ServiceRequest[]> => {
     throw error;
   }
 };
+
+export async function getServiceRequestsScoped(
+  user: User | null
+): Promise<ServiceRequest[]> {
+  if (!user) return [];
+  if (hasMacroVisibility(user)) return getAllServiceRequests();
+
+  const rows: ServiceRequest[] = [];
+  const q1 = query(
+    collection(db, REQUESTS_COLLECTION),
+    where("createdBy", "==", user.uid)
+  );
+  const s1 = await getDocs(q1);
+  rows.push(...(s1.docs.map((d) => ({ id: d.id, ...d.data() })) as ServiceRequest[]));
+
+  if (user.sellerCode?.trim()) {
+    const q2 = query(
+      collection(db, REQUESTS_COLLECTION),
+      where("ownerSellerCode", "==", user.sellerCode.trim())
+    );
+    const s2 = await getDocs(q2);
+    rows.push(...(s2.docs.map((d) => ({ id: d.id, ...d.data() })) as ServiceRequest[]));
+  }
+
+  const byId = new Map<string, ServiceRequest>();
+  for (const r of rows) {
+    if (!r.id) continue;
+    byId.set(r.id, r);
+  }
+
+  // Segurança extra: se algum registro entrou por engano, filtra localmente.
+  return sortByCreatedAtDesc(
+    Array.from(byId.values()).filter((r) => userOwnsServiceRequest(user, r))
+  );
+}
 
 /**
  * Listar solicitações por status

@@ -24,10 +24,11 @@ import "./SolicitacaoServicos.css";
 import { useAuth } from "../../../hooks/useAuth";
 import { paths } from "../../../routes/paths";
 import { navigateBackOrFallback } from "../../../lib/navigation";
+import Breadcrumb from "../../../components/ui/Breadcrumb/Breadcrumb";
 import { canEditServiceRequest, canModerateServiceRequest } from "../../../lib/rbac";
 import {
   createServiceRequest,
-  getAllServiceRequests,
+  getServiceRequestsScoped,
   updateServiceRequest,
   deleteServiceRequest,
   addServiceComment,
@@ -846,7 +847,7 @@ export default function SolicitacaoServicos() {
   const loadServiceRequests = async () => {
     try {
       setLoading(true);
-      const requests = await getAllServiceRequests();
+      const requests = await getServiceRequestsScoped(user);
 
       // Converter para formato local com comentários vazios inicialmente
       const displayRequests: DisplayServiceRequest[] = requests.map((req) => ({
@@ -1447,14 +1448,18 @@ ${commentsBlock}`;
   }, []);
 
   // Renderizar menu principal
-  const renderMenu = () => (
+  const renderMenu = () => {
+    const cardTextColor = "rgba(226, 232, 240, 0.98)";
+    const cardBg = "rgba(7, 16, 33, 0.62)";
+
+    return (
     <div className="menu-container-solicitacao">
       <div className="solicitacao-menu-cards">
         <Card
           variant="service"
           title="NOVA SOLICITAÇÃO"
-          textColor="#1e40af"
-          backgroundColor="#f0f9ff"
+          textColor={cardTextColor}
+          backgroundColor={cardBg}
           size="large"
           className="menu-card"
           onClick={() => setViewMode("new")}
@@ -1470,8 +1475,8 @@ ${commentsBlock}`;
         <Card
           variant="service"
           title="HISTÓRICO"
-          textColor="#059669"
-          backgroundColor="#f0fdf4"
+          textColor={cardTextColor}
+          backgroundColor={cardBg}
           size="large"
           className="menu-card"
           onClick={() => setViewMode("history")}
@@ -1502,7 +1507,8 @@ ${commentsBlock}`;
         </Button>
       </div>
     </div>
-  );
+    );
+  };
 
   // Renderizar histórico de solicitações
   const renderHistory = () => (
@@ -1940,22 +1946,38 @@ ${commentsBlock}`;
 
       {/* Header */}
       <div className="solicitacao-header">
-        <Button
-          variant="secondary"
-          className="back-button"
-          onClick={handleBack}
-        >
-          <FiArrowLeft size={16} />
-          Voltar
-        </Button>
-        <div className="company-brand">
-          <h1 className="company-title">ACESSO EXCLUSIVO</h1>
-          <span className="company-subtitle">
-            Engenharia de aplicação e serviços Hidrodema
-          </span>
-          <div className="company-underline"></div>
+        <div className="solicitacao-header-inner">
+          <div className="solicitacao-header-left">
+            <div className="solicitacao-header-menu">
+              <Button
+                variant="secondary"
+                className="back-button"
+                onClick={handleBack}
+              >
+                <FiArrowLeft size={16} />
+                Voltar
+              </Button>
+              <Breadcrumb
+                compact
+                className="solicitacao-header-breadcrumb"
+                items={[
+                  { label: "Acesso Exclusivo", to: paths.acessoExclusivo },
+                  { label: "Solicitação de Serviços" },
+                ]}
+              />
+            </div>
+          </div>
+
+          <div className="company-brand">
+            <h1 className="company-title">SOLICITAÇÃO DE SERVIÇOS</h1>
+            <span className="company-subtitle">
+              Abertura e acompanhamento de solicitações (Firebase)
+            </span>
+            <div className="company-underline"></div>
+          </div>
+
+          <div className="header-spacer"></div>
         </div>
-        <div className="header-spacer"></div>
       </div>
 
       {/* Main Content */}

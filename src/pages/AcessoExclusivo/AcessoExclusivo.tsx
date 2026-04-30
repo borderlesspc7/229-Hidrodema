@@ -65,6 +65,16 @@ export default function AcessoExclusivo() {
           className="acesso-exclusivo-card"
           onClick={() => navigate("/acesso-exclusivo/solicitacao-servicos")}
         />
+        {user && hasMacroVisibility(user) && (
+          <Card
+            variant="technology"
+            title="DASHBOARD DO TIME"
+            textColor="#e2e8f0"
+            size="medium"
+            className="acesso-exclusivo-card"
+            onClick={() => navigate(paths.dashboardPerformance)}
+          />
+        )}
         {features.gestaoVendedores && user && hasMacroVisibility(user) && (
           <Card
             variant="technology"

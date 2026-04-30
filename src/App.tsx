@@ -5,8 +5,12 @@ import ScrollToBottomFab from "./components/ScrollToBottomFab";
 function App() {
   return (
     <AuthProvider>
-      <AppRoutes />
-      <ScrollToBottomFab />
+      <div className="hd-page-bg">
+        <div className="hd-layer">
+          <AppRoutes />
+          <ScrollToBottomFab />
+        </div>
+      </div>
     </AuthProvider>
   );
 }

@@ -53,6 +53,7 @@ import type {
   Supplier,
 } from "../../../types/obrasGerenciamentoModule";
 import { FiArrowLeft } from "react-icons/fi";
+import Breadcrumb from "../../../components/ui/Breadcrumb/Breadcrumb";
 import "./GerenciamentoObras.css";
 import type { GerenciamentoObrasViewMode } from "./gerenciamentoObras.types";
 import {
@@ -1255,22 +1256,36 @@ export default function GerenciamentoObras() {
     <div className="obras-container">
       {/* Header */}
       <div className="obras-header">
-        <Button
-          variant="secondary"
-          className="obras-back-button"
-          onClick={handleBack}
-        >
-          <FiArrowLeft size={16} />
-          Voltar
-        </Button>
-        <div className="obras-company-brand">
-          <h1 className="obras-company-title">GERENCIAMENTO DE OBRAS</h1>
-          <span className="obras-company-subtitle">
-            Sistema Completo de Gestão de Obras
-          </span>
-          <div className="obras-company-underline"></div>
+        <div className="obras-header-inner">
+          <div className="obras-header-left">
+            <div className="obras-header-menu">
+              <Button
+                variant="secondary"
+                className="obras-back-button"
+                onClick={handleBack}
+              >
+                <FiArrowLeft size={16} />
+                Voltar
+              </Button>
+              <Breadcrumb
+                compact
+                className="obras-header-breadcrumb"
+                items={[
+                  { label: "Acesso Exclusivo", to: paths.acessoExclusivo },
+                  { label: "Gerenciamento de Obras" },
+                ]}
+              />
+            </div>
+          </div>
+          <div className="obras-company-brand">
+            <h1 className="obras-company-title">GERENCIAMENTO DE OBRAS</h1>
+            <span className="obras-company-subtitle">
+              Sistema completo de gestão de construção
+            </span>
+            <div className="obras-company-underline"></div>
+          </div>
+          <div className="obras-header-spacer"></div>
         </div>
-        <div className="obras-header-spacer"></div>
       </div>
 
       {/* Main Content */}

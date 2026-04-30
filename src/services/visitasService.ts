@@ -16,6 +16,7 @@ import {
   filterVisitReportsForUser,
   filterVisitRequestsForUser,
 } from "../lib/rbac";
+import { extractSellerCode } from "../lib/sellerIdentity";
 
 // Interface para Solicitação de Visita
 export interface VisitRequest {
@@ -40,6 +41,8 @@ export interface VisitRequest {
   createdAt: string;
   updatedAt: string;
   createdBy?: string;
+  ownerUid?: string;
+  ownerSellerCode?: string;
 }
 
 // Interface para Relatório de Visita
@@ -58,6 +61,8 @@ export interface VisitReport {
   formData: { [key: string]: string | string[] };
   createdAt: string;
   updatedAt: string;
+  ownerUid?: string;
+  ownerSellerCode?: string;
 }
 
 // Interface para Comentários
@@ -89,8 +94,11 @@ export const createVisitRequest = async (
       Object.entries({ ...requestData }).filter(([, value]) => value !== undefined)
     );
     
+    const ownerSellerCode = extractSellerCode((requestData as any).vendedor);
     const docRef = await addDoc(collection(db, REQUESTS_COLLECTION), {
       ...cleanData,
+      ownerUid: (requestData as any).createdBy ?? undefined,
+      ownerSellerCode: ownerSellerCode ?? undefined,
       createdAt: now,
       updatedAt: now,
     });
@@ -222,14 +230,19 @@ export const createVisitReport = async (
       Object.entries({ ...reportData }).filter(([, value]) => value !== undefined)
     );
     
+    const request = await getVisitRequestByRequestId(reportData.requestId);
+    const ownerSellerCode =
+      (request?.ownerSellerCode as string | undefined) ??
+      extractSellerCode(request?.vendedor);
     const docRef = await addDoc(collection(db, REPORTS_COLLECTION), {
       ...cleanData,
+      ownerUid: request?.ownerUid ?? request?.createdBy ?? undefined,
+      ownerSellerCode: ownerSellerCode ?? undefined,
       createdAt: now,
       updatedAt: now,
     });
 
     // Atualizar a solicitação para indicar que tem relatório
-    const request = await getVisitRequestByRequestId(reportData.requestId);
     if (request && request.id) {
       await updateVisitRequest(request.id, {
         hasReport: true,
@@ -423,9 +436,10 @@ export async function loadVisitDataScoped(user: User | null): Promise<{
   reports: VisitReport[];
   byRequestId: Map<string, VisitRequest>;
 }> {
+  const isMacro = Boolean(user && (user.role === "admin" || user.role === "gestor"));
   const [allReq, allRep] = await Promise.all([
-    getAllVisitRequests(),
-    getAllVisitReports(),
+    isMacro ? getAllVisitRequests() : getVisitRequestsForUser(user),
+    isMacro ? getAllVisitReports() : getVisitReportsForUser(user),
   ]);
   const byRequestId = new Map<string, VisitRequest>();
   for (const r of allReq) {
@@ -434,7 +448,72 @@ export async function loadVisitDataScoped(user: User | null): Promise<{
   if (!user) {
     return { requests: [], reports: [], byRequestId };
   }
-  const requests = filterVisitRequestsForUser(user, allReq);
-  const reports = filterVisitReportsForUser(user, allRep, byRequestId);
+  const requests = isMacro ? allReq : filterVisitRequestsForUser(user, allReq);
+  const reports = isMacro ? allRep : filterVisitReportsForUser(user, allRep, byRequestId);
   return { requests, reports, byRequestId };
+}
+
+async function getVisitRequestsForUser(user: User | null): Promise<VisitRequest[]> {
+  if (!user?.uid) return [];
+  const snaps: VisitRequest[] = [];
+
+  const q1 = query(
+    collection(db, REQUESTS_COLLECTION),
+    where("createdBy", "==", user.uid)
+  );
+  const s1 = await getDocs(q1);
+  snaps.push(
+    ...(s1.docs.map((d) => ({ id: d.id, ...d.data() })) as VisitRequest[])
+  );
+
+  if (user.sellerCode?.trim()) {
+    const q2 = query(
+      collection(db, REQUESTS_COLLECTION),
+      where("ownerSellerCode", "==", user.sellerCode.trim())
+    );
+    const s2 = await getDocs(q2);
+    snaps.push(
+      ...(s2.docs.map((d) => ({ id: d.id, ...d.data() })) as VisitRequest[])
+    );
+  }
+
+  // dedupe
+  const byId = new Map<string, VisitRequest>();
+  for (const r of snaps) {
+    if (!r.id) continue;
+    byId.set(r.id, r);
+  }
+  return sortByCreatedAtDesc(Array.from(byId.values()));
+}
+
+async function getVisitReportsForUser(user: User | null): Promise<VisitReport[]> {
+  if (!user?.uid) return [];
+  const snaps: VisitReport[] = [];
+
+  const q1 = query(
+    collection(db, REPORTS_COLLECTION),
+    where("createdBy", "==", user.uid)
+  );
+  const s1 = await getDocs(q1);
+  snaps.push(
+    ...(s1.docs.map((d) => ({ id: d.id, ...d.data() })) as VisitReport[])
+  );
+
+  if (user.sellerCode?.trim()) {
+    const q2 = query(
+      collection(db, REPORTS_COLLECTION),
+      where("ownerSellerCode", "==", user.sellerCode.trim())
+    );
+    const s2 = await getDocs(q2);
+    snaps.push(
+      ...(s2.docs.map((d) => ({ id: d.id, ...d.data() })) as VisitReport[])
+    );
+  }
+
+  const byId = new Map<string, VisitReport>();
+  for (const r of snaps) {
+    if (!r.id) continue;
+    byId.set(r.id, r);
+  }
+  return sortByCreatedAtDesc(Array.from(byId.values()));
 }

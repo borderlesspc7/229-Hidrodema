@@ -38,14 +38,17 @@ export default function GerenciamentoObrasMenu({
   setViewMode,
   navigate,
 }: Props) {
+  const cardTextColor = "rgba(226, 232, 240, 0.98)";
+  const cardBg = "rgba(7, 16, 33, 0.62)";
+
   return (
     <div className="obras-menu-container">
       <div className="obras-menu-cards">
         <Card
           variant="service"
           title="OBRAS"
-          textColor="#1e40af"
-          backgroundColor="#f0f9ff"
+          textColor={cardTextColor}
+          backgroundColor={cardBg}
           size="large"
           className="obras-menu-card"
           onClick={() => setViewMode("projects")}
@@ -54,7 +57,7 @@ export default function GerenciamentoObrasMenu({
             <div className="obras-menu-icon">
               <FiTool size={48} />
             </div>
-            <p>Listagem e gestão de obras</p>
+            <p>Cadastrar novas obras para gerenciamento</p>
             <span className="obras-entry-count">{counts.projects} obras</span>
           </div>
         </Card>
@@ -62,45 +65,43 @@ export default function GerenciamentoObrasMenu({
         <Card
           variant="service"
           title="NOVO REGISTRO"
-          textColor="#1e40af"
-          backgroundColor="#f0f9ff"
+          textColor={cardTextColor}
+          backgroundColor={cardBg}
           size="large"
           className="obras-menu-card"
-          onClick={() => setViewMode("new")}
+          onClick={() => setViewMode("reports-select")}
         >
           <div className="obras-menu-card-content">
             <div className="obras-menu-icon">
               <FiPlus size={48} />
             </div>
-            <p>Criar novo registro diário de obra</p>
+            <p>Selecione o tipo de registro que deseja criar</p>
           </div>
         </Card>
 
         <Card
           variant="service"
-          title="HISTÓRICO"
-          textColor="#059669"
-          backgroundColor="#f0fdf4"
+          title="RELATÓRIOS"
+          textColor={cardTextColor}
+          backgroundColor={cardBg}
           size="large"
           className="obras-menu-card"
-          onClick={() => setViewMode("history")}
+          onClick={() => setViewMode("reports")}
         >
           <div className="obras-menu-card-content">
             <div className="obras-menu-icon">
-              <FiFileText size={48} />
+              <FiBarChart size={48} />
             </div>
-            <p>Consultar registros anteriores</p>
-            <span className="obras-entry-count">
-              {counts.diaries} registros
-            </span>
+            <p>Todos os relatórios em um único lugar</p>
+            <span className="obras-entry-count">{counts.diaries} relatórios</span>
           </div>
         </Card>
 
         <Card
           variant="service"
           title="ESTOQUE"
-          textColor="#dc2626"
-          backgroundColor="#fef2f2"
+          textColor={cardTextColor}
+          backgroundColor={cardBg}
           size="large"
           className="obras-menu-card"
           onClick={() => setViewMode("inventory")}
@@ -123,8 +124,8 @@ export default function GerenciamentoObrasMenu({
         <Card
           variant="service"
           title="ORÇAMENTOS"
-          textColor="#ea580c"
-          backgroundColor="#fff7ed"
+          textColor={cardTextColor}
+          backgroundColor={cardBg}
           size="large"
           className="obras-menu-card"
           onClick={() => setViewMode("budgets")}
@@ -133,7 +134,7 @@ export default function GerenciamentoObrasMenu({
             <div className="obras-menu-icon">
               <FiDollarSign size={48} />
             </div>
-            <p>Sistema de orçamentos automatizado</p>
+            <p>Sistema de orçamentos</p>
             <span className="obras-entry-count">
               {counts.budgets} orçamentos
             </span>
@@ -143,8 +144,8 @@ export default function GerenciamentoObrasMenu({
         <Card
           variant="service"
           title="FORNECEDORES"
-          textColor="#0891b2"
-          backgroundColor="#f0f9ff"
+          textColor={cardTextColor}
+          backgroundColor={cardBg}
           size="large"
           className="obras-menu-card"
           onClick={() => setViewMode("suppliers")}
@@ -162,9 +163,27 @@ export default function GerenciamentoObrasMenu({
 
         <Card
           variant="service"
+          title="HISTÓRICO"
+          textColor={cardTextColor}
+          backgroundColor={cardBg}
+          size="large"
+          className="obras-menu-card"
+          onClick={() => setViewMode("history")}
+        >
+          <div className="obras-menu-card-content">
+            <div className="obras-menu-icon">
+              <FiFileText size={48} />
+            </div>
+            <p>Consultar registros anteriores</p>
+            <span className="obras-entry-count">{counts.diaries} registros</span>
+          </div>
+        </Card>
+
+        <Card
+          variant="service"
           title="QUALIDADE"
-          textColor="#16a34a"
-          backgroundColor="#f0fdf4"
+          textColor={cardTextColor}
+          backgroundColor={cardBg}
           size="large"
           className="obras-menu-card"
           onClick={() => setViewMode("quality")}
@@ -183,8 +202,8 @@ export default function GerenciamentoObrasMenu({
         <Card
           variant="service"
           title="MEDIÇÕES"
-          textColor="#1d4ed8"
-          backgroundColor="#eff6ff"
+          textColor={cardTextColor}
+          backgroundColor={cardBg}
           size="large"
           className="obras-menu-card"
           onClick={() => navigate(paths.obras.medicoes)}
@@ -200,8 +219,8 @@ export default function GerenciamentoObrasMenu({
         <Card
           variant="service"
           title="PROBLEMAS"
-          textColor="#b91c1c"
-          backgroundColor="#fef2f2"
+          textColor={cardTextColor}
+          backgroundColor={cardBg}
           size="large"
           className="obras-menu-card"
           onClick={() => navigate(paths.obras.problemas)}
@@ -217,8 +236,8 @@ export default function GerenciamentoObrasMenu({
         <Card
           variant="service"
           title="DOCUMENTOS"
-          textColor="#4f46e5"
-          backgroundColor="#eef2ff"
+          textColor={cardTextColor}
+          backgroundColor={cardBg}
           size="large"
           className="obras-menu-card"
           onClick={() => navigate(paths.obras.documentos)}
@@ -231,23 +250,6 @@ export default function GerenciamentoObrasMenu({
           </div>
         </Card>
 
-        <Card
-          variant="service"
-          title="RELATÓRIOS"
-          textColor="#9333ea"
-          backgroundColor="#faf5ff"
-          size="large"
-          className="obras-menu-card"
-          onClick={() => setViewMode("reports")}
-        >
-          <div className="obras-menu-card-content">
-            <div className="obras-menu-icon">
-              <FiBarChart size={48} />
-            </div>
-            <p>Relatórios e análises</p>
-            <span className="obras-entry-count">Dashboard completo</span>
-          </div>
-        </Card>
       </div>
     </div>
   );

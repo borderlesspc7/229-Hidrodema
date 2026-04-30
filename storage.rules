@@ -6,9 +6,28 @@ service firebase.storage {
       return request.auth != null;
     }
 
-    // Estrutura usada pelo app: obras/** (diários, relatórios, anexos, documentos)
-    match /obras/{allPaths=**} {
-      allow read, write: if signedIn();
+    function projectDoc(projectId) {
+      return firestore.get(/databases/$(database)/documents/obrasProjects/$(projectId)).data;
+    }
+
+    function role() {
+      return signedIn() && request.auth.token.role != null ? request.auth.token.role : "user";
+    }
+
+    function isMacro() {
+      return role() == "admin" || role() == "gestor";
+    }
+
+    function canAccessProject(projectId) {
+      return signedIn() && (
+        isMacro() ||
+        (projectId != null && projectDoc(projectId).ownerUid == request.auth.uid)
+      );
+    }
+
+    // Estrutura usada pelo app: obras/{projectId}/** (diários, relatórios, anexos, documentos)
+    match /obras/{projectId}/{allPaths=**} {
+      allow read, write: if canAccessProject(projectId);
     }
 
     // fallback: bloquear qualquer outra coisa

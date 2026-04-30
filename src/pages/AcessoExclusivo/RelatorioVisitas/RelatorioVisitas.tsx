@@ -108,9 +108,9 @@ export default function RelatorioVisitas() {
   const { user } = useAuth();
   const displayName =
     user?.name?.trim() || user?.email?.trim() || "Usuário";
-  // Primeira tela ao entrar no módulo (como no print): formulário já na seção "Geral".
-  const [viewMode, setViewMode] = useState<ViewMode>("new");
-  const [currentSection, setCurrentSection] = useState(1);
+  // Ao entrar no módulo, abrir no menu (cards). O formulário inicia ao clicar em "Nova Solicitação".
+  const [viewMode, setViewMode] = useState<ViewMode>("menu");
+  const [currentSection, setCurrentSection] = useState(0);
   const [formData, setFormData] = useState<FormData>({});
   const [visitReports, setVisitReports] = useState<DisplayVisit[]>([]);
   const [editingReport, setEditingReport] = useState<DisplayVisit | null>(null);
@@ -123,6 +123,15 @@ export default function RelatorioVisitas() {
   const [availableRequests, setAvailableRequests] = useState<VisitRequest[]>(
     []
   );
+
+  const startNewRequest = () => {
+    setViewMode("new");
+    setCurrentSection(1); // "Geral" (tela do print com a escolha da ação)
+    setFormData({});
+    setLoadedRequest(null);
+    setEditingReport(null);
+    setSelectedReport(null);
+  };
 
   const selectedRegional = (formData.q1 as string) || "";
   const selectedVendor =
@@ -1380,7 +1389,11 @@ export default function RelatorioVisitas() {
               {question.question}
               {question.required && <span className="visitas-required">*</span>}
             </label>
-            <div className="visitas-options-container">
+            <div
+              className={`visitas-options-container ${
+                question.id === "q6" ? "visitas-options-container--inline" : ""
+              }`}
+            >
               {question.options?.map((option, index) => (
                 <label key={index} className="visitas-radio-option">
                   <input
@@ -1495,7 +1508,7 @@ export default function RelatorioVisitas() {
           textColor="#e2e8f0"
           size="large"
           className="visitas-menu-card"
-          onClick={() => setViewMode("new")}
+          onClick={startNewRequest}
         >
           <div className="visitas-menu-card-content">
             <div className="visitas-menu-icon">
@@ -1575,7 +1588,7 @@ export default function RelatorioVisitas() {
             </div>
             <h3>Nenhuma visita agendada</h3>
             <p>Crie sua primeira visita</p>
-            <Button variant="primary" onClick={() => setViewMode("new")}>
+            <Button variant="primary" onClick={startNewRequest}>
               Nova Visita
             </Button>
           </div>
@@ -1679,7 +1692,7 @@ export default function RelatorioVisitas() {
             </div>
             <h3>Nenhuma visita encontrada</h3>
             <p>Crie sua primeira visita</p>
-            <Button variant="primary" onClick={() => setViewMode("new")}>
+            <Button variant="primary" onClick={startNewRequest}>
               Nova Visita
             </Button>
           </div>
@@ -1975,7 +1988,11 @@ export default function RelatorioVisitas() {
                   }
                   className="visitas-nav-button visitas-submit-button"
                 >
-                  <FiUpload size={16} />
+                  {viewMode === "edit" ? (
+                    <FiUpload size={16} />
+                  ) : (
+                    <FiCalendar size={16} />
+                  )}
                   {viewMode === "edit" ? "Atualizar" : "Agendar Visita"}
                 </Button>
               ) : (

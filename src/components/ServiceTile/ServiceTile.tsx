@@ -1,11 +1,5 @@
 import { Link } from "react-router-dom";
-import {
-  Card,
-  CardActionArea,
-  Box,
-  useTheme,
-  useMediaQuery,
-} from "@mui/material";
+import { Box, useTheme, useMediaQuery } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
 interface ServiceTileProps {
   label: string;
@@ -23,43 +17,29 @@ export default function ServiceTile({
   const theme = useTheme();
   const prefersReducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
 
-  const cardSx: SxProps<Theme> = {
-    // Card é um Link/anchor (component={Link}/component="a") → garantir que não herda sublinhado
-    textDecoration: "none",
-    color: "inherit",
-    bgcolor: "rgba(255, 255, 255, 0.06)",
-    backgroundImage:
-      "linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.03) 100%)",
-    border: "1px solid rgba(255, 255, 255, 0.16)",
-    borderRadius: 5,
-    backdropFilter: "blur(10px)",
-    transition: "all 150ms cubic-bezier(0.4, 0, 0.2, 1)",
-    height: "100%",
-    "&:hover": {
-      boxShadow: 6,
-      bgcolor: "rgba(255, 255, 255, 0.1)",
-      borderColor: "rgba(59, 130, 246, 0.3)",
-      transform: prefersReducedMotion ? "none" : "translateY(-4px)",
-      textDecoration: "none",
-    },
-    "&:active": {
-      transform: prefersReducedMotion ? "none" : "scale(0.98)",
-    },
-    "& .MuiCardActionArea-focusVisible": {
-      outline: `2px solid ${theme.palette.primary.main}`,
-      outlineOffset: 2,
-    },
-  };
-
-  const contentSx: SxProps<Theme> = {
+  const tileSx: SxProps<Theme> = {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
     textAlign: "center",
     gap: 2,
-    minHeight: { xs: 72, sm: 80 },
-    padding: { xs: 2, sm: 2.5 },
+    padding: { xs: 2.5, sm: 3 },
+    textDecoration: "none",
+    color: "inherit",
+    borderRadius: 3,
+    transition: "transform 150ms cubic-bezier(0.4, 0, 0.2, 1), filter 150ms cubic-bezier(0.4, 0, 0.2, 1)",
+    "&:hover": {
+      transform: prefersReducedMotion ? "none" : "translateY(-2px)",
+      filter: "drop-shadow(0 12px 30px rgba(0,0,0,0.35))",
+    },
+    "&:focus-visible": {
+      outline: `2px solid ${theme.palette.primary.main}`,
+      outlineOffset: 3,
+    },
+    "&:active": {
+      transform: prefersReducedMotion ? "none" : "scale(0.98)",
+    },
   };
 
   const iconSx: SxProps<Theme> = {
@@ -83,49 +63,39 @@ export default function ServiceTile({
   };
 
   const content = (
-    <CardActionArea
-      sx={{
-        height: "100%",
-        "&:focus-visible": {
-          outline: `2px solid ${theme.palette.primary.main}`,
-          outlineOffset: 2,
-        },
-      }}
-    >
-      <Box sx={contentSx}>
-        <Icon sx={iconSx} />
-        <Box component="span" sx={textSx}>
-          {label}
-        </Box>
+    <>
+      <Icon sx={iconSx} />
+      <Box component="span" sx={textSx}>
+        {label}
       </Box>
-    </CardActionArea>
+    </>
   );
 
   if (external) {
     return (
-      <Card
+      <Box
         component="a"
         href={to}
         target="_blank"
         rel="noopener noreferrer"
-        sx={cardSx}
+        sx={tileSx}
         role="link"
         aria-label={label}
       >
         {content}
-      </Card>
+      </Box>
     );
   }
 
   return (
-    <Card
+    <Box
       component={Link}
       to={to}
-      sx={cardSx}
+      sx={tileSx}
       role="link"
       aria-label={label}
     >
       {content}
-    </Card>
+    </Box>
   );
 }

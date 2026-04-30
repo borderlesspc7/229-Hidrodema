@@ -15,6 +15,7 @@ import type {
   User,
 } from "../types/user";
 import getFirebaseErrorMessage from "../components/ui/ErrorMessage";
+import { claimSellerProfile } from "./cloudFunctionsService";
 
 interface FirebaseError {
   code?: string;
@@ -137,7 +138,22 @@ export const authService = {
           try {
             const userDoc = await getDoc(doc(db, "users", firebaseUser.uid));
             if (userDoc.exists()) {
-              const userData = userDoc.data() as User;
+              let userData = userDoc.data() as User;
+
+              // Se o usuário ainda não tiver sellerCode, tenta auto-vínculo via Cloud Function.
+              // Isso escreve `sellerCode/sellerExternalId` em `users/{uid}`.
+              if (!userData.sellerCode) {
+                try {
+                  await claimSellerProfile();
+                  const refreshed = await getDoc(
+                    doc(db, "users", firebaseUser.uid)
+                  );
+                  if (refreshed.exists()) userData = refreshed.data() as User;
+                } catch {
+                  // not-found / failed-precondition: ignore (sem vendedor para o email, ou conta sem email)
+                }
+              }
+
               callback(userData);
             } else {
               callback(null); // Usuário não encontrado no Firestore

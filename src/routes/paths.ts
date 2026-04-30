@@ -7,6 +7,7 @@ export const paths = {
   meeting: "/meeting",
   marketing: "/marketing",
   acessoExclusivo: "/acesso-exclusivo",
+  dashboardPerformance: "/acesso-exclusivo/dashboard-performance",
   obras: {
     base: "/acesso-exclusivo/gerenciamento-obras",
     medicoes: "/acesso-exclusivo/gerenciamento-obras/medicoes",

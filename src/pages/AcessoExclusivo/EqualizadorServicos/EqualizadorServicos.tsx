@@ -26,13 +26,14 @@ import "./EqualizadorServicos.css";
 import { useAuth } from "../../../hooks/useAuth";
 import { paths } from "../../../routes/paths";
 import { navigateBackOrFallback } from "../../../lib/navigation";
+import Breadcrumb from "../../../components/ui/Breadcrumb/Breadcrumb";
 import {
   buildHidrodemaPrintDocument,
   escapeHtml,
 } from "../../../lib/printPdfBranding";
 import {
   createServiceMDS,
-  getAllServiceMDS,
+  getServiceMDSScoped,
   updateServiceMDS,
   deleteServiceMDS,
   addMDSComment,
@@ -529,7 +530,7 @@ const EqualizadorServicos = () => {
   const loadServiceMDS = async () => {
     try {
       setLoading(true);
-      const mdsServices = await getAllServiceMDS();
+      const mdsServices = await getServiceMDSScoped(user);
       
       // Converter para formato local
       const displayServices: ServiceMDS[] = mdsServices.map((mds) => ({
@@ -1247,8 +1248,8 @@ const EqualizadorServicos = () => {
         <Card
           variant="service"
           title="NOVO MDS"
-          textColor="#1e40af"
-          backgroundColor="#f0f9ff"
+          textColor="rgba(226, 232, 240, 0.98)"
+          backgroundColor="rgba(7, 16, 33, 0.62)"
           size="large"
           className="equalizador-menu-card"
           onClick={() => {
@@ -1268,8 +1269,8 @@ const EqualizadorServicos = () => {
         <Card
           variant="service"
           title="PLANILHA DE COTAÇÕES"
-          textColor="#059669"
-          backgroundColor="#f0fdf4"
+          textColor="rgba(226, 232, 240, 0.98)"
+          backgroundColor="rgba(7, 16, 33, 0.62)"
           size="large"
           className="equalizador-menu-card"
           onClick={() => setViewMode("quotations")}
@@ -1288,8 +1289,8 @@ const EqualizadorServicos = () => {
         <Card
           variant="service"
           title="HISTÓRICO"
-          textColor="#7c3aed"
-          backgroundColor="#faf5ff"
+          textColor="rgba(226, 232, 240, 0.98)"
+          backgroundColor="rgba(7, 16, 33, 0.62)"
           size="large"
           className="equalizador-menu-card"
           onClick={() => setViewMode("history")}
@@ -1736,22 +1737,38 @@ const EqualizadorServicos = () => {
 
       {/* Header */}
       <div className="equalizador-header">
-        <Button
-          variant="secondary"
-          className="equalizador-back-button"
-          onClick={handleBack}
-        >
-          <FiArrowLeft size={16} />
-          Voltar
-        </Button>
-        <div className="equalizador-company-brand">
-          <h1 className="equalizador-company-title">EQUALIZADOR DE SERVIÇOS</h1>
-          <span className="equalizador-company-subtitle">
-            Memorial Descritivo de Serviços (MDS)
-          </span>
-          <div className="equalizador-company-underline"></div>
+        <div className="equalizador-header-inner">
+          <div className="equalizador-header-left">
+            <div className="equalizador-header-menu">
+              <Button
+                variant="secondary"
+                className="equalizador-back-button"
+                onClick={handleBack}
+              >
+                <FiArrowLeft size={16} />
+                Voltar
+              </Button>
+              <Breadcrumb
+                compact
+                className="equalizador-header-breadcrumb"
+                items={[
+                  { label: "Acesso Exclusivo", to: paths.acessoExclusivo },
+                  { label: "Equalizador de Serviços" },
+                ]}
+              />
+            </div>
+          </div>
+
+          <div className="equalizador-company-brand">
+            <h1 className="equalizador-company-title">EQUALIZADOR DE SERVIÇOS</h1>
+            <span className="equalizador-company-subtitle">
+              Memorial Descritivo de Serviços (MDS)
+            </span>
+            <div className="equalizador-company-underline"></div>
+          </div>
+
+          <div className="equalizador-header-spacer"></div>
         </div>
-        <div className="equalizador-header-spacer"></div>
       </div>
 
       {/* Main Content */}

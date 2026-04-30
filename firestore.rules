@@ -17,32 +17,89 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function role() {
+      return signedIn()
+        ? (request.auth.token.role != null ? request.auth.token.role : (userDoc().role != null ? userDoc().role : "user"))
+        : "user";
+    }
+
+    function isMacro() {
+      return role() == "admin" || role() == "gestor";
+    }
+
+    function sellerCode() {
+      return signedIn()
+        ? (request.auth.token.sellerCode != null ? request.auth.token.sellerCode : (userDoc().sellerCode != null ? userDoc().sellerCode : ""))
+        : "";
+    }
+
+    function ownsBySellerCode(data) {
+      return sellerCode() != "" && data.ownerSellerCode == sellerCode();
+    }
+
+    function ownsDoc(data) {
+      return signedIn() && (
+        isMacro() ||
+        data.createdBy == request.auth.uid ||
+        (data.ownerUid != null && data.ownerUid == request.auth.uid) ||
+        ownsBySellerCode(data)
+      );
+    }
+
+    function projectDoc(projectId) {
+      return get(/databases/$(database)/documents/obrasProjects/$(projectId)).data;
+    }
+
+    function canAccessProject(projectId) {
+      return signedIn() && (
+        isMacro() ||
+        (projectId != null && projectDoc(projectId).ownerUid == request.auth.uid)
+      );
+    }
+
+    function canAccessByProject(data) {
+      return data != null && data.projectId != null && canAccessProject(data.projectId);
+    }
+
     match /users/{userId} {
-      allow read: if signedIn() && request.auth.uid == userId;
+      allow read: if signedIn() && (request.auth.uid == userId || isMacro());
       allow create: if signedIn() && request.auth.uid == userId;
-      allow update: if signedIn() && request.auth.uid == userId;
+      allow update: if signedIn() && (request.auth.uid == userId || isMacro());
       allow delete: if false;
     }
 
     match /visitRequests/{id} {
-      allow read, create, update, delete: if signedIn();
+      allow read: if ownsDoc(resource.data);
+      allow create: if signedIn() && request.resource.data.createdBy == request.auth.uid;
+      allow update, delete: if ownsDoc(resource.data);
     }
     match /visitReports/{id} {
-      allow read, create, update, delete: if signedIn();
+      allow read: if ownsDoc(resource.data);
+      allow create: if signedIn() && request.resource.data.createdBy == request.auth.uid;
+      allow update, delete: if ownsDoc(resource.data);
     }
     match /visitComments/{id} {
+      // Comentários são menos sensíveis; mantemos autenticado por enquanto.
       allow read, create, update, delete: if signedIn();
     }
 
     match /serviceRequests/{id} {
-      allow read, create, update, delete: if signedIn();
+      allow read: if ownsDoc(resource.data);
+      allow create: if signedIn() && request.resource.data.createdBy == request.auth.uid;
+      allow update, delete: if ownsDoc(resource.data);
     }
     match /serviceComments/{id} {
       allow read, create, update, delete: if signedIn();
     }
 
     match /serviceMDS/{id} {
-      allow read, create, update, delete: if signedIn();
+      allow read: if ownsDoc(resource.data);
+      allow create: if signedIn() && request.resource.data.createdBy == request.auth.uid;
+      allow update, delete: if ownsDoc(resource.data);
     }
     match /mdsQuotations/{id} {
       allow read, create, update, delete: if signedIn();
@@ -52,45 +109,73 @@ service cloud.firestore {
     }
 
     match /sellerDirectory/{id} {
-      allow read, create, update, delete: if signedIn();
+      // Diretório pode ser lido por autenticados; escrita apenas por macro (sincronização).
+      allow read: if signedIn();
+      allow create, update, delete: if signedIn() && isMacro();
     }
 
     match /obrasProjects/{id} {
-      allow read, create, update, delete: if signedIn();
+      allow read: if signedIn() && (isMacro() || resource.data.ownerUid == request.auth.uid);
+      allow create: if signedIn() && request.resource.data.ownerUid == request.auth.uid;
+      allow update: if signedIn() && (
+        isMacro() ||
+        (resource.data.ownerUid == request.auth.uid && request.resource.data.ownerUid == resource.data.ownerUid)
+      );
+      allow delete: if signedIn() && (isMacro() || resource.data.ownerUid == request.auth.uid);
     }
     match /obraMedicoes/{id} {
-      allow read, create, update, delete: if signedIn();
+      allow read: if canAccessByProject(resource.data);
+      allow create: if signedIn()
+        && request.resource.data.createdBy == request.auth.uid
+        && canAccessProject(request.resource.data.projectId);
+      allow update, delete: if canAccessByProject(resource.data);
     }
     match /obraProblemas/{id} {
-      allow read, create, update, delete: if signedIn();
+      allow read: if canAccessByProject(resource.data);
+      allow create: if signedIn()
+        && request.resource.data.createdBy == request.auth.uid
+        && canAccessProject(request.resource.data.projectId);
+      allow update, delete: if canAccessByProject(resource.data);
     }
     match /obraDocumentos/{id} {
-      allow read, create, update, delete: if signedIn();
+      allow read: if canAccessByProject(resource.data);
+      allow create: if signedIn()
+        && request.resource.data.uploadedBy == request.auth.uid
+        && canAccessProject(request.resource.data.projectId);
+      allow update, delete: if canAccessByProject(resource.data);
     }
 
     match /obrasDiaries/{id} {
-      allow read, create, update, delete: if signedIn();
+      allow read: if canAccessByProject(resource.data);
+      allow create, update, delete: if canAccessProject(request.resource.data.projectId);
     }
     match /obrasInventory/{id} {
-      allow read, create, update, delete: if signedIn();
+      allow read: if canAccessByProject(resource.data);
+      allow create, update, delete: if canAccessProject(request.resource.data.projectId);
     }
     match /obrasBudgets/{id} {
-      allow read, create, update, delete: if signedIn();
+      allow read: if canAccessByProject(resource.data);
+      allow create, update, delete: if canAccessProject(request.resource.data.projectId);
     }
     match /obrasSuppliers/{id} {
-      allow read, create, update, delete: if signedIn();
+      allow read: if canAccessByProject(resource.data);
+      allow create, update, delete: if canAccessProject(request.resource.data.projectId);
     }
     match /obrasQualityChecklists/{id} {
-      allow read, create, update, delete: if signedIn();
+      allow read: if canAccessByProject(resource.data);
+      allow create, update, delete: if canAccessProject(request.resource.data.projectId);
     }
     match /obrasReports/{id} {
-      allow read, create, update, delete: if signedIn();
+      allow read: if canAccessByProject(resource.data);
+      allow create, update, delete: if canAccessProject(request.resource.data.projectId);
     }
     match /obrasInventoryMovements/{id} {
-      allow read, create, update, delete: if signedIn();
+      allow read: if canAccessByProject(resource.data);
+      allow create, update, delete: if canAccessProject(request.resource.data.projectId);
     }
     match /obrasCounters/{id} {
-      allow read, create, update, delete: if signedIn();
+      allow read: if canAccessByProject(resource.data);
+      allow create, update, delete: if canAccessProject(request.resource.data.projectId);
     }
 
     match /{document=**} {

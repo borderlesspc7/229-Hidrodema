@@ -1,7 +1,5 @@
 import "./HidroService.css";
-import { useNavigate } from "react-router-dom";
-import { paths } from "../../routes/paths";
-import { Button, Container, Box, ThemeProvider, createTheme } from "@mui/material";
+import { Container, Box, ThemeProvider, createTheme } from "@mui/material";
 import {
   Science,
   Straighten,
@@ -10,7 +8,6 @@ import {
   School,
 } from "@mui/icons-material";
 import ServiceTile from "../../components/ServiceTile/ServiceTile";
-import BackButton from "../../components/ui/BackButton/BackButton";
 
 // Tema escuro customizado para MUI
 const darkTheme = createTheme({
@@ -60,94 +57,46 @@ const services = [
 ];
 
 export default function HidroService() {
-  const navigate = useNavigate();
-
   return (
     <ThemeProvider theme={darkTheme}>
       <div className="hidro-service-container hd-page-bg">
-        <Container maxWidth="lg" sx={{ width: "100%", py: { xs: 3, sm: 4 } }}>
-          {/* Header */}
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              mb: 4,
-              width: "100%",
-            }}
-          >
-            <BackButton
-              fallbackPath={paths.menu}
-              className="logout-button-left"
-              title="Voltar para o menu"
-            />
-            <Box sx={{ flex: 1, display: "flex", justifyContent: "center" }}>
-              <div className="hidro-service-company-brand">
-                <img
-                  src="/Logo HidroService.png"
-                  alt="HIDRO SERVICE"
-                  className="hidro-service-logo"
-                />
-                <div className="hidro-service-company-underline"></div>
-              </div>
-            </Box>
-            <Box sx={{ width: 100 }} /> {/* Spacer */}
+        <Container maxWidth="lg" sx={{ width: "100%", py: { xs: 2, sm: 3 } }}>
+          <div className="hidro-service-breadcrumb" aria-label="Breadcrumb">
+            <span className="hidro-service-breadcrumb__home" aria-hidden="true">
+              ⌂
+            </span>
+            <span className="hidro-service-breadcrumb__pill">HidroService</span>
+          </div>
+
+          {/* Header (como no print): logo central + underline */}
+          <Box sx={{ width: "100%", display: "flex", justifyContent: "center" }}>
+            <div className="hidro-service-company-brand">
+              <img
+                src="/Logo HidroService.png"
+                alt="HIDRO SERVICE"
+                className="hidro-service-logo"
+              />
+              <div className="hidro-service-company-underline"></div>
+            </div>
           </Box>
 
           {/* Grid de Serviços */}
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: {
-                xs: "1fr",
-                sm: "repeat(2, 1fr)",
-                xl: "repeat(3, 1fr)",
-              },
-              gap: 3,
-              mb: 4,
-            }}
-          >
-            {services.map((service) => (
-              <ServiceTile
+          <div className="hidro-service-grid">
+            {services.map((service, idx) => (
+              <div
                 key={service.label}
-                label={service.label}
-                to={service.to}
-                Icon={service.Icon}
-                external={service.external}
-              />
+                className={`hidro-service-grid-item hidro-service-grid-item--${idx + 1}`}
+              >
+                <ServiceTile
+                  label={service.label}
+                  to={service.to}
+                  Icon={service.Icon}
+                  external={service.external}
+                />
+              </div>
             ))}
-          </Box>
-
-          {/* Footer */}
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 2,
-              mt: 4,
-            }}
-          >
-            <img
-              src="/HIDRODEMA_LogoNovo_Branco (2).png"
-              alt="HIDRODEMA"
-              className="hidro-service-footer-logo"
-            />
-            <Button
-              variant="outlined"
-              onClick={() => navigate(paths.acessoExclusivo)}
-              sx={{
-                color: "#fff",
-                borderColor: "rgba(255, 255, 255, 0.3)",
-                "&:hover": {
-                  borderColor: "rgba(255, 255, 255, 0.5)",
-                  bgcolor: "rgba(255, 255, 255, 0.1)",
-                },
-              }}
-            >
-              Acesso Exclusivo
-            </Button>
-          </Box>
+          </div>
+          <Box sx={{ height: { xs: 8, sm: 14 } }} />
         </Container>
       </div>
     </ThemeProvider>
