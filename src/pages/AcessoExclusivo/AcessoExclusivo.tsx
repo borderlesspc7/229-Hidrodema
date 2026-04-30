@@ -13,7 +13,7 @@ export default function AcessoExclusivo() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user) navigate(paths.menu);
+    if (!user) navigate(paths.login, { replace: true });
   }, [user, navigate]);
 
   return (
@@ -83,6 +83,16 @@ export default function AcessoExclusivo() {
             size="medium"
             className="acesso-exclusivo-card"
             onClick={() => navigate("/acesso-exclusivo/gestao-vendedores")}
+          />
+        )}
+        {user && hasMacroVisibility(user) && (
+          <Card
+            variant="technology"
+            title="VINCULO TECNICO (CRM)"
+            textColor="#e2e8f0"
+            size="medium"
+            className="acesso-exclusivo-card"
+            onClick={() => navigate(paths.vinculoTecnico)}
           />
         )}
         {user && isAdmin(user) && (

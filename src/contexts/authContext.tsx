@@ -8,6 +8,8 @@ import type {
 import type { ReactNode } from "react";
 import getFirebaseErrorMessage from "../components/ui/ErrorMessage";
 import type { FirebaseError } from "firebase/app";
+import type { UserRole } from "../types/user";
+import { clearDemoUser, getDemoUser, isDemoEnabled, setDemoUser } from "../lib/demoAuth";
 
 interface AuthContextType {
   user: User | null;
@@ -16,6 +18,7 @@ interface AuthContextType {
   login: (credentials: LoginCredentials) => Promise<void>;
   register: (credentials: RegisterCredentials) => Promise<void>;
   logout: () => Promise<void>;
+  loginDemo: (role: UserRole) => void;
   sendPasswordRecovery: (email: string) => Promise<void>;
   clearError: () => void;
 }
@@ -28,6 +31,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const demo = getDemoUser();
+    if (demo) {
+      setUser(demo);
+      setLoading(false);
+      return;
+    }
     const unsubscribe = authService.observeAuthState((user) => {
       setUser(user);
       setLoading(false);
@@ -67,6 +76,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     try {
       setLoading(true);
+      if (isDemoEnabled() && user?.uid?.startsWith("demo-")) {
+        clearDemoUser();
+        setUser(null);
+        setLoading(false);
+        return;
+      }
       await authService.logOut();
       setUser(null);
       setLoading(false);
@@ -75,6 +90,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setError(message);
       setLoading(false);
     }
+  };
+
+  const loginDemo = (role: UserRole) => {
+    if (!isDemoEnabled()) return;
+    const u = setDemoUser({ role });
+    setUser(u);
+    setLoading(false);
+    setError(null);
   };
 
   const sendPasswordRecovery = async (email: string) => {
@@ -101,6 +124,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     login,
     register,
     logout,
+    loginDemo,
     sendPasswordRecovery,
     clearError,
   };

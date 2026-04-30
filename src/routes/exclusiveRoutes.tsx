@@ -6,6 +6,7 @@ import GestaoVendedores from "../pages/AcessoExclusivo/GestaoVendedores/GestaoVe
 import GerenciamentoObras from "../pages/AcessoExclusivo/GerenciamentoObras/GerenciamentoObras";
 import ControleFuncionarios from "../pages/AcessoExclusivo/ControleFuncionarios/ControleFuncionarios";
 import DashboardPerformance from "../pages/AcessoExclusivo/DashboardPerformance/DashboardPerformance";
+import VinculoTecnico from "../pages/AcessoExclusivo/VinculoTecnico/VinculoTecnico";
 import { RoleRoute } from "./RoleRoute";
 import MedicoesPage from "../pages/AcessoExclusivo/GerenciamentoObras/MedicoesPage/MedicoesPage";
 import ProblemasPage from "../pages/AcessoExclusivo/GerenciamentoObras/ProblemasPage/ProblemasPage";
@@ -56,6 +57,14 @@ export default function ExclusiveRoutes() {
         element={
           <RoleRoute allow={["admin", "gestor"]}>
             <GestaoVendedores />
+          </RoleRoute>
+        }
+      />
+      <Route
+        path="vinculo-tecnico"
+        element={
+          <RoleRoute allow={["admin", "gestor"]}>
+            <VinculoTecnico />
           </RoleRoute>
         }
       />

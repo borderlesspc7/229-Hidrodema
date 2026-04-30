@@ -36,13 +36,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.auditBusinessWrites = exports.claimSellerProfile = exports.getPerformanceKpis = exports.auditPermissionChanges = exports.syncClaimsFromUserDoc = exports.emailVisitReportOnCreate = void 0;
+exports.processIntegrationJobs = exports.nightlySellerSyncEnqueue = exports.crmSellerWebhook = exports.syncSellerDirectory = exports.auditBusinessWrites = exports.adminUnlinkUserSeller = exports.adminLinkUserToSeller = exports.claimSellerProfile = exports.getPerformanceKpis = exports.auditPermissionChanges = exports.syncClaimsFromUserDoc = exports.emailVisitReportOnCreate = void 0;
 const admin = __importStar(require("firebase-admin"));
 const firestore_1 = require("firebase-functions/v2/firestore");
 const firebase_functions_1 = require("firebase-functions");
 const https_1 = require("firebase-functions/v2/https");
+const scheduler_1 = require("firebase-functions/v2/scheduler");
 const nodemailer_1 = __importDefault(require("nodemailer"));
 const pdfkit_1 = __importDefault(require("pdfkit"));
+const crypto_1 = __importDefault(require("crypto"));
+const sellerDirectorySync_1 = require("./sellers/sellerDirectorySync");
+const sellerMapper_1 = require("./sellers/sellerMapper");
 admin.initializeApp();
 function env(name) {
     const v = process.env[name];
@@ -161,6 +165,15 @@ function normalizeRole(role) {
     if (r === "admin" || r === "gestor" || r === "vendedor")
         return r;
     return "user";
+}
+function requireMacro(req) {
+    if (!req.auth?.uid)
+        throw new https_1.HttpsError("unauthenticated", "Login required");
+    const role = normalizeRole(req.auth.token.role);
+    if (role !== "admin" && role !== "gestor") {
+        throw new https_1.HttpsError("permission-denied", "Acesso restrito à gestão.");
+    }
+    return { uid: req.auth.uid, role };
 }
 /**
  * Sincroniza custom claims a partir do documento `users/{uid}`.
@@ -321,6 +334,104 @@ exports.claimSellerProfile = (0, https_1.onCall)({ region: "southamerica-east1" 
     });
     return { ok: true, ...patch };
 });
+function corpEmailAllowed(email) {
+    const domain = email.split("@")[1]?.toLowerCase() ?? "";
+    if (!domain)
+        return false;
+    const single = env("CORP_EMAIL_DOMAIN")?.toLowerCase();
+    const list = (env("CORP_EMAIL_DOMAINS") ?? "")
+        .split(",")
+        .map((s) => s.trim().toLowerCase())
+        .filter(Boolean);
+    const allowed = [...(single ? [single] : []), ...list];
+    if (allowed.length === 0)
+        return true; // se não configurar, não bloqueia
+    return allowed.some((d) => domain === d || domain.endsWith(`.${d}`));
+}
+async function findUserByEmail(email) {
+    const qs = await admin.firestore().collection("users").where("email", "==", email).limit(1).get();
+    if (qs.empty)
+        return null;
+    const doc = qs.docs[0];
+    return { id: doc.id, data: doc.data() };
+}
+async function writeSellerLinkHistory(entry) {
+    await admin.firestore().collection("sellerUserLinkHistory").add(entry);
+}
+/**
+ * Vínculo técnico (admin/gestor): associa um user (por email) a um vendedor do diretório.
+ * - Valida domínio corporativo (opcional via env)
+ * - Escreve histórico em `sellerUserLinkHistory`
+ */
+exports.adminLinkUserToSeller = (0, https_1.onCall)({ region: "southamerica-east1" }, async (req) => {
+    const { uid: actorUid } = requireMacro(req);
+    const payload = req.data;
+    const userEmail = safeStr(payload?.userEmail)?.toLowerCase();
+    const sellerExternalId = safeStr(payload?.sellerExternalId);
+    if (!userEmail || !sellerExternalId) {
+        throw new https_1.HttpsError("invalid-argument", "userEmail e sellerExternalId são obrigatórios.");
+    }
+    if (!corpEmailAllowed(userEmail)) {
+        throw new https_1.HttpsError("failed-precondition", "Email não pertence ao domínio corporativo.");
+    }
+    const user = await findUserByEmail(userEmail);
+    if (!user)
+        throw new https_1.HttpsError("not-found", "Usuário não encontrado para este email.");
+    const sellerSnap = await admin
+        .firestore()
+        .collection("sellerDirectory")
+        .doc((0, sellerMapper_1.safeFirestoreDocId)(sellerExternalId))
+        .get();
+    if (!sellerSnap.exists)
+        throw new https_1.HttpsError("not-found", "Vendedor não encontrado no sellerDirectory.");
+    const seller = sellerSnap.data();
+    const patch = {
+        sellerExternalId: safeStr(seller.externalId) ?? sellerExternalId,
+        sellerCode: safeStr(seller.code),
+        teamId: safeStr(seller.teamId),
+        regionId: safeStr(seller.regionId),
+        updatedAt: new Date(),
+    };
+    await admin.firestore().collection("users").doc(user.id).set(patch, { merge: true });
+    await writeSellerLinkHistory({
+        at: new Date().toISOString(),
+        actorUid,
+        targetUid: user.id,
+        userEmail,
+        action: "link",
+        sellerExternalId: patch.sellerExternalId,
+        sellerCode: patch.sellerCode,
+    });
+    return { ok: true, targetUid: user.id, ...patch };
+});
+exports.adminUnlinkUserSeller = (0, https_1.onCall)({ region: "southamerica-east1" }, async (req) => {
+    const { uid: actorUid } = requireMacro(req);
+    const email = safeStr(req.data?.userEmail)?.toLowerCase();
+    if (!email)
+        throw new https_1.HttpsError("invalid-argument", "userEmail é obrigatório.");
+    const user = await findUserByEmail(email);
+    if (!user)
+        throw new https_1.HttpsError("not-found", "Usuário não encontrado para este email.");
+    const beforeSellerExternalId = safeStr(user.data.sellerExternalId);
+    const beforeSellerCode = safeStr(user.data.sellerCode);
+    await admin.firestore().collection("users").doc(user.id).set({
+        sellerExternalId: admin.firestore.FieldValue.delete(),
+        sellerCode: admin.firestore.FieldValue.delete(),
+        teamId: admin.firestore.FieldValue.delete(),
+        regionId: admin.firestore.FieldValue.delete(),
+        updatedAt: new Date(),
+    }, { merge: true });
+    await writeSellerLinkHistory({
+        at: new Date().toISOString(),
+        actorUid,
+        targetUid: user.id,
+        userEmail: email,
+        action: "unlink",
+        sellerExternalId: beforeSellerExternalId,
+        sellerCode: beforeSellerCode,
+    });
+    return { ok: true, targetUid: user.id };
+});
 async function writeAudit(entry) {
     await admin.firestore().collection("auditLogs").add(entry);
 }
@@ -369,5 +480,149 @@ exports.auditBusinessWrites = (0, firestore_1.onDocumentWritten)({
     }
     catch (e) {
         firebase_functions_1.logger.error("Failed to write audit entry.", { col, id, error: String(e) });
+    }
+});
+/**
+ * Sincroniza o diretório de vendedores (`sellerDirectory`) a partir do CRM.
+ * Restrito a admin/gestor.
+ */
+exports.syncSellerDirectory = (0, https_1.onCall)({ region: "southamerica-east1" }, async (req) => {
+    requireMacro(req);
+    try {
+        return await (0, sellerDirectorySync_1.syncSellerDirectoryFromCrm)();
+    }
+    catch (e) {
+        firebase_functions_1.logger.error("Seller sync failed.", { error: String(e) });
+        throw new https_1.HttpsError("internal", "Falha ao sincronizar vendedores.");
+    }
+});
+function timingSafeEqual(a, b) {
+    try {
+        const ba = Buffer.from(a);
+        const bb = Buffer.from(b);
+        if (ba.length !== bb.length)
+            return false;
+        return crypto_1.default.timingSafeEqual(ba, bb);
+    }
+    catch {
+        return false;
+    }
+}
+function readWebhookSignature(req) {
+    const h = req.get?.("x-crm-signature") ??
+        req.get?.("x-hub-signature-256") ??
+        req.headers?.["x-crm-signature"] ??
+        req.headers?.["x-hub-signature-256"];
+    return typeof h === "string" && h.trim() ? h.trim() : null;
+}
+function computeWebhookSignature(secret, rawBody) {
+    // formato comum: "sha256=<hex>"
+    const hex = crypto_1.default.createHmac("sha256", secret).update(rawBody).digest("hex");
+    return `sha256=${hex}`;
+}
+/**
+ * Webhook do CRM para atualizações imediatas (Seller).
+ * - Valida assinatura HMAC sha256 no header (x-crm-signature ou x-hub-signature-256)
+ * - Se vier `sellerId`, atualiza apenas esse vendedor; caso contrário, enfileira sync completo.
+ */
+exports.crmSellerWebhook = (0, https_1.onRequest)({ region: "southamerica-east1" }, async (req, res) => {
+    if (req.method !== "POST") {
+        res.status(405).send("Method not allowed");
+        return;
+    }
+    const secret = env("CRM_WEBHOOK_SECRET");
+    if (!secret) {
+        res.status(500).send("Webhook secret not configured");
+        return;
+    }
+    const rawBody = req.rawBody ??
+        Buffer.from(typeof req.body === "string" ? req.body : JSON.stringify(req.body ?? {}));
+    const received = readWebhookSignature(req);
+    const expected = computeWebhookSignature(secret, rawBody);
+    if (!received || !timingSafeEqual(received, expected)) {
+        res.status(401).send("Invalid signature");
+        return;
+    }
+    const payload = req.body;
+    const sellerId = typeof payload?.sellerId === "string"
+        ? payload.sellerId
+        : typeof payload?.id === "string"
+            ? payload.id
+            : typeof payload?.data?.sellerId === "string"
+                ? payload.data.sellerId
+                : typeof payload?.data?.id === "string"
+                    ? payload.data.id
+                    : null;
+    try {
+        if (sellerId) {
+            const result = await (0, sellerDirectorySync_1.syncSingleSellerFromCrm)({ sellerId });
+            res.status(200).json({ ok: true, mode: "single", result });
+            return;
+        }
+        await enqueueIntegrationJob({ type: "syncSellers", priority: "high" });
+        res.status(202).json({ ok: true, mode: "enqueued" });
+    }
+    catch (e) {
+        firebase_functions_1.logger.error("Webhook processing failed.", { error: String(e) });
+        res.status(500).json({ ok: false });
+    }
+});
+async function enqueueIntegrationJob(job) {
+    await admin.firestore().collection("integrationJobs").add({
+        ...job,
+        createdAt: new Date().toISOString(),
+        status: "queued",
+    });
+}
+async function notifyAdmin(subject, text) {
+    const to = env("ALERT_EMAIL");
+    const transport = createTransport();
+    if (!to || !transport)
+        return;
+    const from = env("SMTP_FROM") || env("SMTP_USER");
+    await transport.sendMail({ from, to, subject, text });
+}
+/**
+ * Cron (madrugada) para manter `sellerDirectory` sincronizado automaticamente.
+ */
+exports.nightlySellerSyncEnqueue = (0, scheduler_1.onSchedule)({
+    region: "southamerica-east1",
+    timeZone: "America/Sao_Paulo",
+    schedule: "0 3 * * *",
+}, async () => {
+    await enqueueIntegrationJob({ type: "syncSellers", priority: "normal" });
+    firebase_functions_1.logger.info("Nightly seller sync job enqueued.");
+});
+/**
+ * Worker da fila de integrações (assíncrono).
+ * Processa `integrationJobs/{jobId}` criados via cron ou admin/webhook.
+ */
+exports.processIntegrationJobs = (0, firestore_1.onDocumentCreated)({ document: "integrationJobs/{jobId}", region: "southamerica-east1" }, async (event) => {
+    const jobId = event.params?.jobId;
+    const data = event.data?.data?.();
+    if (!jobId || !data)
+        return;
+    if (data.type !== "syncSellers")
+        return;
+    const ref = admin.firestore().collection("integrationJobs").doc(jobId);
+    await ref.set({ status: "running", startedAt: new Date().toISOString() }, { merge: true });
+    try {
+        const result = await (0, sellerDirectorySync_1.syncSellerDirectoryFromCrm)();
+        await ref.set({
+            status: "ok",
+            finishedAt: new Date().toISOString(),
+            result,
+        }, { merge: true });
+        firebase_functions_1.logger.info("Integration job completed.", { jobId, type: data.type, result });
+    }
+    catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        await ref.set({
+            status: "error",
+            finishedAt: new Date().toISOString(),
+            error: msg,
+        }, { merge: true });
+        firebase_functions_1.logger.error("Integration job failed.", { jobId, type: data.type, error: msg });
+        await notifyAdmin("Hidrodema: falha no job de integração", `Job ${jobId} (${data.type}) falhou:\n\n${msg}`);
     }
 });

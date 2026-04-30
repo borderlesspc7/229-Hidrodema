@@ -1,0 +1,87 @@
+.vinculo-tecnico {
+  min-height: 100vh;
+  padding: 24px 16px 40px;
+  background: radial-gradient(1200px 600px at 50% 0%, #0b1220 0%, #05070c 55%, #05070c 100%);
+  color: #e2e8f0;
+}
+
+.vinculo-tecnico__header {
+  display: grid;
+  grid-template-columns: 40px 1fr 40px;
+  align-items: center;
+  gap: 12px;
+  max-width: 1000px;
+  margin: 0 auto 16px;
+}
+
+.vinculo-tecnico__title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.vinculo-tecnico__panel {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.vinculo-tecnico__hint {
+  margin: 6px 0 14px;
+  color: #475569;
+  line-height: 1.4;
+}
+
+.vinculo-tecnico__form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.vinculo-tecnico__label {
+  display: grid;
+  gap: 6px;
+  font-size: 12px;
+  color: #334155;
+  font-weight: 600;
+}
+
+.vinculo-tecnico__input {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+  outline: none;
+}
+
+.vinculo-tecnico__input:focus {
+  border-color: #64748b;
+  box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.15);
+}
+
+.vinculo-tecnico__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.vinculo-tecnico__ok {
+  margin-top: 12px;
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.vinculo-tecnico__err {
+  margin-top: 12px;
+  color: #dc2626;
+  font-weight: 600;
+}
+
+@media (max-width: 840px) {
+  .vinculo-tecnico__form {
+    grid-template-columns: 1fr;
+  }
+}
+

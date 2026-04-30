@@ -21,7 +21,7 @@ function Marketing() {
 export const AppRoutes = () => {
   return (
     <Routes>
-      <Route path={paths.home} element={<Menu />} />
+      <Route path={paths.home} element={<Navigate to={paths.login} replace />} />
       <Route path={paths.login} element={<Login />} />
       <Route path={paths.register} element={<Register />} />
       <Route path={paths.menu} element={<Menu />} />

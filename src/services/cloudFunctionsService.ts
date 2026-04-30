@@ -36,3 +36,59 @@ export async function getPerformanceKpis(): Promise<PerformanceKpisResult> {
   return res.data;
 }
 
+export type SyncSellerDirectoryResult = {
+  ok: boolean;
+  fetched: number;
+  processed: number;
+  updatedAt: string;
+};
+
+export async function syncSellerDirectory(): Promise<SyncSellerDirectoryResult> {
+  const fn = httpsCallable<void, SyncSellerDirectoryResult>(
+    functions,
+    "syncSellerDirectory"
+  );
+  const res = await fn();
+  return res.data;
+}
+
+export type AdminLinkUserToSellerInput = {
+  userEmail: string;
+  sellerExternalId: string;
+};
+
+export type AdminLinkUserToSellerResult = {
+  ok: boolean;
+  targetUid: string;
+  sellerExternalId?: string;
+  sellerCode?: string;
+  teamId?: string;
+  regionId?: string;
+  updatedAt?: unknown;
+};
+
+export async function adminLinkUserToSeller(
+  input: AdminLinkUserToSellerInput
+): Promise<AdminLinkUserToSellerResult> {
+  const fn = httpsCallable<AdminLinkUserToSellerInput, AdminLinkUserToSellerResult>(
+    functions,
+    "adminLinkUserToSeller"
+  );
+  const res = await fn(input);
+  return res.data;
+}
+
+export type AdminUnlinkUserSellerInput = { userEmail: string };
+export type AdminUnlinkUserSellerResult = { ok: boolean; targetUid: string };
+
+export async function adminUnlinkUserSeller(
+  input: AdminUnlinkUserSellerInput
+): Promise<AdminUnlinkUserSellerResult> {
+  const fn = httpsCallable<AdminUnlinkUserSellerInput, AdminUnlinkUserSellerResult>(
+    functions,
+    "adminUnlinkUserSeller"
+  );
+  const res = await fn(input);
+  return res.data;
+}
+

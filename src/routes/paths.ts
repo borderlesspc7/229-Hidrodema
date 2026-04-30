@@ -8,6 +8,7 @@ export const paths = {
   marketing: "/marketing",
   acessoExclusivo: "/acesso-exclusivo",
   dashboardPerformance: "/acesso-exclusivo/dashboard-performance",
+  vinculoTecnico: "/acesso-exclusivo/vinculo-tecnico",
   obras: {
     base: "/acesso-exclusivo/gerenciamento-obras",
     medicoes: "/acesso-exclusivo/gerenciamento-obras/medicoes",

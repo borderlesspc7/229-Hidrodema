@@ -16,6 +16,7 @@ import type {
 } from "../types/user";
 import getFirebaseErrorMessage from "../components/ui/ErrorMessage";
 import { claimSellerProfile } from "./cloudFunctionsService";
+import { getDemoUser, isDemoEnabled } from "../lib/demoAuth";
 
 interface FirebaseError {
   code?: string;
@@ -36,6 +37,7 @@ export const authService = {
   },
 
   async validateSession(): Promise<{ valid: boolean; reason?: "expired" | "invalid" }> {
+    if (isDemoEnabled() && getDemoUser()) return { valid: true };
     const current = auth.currentUser;
     if (!current) return { valid: false, reason: "invalid" };
 
@@ -132,6 +134,13 @@ export const authService = {
 
   observeAuthState(callback: (user: User | null) => void): Unsubscribe {
     try {
+      if (isDemoEnabled()) {
+        const demo = getDemoUser();
+        if (demo) {
+          callback(demo);
+          return () => {};
+        }
+      }
       return onAuthStateChanged(auth, async (firebaseUser) => {
         if (firebaseUser) {
           // Usuário está logado, busca dados completos no Firestore

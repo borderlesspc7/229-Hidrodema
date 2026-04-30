@@ -6,11 +6,14 @@ import { useAuth } from "../../hooks/useAuth";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { paths } from "../../routes/paths";
 import { SESSION_EXPIRED_MESSAGE } from "../../services/authService";
+import { isDemoEnabled } from "../../lib/demoAuth";
 
 export default function Login() {
   const {
     login,
+    loginDemo,
     sendPasswordRecovery,
+    logout,
     loading: authLoading,
     error: authError,
     clearError,
@@ -28,13 +31,6 @@ export default function Login() {
   const [recoveryOpen, setRecoveryOpen] = useState(false);
   const [recoveryEmail, setRecoveryEmail] = useState("");
   const [recoverySent, setRecoverySent] = useState(false);
-
-  // Redireciona para o menu se já estiver logado
-  useEffect(() => {
-    if (user) {
-      navigate(paths.menu, { replace: true });
-    }
-  }, [user, navigate]);
 
   useEffect(() => {
     const state = location.state as { sessionExpired?: boolean; message?: string } | null;
@@ -113,6 +109,32 @@ export default function Login() {
           </p>
         </div>
 
+        {user ? (
+          <div style={{ marginBottom: 12 }}>
+            <div className="error-message" style={{ marginBottom: 10 }}>
+              Você já está logado como <strong>{user.email}</strong>. Para testar outro perfil,
+              saia abaixo.
+            </div>
+            <Button
+              type="button"
+              variant="secondary"
+              className="button--full-width"
+              onClick={() => navigate(paths.menu, { replace: true })}
+            >
+              Ir para o Menu
+            </Button>
+            <div style={{ height: 8 }} />
+            <Button
+              type="button"
+              variant="primary"
+              className="button--full-width"
+              onClick={() => void logout()}
+            >
+              Sair (limpar sessão)
+            </Button>
+          </div>
+        ) : null}
+
         <form onSubmit={handleSubmit} className="login-form">
           {sessionMessage ? (
             <div className="error-message" style={{ marginBottom: 12 }}>
@@ -171,7 +193,7 @@ export default function Login() {
             variant="primary"
             className="button--full-width"
             type="submit"
-            disabled={authLoading}
+            disabled={authLoading || Boolean(user)}
           >
             {authLoading ? "Carregando..." : "Entrar"}
           </Button>
@@ -192,6 +214,35 @@ export default function Login() {
         >
           Entrar sem login
         </Button>
+
+        {isDemoEnabled() ? (
+          <div style={{ marginTop: 10, display: "grid", gap: 8 }}>
+            <Button
+              type="button"
+              variant="secondary"
+              className="button--full-width"
+              onClick={() => loginDemo("admin")}
+            >
+              Entrar como Demo (Admin)
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              className="button--full-width"
+              onClick={() => loginDemo("gestor")}
+            >
+              Entrar como Demo (Gestor)
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              className="button--full-width"
+              onClick={() => loginDemo("vendedor")}
+            >
+              Entrar como Demo (Vendedor)
+            </Button>
+          </div>
+        ) : null}
 
         <div className="auth-toggle">
           <span>Não tem uma conta?</span>

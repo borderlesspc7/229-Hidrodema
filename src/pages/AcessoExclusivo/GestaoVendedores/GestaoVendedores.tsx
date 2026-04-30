@@ -2,12 +2,9 @@ import { useCallback, useEffect, useState } from "react";
 import Button from "../../../components/ui/Button/Button";
 import Card from "../../../components/ui/Card/Card";
 import { paths } from "../../../routes/paths";
-import {
-  fetchExternalSellers,
-} from "../../../services/sellerApiService";
+import { syncSellerDirectory } from "../../../services/cloudFunctionsService";
 import {
   listSellerDirectory,
-  upsertSellerDirectoryFromApi,
   type SellerDirectoryDoc,
 } from "../../../services/sellerDirectoryService";
 import "./GestaoVendedores.css";
@@ -35,9 +32,10 @@ export default function GestaoVendedores() {
     setError(null);
     setSyncMsg(null);
     try {
-      const api = await fetchExternalSellers();
-      const n = await upsertSellerDirectoryFromApi(api);
-      setSyncMsg(`${n} registro(s) sincronizado(s) no diretório.`);
+      const r = await syncSellerDirectory();
+      setSyncMsg(
+        `${r.processed} registro(s) sincronizado(s) no diretório (fetched: ${r.fetched}).`
+      );
       await refreshLocal();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Falha na sincronização.");
