@@ -40,7 +40,6 @@ const configuredFirestoreDatabaseId = String(
 ).trim();
 const firestoreDatabaseId =
   configuredFirestoreDatabaseId === "" ||
-  configuredFirestoreDatabaseId === "default" ||
   configuredFirestoreDatabaseId === "(default)"
     ? "(default)"
     : configuredFirestoreDatabaseId;
