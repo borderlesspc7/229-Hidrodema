@@ -1,0 +1,210 @@
+/* Container principal do Menu */
+.menu-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  background: transparent;
+  padding: 54px 20px 40px;
+  margin: 0;
+  width: 100%;
+  gap: 34px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Barra superior (SAIR + marca) */
+.menu-topbar {
+  width: 100%;
+  max-width: 1200px;
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: center;
+  position: relative;
+  z-index: 3;
+}
+
+.menu-brand-top {
+  justify-self: center;
+  text-align: center;
+  padding-top: 0;
+}
+
+.menu-title {
+  font-size: clamp(38px, 6vw, 52px);
+  font-weight: 900;
+  letter-spacing: 6px;
+  color: rgba(226, 232, 240, 0.98);
+  text-transform: uppercase;
+  text-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.menu-title-underline {
+  width: 36px;
+  height: 3px;
+  margin: 10px auto 0;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    rgba(59, 130, 246, 0.15),
+    rgba(59, 130, 246, 0.95),
+    rgba(59, 130, 246, 0.15)
+  );
+  box-shadow: 0 10px 30px rgba(37, 99, 235, 0.22);
+}
+
+/* Padrão moderno de fundo com elementos flutuantes */
+.menu-container::before {
+  content: none;
+}
+
+/* Adicionar partículas flutuantes */
+.menu-container::after {
+  content: none;
+}
+
+@keyframes floatingOrbs {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.1) rotate(180deg);
+  }
+}
+
+@keyframes particleFloat {
+  0% {
+    transform: translateY(0px) translateX(0px);
+  }
+  100% {
+    transform: translateY(-100px) translateX(50px);
+  }
+}
+
+/* Home layout (3 cards + botão Acesso Exclusivo) */
+.menu-home {
+  width: 100%;
+  max-width: 980px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  gap: 22px;
+  z-index: 2;
+}
+
+.menu-home-cards {
+  width: min(660px, 92vw);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.menu-home-card {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.menu-home-card .card__title {
+  letter-spacing: 2px;
+  font-weight: 900;
+}
+
+.menu-home-card .card__subtitle-container {
+  display: flex;
+  margin-top: 4px;
+}
+
+.menu-home-card .card__subtitle {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.6px;
+  text-transform: none;
+  color: rgba(148, 163, 184, 0.92);
+  white-space: pre-line;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.menu-home-card .card__description {
+  display: none;
+}
+
+.menu-home-card.card--large {
+  min-height: 148px;
+  padding: 34px 34px;
+}
+
+.menu-home-access {
+  margin-top: 18px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  background: rgba(7, 16, 33, 0.32);
+  color: rgba(226, 232, 240, 0.92);
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease,
+    border-color 180ms ease;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
+}
+
+.menu-home-access:hover {
+  transform: translateY(-1px);
+  background: rgba(7, 16, 33, 0.44);
+  border-color: rgba(59, 130, 246, 0.28);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.26);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .menu-container {
+    padding: 30px 15px;
+    gap: 30px;
+  }
+
+  .menu-pill {
+    min-height: 54px;
+  }
+
+  .menu-brand__logo {
+    height: 66px;
+  }
+}
+
+@media (max-width: 480px) {
+  .menu-container {
+    padding: 20px 10px;
+    gap: 25px;
+  }
+
+  .company-logo {
+    height: 35px;
+    max-width: 200px;
+  }
+
+  .company-title {
+    font-size: 28px;
+    letter-spacing: 2px;
+  }
+
+  .company-underline {
+    width: 100px;
+    height: 3px;
+  }
+
+  .menu-pill {
+    min-height: 52px;
+    font-size: 12px;
+  }
+
+  .menu-block {
+    padding: 18px;
+  }
+}

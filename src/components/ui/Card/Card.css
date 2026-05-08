@@ -1,0 +1,225 @@
+.card {
+  position: relative;
+  padding: 1.5rem;
+  transition: transform var(--dur-base, 250ms) var(--ease-standard, ease),
+    box-shadow var(--dur-base, 250ms) var(--ease-standard, ease),
+    background var(--dur-base, 250ms) var(--ease-standard, ease);
+  overflow: hidden;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-lg, 16px);
+  border: 1px solid var(--hd-border, rgba(148, 163, 184, 0.12));
+  backdrop-filter: blur(var(--hd-blur, 18px));
+  box-shadow: var(--hd-shadow-1, 0 18px 50px rgba(0, 0, 0, 0.28));
+}
+
+.card--rounded {
+  border-radius: 12px;
+}
+
+.card--shadow {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.card--border {
+  border: 2px solid currentColor;
+}
+
+/* Variantes de tamanho */
+.card--small {
+  min-height: 150px;
+  padding: 1rem;
+}
+
+.card--medium {
+  min-height: 200px;
+  padding: 1.5rem;
+}
+
+.card--large {
+  min-height: 250px;
+  padding: 2rem;
+}
+
+/* Variantes de tipo */
+.card--service {
+  background: var(--hd-surface-2, rgba(7, 16, 33, 0.62));
+}
+
+.card--technology {
+  background: var(--hd-surface-1, rgba(7, 16, 33, 0.46));
+}
+
+.card--marketing {
+  background: var(--hd-surface-2, rgba(7, 16, 33, 0.62));
+  border: 1px solid rgba(239, 68, 68, 0.28);
+}
+
+/* Accent line animada */
+.card::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 4px;
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.9), rgba(78, 205, 196, 0.9));
+  transform: translateX(-35%);
+  transition: transform var(--dur-slow, 400ms) var(--ease-spring, ease);
+  opacity: 0.85;
+}
+
+.card:hover::after {
+  transform: translateX(0);
+}
+
+/* Shimmer no hover */
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.18),
+    transparent
+  );
+  transform: translateX(-120%);
+  transition: transform var(--dur-slow, 400ms) var(--ease-standard, ease);
+  pointer-events: none;
+}
+
+.card:hover::before {
+  transform: translateX(120%);
+}
+
+/* Conteúdo do card */
+.card__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.card__title {
+  font-weight: 900;
+  margin: 0 0 0.5rem 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.card__title h2 {
+  font-size: 1rem;
+}
+
+.card__subtitle-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  justify-content: center;
+}
+
+.card__subtitle {
+  font-size: 1.2rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.card--small .card__subtitle {
+  font-size: 1rem;
+}
+
+.card--large .card__subtitle {
+  font-size: 1.4rem;
+}
+
+.card__dots {
+  font-size: 1rem;
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+.card__description {
+  font-size: 0.9rem;
+  line-height: 1.4;
+  margin: 0;
+  opacity: 0.9;
+  flex: 1;
+  text-align: center;
+}
+
+.card--small .card__description {
+  font-size: 0.8rem;
+}
+
+.card--large .card__description {
+  font-size: 1rem;
+}
+
+/* Imagem do card */
+.card__image {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100px;
+  height: 100px;
+  opacity: 0.1;
+  z-index: 1;
+}
+
+.card__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Ícone do card */
+.card__icon {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 2;
+}
+
+/* Children do card */
+.card__children {
+  margin-top: auto;
+  padding-top: 1rem;
+}
+
+/* Estados interativos */
+.card:hover {
+  transform: translateY(-2px);
+}
+
+.card:hover.card--shadow {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .card {
+    padding: 1rem;
+    min-height: 180px;
+  }
+
+  .card__title {
+    font-size: 2rem;
+  }
+
+  .card__subtitle {
+    font-size: 1rem;
+  }
+
+  .card__description {
+    font-size: 0.8rem;
+  }
+}

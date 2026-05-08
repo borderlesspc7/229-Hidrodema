@@ -1,0 +1,397 @@
+/* Container principal do HidroService */
+.hidro-service-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  position: relative;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* Breadcrumb pill (como no print) */
+.hidro-service-breadcrumb {
+  position: relative;
+  z-index: 3;
+  margin: 0 auto 22px;
+  width: fit-content;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(7, 16, 33, 0.28);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  backdrop-filter: blur(12px);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(226, 232, 240, 0.92);
+  font-size: 12px;
+  line-height: 1;
+}
+
+.hidro-service-breadcrumb__home {
+  opacity: 0.85;
+}
+
+.hidro-service-breadcrumb__pill {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.45);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  font-weight: 800;
+}
+
+/* Padrão moderno de fundo com elementos flutuantes */
+.hidro-service-container::before {
+  content: none;
+}
+
+/* Header - agora gerenciado pelo MUI Box */
+
+/* Marca da empresa - baseado no Menu */
+.hidro-service-company-brand {
+  text-align: center;
+  position: relative;
+  z-index: 2;
+  margin-bottom: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hidro-service-company-title {
+  font-size: clamp(1.8rem, 3.4vw, 3rem);
+  font-weight: 900;
+  background: linear-gradient(
+    135deg,
+    #ffffff 0%,
+    #60a5fa 25%,
+    #3b82f6 50%,
+    #8b5cf6 75%,
+    #ffffff 100%
+  );
+  background-size: 300% 300%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #ffffff;
+  letter-spacing: clamp(1px, 0.6vw, 6px);
+  margin: 0 0 10px 0;
+  line-height: 1.1;
+  text-transform: uppercase;
+  position: relative;
+  font-family: "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont,
+    sans-serif;
+  filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.5));
+  animation: titleGlow 3s ease-in-out infinite alternate,
+    gradientShift 4s ease-in-out infinite;
+}
+
+@keyframes titleGlow {
+  0% {
+    filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.3));
+  }
+  100% {
+    filter: drop-shadow(0 0 30px rgba(139, 92, 246, 0.8));
+  }
+}
+
+@keyframes gradientShift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes floatingOrbs {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.1) rotate(180deg);
+  }
+}
+
+.hidro-service-logo {
+  height: 122px;
+  width: auto;
+  max-width: 500px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 16px rgba(59, 130, 246, 0.35));
+  transition: all 0.3s ease;
+  margin-bottom: 12px;
+}
+
+.hidro-service-logo:hover {
+  filter: drop-shadow(0 0 30px rgba(139, 92, 246, 0.8));
+  transform: scale(1.05);
+}
+
+.hidro-service-company-subtitle {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.9);
+  display: block;
+  margin-bottom: 15px;
+  font-weight: 400;
+  letter-spacing: 1px;
+}
+
+.hidro-service-company-underline {
+  width: 74px;
+  height: 5px;
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.20), rgba(59, 130, 246, 0.95), rgba(59, 130, 246, 0.20));
+  margin: 0 auto;
+  border-radius: 3px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(37, 99, 235, 0.22);
+  animation: none;
+}
+
+@keyframes underlinePulse {
+  0% {
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+    transform: scaleX(1);
+  }
+  100% {
+    box-shadow: 0 4px 25px rgba(59, 130, 246, 0.7);
+    transform: scaleX(1.05);
+  }
+}
+
+/* Estilos legados dos cards removidos - agora usando MUI ServiceTile */
+
+.hidro-service-footer-logo {
+  height: 70px;
+  width: auto;
+  max-width: 300px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.4));
+  transition: all 0.3s ease;
+  margin-bottom: 15px;
+}
+
+.hidro-service-footer-logo:hover {
+  filter: drop-shadow(0 0 25px rgba(139, 92, 246, 0.6));
+  transform: scale(1.05);
+}
+
+.hidro-service-footer-company-subtitle {
+  font-size: clamp(1.6rem, 3vw, 2.6rem);
+  font-weight: 900;
+  background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 50%, #c7d2fe 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: clamp(1px, 0.6vw, 6px);
+  position: relative;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.hidro-service-footer-company-subtitle::after {
+  content: "®";
+  font-size: 0.5em;
+  position: absolute;
+  top: 0;
+  right: -0.8em;
+  opacity: 0.8;
+}
+
+/* Estilo do botão no footer - igual ao Menu */
+/* Botões do footer agora gerenciados pelo MUI Button */
+
+/* Elementos decorativos - cilindros como no design */
+.hidro-service-container::after {
+  content: none;
+}
+
+/* Grid minimalista (3 em cima / 2 embaixo centralizados) */
+.hidro-service-grid {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  /* 6 colunas → topo (3 itens) ocupa 2 colunas cada,
+     base (2 itens) fica centralizada ocupando 2 colunas cada */
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 62px 0;
+  align-items: center;
+  justify-items: center;
+  padding: 46px 10px 6px;
+}
+
+.hidro-service-grid-item {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+/* Posições fixas (desktop) */
+.hidro-service-grid-item--1 { grid-column: 1 / span 2; }
+.hidro-service-grid-item--2 { grid-column: 3 / span 2; }
+.hidro-service-grid-item--3 { grid-column: 5 / span 2; }
+.hidro-service-grid-item--4 { grid-column: 2 / span 2; }
+.hidro-service-grid-item--5 { grid-column: 4 / span 2; }
+
+/* Divisórias (como no print): 2 verticais + 1 horizontal */
+.hidro-service-grid::before {
+  content: "";
+  position: absolute;
+  /* Começa abaixo do logo para não atravessar o header */
+  inset: 58px 10px 12px;
+  pointer-events: none;
+  z-index: 1;
+  background:
+    /* vertical 1 */
+    linear-gradient(
+      90deg,
+      transparent 0%,
+      transparent 33.333%,
+      rgba(255, 255, 255, 0.22) 33.333%,
+      rgba(255, 255, 255, 0.22) 33.48%,
+      transparent 33.45%,
+      transparent 100%
+    ),
+    /* vertical 2 */
+    linear-gradient(
+      90deg,
+      transparent 0%,
+      transparent 66.666%,
+      rgba(255, 255, 255, 0.22) 66.666%,
+      rgba(255, 255, 255, 0.22) 66.82%,
+      transparent 66.78%,
+      transparent 100%
+    ),
+    /* horizontal */
+    linear-gradient(
+      180deg,
+      transparent 0%,
+      transparent 50%,
+      rgba(255, 255, 255, 0.16) 50%,
+      rgba(255, 255, 255, 0.16) 50.18%,
+      transparent 50.15%,
+      transparent 100%
+    );
+  opacity: 0.5;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .hidro-service-container {
+    padding: 30px 15px;
+    gap: 30px;
+  }
+
+  .hidro-service-grid {
+    grid-template-columns: 1fr;
+    gap: 26px;
+    padding-top: 10px;
+  }
+
+  .hidro-service-grid-item--4,
+  .hidro-service-grid-item--5 {
+    grid-column: auto;
+    justify-content: center;
+  }
+
+  .hidro-service-grid::before {
+    content: none;
+  }
+
+  .hidro-service-logo {
+    height: 100px;
+    max-width: 400px;
+  }
+
+  .hidro-service-company-title {
+    font-size: 36px;
+    letter-spacing: 4px;
+    margin: 0 0 8px 0;
+  }
+
+  .hidro-service-company-subtitle {
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+
+  .hidro-service-company-underline {
+    width: 120px;
+    height: 4px;
+  }
+
+  /* Grid responsivo agora gerenciado pelo MUI Grid */
+
+  .hidro-service-footer-logo {
+    height: 50px;
+    max-width: 250px;
+  }
+
+  .hidro-service-footer-company-subtitle {
+    font-size: 32px;
+    letter-spacing: 4px;
+  }
+
+  .hidro-service-footer button {
+    padding: 10px 20px;
+    font-size: 12px;
+    min-width: 140px;
+  }
+
+  .hidro-service-container::after {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .hidro-service-container {
+    padding: 20px 10px;
+    gap: 25px;
+  }
+
+  .hidro-service-logo {
+    height: 80px;
+    max-width: 350px;
+  }
+
+  .hidro-service-company-title {
+    font-size: 28px;
+    letter-spacing: 2px;
+  }
+
+  .hidro-service-company-subtitle {
+    font-size: 12px;
+  }
+
+  .hidro-service-company-underline {
+    width: 100px;
+    height: 3px;
+  }
+
+  /* Grid responsivo agora gerenciado pelo MUI Grid */
+
+  .hidro-service-footer-logo {
+    height: 40px;
+    max-width: 200px;
+  }
+
+  .hidro-service-footer-company-subtitle {
+    font-size: 26px;
+    letter-spacing: 2px;
+  }
+
+  .hidro-service-footer button {
+    padding: 8px 16px;
+    font-size: 10px;
+    min-width: 120px;
+  }
+}

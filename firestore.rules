@@ -1,0 +1,238 @@
+rules_version = '2';
+
+/**
+ * Regras de segurança Firestore — HIDRODEMA
+ *
+ * IMPORTANTE:
+ * - A lógica fina de RBAC (vendedor por código, etc.) está em `src/lib/rbac.ts` na app.
+ *   Replicar tudo nas rules exigiria queries por `createdBy` / claims ou Cloud Functions.
+ * - Aqui: utilizador autenticado pode aceder às coleções de negócio; perfil em `users/{uid}`
+ *   só pelo próprio utilizador. Isto bloqueia anónimos; reforço por documento deve ser
+ *   planeado (consultar docs internos).
+ */
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function role() {
+      return signedIn()
+        ? (request.auth.token.role != null ? request.auth.token.role : (userDoc().role != null ? userDoc().role : "user"))
+        : "user";
+    }
+
+    function isMacro() {
+      return role() == "admin" || role() == "gestor";
+    }
+
+    function sellerCode() {
+      return signedIn()
+        ? (request.auth.token.sellerCode != null ? request.auth.token.sellerCode : (userDoc().sellerCode != null ? userDoc().sellerCode : ""))
+        : "";
+    }
+
+    function ownsBySellerCode(data) {
+      return sellerCode() != "" && data.ownerSellerCode == sellerCode();
+    }
+
+    function ownsDoc(data) {
+      return signedIn() && (
+        isMacro() ||
+        data.createdBy == request.auth.uid ||
+        (data.ownerUid != null && data.ownerUid == request.auth.uid) ||
+        ownsBySellerCode(data)
+      );
+    }
+
+    function projectDoc(projectId) {
+      return get(/databases/$(database)/documents/obrasProjects/$(projectId)).data;
+    }
+
+    function canAccessProject(projectId) {
+      return signedIn() && (
+        isMacro() ||
+        (projectId != null && projectDoc(projectId).ownerUid == request.auth.uid)
+      );
+    }
+
+    function canAccessByProject(data) {
+      return data != null && data.projectId != null && canAccessProject(data.projectId);
+    }
+
+    match /users/{userId} {
+      allow read: if signedIn() && (request.auth.uid == userId || isMacro());
+      allow create: if signedIn() && request.auth.uid == userId;
+      allow update: if signedIn() && (
+        // macro pode editar qualquer campo do perfil
+        isMacro() ||
+        // usuário comum: não pode alterar role/claims ou campos de competência
+        (
+          request.auth.uid == userId
+          && request.resource.data.role == resource.data.role
+          && request.resource.data.sellerCode == resource.data.sellerCode
+          && request.resource.data.sellerExternalId == resource.data.sellerExternalId
+          && request.resource.data.regionId == resource.data.regionId
+          && request.resource.data.teamId == resource.data.teamId
+          && request.resource.data.specialties == resource.data.specialties
+          && request.resource.data.specialtyNote == resource.data.specialtyNote
+        )
+      );
+      allow delete: if false;
+    }
+
+    match /delegatedTasks/{id} {
+      // Macro cria/atribui; usuário pode ler tarefas onde é destinatário.
+      allow read: if signedIn() && (isMacro() || resource.data.assigneeUid == request.auth.uid);
+      allow create: if signedIn() && isMacro();
+      allow update: if signedIn() && (
+        isMacro() ||
+        // assignee pode marcar progresso/complete e comentar, mas não reatribuir
+        (
+          resource.data.assigneeUid == request.auth.uid
+          && request.resource.data.assigneeUid == resource.data.assigneeUid
+          && request.resource.data.createdByUid == resource.data.createdByUid
+        )
+      );
+      allow delete: if signedIn() && isMacro();
+    }
+
+    match /visitRequests/{id} {
+      allow read: if ownsDoc(resource.data);
+      allow create: if signedIn() && request.resource.data.createdBy == request.auth.uid;
+      allow update, delete: if ownsDoc(resource.data);
+    }
+    match /visitReports/{id} {
+      allow read: if ownsDoc(resource.data);
+      allow create: if signedIn()
+        && request.resource.data.createdBy == request.auth.uid
+        // Workflow obrigatório: check-in/out + pelo menos 1 foto
+        && request.resource.data.checkInAt is string
+        && request.resource.data.checkInGeo.latitude is number
+        && request.resource.data.checkInGeo.longitude is number
+        && request.resource.data.checkOutAt is string
+        && request.resource.data.checkOutGeo.latitude is number
+        && request.resource.data.checkOutGeo.longitude is number
+        && request.resource.data.photos is list
+        && request.resource.data.photos.size() >= 1;
+      allow update, delete: if ownsDoc(resource.data);
+    }
+    match /visitComments/{id} {
+      // Comentários são menos sensíveis; mantemos autenticado por enquanto.
+      allow read, create, update, delete: if signedIn();
+    }
+
+    match /serviceRequests/{id} {
+      allow read: if ownsDoc(resource.data);
+      allow create: if signedIn() && request.resource.data.createdBy == request.auth.uid;
+      allow update, delete: if ownsDoc(resource.data) && (
+        // macro pode alterar tudo
+        isMacro() ||
+        // não-macro não pode escrever observação técnica nem alterar histórico
+        (
+          request.resource.data.technicalNote == resource.data.technicalNote
+          && request.resource.data.statusHistory == resource.data.statusHistory
+        )
+      );
+    }
+    match /serviceComments/{id} {
+      allow read, create, update, delete: if signedIn();
+    }
+
+    match /dynamicFormTemplates/{id} {
+      allow read: if signedIn();
+      allow create, update, delete: if signedIn() && isMacro();
+    }
+
+    match /serviceMDS/{id} {
+      allow read: if ownsDoc(resource.data);
+      allow create: if signedIn() && request.resource.data.createdBy == request.auth.uid;
+      allow update, delete: if ownsDoc(resource.data);
+    }
+    match /mdsQuotations/{id} {
+      allow read, create, update, delete: if signedIn();
+    }
+    match /mdsComments/{id} {
+      allow read, create, update, delete: if signedIn();
+    }
+
+    match /sellerDirectory/{id} {
+      // Diretório pode ser lido por autenticados; escrita apenas por macro (sincronização).
+      allow read: if signedIn();
+      allow create, update, delete: if signedIn() && isMacro();
+    }
+
+    match /obrasProjects/{id} {
+      allow read: if signedIn() && (isMacro() || resource.data.ownerUid == request.auth.uid);
+      allow create: if signedIn() && request.resource.data.ownerUid == request.auth.uid;
+      allow update: if signedIn() && (
+        isMacro() ||
+        (resource.data.ownerUid == request.auth.uid && request.resource.data.ownerUid == resource.data.ownerUid)
+      );
+      allow delete: if signedIn() && (isMacro() || resource.data.ownerUid == request.auth.uid);
+    }
+    match /obraMedicoes/{id} {
+      allow read: if canAccessByProject(resource.data);
+      allow create: if signedIn()
+        && request.resource.data.createdBy == request.auth.uid
+        && canAccessProject(request.resource.data.projectId);
+      allow update, delete: if canAccessByProject(resource.data);
+    }
+    match /obraProblemas/{id} {
+      allow read: if canAccessByProject(resource.data);
+      allow create: if signedIn()
+        && request.resource.data.createdBy == request.auth.uid
+        && canAccessProject(request.resource.data.projectId);
+      allow update, delete: if canAccessByProject(resource.data);
+    }
+    match /obraDocumentos/{id} {
+      allow read: if canAccessByProject(resource.data);
+      allow create: if signedIn()
+        && request.resource.data.uploadedBy == request.auth.uid
+        && canAccessProject(request.resource.data.projectId);
+      allow update, delete: if canAccessByProject(resource.data);
+    }
+
+    match /obrasDiaries/{id} {
+      allow read: if canAccessByProject(resource.data);
+      allow create, update, delete: if canAccessProject(request.resource.data.projectId);
+    }
+    match /obrasInventory/{id} {
+      allow read: if canAccessByProject(resource.data);
+      allow create, update, delete: if canAccessProject(request.resource.data.projectId);
+    }
+    match /obrasBudgets/{id} {
+      allow read: if canAccessByProject(resource.data);
+      allow create, update, delete: if canAccessProject(request.resource.data.projectId);
+    }
+    match /obrasSuppliers/{id} {
+      allow read: if canAccessByProject(resource.data);
+      allow create, update, delete: if canAccessProject(request.resource.data.projectId);
+    }
+    match /obrasQualityChecklists/{id} {
+      allow read: if canAccessByProject(resource.data);
+      allow create, update, delete: if canAccessProject(request.resource.data.projectId);
+    }
+    match /obrasReports/{id} {
+      allow read: if canAccessByProject(resource.data);
+      allow create, update, delete: if canAccessProject(request.resource.data.projectId);
+    }
+    match /obrasInventoryMovements/{id} {
+      allow read: if canAccessByProject(resource.data);
+      allow create, update, delete: if canAccessProject(request.resource.data.projectId);
+    }
+    match /obrasCounters/{id} {
+      allow read: if canAccessByProject(resource.data);
+      allow create, update, delete: if canAccessProject(request.resource.data.projectId);
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

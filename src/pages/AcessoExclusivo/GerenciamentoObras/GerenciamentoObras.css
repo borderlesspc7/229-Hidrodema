@@ -1,0 +1,2547 @@
+/* Container principal - Gerenciamento de Obras */
+.obras-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  background: transparent;
+  padding: 14px 20px 44px;
+  margin: 0;
+  width: 100%;
+  gap: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Efeito de fundo animado */
+.obras-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* Camada de “vignette” leve para dar profundidade */
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(15, 23, 42, 0.35) 0%,
+      rgba(15, 23, 42, 0.55) 45%,
+      rgba(15, 23, 42, 0.75) 100%
+    ),
+    radial-gradient(
+      circle at 30% 40%,
+      rgba(139, 92, 246, 0.08) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 70% 60%,
+      rgba(59, 130, 246, 0.06) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 40% 20%,
+      rgba(236, 72, 153, 0.04) 0%,
+      transparent 50%
+    );
+  animation: floatingOrbs 20s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Header */
+.obras-header {
+  position: relative;
+  z-index: 2;
+  margin-bottom: 10px;
+  padding: 0;
+  height: 104px;
+  width: 100%;
+}
+
+/* Faixa superior (como no print) */
+.obras-header::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: -14px;
+  width: 100vw;
+  height: 104px;
+  background: rgba(7, 16, 33, 0.46);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28),
+    0 0 40px rgba(37, 99, 235, 0.1);
+  z-index: -1;
+}
+
+.obras-header-inner {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  height: 104px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  position: relative;
+  padding: 0 12px;
+}
+
+.obras-header-left {
+  grid-column: 1;
+  justify-self: start;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  z-index: 1;
+  padding-left: 16px;
+  padding-top: 8px;
+  min-width: 0;
+}
+
+.obras-header-menu {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: 999px;
+  background: rgba(7, 16, 33, 0.28);
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  backdrop-filter: blur(12px);
+  max-width: min(46vw, 560px);
+}
+
+.obras-header-breadcrumb {
+  width: auto;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  border: 0;
+  backdrop-filter: none;
+  max-width: min(48vw, 520px);
+  font-size: 11px;
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.obras-header-breadcrumb .breadcrumb__sep {
+  opacity: 0.4;
+}
+
+.obras-header-breadcrumb .breadcrumb__link,
+.obras-header-breadcrumb .breadcrumb__current {
+  color: rgba(226, 232, 240, 0.92);
+}
+
+.obras-header-breadcrumb .breadcrumb__link {
+  opacity: 0.88;
+}
+
+.obras-header-breadcrumb .breadcrumb__current {
+  opacity: 0.98;
+}
+
+.obras-back-button {
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(10px);
+  color: rgba(226, 232, 240, 0.96);
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  min-width: 120px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.obras-back-button:hover {
+  background: rgba(15, 23, 42, 0.7);
+  border-color: rgba(59, 130, 246, 0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.25),
+    0 0 0 3px rgba(59, 130, 246, 0.14);
+}
+
+.obras-company-brand {
+  justify-self: center;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+  width: auto;
+  padding-top: 0;
+}
+
+.obras-company-title {
+  font-size: 18px;
+  font-weight: 900;
+  color: rgba(226, 232, 240, 0.98);
+  letter-spacing: 5px;
+  margin: 0 0 4px 0;
+  line-height: 1.1;
+  text-transform: uppercase;
+  position: relative;
+  font-family: "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont,
+    sans-serif;
+  text-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.obras-company-subtitle {
+  font-size: 12px;
+  color: rgba(148, 163, 184, 0.95);
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 400;
+  letter-spacing: 1px;
+}
+
+.obras-company-underline {
+  width: 44px;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    rgba(59, 130, 246, 0.15),
+    rgba(59, 130, 246, 0.95),
+    rgba(59, 130, 246, 0.15)
+  );
+  margin: 0 auto;
+  border-radius: 3px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(37, 99, 235, 0.22);
+}
+
+.obras-header-spacer {
+  width: 1px;
+}
+
+/* Menu Container */
+.obras-menu-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 18px 10px 36px;
+}
+
+.obras-menu-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 34px;
+  max-width: 920px;
+  width: 100%;
+}
+
+.obras-menu-card {
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  padding: 0;
+  min-height: 240px;
+  background: rgba(7, 16, 33, 0.62) !important;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.28),
+    0 0 60px rgba(37, 99, 235, 0.1);
+}
+
+.obras-menu-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  border-color: rgba(59, 130, 246, 0.28);
+  box-shadow: 0 34px 90px rgba(0, 0, 0, 0.34),
+    0 0 70px rgba(37, 99, 235, 0.16);
+}
+
+.obras-menu-card-content {
+  text-align: center;
+  padding: 0;
+}
+
+.obras-menu-icon {
+  margin: 10px 0 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: currentColor;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.obras-menu-card-content p {
+  font-size: 13px;
+  color: rgba(226, 232, 240, 0.82);
+  margin: 0 0 14px 0;
+  font-weight: 500;
+}
+
+.obras-entry-count {
+  display: block;
+  font-size: 13px;
+  color: rgba(226, 232, 240, 0.9);
+  font-weight: 700;
+  background: rgba(15, 23, 42, 0.45);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  padding: 9px 14px;
+  border-radius: 16px;
+  margin: 10px auto 0;
+  width: fit-content;
+}
+
+/* Ajuste de títulos do Card dentro do menu (como no print) */
+.obras-menu-card .card__content {
+  justify-content: flex-start;
+  padding: 20px 20px 18px;
+}
+
+.obras-menu-card .card__header {
+  margin-bottom: 8px;
+}
+
+.obras-menu-card .card__title {
+  margin: 0;
+  font-size: 18px;
+  letter-spacing: 4px;
+  color: rgba(255, 255, 255, 0.98);
+  text-shadow: 0 10px 26px rgba(0, 0, 0, 0.45);
+}
+
+.obras-menu-card .card__description {
+  /* O componente Card sempre renderiza o <p>, mesmo vazio */
+  display: none;
+}
+
+@media (max-width: 980px) {
+  .obras-menu-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: 760px;
+  }
+}
+
+@media (max-width: 640px) {
+  .obras-menu-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Form Container */
+.obras-form-container {
+  position: relative;
+  z-index: 2;
+  max-width: 900px;
+  width: 100%;
+}
+
+.obras-unified-container {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 10px 18px;
+}
+
+.obras-unified-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(7, 16, 33, 0.56);
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.35), 0 0 50px rgba(37, 99, 235, 0.10);
+}
+
+.obras-unified-kicker {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: rgba(226, 232, 240, 0.72);
+}
+
+.obras-unified-title {
+  margin: 8px 0 6px;
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  color: #e2e8f0;
+  text-transform: uppercase;
+}
+
+.obras-unified-subtitle {
+  margin: 0;
+  font-size: 12px;
+  color: rgba(226, 232, 240, 0.78);
+}
+
+.obras-unified-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.obras-unified-stats {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.obras-unified-stat {
+  padding: 12px 12px 10px;
+  border-radius: 14px;
+  background: rgba(7, 16, 33, 0.52);
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
+  text-align: center;
+}
+
+.obras-unified-stat__num {
+  font-size: 20px;
+  font-weight: 900;
+  color: #e2e8f0;
+  line-height: 1;
+}
+
+.obras-unified-stat__label {
+  margin-top: 6px;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(226, 232, 240, 0.72);
+}
+
+.obras-unified-filters {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: 1.4fr repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: rgba(7, 16, 33, 0.42);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  backdrop-filter: blur(16px);
+}
+
+.obras-unified-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.45);
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  color: rgba(226, 232, 240, 0.85);
+}
+
+.obras-unified-input {
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: #e2e8f0;
+  width: 100%;
+  font-size: 12px;
+}
+
+.obras-unified-input::placeholder {
+  color: rgba(226, 232, 240, 0.52);
+}
+
+.obras-unified-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.obras-unified-filter label {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(226, 232, 240, 0.75);
+  white-space: nowrap;
+}
+
+.obras-unified-select {
+  width: 100%;
+  min-width: 0;
+  padding: 10px 10px;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.45);
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  color: #e2e8f0;
+  font-size: 12px;
+  outline: none;
+}
+
+.obras-unified-list {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.obras-unified-item {
+  padding: 14px 14px;
+}
+
+.obras-unified-item__main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.obras-unified-item__meta {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.obras-unified-item__title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.obras-unified-item__project {
+  font-weight: 800;
+  color: #e2e8f0;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: min(44vw, 520px);
+}
+
+.obras-unified-item__sub {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(226, 232, 240, 0.68);
+  font-size: 11px;
+}
+
+.obras-unified-item__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.obras-unified-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.obras-unified-status--final {
+  background: rgba(34, 197, 94, 0.14);
+  border: 1px solid rgba(34, 197, 94, 0.28);
+  color: rgba(134, 239, 172, 0.95);
+}
+
+.obras-unified-status--pending {
+  background: rgba(251, 191, 36, 0.14);
+  border: 1px solid rgba(251, 191, 36, 0.28);
+  color: rgba(253, 230, 138, 0.95);
+}
+
+.obras-form-card {
+  /* Um pouco mais “grafite claro” para destacar do branco puro */
+  background: rgba(241, 245, 249, 0.92);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 24px;
+  padding: 40px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Variante escura (como no print do módulo) */
+.obras-form-card--dark {
+  background: rgba(7, 16, 33, 0.62) !important;
+  border: 1px solid rgba(148, 163, 184, 0.14) !important;
+  backdrop-filter: blur(18px);
+  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.38),
+    0 0 70px rgba(37, 99, 235, 0.12);
+}
+
+.obras-form-card--dark .obras-form-title {
+  color: rgba(226, 232, 240, 0.98);
+  letter-spacing: 0.14em;
+}
+
+.obras-form-card--dark .obras-form-subtitle {
+  color: rgba(148, 163, 184, 0.92);
+}
+
+.obras-form-card--dark .obras-section {
+  background: rgba(15, 23, 42, 0.38);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+}
+
+.obras-form-card--dark .obras-section:hover {
+  background: rgba(15, 23, 42, 0.5);
+  border-color: rgba(59, 130, 246, 0.24);
+  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.28),
+    0 0 40px rgba(37, 99, 235, 0.12);
+}
+
+.obras-form-card--dark .obras-section-title {
+  color: rgba(147, 197, 253, 0.95);
+}
+
+.obras-form-card--dark .obras-form-field label {
+  color: rgba(147, 197, 253, 0.92);
+}
+
+.obras-form-card--dark .obras-select,
+.obras-form-card--dark .obras-textarea {
+  background: rgba(15, 23, 42, 0.45);
+  color: rgba(226, 232, 240, 0.96);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.obras-form-card--dark .obras-textarea::placeholder {
+  color: rgba(226, 232, 240, 0.52);
+}
+
+.obras-form-card--dark .obras-select:focus,
+.obras-form-card--dark .obras-textarea:focus {
+  border-color: rgba(59, 130, 246, 0.85);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.22),
+    0 10px 34px rgba(37, 99, 235, 0.14);
+}
+
+.obras-form-card--dark .obras-action-btn {
+  border-radius: 14px;
+}
+
+.obras-form-card--dark .obras-submit-btn {
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  border: none;
+  color: #fff;
+  box-shadow: 0 10px 30px rgba(37, 99, 235, 0.35);
+}
+
+.obras-form-card--dark .obras-submit-btn:hover {
+  background: linear-gradient(135deg, #1d4ed8, #2563eb);
+  box-shadow: 0 14px 40px rgba(37, 99, 235, 0.45);
+}
+
+.obras-form-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(
+    90deg,
+    #3b82f6,
+    #8b5cf6,
+    #06d6a0,
+    #f59e0b,
+    #ef4444
+  );
+  background-size: 300% 100%;
+  animation: headerGradient 3s ease infinite;
+}
+
+.obras-form-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.obras-form-title {
+  font-size: 32px;
+  font-weight: 900;
+  color: #1a3a52;
+  margin: 0 0 12px 0;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.obras-form-subtitle {
+  font-size: 16px;
+  color: #64748b;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Form Content */
+.obras-form-content {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.obras-section {
+  background: rgba(248, 250, 252, 0.8);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.3s ease;
+}
+
+.obras-section:hover {
+  background: rgba(241, 245, 249, 0.9);
+  border-color: rgba(59, 130, 246, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.1);
+}
+
+.obras-section-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e40af;
+  margin: 0 0 20px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.obras-form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.obras-form-row:last-child {
+  margin-bottom: 0;
+}
+
+.obras-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.obras-field-full {
+  margin-bottom: 20px;
+}
+
+.obras-helper-text {
+  font-size: 12px;
+  color: #64748b;
+}
+
+/* Global project filter + badge */
+.obras-project-filter {
+  margin-bottom: 12px;
+}
+
+.obras-project-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  border: 1px solid rgba(15, 23, 42, 0.15);
+  background: rgba(255, 255, 255, 0.75);
+  color: #0f172a;
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.obras-project-badge--none {
+  background: rgba(148, 163, 184, 0.18);
+  border-color: rgba(148, 163, 184, 0.35);
+  color: #334155;
+}
+
+.obras-form-field label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e40af;
+}
+
+.obras-field-small {
+  flex: 0 0 100px;
+}
+
+.obras-select,
+.obras-textarea {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 16px;
+  font-family: inherit;
+  background: #ffffff;
+  color: #1e293b;
+  transition: all 0.3s ease;
+}
+
+.obras-select:focus,
+.obras-textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  background: #fefeff;
+}
+
+.obras-textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* Materials */
+.obras-materials-form {
+  margin-bottom: 20px;
+}
+
+.obras-add-material-btn {
+  min-width: 120px;
+}
+
+.obras-materials-list {
+  margin-top: 20px;
+}
+
+.obras-materials-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.obras-materials-table th,
+.obras-materials-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.obras-materials-table th {
+  background: linear-gradient(135deg, #1e40af, #3b82f6);
+  color: #ffffff;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+}
+
+.obras-materials-table tr:last-child td {
+  border-bottom: none;
+}
+
+.obras-materials-table tr:hover {
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.obras-remove-btn {
+  padding: 6px 12px;
+  min-width: auto;
+}
+
+/* Photos */
+.obras-photo-upload {
+  margin-bottom: 20px;
+}
+
+.obras-upload-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 30px;
+  border: 2px dashed #3b82f6;
+  border-radius: 12px;
+  background: rgba(59, 130, 246, 0.05);
+  color: #3b82f6;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.obras-upload-label:hover {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: #2563eb;
+  transform: translateY(-2px);
+}
+
+.obras-photos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.obras-photo-item {
+  position: relative;
+  background: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.obras-photo-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.obras-photo-item img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+}
+
+.obras-photo-preview-btn {
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: block;
+  width: 100%;
+}
+
+.obras-photo-preview-btn img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  display: block;
+}
+
+.obras-photo-description {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-top: 1px solid #e2e8f0;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.obras-photo-description:focus {
+  outline: none;
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.obras-remove-photo-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  min-width: auto;
+  padding: 8px;
+  background: rgba(239, 68, 68, 0.9);
+  color: #ffffff;
+  border-radius: 50%;
+}
+
+.obras-remove-photo-btn:hover {
+  background: rgba(220, 38, 38, 1);
+}
+
+.obras-photo-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.obras-photo-modal-content {
+  width: min(980px, 100%);
+  max-height: 90vh;
+  overflow: auto;
+  background: #0b1220;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.45);
+  padding: 14px;
+}
+
+.obras-photo-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  color: #e2e8f0;
+  margin-bottom: 10px;
+}
+
+.obras-photo-modal-img {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Form Actions */
+.obras-form-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: flex-end;
+  padding-top: 30px;
+  border-top: 2px solid #e2e8f0;
+  margin-top: 30px;
+}
+
+.obras-action-btn {
+  padding: 14px 28px;
+  font-size: 16px;
+  font-weight: 700;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  min-width: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.obras-action-btn:hover {
+  transform: translateY(-2px);
+}
+
+.obras-submit-btn {
+  background: linear-gradient(135deg, #06d6a0, #10b981);
+  border: none;
+  color: #ffffff;
+  box-shadow: 0 8px 25px rgba(6, 214, 160, 0.3);
+}
+
+.obras-submit-btn:hover {
+  box-shadow: 0 12px 35px rgba(6, 214, 160, 0.4);
+  background: linear-gradient(135deg, #05c59a, #0f9175);
+}
+
+/* History Container */
+.obras-history-container {
+  position: relative;
+  z-index: 2;
+  max-width: 1200px;
+  width: 100%;
+}
+
+.obras-history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.obras-history-header h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.obras-back-to-menu {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.obras-back-to-menu:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Entries List */
+.obras-entries-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.obras-entry-item {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.obras-entry-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.98);
+}
+
+.obras-entry-info h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e40af;
+  margin: 0 0 12px 0;
+}
+
+.obras-entry-meta {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.obras-date,
+.obras-materials-count,
+.obras-photos-count {
+  font-size: 14px;
+  color: #64748b;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.obras-status {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.obras-status-em-andamento {
+  background: rgba(59, 130, 246, 0.2);
+  color: #2563eb;
+}
+
+.obras-status-concluida {
+  background: rgba(16, 185, 129, 0.2);
+  color: #059669;
+}
+
+.obras-status-pausada {
+  background: rgba(251, 191, 36, 0.2);
+  color: #d97706;
+}
+
+.obras-entry-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.obras-action-button {
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: auto;
+}
+
+.obras-delete {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.obras-delete:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+/* Empty State */
+.obras-empty-state {
+  text-align: center;
+  padding: 80px 20px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.obras-empty-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+  opacity: 0.6;
+  color: #3b82f6;
+}
+
+.obras-empty-state h3 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1e40af;
+  margin: 0 0 12px 0;
+}
+
+.obras-empty-state p {
+  font-size: 16px;
+  color: #64748b;
+  margin: 0 0 30px 0;
+}
+
+/* Footer */
+.obras-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  max-width: 400px;
+  margin-top: auto;
+  position: relative;
+  z-index: 2;
+}
+
+.obras-footer-logo {
+  height: 80px;
+  width: auto;
+  max-width: 400px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.4));
+  transition: all 0.3s ease;
+  margin-bottom: 10px;
+}
+
+.obras-footer-logo:hover {
+  filter: drop-shadow(0 0 25px rgba(139, 92, 246, 0.6));
+  transform: scale(1.05);
+}
+
+/* Animations */
+@keyframes titleGlow {
+  0% {
+    filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.3));
+  }
+  100% {
+    filter: drop-shadow(0 0 30px rgba(139, 92, 246, 0.8));
+  }
+}
+
+@keyframes gradientShift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes underlinePulse {
+  0% {
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+    transform: scaleX(1);
+  }
+  100% {
+    box-shadow: 0 4px 25px rgba(59, 130, 246, 0.7);
+    transform: scaleX(1.05);
+  }
+}
+
+@keyframes floatingOrbs {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.1) rotate(180deg);
+  }
+}
+
+@keyframes headerGradient {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* New Functionality Styles */
+
+/* Projects (Cronograma) */
+.obras-projects-container {
+  position: relative;
+  z-index: 2;
+  max-width: 1200px;
+  width: 100%;
+}
+
+.obras-projects-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.obras-projects-header h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.obras-projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.obras-projects-form-section {
+  margin-bottom: 40px;
+}
+
+.obras-projects-list-section {
+  margin-top: 20px;
+}
+
+.obras-projects-list-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.obras-project-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.obras-project-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.obras-project-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.obras-project-header h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e40af;
+  margin: 0;
+}
+
+/* Visual hierarchy improvements (Projects + Inventory cards) */
+.obras-project-info p strong,
+.obras-item-info p strong {
+  color: #0f172a;
+}
+
+.obras-project-card,
+.obras-inventory-item {
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.obras-project-card:hover,
+.obras-inventory-item:hover {
+  transform: translateY(-3px);
+}
+
+.obras-project-header h3,
+.obras-item-header h3 {
+  color: #0f172a;
+}
+
+.obras-project-actions,
+.obras-item-actions {
+  gap: 10px;
+}
+
+.obras-project-status {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.obras-status-planejamento {
+  background: rgba(59, 130, 246, 0.2);
+  color: #2563eb;
+}
+
+.obras-status-em-andamento {
+  background: rgba(16, 185, 129, 0.2);
+  color: #059669;
+}
+
+.obras-status-concluida {
+  background: rgba(34, 197, 94, 0.2);
+  color: #16a34a;
+}
+
+.obras-status-pausada {
+  background: rgba(251, 191, 36, 0.2);
+  color: #d97706;
+}
+
+.obras-project-info {
+  margin-bottom: 16px;
+}
+
+.obras-project-info p {
+  margin: 8px 0;
+  font-size: 14px;
+  color: #64748b;
+}
+
+.obras-project-progress {
+  margin-bottom: 20px;
+}
+
+.obras-progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.obras-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #1e40af);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.obras-project-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+/* Inventory (Estoque) */
+.obras-inventory-container {
+  position: relative;
+  z-index: 2;
+  max-width: 1200px;
+  width: 100%;
+}
+
+.obras-inventory-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.obras-inventory-header h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.obras-alert-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(239, 68, 68, 0.2);
+  color: #dc2626;
+  padding: 12px 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  font-weight: 600;
+}
+
+.obras-inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.obras-inventory-item {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.obras-inventory-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.obras-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.obras-item-header h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e40af;
+  margin: 0;
+}
+
+.obras-item-status {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.obras-item-status.low-stock {
+  background: rgba(239, 68, 68, 0.2);
+  color: #dc2626;
+}
+
+.obras-item-status.low {
+  background: rgba(251, 146, 60, 0.22);
+  color: #c2410c;
+}
+
+.obras-item-status.critical {
+  background: rgba(220, 38, 38, 0.22);
+  color: #b91c1c;
+}
+
+.obras-item-status.out {
+  background: rgba(15, 23, 42, 0.2);
+  color: #0f172a;
+}
+
+.obras-item-status.normal {
+  background: rgba(34, 197, 94, 0.2);
+  color: #16a34a;
+}
+
+.obras-item-info {
+  margin-bottom: 20px;
+}
+
+.obras-item-info p {
+  margin: 8px 0;
+  font-size: 14px;
+  color: #64748b;
+}
+
+.obras-item-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+/* Budgets (Orçamentos) */
+.obras-budgets-container {
+  position: relative;
+  z-index: 2;
+  max-width: 1200px;
+  width: 100%;
+}
+
+.obras-budgets-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.obras-budgets-header h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.obras-budgets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.obras-budget-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.obras-budget-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.obras-budget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.obras-budget-header h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e40af;
+  margin: 0;
+}
+
+.obras-budget-status {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(59, 130, 246, 0.2);
+  color: #2563eb;
+}
+
+.obras-budget-info {
+  margin-bottom: 16px;
+}
+
+.obras-budget-info p {
+  margin: 8px 0;
+  font-size: 14px;
+  color: #64748b;
+}
+
+.obras-budget-progress {
+  margin-bottom: 20px;
+}
+
+.obras-budget-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+/* Suppliers (Fornecedores) */
+.obras-suppliers-container {
+  position: relative;
+  z-index: 2;
+  max-width: 1200px;
+  width: 100%;
+}
+
+.obras-suppliers-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.obras-suppliers-header h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.obras-suppliers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.obras-supplier-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.obras-supplier-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.obras-supplier-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.obras-supplier-header h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e40af;
+  margin: 0;
+}
+
+.obras-supplier-rating {
+  display: flex;
+  gap: 2px;
+}
+
+.obras-supplier-info {
+  margin-bottom: 20px;
+}
+
+.obras-supplier-info p {
+  margin: 8px 0;
+  font-size: 14px;
+  color: #64748b;
+}
+
+.obras-supplier-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+/* Quality (Qualidade) */
+.obras-quality-container {
+  position: relative;
+  z-index: 2;
+  max-width: 1200px;
+  width: 100%;
+}
+
+.obras-quality-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.obras-quality-header h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.obras-quality-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.obras-quality-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.obras-quality-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.obras-quality-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.obras-quality-header h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e40af;
+  margin: 0;
+}
+
+.obras-quality-status {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.obras-status-pendente {
+  background: rgba(251, 191, 36, 0.2);
+  color: #d97706;
+}
+
+.obras-status-em-andamento {
+  background: rgba(59, 130, 246, 0.2);
+  color: #2563eb;
+}
+
+.obras-status-concluida {
+  background: rgba(34, 197, 94, 0.2);
+  color: #16a34a;
+}
+
+.obras-quality-info {
+  margin-bottom: 20px;
+}
+
+.obras-quality-info p {
+  margin: 8px 0;
+  font-size: 14px;
+  color: #64748b;
+}
+
+.obras-quality-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+/* Reports (Relatórios) */
+.obras-reports-container {
+  position: relative;
+  z-index: 2;
+  max-width: 1200px;
+  width: 100%;
+}
+
+/* ===== Reports type selector (print: "Selecione o tipo de relatório") ===== */
+.obras-report-select {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 10px 10px 28px;
+}
+
+.obras-report-select-header {
+  margin: 4px 0 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.22);
+}
+
+.obras-report-select-header h2 {
+  margin: 0 0 6px;
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(226, 232, 240, 0.96);
+}
+
+.obras-report-select-header p {
+  margin: 0;
+  font-size: 12px;
+  color: rgba(148, 163, 184, 0.9);
+}
+
+.obras-report-select-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.obras-report-select-card {
+  background: rgba(7, 16, 33, 0.62);
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 16px;
+  padding: 18px 18px 16px;
+  backdrop-filter: blur(18px);
+  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.26),
+    0 0 60px rgba(37, 99, 235, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 180px;
+}
+
+.obras-report-select-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(248, 250, 252, 0.98);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+}
+
+.obras-report-select-icon--blue {
+  color: #2563eb;
+}
+.obras-report-select-icon--green {
+  color: #10b981;
+}
+.obras-report-select-icon--cyan {
+  color: #0ea5e9;
+}
+.obras-report-select-icon--violet {
+  color: #8b5cf6;
+}
+
+.obras-report-select-title {
+  margin: 2px 0 0;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+.obras-report-select-title--blue {
+  color: #60a5fa;
+}
+.obras-report-select-title--green {
+  color: #34d399;
+}
+.obras-report-select-title--cyan {
+  color: #38bdf8;
+}
+.obras-report-select-title--violet {
+  color: #a78bfa;
+}
+
+.obras-report-select-desc {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.35;
+  color: rgba(226, 232, 240, 0.78);
+  flex: 1;
+}
+
+.obras-report-select-cta {
+  width: 100%;
+  border: 0;
+  cursor: pointer;
+  height: 34px;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 12px;
+  color: #fff;
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.28);
+  transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+}
+
+.obras-report-select-cta:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+  box-shadow: 0 14px 34px rgba(37, 99, 235, 0.38);
+}
+
+@media (max-width: 860px) {
+  .obras-report-select-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.obras-reports-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.obras-reports-header h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.obras-reports-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.obras-dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.obras-dashboard-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.obras-dashboard-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.obras-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #3b82f6, #1e40af);
+  border-radius: 12px;
+  color: #ffffff;
+}
+
+.obras-card-content {
+  flex: 1;
+}
+
+.obras-card-content h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e40af;
+  margin: 0 0 8px 0;
+}
+
+.obras-card-number {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 4px 0;
+}
+
+.obras-card-label {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.obras-reports-actions {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  padding: 30px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  backdrop-filter: blur(20px);
+}
+
+/* Tags (used in overview team list) */
+.obras-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.obras-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(59, 130, 246, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  color: #0f172a;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+/* Table cell truncation for report details */
+.obras-cell-truncate {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+}
+
+/* Photo gallery (Project overview) */
+.obras-photo-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.obras-photo-card {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.obras-photo-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 42px rgba(0, 0, 0, 0.18);
+}
+
+.obras-photo-thumb {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background: #0f172a;
+}
+
+.obras-photo-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.25s ease;
+}
+
+.obras-photo-card:hover .obras-photo-thumb img {
+  transform: scale(1.03);
+}
+
+.obras-photo-meta {
+  padding: 12px 12px 14px;
+}
+
+.obras-photo-title {
+  font-weight: 700;
+  color: #0f172a;
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.obras-photo-desc {
+  margin-top: 6px;
+  color: #64748b;
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.obras-photo-foot {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: #475569;
+  font-size: 12px;
+}
+
+.obras-gallery-review-actions {
+  margin-top: 16px;
+}
+
+.obras-gallery-review-modal .obras-gallery-review-content {
+  max-width: min(960px, 96vw);
+  max-height: min(88vh, 900px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.obras-gallery-review-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+  overflow-y: auto;
+  padding: 4px 2px 12px;
+  max-height: calc(88vh - 120px);
+}
+
+.obras-gallery-review-tile {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(15, 23, 42, 0.6);
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+  color: #e2e8f0;
+  font-size: 11px;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.obras-gallery-review-tile:hover {
+  transform: translateY(-2px);
+  border-color: rgba(56, 189, 248, 0.5);
+}
+
+.obras-gallery-review-tile img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  display: block;
+}
+
+.obras-gallery-review-tile span {
+  display: block;
+  padding: 8px 10px 10px;
+  line-height: 1.3;
+}
+
+/* Report type badge */
+.obras-report-type {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  border: 1px solid rgba(15, 23, 42, 0.15);
+  background: rgba(255, 255, 255, 0.85);
+  color: #0f172a;
+  white-space: nowrap;
+}
+
+.obras-report-type--rdo {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.35);
+  color: #1e40af;
+}
+
+.obras-report-type--expense {
+  background: rgba(234, 88, 12, 0.15);
+  border-color: rgba(234, 88, 12, 0.35);
+  color: #9a3412;
+}
+
+.obras-report-type--hydrostatic-test {
+  background: rgba(13, 148, 136, 0.15);
+  border-color: rgba(13, 148, 136, 0.35);
+  color: #0f766e;
+}
+
+.obras-report-type--project-completion {
+  background: rgba(79, 70, 229, 0.15);
+  border-color: rgba(79, 70, 229, 0.35);
+  color: #4338ca;
+}
+
+/* Back button redesign (reports header) */
+.obras-reports-header .obras-back-to-menu {
+  border-radius: 999px;
+  padding: 10px 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+
+/* Action buttons for creating new items */
+.obras-projects-actions,
+.obras-inventory-actions,
+.obras-budgets-actions,
+.obras-suppliers-actions,
+.obras-quality-actions {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.obras-create-btn {
+  background: linear-gradient(135deg, #3b82f6, #1e40af);
+  color: #ffffff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+}
+
+.obras-create-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+  background: linear-gradient(135deg, #2563eb, #1e3a8a);
+}
+
+/* Quality item form styles */
+.obras-quality-item-form {
+  background: rgba(248, 250, 252, 0.8);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  transition: all 0.3s ease;
+}
+
+.obras-quality-item-form:hover {
+  background: rgba(241, 245, 249, 0.9);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.obras-add-item-btn {
+  width: 100%;
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  border: 2px dashed #3b82f6;
+  padding: 16px;
+  border-radius: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  margin-top: 16px;
+}
+
+.obras-add-item-btn:hover {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: #2563eb;
+  color: #2563eb;
+  transform: translateY(-2px);
+}
+
+/* Responsiveness */
+@media (max-width: 768px) {
+  .obras-header {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .obras-header-spacer {
+    display: none;
+  }
+
+  .obras-company-title {
+    font-size: 32px;
+    letter-spacing: 2px;
+  }
+
+  .obras-form-card {
+    padding: 30px 20px;
+  }
+
+  .obras-form-title {
+    font-size: 24px;
+  }
+
+  .obras-form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .obras-form-actions {
+    flex-direction: column;
+  }
+
+  .obras-action-btn {
+    width: 100%;
+  }
+
+  .obras-menu-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .obras-history-header {
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+  }
+
+  .obras-entry-item {
+    flex-direction: column;
+    gap: 20px;
+    align-items: stretch;
+  }
+
+  .obras-entry-actions {
+    justify-content: center;
+  }
+
+  .obras-photos-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+
+  .obras-footer-logo {
+    height: 65px;
+    max-width: 320px;
+  }
+
+  .obras-unified-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .obras-unified-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .obras-unified-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .obras-unified-item__main {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .obras-unified-item__actions {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .obras-company-title {
+    font-size: 24px;
+    letter-spacing: 1px;
+  }
+
+  .obras-company-subtitle {
+    font-size: 12px;
+  }
+
+  .obras-form-card {
+    padding: 20px 15px;
+  }
+
+  .obras-section {
+    padding: 20px;
+  }
+
+  .obras-history-header h2 {
+    font-size: 24px;
+  }
+
+  .obras-entry-info h3 {
+    font-size: 18px;
+  }
+
+  .obras-entry-meta {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .obras-action-button {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .obras-footer-logo {
+    height: 55px;
+    max-width: 280px;
+  }
+
+  /* New functionality responsive styles */
+  .obras-projects-grid,
+  .obras-inventory-grid,
+  .obras-budgets-grid,
+  .obras-suppliers-grid,
+  .obras-quality-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .obras-dashboard-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .obras-dashboard-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .obras-reports-actions {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .obras-inventory-header {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .obras-alert-banner {
+    justify-content: center;
+  }
+}

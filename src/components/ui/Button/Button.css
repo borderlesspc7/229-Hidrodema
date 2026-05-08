@@ -1,0 +1,188 @@
+/* Estilos base do botão */
+.button {
+  width: auto;
+  min-width: 120px;
+  padding: 16px 24px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform var(--dur-base, 250ms) var(--ease-standard, ease),
+    box-shadow var(--dur-base, 250ms) var(--ease-standard, ease),
+    background var(--dur-base, 250ms) var(--ease-standard, ease),
+    border-color var(--dur-base, 250ms) var(--ease-standard, ease),
+    color var(--dur-base, 250ms) var(--ease-standard, ease);
+  position: relative;
+  overflow: hidden;
+  border: 1px solid transparent;
+  outline: none;
+  color: var(--hd-text);
+}
+
+.button:focus-visible {
+  box-shadow: var(--hd-focus-ring), 0 0 0 6px rgba(59, 130, 246, 0.08);
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Tamanhos */
+.button--sm {
+  min-width: 96px;
+  padding: 10px 14px;
+  font-size: 14px;
+  border-radius: 10px;
+}
+.button--md {
+  min-width: 120px;
+  padding: 16px 24px;
+  font-size: 16px;
+  border-radius: 12px;
+}
+.button--lg {
+  min-width: 140px;
+  padding: 18px 28px;
+  font-size: 16px;
+  border-radius: 14px;
+}
+
+/* Variante Primary - Azul escuro (Login/Register) */
+.button--primary {
+  background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-800) 100%);
+  border-color: rgba(59, 130, 246, 0.22);
+  color: var(--hd-text);
+}
+
+.button--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 42px rgba(0, 0, 0, 0.28), 0 0 40px rgba(37, 99, 235, 0.18);
+}
+
+.button--primary:active {
+  transform: translateY(0);
+}
+
+.button--primary:disabled {
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.55) 0%, rgba(30, 64, 175, 0.55) 100%);
+}
+
+/* Variante Secondary - Branco (Menu) */
+.button--secondary {
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(var(--hd-blur));
+  color: var(--hd-text);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.button--secondary:hover {
+  background: rgba(15, 23, 42, 0.58);
+  border-color: rgba(59, 130, 246, 0.42);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 42px rgba(0, 0, 0, 0.26), 0 0 40px rgba(37, 99, 235, 0.14);
+}
+
+.button--secondary:active {
+  transform: translateY(0);
+}
+
+.button--secondary:disabled {
+  background: rgba(15, 23, 42, 0.28);
+}
+
+.button--ghost {
+  background: transparent;
+  color: var(--hd-text);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+}
+
+.button--ghost:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(148, 163, 184, 0.32);
+  transform: translateY(-2px);
+}
+
+.button--danger {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.95), rgba(185, 28, 28, 0.95));
+  border-color: rgba(239, 68, 68, 0.28);
+  color: var(--hd-text);
+}
+
+.button--danger:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(239, 68, 68, 0.25);
+}
+
+.button--icon {
+  min-width: auto;
+  padding: 10px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.45);
+  color: var(--hd-text);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.button--icon:hover {
+  background: rgba(15, 23, 42, 0.58);
+  transform: translateY(-1px);
+}
+
+.button-text {
+  position: relative;
+  z-index: 1;
+}
+
+/* Efeito shimmer para ambas as variantes */
+.button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.button:hover::before {
+  left: 100%;
+}
+
+/* Ripple simples (hover/press feedback) */
+.button::after {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.26), transparent 55%);
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity var(--dur-fast, 150ms) var(--ease-standard, ease),
+    transform var(--dur-base, 250ms) var(--ease-standard, ease);
+}
+
+.button:hover::after {
+  opacity: 0.35;
+  transform: scale(1);
+}
+
+.button:active::after {
+  opacity: 0.55;
+  transform: scale(1.02);
+  transition-duration: 80ms;
+}
+
+/* Classe para botões que precisam ocupar toda a largura */
+.button--full-width {
+  width: 100%;
+}

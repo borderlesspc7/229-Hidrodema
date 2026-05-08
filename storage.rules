@@ -1,0 +1,46 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function projectDoc(projectId) {
+      return firestore.get(/databases/$(database)/documents/obrasProjects/$(projectId)).data;
+    }
+
+    function role() {
+      return signedIn() && request.auth.token.role != null ? request.auth.token.role : "user";
+    }
+
+    function isMacro() {
+      return role() == "admin" || role() == "gestor";
+    }
+
+    function canAccessProject(projectId) {
+      return signedIn() && (
+        isMacro() ||
+        (projectId != null && projectDoc(projectId).ownerUid == request.auth.uid)
+      );
+    }
+
+    // Estrutura usada pelo app: obras/{projectId}/** (diários, relatórios, anexos, documentos)
+    match /obras/{projectId}/{allPaths=**} {
+      allow read, write: if canAccessProject(projectId);
+    }
+
+    // Visitas (provas de campo): fotos e anexos por requestId.
+    // Observação: regra simples por enquanto (apenas autenticado). Se precisar “ownership” por requestId,
+    // reforçar via estrutura baseada em UID ou usar Cloud Functions para assinar uploads.
+    match /visits/{requestId}/{allPaths=**} {
+      allow read, write: if signedIn();
+    }
+
+    // fallback: bloquear qualquer outra coisa
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
+

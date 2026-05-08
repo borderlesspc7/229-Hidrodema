@@ -1,0 +1,11 @@
+.back-button-ui__inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.back-button-ui__icon {
+  font-size: 18px;
+  line-height: 0;
+}
+
