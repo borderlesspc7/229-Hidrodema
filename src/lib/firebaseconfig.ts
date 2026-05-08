@@ -47,7 +47,7 @@ const firestoreDatabaseId =
 
 const app = initializeApp(firebaseConfig);
 const firestoreSettings: FirestoreSettings = {
-  experimentalAutoDetectLongPolling: true,
+  experimentalForceLongPolling: true,
 };
 
 export const auth = getAuth(app);

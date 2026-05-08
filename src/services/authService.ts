@@ -39,11 +39,16 @@ async function getUserDocFromFirestore(uid: string) {
   try {
     return await getDocFromServer(doc(db, "users", uid));
   } catch (error) {
-    console.error("Diagnóstico Firebase/Firestore:", {
+    const diagnostics = {
       ...firebaseDiagnostics,
       browserOnline: navigator.onLine,
       userAgent: navigator.userAgent,
-    });
+    };
+    console.error("Diagnóstico Firebase/Firestore:", diagnostics);
+    console.error(
+      "Diagnóstico Firebase/Firestore JSON:",
+      JSON.stringify(diagnostics)
+    );
     throw error;
   }
 }
