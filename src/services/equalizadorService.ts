@@ -92,7 +92,7 @@ export const createServiceMDS = async (
 
     const docRef = await addDoc(collection(db, MDS_COLLECTION), {
       ...cleanData,
-      ownerUid: (mdsData as any).createdBy ?? undefined,
+      ownerUid: mdsData.createdBy ?? undefined,
       createdAt: now,
       updatedAt: now,
     });

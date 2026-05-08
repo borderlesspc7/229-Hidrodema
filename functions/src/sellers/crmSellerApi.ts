@@ -18,7 +18,7 @@ function extractArray(payload: unknown): CrmSellerRecord[] {
 
 function readTotalPages(payload: unknown): number | null {
   if (!payload || typeof payload !== "object") return null;
-  const o = payload as any;
+  const o = payload as Record<string, unknown>;
   const v = o.totalPages ?? o.total_pages ?? o.pages;
   const n = typeof v === "number" ? v : typeof v === "string" ? Number(v) : NaN;
   return Number.isFinite(n) && n > 0 ? n : null;
@@ -26,7 +26,7 @@ function readTotalPages(payload: unknown): number | null {
 
 function readHasMore(payload: unknown): boolean | null {
   if (!payload || typeof payload !== "object") return null;
-  const o = payload as any;
+  const o = payload as Record<string, unknown>;
   const v = o.hasMore ?? o.has_more ?? o.more;
   return typeof v === "boolean" ? v : null;
 }
@@ -46,7 +46,7 @@ export async function fetchAllCrmSellers(): Promise<CrmSellerRecord[]> {
   let emptyStreak = 0;
 
   while (page <= maxPages) {
-    const { data } = await crmRequest<any>({
+    const { data } = await crmRequest<unknown>({
       method: "GET",
       path,
       query: {
@@ -83,14 +83,14 @@ export async function fetchAllCrmSellers(): Promise<CrmSellerRecord[]> {
 export async function fetchCrmSellerById(id: string): Promise<CrmSellerRecord | null> {
   const pathBase = env("CRM_SELLER_PATH") ?? "/crm/v2/Seller";
   const path = `${pathBase.replace(/\/$/, "")}/${encodeURIComponent(id)}`;
-  const { data } = await crmRequest<any>({
+  const { data } = await crmRequest<unknown>({
     method: "GET",
     path,
     timeoutMs: 25_000,
     maxAttempts: 5,
   });
   if (!data) return null;
-  if (Array.isArray(data)) return (data[0] as any) ?? null;
+  if (Array.isArray(data)) return (data[0] as CrmSellerRecord | undefined) ?? null;
   if (data && typeof data === "object") {
     const o = data as Record<string, unknown>;
     if (o.data && typeof o.data === "object") return o.data as CrmSellerRecord;

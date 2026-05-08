@@ -94,10 +94,10 @@ export const createVisitRequest = async (
       Object.entries({ ...requestData }).filter(([, value]) => value !== undefined)
     );
     
-    const ownerSellerCode = extractSellerCode((requestData as any).vendedor);
+    const ownerSellerCode = extractSellerCode(requestData.vendedor);
     const docRef = await addDoc(collection(db, REQUESTS_COLLECTION), {
       ...cleanData,
-      ownerUid: (requestData as any).createdBy ?? undefined,
+      ownerUid: requestData.createdBy ?? undefined,
       ownerSellerCode: ownerSellerCode ?? undefined,
       createdAt: now,
       updatedAt: now,

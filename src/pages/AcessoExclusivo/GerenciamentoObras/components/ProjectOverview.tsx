@@ -112,8 +112,9 @@ export default function ProjectOverview({
         if (!alive) return;
         setDocs([]);
       } finally {
-        if (!alive) return;
-        setDocsLoading(false);
+        if (alive) {
+          setDocsLoading(false);
+        }
       }
     })();
     return () => {

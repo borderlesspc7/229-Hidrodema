@@ -111,7 +111,7 @@ export async function crmRequest<T = unknown>(opts: CrmRequestOptions): Promise<
 
       const text = await res.text().catch(() => "");
       const contentType = headers["content-type"] ?? "";
-      const parsed: any =
+      const parsed: unknown =
         contentType.includes("application/json") && text
           ? (JSON.parse(text) as unknown)
           : (text as unknown);

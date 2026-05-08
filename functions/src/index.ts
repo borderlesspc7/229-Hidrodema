@@ -27,6 +27,21 @@ type VisitReportDoc = {
   followUpDate?: string;
 };
 
+type CallableRequestLike = {
+  auth?: {
+    uid?: string;
+    token: Record<string, unknown>;
+  };
+  data?: unknown;
+};
+
+type WebhookRequestLike = {
+  get?: (name: string) => string | undefined;
+  headers?: Record<string, string | string[] | undefined>;
+};
+
+type UnknownRecord = Record<string, unknown>;
+
 function env(name: string): string | null {
   const v = process.env[name];
   return v && v.trim() ? v.trim() : null;
@@ -40,7 +55,9 @@ function buildPdfBuffer(params: {
     try {
       const doc = new PDFDocument({ size: "A4", margin: 40 });
       const chunks: Buffer[] = [];
-      doc.on("data", (d: any) => chunks.push(d as Buffer));
+      doc.on("data", (d: unknown) => {
+        chunks.push(Buffer.isBuffer(d) ? d : Buffer.from(String(d)));
+      });
       doc.on("end", () => resolve(Buffer.concat(chunks)));
 
       doc
@@ -112,7 +129,7 @@ export const emailVisitReportOnCreate = onDocumentCreated(
     document: "visitReports/{id}",
     region: "southamerica-east1",
   },
-  async (event: any) => {
+  async (event) => {
     const data = event.data?.data() as VisitReportDoc | undefined;
     if (!data) return;
 
@@ -175,7 +192,7 @@ function normalizeRole(role: unknown): "admin" | "gestor" | "vendedor" | "user" 
   return "user";
 }
 
-function requireMacro(req: any) {
+function requireMacro(req: CallableRequestLike) {
   if (!req.auth?.uid) throw new HttpsError("unauthenticated", "Login required");
   const role = normalizeRole(req.auth.token.role);
   if (role !== "admin" && role !== "gestor") {
@@ -190,7 +207,7 @@ function requireMacro(req: any) {
  */
 export const syncClaimsFromUserDoc = onDocumentWritten(
   { document: "users/{uid}", region: "southamerica-east1" },
-  async (event: any) => {
+  async (event) => {
     const uid = event.params?.uid as string | undefined;
     const after = event.data?.after?.data?.() as UserDoc | undefined;
     if (!uid || !after) return;
@@ -218,7 +235,7 @@ export const syncClaimsFromUserDoc = onDocumentWritten(
  */
 export const auditPermissionChanges = onDocumentWritten(
   { document: "users/{uid}", region: "southamerica-east1" },
-  async (event: any) => {
+  async (event) => {
     const uid = event.params?.uid as string | undefined;
     if (!uid) return;
 
@@ -235,9 +252,11 @@ export const auditPermissionChanges = onDocumentWritten(
     ];
 
     const changes: Record<string, { from?: string; to?: string }> = {};
+    const beforeRecord = before as UnknownRecord | undefined;
+    const afterRecord = after as UnknownRecord;
     for (const k of watched) {
-      const b = safeStr((before as any)?.[k]);
-      const a = safeStr((after as any)?.[k]);
+      const b = safeStr(beforeRecord?.[k]);
+      const a = safeStr(afterRecord[k]);
       if (b !== a) changes[k] = { from: b, to: a };
     }
 
@@ -280,7 +299,7 @@ function daysAgoIso(days: number): string {
  */
 export const getPerformanceKpis = onCall(
   { region: "southamerica-east1" },
-  async (req: any) => {
+  async (req) => {
     if (!req.auth?.uid) throw new HttpsError("unauthenticated", "Login required");
 
     const role = normalizeRole(req.auth.token.role);
@@ -301,7 +320,7 @@ export const getPerformanceKpis = onCall(
     const cached = await cacheRef.get();
     const now = Date.now();
     if (cached.exists) {
-      const data = cached.data() as any;
+      const data = cached.data() as UnknownRecord;
       const updatedAt = safeStr(data.updatedAt);
       const updatedMs = updatedAt ? new Date(updatedAt).getTime() : 0;
       if (updatedMs && now - updatedMs < 5 * 60 * 1000) {
@@ -349,7 +368,7 @@ export const getPerformanceKpis = onCall(
  */
 export const claimSellerProfile = onCall(
   { region: "southamerica-east1" },
-  async (req: any) => {
+  async (req) => {
     if (!req.auth?.uid) throw new HttpsError("unauthenticated", "Login required");
     const email = safeStr(req.auth.token.email);
     if (!email) throw new HttpsError("failed-precondition", "Missing email");
@@ -369,7 +388,7 @@ export const claimSellerProfile = onCall(
     }
 
     const doc = qs.docs[0]!;
-    const data = doc.data() as any;
+    const data = doc.data() as UnknownRecord;
     const patch = {
       sellerExternalId: safeStr(data.externalId) ?? doc.id,
       sellerCode: safeStr(data.code),
@@ -428,7 +447,7 @@ async function writeSellerLinkHistory(entry: {
  */
 export const adminLinkUserToSeller = onCall(
   { region: "southamerica-east1" },
-  async (req: any) => {
+  async (req) => {
     const { uid: actorUid } = requireMacro(req);
     const payload = req.data as Partial<AdminLinkPayload>;
     const userEmail = safeStr(payload?.userEmail)?.toLowerCase();
@@ -449,7 +468,7 @@ export const adminLinkUserToSeller = onCall(
       .doc(safeFirestoreDocId(sellerExternalId))
       .get();
     if (!sellerSnap.exists) throw new HttpsError("not-found", "Vendedor não encontrado no sellerDirectory.");
-    const seller = sellerSnap.data() as any;
+    const seller = sellerSnap.data() as UnknownRecord;
 
     const patch = {
       sellerExternalId: safeStr(seller.externalId) ?? sellerExternalId,
@@ -476,7 +495,7 @@ export const adminLinkUserToSeller = onCall(
 
 export const adminUnlinkUserSeller = onCall(
   { region: "southamerica-east1" },
-  async (req: any) => {
+  async (req) => {
     const { uid: actorUid } = requireMacro(req);
     const email = safeStr(req.data?.userEmail)?.toLowerCase();
     if (!email) throw new HttpsError("invalid-argument", "userEmail é obrigatório.");
@@ -536,7 +555,7 @@ export const auditBusinessWrites = onDocumentWritten(
     document: "{col}/{id}",
     region: "southamerica-east1",
   },
-  async (event: any) => {
+  async (event) => {
     const col = event.params?.col as string | undefined;
     const id = event.params?.id as string | undefined;
     if (!col || !id) return;
@@ -558,7 +577,9 @@ export const auditBusinessWrites = onDocumentWritten(
         ? "update"
         : "delete";
 
-    const after = afterExists ? (event.data.after.data() as any) : undefined;
+    const after = afterExists
+      ? (event.data.after.data() as UnknownRecord)
+      : undefined;
     const ownerUid = safeStr(after?.ownerUid) ?? safeStr(after?.createdBy);
     const ownerSellerCode = safeStr(after?.ownerSellerCode);
 
@@ -584,7 +605,7 @@ export const auditBusinessWrites = onDocumentWritten(
  */
 export const syncSellerDirectory = onCall(
   { region: "southamerica-east1" },
-  async (req: any) => {
+  async (req) => {
     requireMacro(req);
     try {
       return await syncSellerDirectoryFromCrm();
@@ -606,7 +627,7 @@ function timingSafeEqual(a: string, b: string): boolean {
   }
 }
 
-function readWebhookSignature(req: any): string | null {
+function readWebhookSignature(req: WebhookRequestLike): string | null {
   const h =
     (req.get?.("x-crm-signature") as string | undefined) ??
     (req.get?.("x-hub-signature-256") as string | undefined) ??
@@ -628,7 +649,7 @@ function computeWebhookSignature(secret: string, rawBody: Buffer): string {
  */
 export const crmSellerWebhook = onRequest(
   { region: "southamerica-east1" },
-  async (req: any, res: any) => {
+  async (req, res) => {
     if (req.method !== "POST") {
       res.status(405).send("Method not allowed");
       return;
@@ -651,16 +672,20 @@ export const crmSellerWebhook = onRequest(
       return;
     }
 
-    const payload = req.body as any;
+    const payload = req.body as UnknownRecord;
+    const payloadData =
+      payload.data && typeof payload.data === "object"
+        ? (payload.data as UnknownRecord)
+        : undefined;
     const sellerId =
       typeof payload?.sellerId === "string"
         ? payload.sellerId
         : typeof payload?.id === "string"
           ? payload.id
-          : typeof payload?.data?.sellerId === "string"
-            ? payload.data.sellerId
-            : typeof payload?.data?.id === "string"
-              ? payload.data.id
+          : typeof payloadData?.sellerId === "string"
+            ? payloadData.sellerId
+            : typeof payloadData?.id === "string"
+              ? payloadData.id
               : null;
 
     try {
@@ -687,7 +712,7 @@ type IntegrationJob = {
   status?: "queued" | "running" | "ok" | "error";
   startedAt?: string;
   finishedAt?: string;
-  result?: any;
+  result?: unknown;
   error?: string;
 };
 
@@ -728,7 +753,7 @@ export const nightlySellerSyncEnqueue = onSchedule(
  */
 export const processIntegrationJobs = onDocumentCreated(
   { document: "integrationJobs/{jobId}", region: "southamerica-east1" },
-  async (event: any) => {
+  async (event) => {
     const jobId = event.params?.jobId as string | undefined;
     const data = event.data?.data?.() as IntegrationJob | undefined;
     if (!jobId || !data) return;

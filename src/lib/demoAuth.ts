@@ -16,7 +16,7 @@ export function getDemoUser(): User | null {
 
     const raw = sessionStorage.getItem(KEY);
     if (!raw) return null;
-    const parsed = JSON.parse(raw) as any;
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
     if (!parsed || typeof parsed !== "object") return null;
     if (typeof parsed.uid !== "string" || typeof parsed.email !== "string") return null;
     return {

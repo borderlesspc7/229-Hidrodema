@@ -15,7 +15,8 @@ function nowMs() {
 export async function getStoredToken(): Promise<StoredToken | null> {
   const snap = await admin.firestore().doc(DOC_PATH).get();
   if (!snap.exists) return null;
-  const data = snap.data() as any;
+  const data = snap.data() as Record<string, unknown> | undefined;
+  if (!data) return null;
   const accessToken = typeof data.accessToken === "string" ? data.accessToken : null;
   const expiresAtMs = typeof data.expiresAtMs === "number" ? data.expiresAtMs : null;
   if (!accessToken || !expiresAtMs) return null;

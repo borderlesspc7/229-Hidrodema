@@ -1069,7 +1069,7 @@ export default function GerenciamentoObras() {
     return newChecklist;
   };
 
-  const generateInventoryReport = () => {
+  const generateInventoryReport = useCallback(() => {
     const lowStock = scopedInventory.filter(
       (item) => item.quantity <= item.minStock
     );
@@ -1088,7 +1088,7 @@ export default function GerenciamentoObras() {
       categories: categories.length,
       alerts: lowStock,
     };
-  };
+  }, [scopedInventory]);
 
   // Handle new item creation
   const handleCreateProject = () => {
@@ -1241,7 +1241,7 @@ export default function GerenciamentoObras() {
     });
   };
 
-  const inventoryReport = useMemo(() => generateInventoryReport(), [scopedInventory]);
+  const inventoryReport = useMemo(() => generateInventoryReport(), [generateInventoryReport]);
 
   const stockCritical = useMemo(
     () => scopedInventory.filter((item) => (item.quantity ?? 0) <= 0),

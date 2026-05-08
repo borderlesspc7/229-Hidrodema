@@ -1,4 +1,4 @@
-import { collection, doc, getDocs, updateDoc } from "firebase/firestore";
+import { collection, doc, getDocs, updateDoc, type UpdateData } from "firebase/firestore";
 import { db } from "../lib/firebaseconfig";
 import type { User, UserRole } from "../types/user";
 
@@ -13,7 +13,7 @@ export async function updateUserAdminFields(
   uid: string,
   patch: Partial<Pick<User, "role" | "sellerCode" | "sellerExternalId" | "name">>
 ): Promise<void> {
-  const safe: Record<string, any> = {};
+  const safe: UpdateData<User> = {};
   if (patch.role) safe.role = patch.role satisfies UserRole;
   if (patch.sellerCode !== undefined) safe.sellerCode = patch.sellerCode;
   if (patch.sellerExternalId !== undefined) safe.sellerExternalId = patch.sellerExternalId;

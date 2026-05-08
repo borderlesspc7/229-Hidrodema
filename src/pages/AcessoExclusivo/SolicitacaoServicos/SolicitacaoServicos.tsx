@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Button from "../../../components/ui/Button/Button";
 import Input from "../../../components/ui/Input/Input";
@@ -106,7 +106,6 @@ export default function SolicitacaoServicos() {
       if (!isNic) delete next.q15;
       return next;
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedRegional]);
 
   const shouldShowQuestion = (q: Question) => {
@@ -844,7 +843,7 @@ export default function SolicitacaoServicos() {
   const sections = getActiveSections();
 
   // Carregar solicitações do Firebase
-  const loadServiceRequests = async () => {
+  const loadServiceRequests = useCallback(async () => {
     try {
       setLoading(true);
       const requests = await getServiceRequestsScoped(user);
@@ -865,7 +864,7 @@ export default function SolicitacaoServicos() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
   const handleInputChange = (questionId: string, value: string | string[]) => {
     setFormData((prev) => {
@@ -1445,7 +1444,7 @@ ${commentsBlock}`;
   // Carregar dados na inicialização
   useEffect(() => {
     loadServiceRequests();
-  }, []);
+  }, [loadServiceRequests]);
 
   // Renderizar menu principal
   const renderMenu = () => {

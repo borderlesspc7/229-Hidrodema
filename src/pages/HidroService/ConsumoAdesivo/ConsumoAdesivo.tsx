@@ -454,16 +454,7 @@ export default function ConsumoAdesivo() {
     } else {
       console.info("[QA ConsumoAdesivo] OK — validação automática sem falhas.");
     }
-  }, [
-    diameters,
-    EQUIV_GROUPS.baixa.codes,
-    EQUIV_GROUPS.alta.codes,
-    packagingBaixa,
-    packagingAlta,
-    totalsByCode,
-    totalsByGroup.baixa,
-    totalsByGroup.alta,
-  ]);
+  });
 
   return (
     <div className="consumo-adesivo-container hd-page-bg">

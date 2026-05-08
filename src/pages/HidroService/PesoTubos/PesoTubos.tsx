@@ -1,5 +1,5 @@
 import "./PesoTubos.css";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import BackButton from "../../../components/ui/BackButton/BackButton";
 import { paths } from "../../../routes/paths";
 import {
@@ -13,7 +13,7 @@ import {
 
 export default function PesoTubos() {
   // Dados da tabela de pesos dos tubos
-  const pipeData = {
+  const pipeData = useMemo(() => ({
     '½"': {
       "CPVC / PVC-U": { empty: 0.15, water: 0.2, full: 0.35 },
       "Tubo Aço SCH 40": { empty: 0.85, water: 0.2, full: 1.05 },
@@ -118,7 +118,7 @@ export default function PesoTubos() {
       "NBR 5580 L Galv": { empty: 0.0, water: 0.0, full: 0.0 },
       "NBR 5580 M Galv": { empty: 0.0, water: 0.0, full: 0.0 },
     },
-  };
+  }), []);
 
   const diameters = [
     '½"',

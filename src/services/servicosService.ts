@@ -91,10 +91,10 @@ export const createServiceRequest = async (
       )
     );
 
-    const ownerSellerCode = extractSellerCode((requestData as any).salesperson);
+    const ownerSellerCode = extractSellerCode(requestData.salesperson);
     const docRef = await addDoc(collection(db, REQUESTS_COLLECTION), {
       ...cleanData,
-      ownerUid: (requestData as any).createdBy ?? undefined,
+      ownerUid: requestData.createdBy ?? undefined,
       ownerSellerCode: ownerSellerCode ?? undefined,
       createdAt: now,
       updatedAt: now,
