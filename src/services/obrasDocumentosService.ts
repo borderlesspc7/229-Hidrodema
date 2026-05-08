@@ -7,7 +7,7 @@ import {
   setDoc,
   where,
   updateDoc,
-} from "firebase/firestore";
+} from "firebase/firestore/lite";
 import {
   ref as storageRef,
   uploadBytes,

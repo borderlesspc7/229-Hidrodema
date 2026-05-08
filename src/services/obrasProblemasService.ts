@@ -7,7 +7,7 @@ import {
   getDocs,
   query,
   where,
-} from "firebase/firestore";
+} from "firebase/firestore/lite";
 import { db } from "../lib/firebaseconfig";
 
 export type ProblemaPrioridade = "alta" | "media" | "baixa";

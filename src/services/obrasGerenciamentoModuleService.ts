@@ -9,7 +9,7 @@ import {
   deleteDoc,
   writeBatch,
   runTransaction,
-} from "firebase/firestore";
+} from "firebase/firestore/lite";
 import { db } from "../lib/firebaseconfig";
 import { sanitizeForDatabase } from "../lib/validation";
 import { sortByCreatedAtDesc } from "../lib/firestoreSort";

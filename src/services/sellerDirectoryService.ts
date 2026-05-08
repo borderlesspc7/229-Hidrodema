@@ -3,7 +3,7 @@ import {
   doc,
   getDocs,
   writeBatch,
-} from "firebase/firestore";
+} from "firebase/firestore/lite";
 import { db } from "../lib/firebaseconfig";
 import {
   mapApiRecordToDirectoryFields,

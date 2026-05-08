@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { initializeFirestore, type FirestoreSettings } from "firebase/firestore";
+import { getFirestore } from "firebase/firestore/lite";
 import { getFunctions } from "firebase/functions";
 import { getStorage } from "firebase/storage";
 
@@ -46,15 +46,12 @@ const firestoreDatabaseId =
     : configuredFirestoreDatabaseId;
 
 const app = initializeApp(firebaseConfig);
-const firestoreSettings: FirestoreSettings = {
-  experimentalForceLongPolling: true,
-};
 
 export const auth = getAuth(app);
 export const db =
   firestoreDatabaseId === "(default)"
-    ? initializeFirestore(app, firestoreSettings)
-    : initializeFirestore(app, firestoreSettings, firestoreDatabaseId);
+    ? getFirestore(app)
+    : getFirestore(app, firestoreDatabaseId);
 export const storage = getStorage(app);
 export const functions = getFunctions(app, "southamerica-east1");
 

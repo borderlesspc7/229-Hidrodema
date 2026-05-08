@@ -1,4 +1,4 @@
-import { collection, doc, getDocs, updateDoc, type UpdateData } from "firebase/firestore";
+import { collection, doc, getDocs, updateDoc, type UpdateData } from "firebase/firestore/lite";
 import { db } from "../lib/firebaseconfig";
 import type { User, UserRole } from "../types/user";
 

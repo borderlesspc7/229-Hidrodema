@@ -5,7 +5,7 @@ import {
   setDoc,
   updateDoc,
   deleteDoc,
-} from "firebase/firestore";
+} from "firebase/firestore/lite";
 import { db } from "../lib/firebaseconfig";
 import { sortByCreatedAtDesc } from "../lib/firestoreSort";
 import type { User } from "../types/user";

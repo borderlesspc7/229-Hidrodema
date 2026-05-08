@@ -8,7 +8,7 @@ import {
   getIdTokenResult,
   sendPasswordResetEmail,
 } from "firebase/auth";
-import { doc, setDoc, getDocFromServer, enableNetwork } from "firebase/firestore";
+import { doc, setDoc, getDoc } from "firebase/firestore/lite";
 import type {
   LoginCredentials,
   RegisterCredentials,
@@ -31,13 +31,7 @@ export const SESSION_EXPIRED_MESSAGE =
 
 async function getUserDocFromFirestore(uid: string) {
   try {
-    await enableNetwork(db);
-  } catch (error) {
-    console.warn("Não foi possível religar a rede do Firestore:", error);
-  }
-
-  try {
-    return await getDocFromServer(doc(db, "users", uid));
+    return await getDoc(doc(db, "users", uid));
   } catch (error) {
     const diagnostics = {
       ...firebaseDiagnostics,
