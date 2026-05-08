@@ -1,6 +1,9 @@
 interface FirebaseError {
   code?: string;
   message?: string;
+  customData?: {
+    serverResponse?: string;
+  };
 }
 
 /** Mensagens para códigos atuais do Firebase Auth (incl. invalid-credential unificado). */
@@ -15,7 +18,8 @@ export default function getFirebaseErrorMessage(
   }
 
   const errorCode = error?.code || "";
-  const rawMsg = (error?.message ?? "").toLowerCase();
+  const serverResponse = error?.customData?.serverResponse ?? "";
+  const rawMsg = `${error?.message ?? ""} ${serverResponse}`.toLowerCase();
 
   switch (errorCode) {
     case "auth/user-not-found":
@@ -40,6 +44,9 @@ export default function getFirebaseErrorMessage(
     case "auth/network-request-failed":
       return "Erro de conexão. Verifique sua internet.";
 
+    case "auth/unauthorized-domain":
+      return "Domínio do Netlify não autorizado no Firebase. Adicione o domínio em Authentication → Settings → Authorized domains.";
+
     case "auth/invalid-api-key":
       return "Chave API inválida ou restrições na Google Cloud. Verifique o .env e as restrições da chave (localhost).";
 
@@ -52,6 +59,12 @@ export default function getFirebaseErrorMessage(
     default:
       if (rawMsg.includes("api key") || rawMsg.includes("api_key")) {
         return "Problema com a API key (inválida ou bloqueada por referrer). Verifique credenciais na Google Cloud.";
+      }
+      if (rawMsg.includes("unauthorized") && rawMsg.includes("domain")) {
+        return "Domínio do Netlify não autorizado no Firebase. Adicione o domínio em Authentication → Settings → Authorized domains.";
+      }
+      if (rawMsg.includes("bad request") || rawMsg.includes("400")) {
+        return "Requisição recusada pelo Firebase (400). Verifique as variáveis VITE_FIREBASE_* no Netlify e o domínio autorizado no Firebase.";
       }
       if (rawMsg.includes("blocked") || rawMsg.includes("billing")) {
         return "Pedido bloqueado pelo Firebase. Verifique consola do projeto e faturação.";

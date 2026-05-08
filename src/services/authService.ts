@@ -1,4 +1,4 @@
-import { auth, db } from "../lib/firebaseconfig";
+import { auth, db, firebaseDiagnostics } from "../lib/firebaseconfig";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -8,7 +8,7 @@ import {
   getIdTokenResult,
   sendPasswordResetEmail,
 } from "firebase/auth";
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import { doc, setDoc, getDocFromServer, enableNetwork } from "firebase/firestore";
 import type {
   LoginCredentials,
   RegisterCredentials,
@@ -21,10 +21,32 @@ import { getDemoUser, isDemoEnabled } from "../lib/demoAuth";
 interface FirebaseError {
   code?: string;
   message?: string;
+  customData?: {
+    serverResponse?: string;
+  };
 }
 
 export const SESSION_EXPIRED_MESSAGE =
   "Sua sessão expirou. Faça login novamente para continuar.";
+
+async function getUserDocFromFirestore(uid: string) {
+  try {
+    await enableNetwork(db);
+  } catch (error) {
+    console.warn("Não foi possível religar a rede do Firestore:", error);
+  }
+
+  try {
+    return await getDocFromServer(doc(db, "users", uid));
+  } catch (error) {
+    console.error("Diagnóstico Firebase/Firestore:", {
+      ...firebaseDiagnostics,
+      browserOnline: navigator.onLine,
+      userAgent: navigator.userAgent,
+    });
+    throw error;
+  }
+}
 
 export const authService = {
   async logOut(): Promise<void> {
@@ -62,7 +84,7 @@ export const authService = {
 
       const firebaseUser = userCredential.user;
 
-      const userDoc = await getDoc(doc(db, "users", firebaseUser.uid));
+      const userDoc = await getUserDocFromFirestore(firebaseUser.uid);
 
       if (!userDoc.exists()) {
         throw new Error("USER_DOC_MISSING");
@@ -79,6 +101,7 @@ export const authService = {
 
       return updateUserData;
     } catch (error) {
+      console.error("Erro detalhado no login:", error);
       const message = getFirebaseErrorMessage(error as string | FirebaseError);
       throw new Error(message);
     }
@@ -145,7 +168,7 @@ export const authService = {
         if (firebaseUser) {
           // Usuário está logado, busca dados completos no Firestore
           try {
-            const userDoc = await getDoc(doc(db, "users", firebaseUser.uid));
+            const userDoc = await getUserDocFromFirestore(firebaseUser.uid);
             if (userDoc.exists()) {
               let userData = userDoc.data() as User;
 
@@ -154,9 +177,7 @@ export const authService = {
               if (!userData.sellerCode) {
                 try {
                   await claimSellerProfile();
-                  const refreshed = await getDoc(
-                    doc(db, "users", firebaseUser.uid)
-                  );
+                  const refreshed = await getUserDocFromFirestore(firebaseUser.uid);
                   if (refreshed.exists()) userData = refreshed.data() as User;
                 } catch {
                   // not-found / failed-precondition: ignore (sem vendedor para o email, ou conta sem email)

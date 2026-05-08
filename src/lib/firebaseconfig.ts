@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { initializeFirestore, type FirestoreSettings } from "firebase/firestore";
 import { getFunctions } from "firebase/functions";
 import { getStorage } from "firebase/storage";
 
@@ -35,12 +35,35 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 } as const;
 
+const configuredFirestoreDatabaseId = String(
+  import.meta.env.VITE_FIREBASE_DATABASE_ID || ""
+).trim();
+const firestoreDatabaseId =
+  configuredFirestoreDatabaseId === "" ||
+  configuredFirestoreDatabaseId === "default" ||
+  configuredFirestoreDatabaseId === "(default)"
+    ? "(default)"
+    : configuredFirestoreDatabaseId;
+
 const app = initializeApp(firebaseConfig);
+const firestoreSettings: FirestoreSettings = {
+  experimentalAutoDetectLongPolling: true,
+};
 
 export const auth = getAuth(app);
-export const db = getFirestore(app);
+export const db =
+  firestoreDatabaseId === "(default)"
+    ? initializeFirestore(app, firestoreSettings)
+    : initializeFirestore(app, firestoreSettings, firestoreDatabaseId);
 export const storage = getStorage(app);
 export const functions = getFunctions(app, "southamerica-east1");
+
+export const firebaseDiagnostics = {
+  projectId: firebaseConfig.projectId,
+  authDomain: firebaseConfig.authDomain,
+  firestoreDatabaseId,
+  configuredFirestoreDatabaseId: configuredFirestoreDatabaseId || "(empty)",
+};
 
 export { app };
 export default firebaseConfig;
