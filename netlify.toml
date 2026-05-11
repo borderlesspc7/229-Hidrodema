@@ -2,6 +2,10 @@
   command = "npm run build"
   publish = "dist"
 
+[build.environment]
+  # `(default)` is the public Firestore database id, not a secret.
+  SECRETS_SCAN_OMIT_KEYS = "VITE_FIREBASE_DATABASE_ID"
+
 # SPA fallback (React Router)
 [[redirects]]
   from = "/*"
