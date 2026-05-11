@@ -111,7 +111,7 @@ export default function SolicitacaoServicos() {
       if (!isNic) delete next.q15;
       return next;
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [selectedRegional]);
 
   const shouldShowQuestion = (q: Question) => {

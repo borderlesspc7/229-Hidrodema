@@ -1,4 +1,3 @@
-import * as admin from "firebase-admin";
 import { logger } from "firebase-functions";
 import { env } from "../crm/env";
 import { getDb } from "../firebaseDb";

@@ -1,4 +1,3 @@
-import * as admin from "firebase-admin";
 import { logger } from "firebase-functions";
 import { getDb } from "../firebaseDb";
 import { fetchAllCrmSellers, fetchCrmSellerById } from "./crmSellerApi";

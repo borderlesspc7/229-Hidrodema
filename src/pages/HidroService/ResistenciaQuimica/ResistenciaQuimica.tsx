@@ -1,5 +1,5 @@
 import "./ResistenciaQuimica.css";
-import { useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import BackButton from "../../../components/ui/BackButton/BackButton";
 import { paths } from "../../../routes/paths";
 import {
@@ -12,169 +12,80 @@ import {
   FaTable,
   FaChartLine,
 } from "react-icons/fa";
+import {
+  chemicalResistanceData,
+  type ChemicalResistanceItem,
+  type ResistanceLevel,
+} from "./chemicalResistanceData";
+
+const categoryOrder = [
+  "Ácidos",
+  "Hidróxidos e Bases",
+  "Sais",
+  "Águas e Soluções Aquosas",
+  "Gases e Halogênios",
+  "Oxidantes",
+  "Álcoois e Glicóis",
+  "Solventes Orgânicos",
+  "Hidrocarbonetos e Óleos",
+  "Alimentos e Bebidas",
+  "Outros Produtos Químicos",
+] as const;
+
+function getChemicalCategory(substance: string): (typeof categoryOrder)[number] {
+  if (substance.startsWith("Ácido")) return "Ácidos";
+  if (substance.startsWith("Hidróxido") || substance.startsWith("Amônia")) {
+    return "Hidróxidos e Bases";
+  }
+  if (
+    /^(Alúmen|Bicarbonato|Bissulfito|Brometo|Carbonato|Cloreto|Fosfato|Nitrato|Sulfato|Tiossulfato)/.test(
+      substance
+    )
+  ) {
+    return "Sais";
+  }
+  if (substance.startsWith("Água")) return "Águas e Soluções Aquosas";
+  if (/^(Bromo|Cloro|Dióxido|Ozônio|Sulfeto)/.test(substance)) {
+    return "Gases e Halogênios";
+  }
+  if (/^(Hipoclorito|Peróxido|Permanganato)/.test(substance)) return "Oxidantes";
+  if (/^(Álcool|Etanol|Etilenoglicol|Glicerina|Metanol)/.test(substance)) {
+    return "Álcoois e Glicóis";
+  }
+  if (
+    /^(Acetona|Metiletilcetona|Metilisobutilcetona|Clorofórmio|Diclorometano|Tetracloreto|Tricloroetileno|Acetato|Éter|Fenol|Nitrobenzeno|Terebintina|Verniz)/.test(
+      substance
+    )
+  ) {
+    return "Solventes Orgânicos";
+  }
+  if (/^(Gasolina|Hexano|Nafta|Óleo|Querosene|Benzeno|Estireno|Tolueno|Xileno)/.test(substance)) {
+    return "Hidrocarbonetos e Óleos";
+  }
+  if (/^(Cerveja|Leite|Suco|Vinho)/.test(substance)) return "Alimentos e Bebidas";
+  return "Outros Produtos Químicos";
+}
+
+function groupByCategory(items: ChemicalResistanceItem[]) {
+  const groups = new Map<string, ChemicalResistanceItem[]>();
+  for (const category of categoryOrder) groups.set(category, []);
+
+  for (const item of items) {
+    const category = getChemicalCategory(item.substance);
+    groups.get(category)?.push(item);
+  }
+
+  return categoryOrder
+    .map((category) => ({ category, items: groups.get(category) ?? [] }))
+    .filter((group) => group.items.length > 0);
+}
 
 export default function ResistenciaQuimica() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedMaterial, setSelectedMaterial] = useState("all");
   const [selectedResistance, setSelectedResistance] = useState("all");
 
-  // Dados de resistência química baseados nos catálogos Amanco
-  const chemicalResistanceData = [
-    // PVC-U - Páginas 28 a 32
-    {
-      substance: "Ácido Clorídrico (HCl) 10%",
-      pvcU: "Excelente",
-      cpvc: "Excelente",
-      resistance: "excellent",
-    },
-    {
-      substance: "Ácido Clorídrico (HCl) 37%",
-      pvcU: "Bom",
-      cpvc: "Excelente",
-      resistance: "good",
-    },
-    {
-      substance: "Ácido Sulfúrico (H2SO4) 10%",
-      pvcU: "Excelente",
-      cpvc: "Excelente",
-      resistance: "excellent",
-    },
-    {
-      substance: "Ácido Sulfúrico (H2SO4) 50%",
-      pvcU: "Bom",
-      cpvc: "Excelente",
-      resistance: "good",
-    },
-    {
-      substance: "Ácido Nítrico (HNO3) 10%",
-      pvcU: "Bom",
-      cpvc: "Excelente",
-      resistance: "good",
-    },
-    {
-      substance: "Ácido Nítrico (HNO3) 65%",
-      pvcU: "Limitado",
-      cpvc: "Bom",
-      resistance: "limited",
-    },
-    {
-      substance: "Ácido Acético (CH3COOH) 10%",
-      pvcU: "Excelente",
-      cpvc: "Excelente",
-      resistance: "excellent",
-    },
-    {
-      substance: "Ácido Acético (CH3COOH) 99%",
-      pvcU: "Bom",
-      cpvc: "Excelente",
-      resistance: "good",
-    },
-    {
-      substance: "Hidróxido de Sódio (NaOH) 10%",
-      pvcU: "Excelente",
-      cpvc: "Excelente",
-      resistance: "excellent",
-    },
-    {
-      substance: "Hidróxido de Sódio (NaOH) 50%",
-      pvcU: "Excelente",
-      cpvc: "Excelente",
-      resistance: "excellent",
-    },
-    {
-      substance: "Hidróxido de Potássio (KOH) 10%",
-      pvcU: "Excelente",
-      cpvc: "Excelente",
-      resistance: "excellent",
-    },
-    {
-      substance: "Cloro (Cl2) 10%",
-      pvcU: "Bom",
-      cpvc: "Excelente",
-      resistance: "good",
-    },
-    {
-      substance: "Cloro (Cl2) 100%",
-      pvcU: "Limitado",
-      cpvc: "Bom",
-      resistance: "limited",
-    },
-    {
-      substance: "Peróxido de Hidrogênio (H2O2) 3%",
-      pvcU: "Bom",
-      cpvc: "Excelente",
-      resistance: "good",
-    },
-    {
-      substance: "Peróxido de Hidrogênio (H2O2) 30%",
-      pvcU: "Limitado",
-      cpvc: "Bom",
-      resistance: "limited",
-    },
-    {
-      substance: "Etanol (C2H5OH) 100%",
-      pvcU: "Excelente",
-      cpvc: "Excelente",
-      resistance: "excellent",
-    },
-    {
-      substance: "Metanol (CH3OH) 100%",
-      pvcU: "Excelente",
-      cpvc: "Excelente",
-      resistance: "excellent",
-    },
-    {
-      substance: "Acetona (C3H6O) 100%",
-      pvcU: "Limitado",
-      cpvc: "Bom",
-      resistance: "limited",
-    },
-    {
-      substance: "Benzina 100%",
-      pvcU: "Limitado",
-      cpvc: "Bom",
-      resistance: "limited",
-    },
-    {
-      substance: "Tolueno (C7H8) 100%",
-      pvcU: "Limitado",
-      cpvc: "Bom",
-      resistance: "limited",
-    },
-    {
-      substance: "Água do Mar",
-      pvcU: "Excelente",
-      cpvc: "Excelente",
-      resistance: "excellent",
-    },
-    {
-      substance: "Água Potável",
-      pvcU: "Excelente",
-      cpvc: "Excelente",
-      resistance: "excellent",
-    },
-    {
-      substance: "Solução Salina (NaCl) 10%",
-      pvcU: "Excelente",
-      cpvc: "Excelente",
-      resistance: "excellent",
-    },
-    {
-      substance: "Amônia (NH3) 10%",
-      pvcU: "Excelente",
-      cpvc: "Excelente",
-      resistance: "excellent",
-    },
-    {
-      substance: "Amônia (NH3) 30%",
-      pvcU: "Bom",
-      cpvc: "Excelente",
-      resistance: "good",
-    },
-  ];
-
-  // Função para filtrar dados
-  const getFilteredData = () => {
+  const filteredData = useMemo(() => {
     return chemicalResistanceData.filter((item) => {
       const matchesSearch = item.substance
         .toLowerCase()
@@ -188,10 +99,10 @@ export default function ResistenciaQuimica() {
 
       return matchesSearch && matchesMaterial && matchesResistance;
     });
-  };
+  }, [searchTerm, selectedMaterial, selectedResistance]);
 
   // Função para obter ícone de resistência
-  const getResistanceIcon = (resistance: string) => {
+  const getResistanceIcon = (resistance: ResistanceLevel) => {
     switch (resistance) {
       case "excellent":
         return <FaCheckCircle className="resistance-icon excellent" />;
@@ -206,11 +117,14 @@ export default function ResistenciaQuimica() {
 
   // Função para obter classe CSS de resistência
   const getResistanceClass = (resistance: string) => {
-    switch (resistance) {
+    switch (resistance.toLowerCase()) {
+      case "excelente":
       case "excellent":
         return "excellent";
+      case "bom":
       case "good":
         return "good";
+      case "limitado":
       case "limited":
         return "limited";
       default:
@@ -218,7 +132,7 @@ export default function ResistenciaQuimica() {
     }
   };
 
-  const filteredData = getFilteredData();
+  const groupedData = useMemo(() => groupByCategory(filteredData), [filteredData]);
 
   return (
     <div className="resistencia-quimica-container hd-page-bg">
@@ -340,38 +254,37 @@ export default function ResistenciaQuimica() {
                 </tr>
               </thead>
               <tbody>
-                {filteredData.map((item, index) => (
-                  <tr key={index} className="data-row">
-                    <td className="substance-cell">{item.substance}</td>
-                    <td className="material-cell">
-                      <span
-                        className={`resistance-badge ${getResistanceClass(
-                          item.pvcU.toLowerCase().replace(" ", "")
-                        )}`}
-                      >
-                        {item.pvcU}
-                      </span>
-                    </td>
-                    <td className="material-cell">
-                      <span
-                        className={`resistance-badge ${getResistanceClass(
-                          item.cpvc.toLowerCase().replace(" ", "")
-                        )}`}
-                      >
-                        {item.cpvc}
-                      </span>
-                    </td>
-                    <td className="resistance-cell">
-                      <span className="resistance-content">
-                        {getResistanceIcon(item.resistance)}
-                        <span className="resistance-text">
-                          {item.resistance === "excellent" && "Excelente"}
-                          {item.resistance === "good" && "Bom"}
-                          {item.resistance === "limited" && "Limitado"}
-                        </span>
-                      </span>
-                    </td>
-                  </tr>
+                {groupedData.map((group) => (
+                  <Fragment key={group.category}>
+                    <tr className="category-row">
+                      <td colSpan={4}>{group.category}</td>
+                    </tr>
+                    {group.items.map((item) => (
+                      <tr key={item.substance} className="data-row">
+                        <td className="substance-cell">{item.substance}</td>
+                        <td className="material-cell">
+                          <span className={`resistance-badge ${getResistanceClass(item.pvcU)}`}>
+                            {item.pvcU}
+                          </span>
+                        </td>
+                        <td className="material-cell">
+                          <span className={`resistance-badge ${getResistanceClass(item.cpvc)}`}>
+                            {item.cpvc}
+                          </span>
+                        </td>
+                        <td className="resistance-cell">
+                          <span className="resistance-content">
+                            {getResistanceIcon(item.resistance)}
+                            <span className="resistance-text">
+                              {item.resistance === "excellent" && "Excelente"}
+                              {item.resistance === "good" && "Bom"}
+                              {item.resistance === "limited" && "Limitado"}
+                            </span>
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </Fragment>
                 ))}
               </tbody>
             </table>

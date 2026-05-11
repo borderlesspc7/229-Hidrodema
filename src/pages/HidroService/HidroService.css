@@ -13,6 +13,24 @@
   overflow-y: auto;
 }
 
+.hidro-service-back-button {
+  position: fixed;
+  top: 18px;
+  left: 18px;
+  z-index: 10;
+}
+
+.hidro-service-back-button__inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hidro-service-back-button__icon {
+  font-size: 18px;
+  line-height: 0;
+}
+
 /* Breadcrumb pill (como no print) */
 .hidro-service-breadcrumb {
   position: relative;

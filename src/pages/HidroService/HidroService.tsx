@@ -7,7 +7,11 @@ import {
   Scale,
   School,
 } from "@mui/icons-material";
+import { FiHome } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 import ServiceTile from "../../components/ServiceTile/ServiceTile";
+import Button from "../../components/ui/Button/Button";
+import { paths } from "../../routes/paths";
 
 // Tema escuro customizado para MUI
 const darkTheme = createTheme({
@@ -57,10 +61,26 @@ const services = [
 ];
 
 export default function HidroService() {
+  const navigate = useNavigate();
+  const handleGoHome = () => navigate(paths.menu);
+
   return (
     <ThemeProvider theme={darkTheme}>
       <div className="hidro-service-container hd-page-bg">
         <Container maxWidth="lg" sx={{ width: "100%", py: { xs: 2, sm: 3 } }}>
+          <Button
+            variant="secondary"
+            className="hidro-service-back-button"
+            onClick={handleGoHome}
+            title="Voltar para a Home"
+            aria-label="Voltar para a Home"
+          >
+            <span className="hidro-service-back-button__inner">
+              <FiHome className="hidro-service-back-button__icon" aria-hidden="true" />
+              <span>Home</span>
+            </span>
+          </Button>
+
           <div className="hidro-service-breadcrumb" aria-label="Breadcrumb">
             <span className="hidro-service-breadcrumb__home" aria-hidden="true">
               ⌂
