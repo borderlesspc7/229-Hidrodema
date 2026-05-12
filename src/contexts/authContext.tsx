@@ -13,7 +13,10 @@ import { clearDemoUser, getDemoUser, isDemoEnabled, setDemoUser } from "../lib/d
 
 interface AuthContextType {
   user: User | null;
+  /** True apenas durante operações ativas (login/register/logout/recuperação). */
   loading: boolean;
+  /** True até o Firebase Auth resolver pela 1ª vez o estado da sessão. */
+  initializing: boolean;
   error: string | null;
   login: (credentials: LoginCredentials) => Promise<void>;
   register: (credentials: RegisterCredentials) => Promise<void>;
@@ -27,19 +30,22 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  // `loading` é apenas para operações ativas; começa `false` para não bloquear
+  // o form de Login enquanto o Firebase Auth ainda está resolvendo a sessão.
+  const [loading, setLoading] = useState(false);
+  const [initializing, setInitializing] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const demo = getDemoUser();
     if (demo) {
       setUser(demo);
-      setLoading(false);
+      setInitializing(false);
       return;
     }
     const unsubscribe = authService.observeAuthState((user) => {
       setUser(user);
-      setLoading(false);
+      setInitializing(false);
     });
 
     return () => unsubscribe();
@@ -120,6 +126,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value = {
     user,
     loading,
+    initializing,
     error,
     login,
     register,

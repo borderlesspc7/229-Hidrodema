@@ -13,9 +13,9 @@ export function RoleRoute({
   children: ReactNode;
   allow: UserRole[];
 }) {
-  const { user, loading } = useAuth();
+  const { user, loading, initializing } = useAuth();
 
-  if (loading) return <PageLoading />;
+  if (loading || initializing) return <PageLoading />;
 
   if (!user) {
     return <Navigate to={paths.login} replace />;

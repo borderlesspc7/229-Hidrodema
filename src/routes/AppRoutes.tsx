@@ -1,15 +1,20 @@
-import { Route, Routes } from "react-router-dom";
+import { lazy, Suspense } from "react";
+import { Route, Routes, Navigate } from "react-router-dom";
 import { paths } from "./paths";
 import Login from "../pages/LoginPage/Login";
-import Register from "../pages/RegisterPage/Register";
-import Menu from "../pages/MenuPage/Menu";
-import ServiceRoutes from "./serviceRoutes";
-import ExclusiveRoutes from "./exclusiveRoutes";
 import { ProtectedRoute } from "./ProtectedRoute";
-import HidroService from "../pages/HidroService/HidroService";
-import AcessoExclusivo from "../pages/AcessoExclusivo/AcessoExclusivo";
 import { features } from "../lib/features";
-import { Navigate } from "react-router-dom";
+import PageLoading from "../components/PageLoading";
+
+// Páginas leves (frequentes mas que não precisam estar no chunk inicial)
+const Register = lazy(() => import("../pages/RegisterPage/Register"));
+const Menu = lazy(() => import("../pages/MenuPage/Menu"));
+
+// Rotas pesadas: HidroService (calculadoras, dados grandes) e AcessoExclusivo (admin)
+const HidroService = lazy(() => import("../pages/HidroService/HidroService"));
+const ServiceRoutes = lazy(() => import("./serviceRoutes"));
+const AcessoExclusivo = lazy(() => import("../pages/AcessoExclusivo/AcessoExclusivo"));
+const ExclusiveRoutes = lazy(() => import("./exclusiveRoutes"));
 
 function Meeting() {
   return <div>Meeting</div>;
@@ -20,57 +25,59 @@ function Marketing() {
 
 export const AppRoutes = () => {
   return (
-    <Routes>
-      <Route path={paths.home} element={<Navigate to={paths.login} replace />} />
-      <Route path={paths.login} element={<Login />} />
-      <Route path={paths.register} element={<Register />} />
-      <Route path={paths.menu} element={<Menu />} />
+    <Suspense fallback={<PageLoading />}>
+      <Routes>
+        <Route path={paths.home} element={<Navigate to={paths.login} replace />} />
+        <Route path={paths.login} element={<Login />} />
+        <Route path={paths.register} element={<Register />} />
+        <Route path={paths.menu} element={<Menu />} />
 
-      {/* Rotas protegidas para áreas específicas */}
-      <Route path={paths.service} element={<HidroService />} />
-      <Route path={`${paths.service}/*`} element={<ServiceRoutes />} />
-      <Route
-        path={paths.meeting}
-        element={
-          features.meeting ? (
-            <ProtectedRoute>
-              <Meeting />
-            </ProtectedRoute>
-          ) : (
-            <Navigate to={paths.menu} replace />
-          )
-        }
-      />
-      <Route
-        path={paths.marketing}
-        element={
-          features.marketing ? (
-            <ProtectedRoute>
-              <Marketing />
-            </ProtectedRoute>
-          ) : (
-            <Navigate to={paths.menu} replace />
-          )
-        }
-      />
+        {/* Rotas protegidas para áreas específicas */}
+        <Route path={paths.service} element={<HidroService />} />
+        <Route path={`${paths.service}/*`} element={<ServiceRoutes />} />
+        <Route
+          path={paths.meeting}
+          element={
+            features.meeting ? (
+              <ProtectedRoute>
+                <Meeting />
+              </ProtectedRoute>
+            ) : (
+              <Navigate to={paths.menu} replace />
+            )
+          }
+        />
+        <Route
+          path={paths.marketing}
+          element={
+            features.marketing ? (
+              <ProtectedRoute>
+                <Marketing />
+              </ProtectedRoute>
+            ) : (
+              <Navigate to={paths.menu} replace />
+            )
+          }
+        />
 
-      {/* Rotas aninhadas para acesso exclusivo */}
-      <Route
-        path={paths.acessoExclusivo}
-        element={
-          <ProtectedRoute>
-            <AcessoExclusivo />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path={`${paths.acessoExclusivo}/*`}
-        element={
-          <ProtectedRoute>
-            <ExclusiveRoutes />
-          </ProtectedRoute>
-        }
-      />
-    </Routes>
+        {/* Rotas aninhadas para acesso exclusivo */}
+        <Route
+          path={paths.acessoExclusivo}
+          element={
+            <ProtectedRoute>
+              <AcessoExclusivo />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={`${paths.acessoExclusivo}/*`}
+          element={
+            <ProtectedRoute>
+              <ExclusiveRoutes />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </Suspense>
   );
 };

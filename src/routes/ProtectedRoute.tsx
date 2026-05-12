@@ -10,14 +10,15 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { user, loading, logout } = useAuth();
+  const { user, loading, initializing, logout } = useAuth();
   const [sessionChecked, setSessionChecked] = useState(false);
   const [sessionValid, setSessionValid] = useState(true);
+  const stillLoading = loading || initializing;
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      if (loading) {
+      if (stillLoading) {
         return;
       }
       if (!user) {
@@ -40,10 +41,10 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     return () => {
       cancelled = true;
     };
-  }, [loading, logout, user]);
+  }, [stillLoading, logout, user]);
 
-  if (loading) {
-    return <div>Loading...</div>;
+  if (stillLoading) {
+    return <PageLoading />;
   }
 
   if (!user) {

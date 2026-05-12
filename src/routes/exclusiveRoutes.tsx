@@ -1,18 +1,21 @@
+import { lazy, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
-import SolicitacaoServicos from "../pages/AcessoExclusivo/SolicitacaoServicos/SolicitacaoServicos";
-import RelatorioVisitas from "../pages/AcessoExclusivo/RelatorioVisitas/RelatorioVisitas";
-import EqualizadorServicos from "../pages/AcessoExclusivo/EqualizadorServicos/EqualizadorServicos";
-import GestaoVendedores from "../pages/AcessoExclusivo/GestaoVendedores/GestaoVendedores";
-import GerenciamentoObras from "../pages/AcessoExclusivo/GerenciamentoObras/GerenciamentoObras";
-import ControleFuncionarios from "../pages/AcessoExclusivo/ControleFuncionarios/ControleFuncionarios";
-import DashboardPerformance from "../pages/AcessoExclusivo/DashboardPerformance/DashboardPerformance";
-import VinculoTecnico from "../pages/AcessoExclusivo/VinculoTecnico/VinculoTecnico";
-import ConfiguracaoFormularios from "../pages/AcessoExclusivo/ConfiguracaoFormularios/ConfiguracaoFormularios";
-import MinhasTarefas from "../pages/AcessoExclusivo/MinhasTarefas/MinhasTarefas";
+import PageLoading from "../components/PageLoading";
 import { RoleRoute } from "./RoleRoute";
-import MedicoesPage from "../pages/AcessoExclusivo/GerenciamentoObras/MedicoesPage/MedicoesPage";
-import ProblemasPage from "../pages/AcessoExclusivo/GerenciamentoObras/ProblemasPage/ProblemasPage";
-import DocumentosPage from "../pages/AcessoExclusivo/GerenciamentoObras/DocumentosPage/DocumentosPage";
+
+const SolicitacaoServicos = lazy(() => import("../pages/AcessoExclusivo/SolicitacaoServicos/SolicitacaoServicos"));
+const RelatorioVisitas = lazy(() => import("../pages/AcessoExclusivo/RelatorioVisitas/RelatorioVisitas"));
+const EqualizadorServicos = lazy(() => import("../pages/AcessoExclusivo/EqualizadorServicos/EqualizadorServicos"));
+const GestaoVendedores = lazy(() => import("../pages/AcessoExclusivo/GestaoVendedores/GestaoVendedores"));
+const GerenciamentoObras = lazy(() => import("../pages/AcessoExclusivo/GerenciamentoObras/GerenciamentoObras"));
+const ControleFuncionarios = lazy(() => import("../pages/AcessoExclusivo/ControleFuncionarios/ControleFuncionarios"));
+const DashboardPerformance = lazy(() => import("../pages/AcessoExclusivo/DashboardPerformance/DashboardPerformance"));
+const VinculoTecnico = lazy(() => import("../pages/AcessoExclusivo/VinculoTecnico/VinculoTecnico"));
+const ConfiguracaoFormularios = lazy(() => import("../pages/AcessoExclusivo/ConfiguracaoFormularios/ConfiguracaoFormularios"));
+const MinhasTarefas = lazy(() => import("../pages/AcessoExclusivo/MinhasTarefas/MinhasTarefas"));
+const MedicoesPage = lazy(() => import("../pages/AcessoExclusivo/GerenciamentoObras/MedicoesPage/MedicoesPage"));
+const ProblemasPage = lazy(() => import("../pages/AcessoExclusivo/GerenciamentoObras/ProblemasPage/ProblemasPage"));
+const DocumentosPage = lazy(() => import("../pages/AcessoExclusivo/GerenciamentoObras/DocumentosPage/DocumentosPage"));
 /**
  * Estas rotas ficam sob <Route path="/acesso-exclusivo/*" />.
  * O React Router passa para o <Routes> filho apenas o pathname *restante*
@@ -21,8 +24,9 @@ import DocumentosPage from "../pages/AcessoExclusivo/GerenciamentoObras/Document
  */
 export default function ExclusiveRoutes() {
   return (
-    <Routes>
-      <Route path="relatorio-visitas" element={<RelatorioVisitas />} />
+    <Suspense fallback={<PageLoading />}>
+      <Routes>
+        <Route path="relatorio-visitas" element={<RelatorioVisitas />} />
       <Route path="gerenciamento-obras" element={<GerenciamentoObras />} />
       <Route
         path="gerenciamento-obras/medicoes"
@@ -71,14 +75,15 @@ export default function ExclusiveRoutes() {
           </RoleRoute>
         }
       />
-      <Route
-        path="configuracao-formularios"
-        element={
-          <RoleRoute allow={["admin", "gestor"]}>
-            <ConfiguracaoFormularios />
-          </RoleRoute>
-        }
-      />
-    </Routes>
+        <Route
+          path="configuracao-formularios"
+          element={
+            <RoleRoute allow={["admin", "gestor"]}>
+              <ConfiguracaoFormularios />
+            </RoleRoute>
+          }
+        />
+      </Routes>
+    </Suspense>
   );
 }
