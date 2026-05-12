@@ -17,7 +17,7 @@
     "pdfkit": "^0.17.1"
   },
   "devDependencies": {
-    "@types/nodemailer": "^6.4.17",
+    "@types/nodemailer": "^8.0.0",
     "@types/pdfkit": "^0.17.6",
     "typescript": "~5.8.3"
   },
