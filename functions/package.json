@@ -19,7 +19,7 @@
   "devDependencies": {
     "@types/nodemailer": "^6.4.17",
     "@types/pdfkit": "^0.17.6",
-    "typescript": "~5.8.3"
+    "typescript": "~6.0.3"
   },
   "overrides": {
     "@tootallnate/once": "^3.0.1"
