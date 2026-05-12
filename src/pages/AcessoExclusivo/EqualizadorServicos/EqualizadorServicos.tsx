@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Button from "../../../components/ui/Button/Button";
 import Card from "../../../components/ui/Card/Card";
@@ -527,7 +527,7 @@ const EqualizadorServicos = () => {
   ];
 
   // Carregar serviços MDS do Firebase
-  const loadServiceMDS = async () => {
+  const loadServiceMDS = useCallback(async () => {
     try {
       setLoading(true);
       const mdsServices = await getServiceMDSScoped(user);
@@ -554,11 +554,11 @@ const EqualizadorServicos = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     loadServiceMDS();
-  }, []);
+  }, [loadServiceMDS]);
 
   // Navegação entre seções
   const handleNext = () => {

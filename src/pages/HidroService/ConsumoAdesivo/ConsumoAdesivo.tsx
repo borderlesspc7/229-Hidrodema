@@ -7,6 +7,40 @@ type ProductType = "PVC-U" | "CPVC";
 type CpvcApplication = "Água Quente" | "Industrial";
 type CpvcCureMode = "Padrão" | "Cura rápida / Alta temperatura";
 
+const diameterInInches: Record<string, number> = {
+  '½"': 0.5,
+  '¾"': 0.75,
+  '1"': 1,
+  '1.1/4"': 1.25,
+  '1.1/2"': 1.5,
+  '2"': 2,
+  '2.1/2"': 2.5,
+  '3"': 3,
+  '4"': 4,
+  '6"': 6,
+  '8"': 8,
+  '10"': 10,
+  '12"': 12,
+  '14"': 14,
+  '16"': 16,
+};
+
+const getBaseAdhesiveCode = (type: ProductType, diameter: string) => {
+  const inches = diameterInInches[diameter] ?? 0;
+
+  if (type === "PVC-U") {
+    if (inches > 0 && inches <= 4) return "705";
+    if (inches >= 6 && inches <= 12) return "717";
+    if (inches === 14 || inches === 16) return "719";
+    return "-";
+  }
+
+  // CPVC
+  if (inches > 0 && inches <= 12) return "724";
+  if (inches === 14 || inches === 16) return "729";
+  return "-";
+};
+
 export default function ConsumoAdesivo() {
   const [productType, setProductType] = useState<ProductType>("PVC-U");
   const [cpvcApplication, setCpvcApplication] =
@@ -62,39 +96,6 @@ export default function ConsumoAdesivo() {
 
   const productLabel = productType === "PVC-U" ? "PVC-U" : "CPVC";
 
-  const diameterInInches: Record<string, number> = {
-    '½"': 0.5,
-    '¾"': 0.75,
-    '1"': 1,
-    '1.1/4"': 1.25,
-    '1.1/2"': 1.5,
-    '2"': 2,
-    '2.1/2"': 2.5,
-    '3"': 3,
-    '4"': 4,
-    '6"': 6,
-    '8"': 8,
-    '10"': 10,
-    '12"': 12,
-    '14"': 14,
-    '16"': 16,
-  };
-
-  const getBaseAdhesiveCode = (type: ProductType, diameter: string) => {
-    const inches = diameterInInches[diameter] ?? 0;
-
-    if (type === "PVC-U") {
-      if (inches > 0 && inches <= 4) return "705";
-      if (inches >= 6 && inches <= 12) return "717";
-      if (inches === 14 || inches === 16) return "719";
-      return "-";
-    }
-
-    // CPVC
-    if (inches > 0 && inches <= 12) return "724";
-    if (inches === 14 || inches === 16) return "729";
-    return "-";
-  };
 
   const getSelectedAdhesiveCode = (diameter: string) => {
     const inches = diameterInInches[diameter] ?? 0;
@@ -454,6 +455,10 @@ export default function ConsumoAdesivo() {
     } else {
       console.info("[QA ConsumoAdesivo] OK — validação automática sem falhas.");
     }
+    // Nota: getConsumptionLiters é definido inline no componente e depende do mesmo
+    // state (totalsByCode/totalsByGroup/etc) que já está listado nas deps abaixo,
+    // então re-executar quando ele "muda de identidade" seria redundante.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     diameters,
     EQUIV_GROUPS.baixa.codes,

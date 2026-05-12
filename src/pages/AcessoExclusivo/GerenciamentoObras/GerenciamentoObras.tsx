@@ -1069,26 +1069,6 @@ export default function GerenciamentoObras() {
     return newChecklist;
   };
 
-  const generateInventoryReport = () => {
-    const lowStock = scopedInventory.filter(
-      (item) => item.quantity <= item.minStock
-    );
-    const totalValue = scopedInventory.reduce(
-      (acc, item) => acc + item.quantity * item.price,
-      0
-    );
-    const categories = [
-      ...new Set(scopedInventory.map((item) => item.category)),
-    ];
-
-    return {
-      totalItems: scopedInventory.length,
-      lowStockItems: lowStock.length,
-      totalValue,
-      categories: categories.length,
-      alerts: lowStock,
-    };
-  };
 
   // Handle new item creation
   const handleCreateProject = () => {
@@ -1241,7 +1221,25 @@ export default function GerenciamentoObras() {
     });
   };
 
-  const inventoryReport = useMemo(() => generateInventoryReport(), [scopedInventory]);
+  const inventoryReport = useMemo(() => {
+    const lowStock = scopedInventory.filter(
+      (item) => item.quantity <= item.minStock
+    );
+    const totalValue = scopedInventory.reduce(
+      (acc, item) => acc + item.quantity * item.price,
+      0
+    );
+    const categories = [
+      ...new Set(scopedInventory.map((item) => item.category)),
+    ];
+    return {
+      totalItems: scopedInventory.length,
+      lowStockItems: lowStock.length,
+      totalValue,
+      categories: categories.length,
+      alerts: lowStock,
+    };
+  }, [scopedInventory]);
 
   const stockCritical = useMemo(
     () => scopedInventory.filter((item) => (item.quantity ?? 0) <= 0),
