@@ -113,6 +113,9 @@ export default function RelatorioVisitas() {
     user?.name?.trim() || user?.email?.trim() || "Usuário";
   // Ao entrar no módulo, abrir no menu (cards). O formulário inicia ao clicar em "Nova Solicitação".
   const [viewMode, setViewMode] = useState<ViewMode>("menu");
+  // Guarda de onde o usuário entrou em "edit" (planilha vs histórico vs comentários)
+  // para que ao cancelar/salvar ele volte para a mesma tela em vez de cair no menu.
+  const [editOrigin, setEditOrigin] = useState<ViewMode>("history");
   const [currentSection, setCurrentSection] = useState(0);
   const [formData, setFormData] = useState<FormData>({});
   const [visitReports, setVisitReports] = useState<DisplayVisit[]>([]);
@@ -873,6 +876,17 @@ export default function RelatorioVisitas() {
       const selectedAction = formData.q6 as string;
       const v = validateVisitFormData(formData as Record<string, unknown>);
       if (!v.ok) {
+        const blockingErrors = v.errors.filter((error) =>
+          [
+            "Ação é obrigatório.",
+            "Nome do cliente é obrigatório.",
+          ].includes(error)
+        );
+        if (blockingErrors.length > 0) {
+          alert(blockingErrors.join("\n"));
+          return;
+        }
+
         const proceed = confirm(
           `Rascunho com avisos:\n- ${v.errors.join("\n- ")}\n\nDeseja salvar mesmo assim?`
         );
@@ -1048,6 +1062,13 @@ export default function RelatorioVisitas() {
     }
     setEditingReport(report);
     setFormData(report.formData);
+    // Lembra de onde veio (planilha/histórico/comentários) para retorno do "Voltar"
+    // e do salvar funcionarem corretamente.
+    if (viewMode === "schedule" || viewMode === "history" || viewMode === "comments") {
+      setEditOrigin(viewMode);
+    } else {
+      setEditOrigin("history");
+    }
     setViewMode("edit");
   };
 
@@ -1076,7 +1097,9 @@ export default function RelatorioVisitas() {
 
       alert("Atualizado com sucesso!");
       await loadVisitData();
-      setViewMode("history");
+      // Retorna para a tela de origem (planilha/histórico) ao invés de
+      // sempre cair no histórico, mantendo o contexto do usuário.
+      setViewMode(editOrigin);
       setEditingReport(null);
       setFormData({});
       setCurrentSection(0);
@@ -1298,6 +1321,14 @@ export default function RelatorioVisitas() {
       navigateBackOrFallback(navigate, location.key, paths.acessoExclusivo);
     } else if (viewMode === "comments") {
       setViewMode("history");
+      setSelectedReport(null);
+    } else if (viewMode === "edit") {
+      // Edição pode ter vindo da Planilha (schedule) ou do Histórico — volta
+      // para a tela de origem (registrada em editOrigin) em vez do menu.
+      setViewMode(editOrigin);
+      setFormData({});
+      setCurrentSection(0);
+      setEditingReport(null);
       setSelectedReport(null);
     } else {
       setViewMode("menu");

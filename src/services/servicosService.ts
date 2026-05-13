@@ -104,13 +104,16 @@ export const createServiceRequest = async (
     );
 
     const ownerSellerCode = extractSellerCode((requestData as any).salesperson);
-    const docRef = await addDoc(collection(db, REQUESTS_COLLECTION), {
+    const ownerUid = (requestData as any).createdBy as string | undefined;
+    const payload: Record<string, unknown> = {
       ...cleanData,
-      ownerUid: (requestData as any).createdBy ?? undefined,
-      ownerSellerCode: ownerSellerCode ?? undefined,
       createdAt: now,
       updatedAt: now,
-    });
+    };
+    if (ownerUid) payload.ownerUid = ownerUid;
+    if (ownerSellerCode) payload.ownerSellerCode = ownerSellerCode;
+
+    const docRef = await addDoc(collection(db, REQUESTS_COLLECTION), payload);
     return docRef.id;
   } catch (error) {
     console.error("Erro ao criar solicitação de serviço:", error);

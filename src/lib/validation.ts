@@ -34,6 +34,8 @@ export function sanitizeForDatabase<T>(input: T): T {
   if (isPlainObject(input)) {
     const out: Record<string, unknown> = {};
     for (const [k, v] of Object.entries(input)) {
+      // Firestore rejeita `undefined`. Omitimos o campo em vez de gravá-lo.
+      if (v === undefined) continue;
       out[k] = sanitizeForDatabase(v);
     }
     return out as T;

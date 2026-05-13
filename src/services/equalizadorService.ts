@@ -90,12 +90,15 @@ export const createServiceMDS = async (
       Object.entries({ ...mdsData }).filter(([, value]) => value !== undefined)
     );
 
-    const docRef = await addDoc(collection(db, MDS_COLLECTION), {
+    const ownerUid = (mdsData as any).createdBy as string | undefined;
+    const payload: Record<string, unknown> = {
       ...cleanData,
-      ownerUid: (mdsData as any).createdBy ?? undefined,
       createdAt: now,
       updatedAt: now,
-    });
+    };
+    if (ownerUid) payload.ownerUid = ownerUid;
+
+    const docRef = await addDoc(collection(db, MDS_COLLECTION), payload);
     return docRef.id;
   } catch (error) {
     console.error("Erro ao criar MDS:", error);

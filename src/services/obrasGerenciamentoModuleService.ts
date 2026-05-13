@@ -161,7 +161,52 @@ function sortDiaries(entries: DiaryEntry[]): DiaryEntry[] {
   );
 }
 
-export async function loadGerenciamentoModuleData(): Promise<{
+/**
+ * Lê uma coleção `obras*` de forma compatível com as security rules.
+ *
+ * As rules exigem `canAccessByProject(resource.data)` na leitura. O Firestore
+ * Web SDK exige que TODO doc retornado satisfaça a regra; um `getDocs` sem
+ * filtro falha com `permission-denied` para qualquer não-macro que tenha pelo
+ * menos um doc de outro projeto na coleção.
+ *
+ * - Macro/admin: lê a coleção inteira.
+ * - Demais: divide os `projectIds` em chunks de 30 (limite do `in`) e une.
+ */
+async function readScopedCollection<T extends { id: string }>(
+  col: string,
+  options: { projectIds: string[] | null }
+): Promise<T[]> {
+  if (options.projectIds === null) {
+    const snap = await getDocs(collection(db, col));
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as T);
+  }
+
+  if (options.projectIds.length === 0) return [];
+
+  const chunks: string[][] = [];
+  for (let i = 0; i < options.projectIds.length; i += 30) {
+    chunks.push(options.projectIds.slice(i, i + 30));
+  }
+  const results = await Promise.all(
+    chunks.map(async (ids) => {
+      const q = query(collection(db, col), where("projectId", "in", ids));
+      const snap = await getDocs(q);
+      return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as T);
+    })
+  );
+  return results.flat();
+}
+
+/**
+ * Carrega todos os módulos de gerenciamento de obras do usuário.
+ *
+ * @param scope.projectIds Lista de IDs de obras visíveis. Passe `null` para
+ *   macro/admin (busca tudo). Para usuários comuns, passe os IDs das obras
+ *   que ele possui — calculados via `listObraProjectsForUser`.
+ */
+export async function loadGerenciamentoModuleData(
+  scope: { projectIds: string[] | null } = { projectIds: null }
+): Promise<{
   diaries: DiaryEntry[];
   inventory: InventoryItem[];
   inventoryMovements: InventoryMovement[];
@@ -170,43 +215,35 @@ export async function loadGerenciamentoModuleData(): Promise<{
   qualityChecklists: QualityChecklist[];
   reports: ObraReport[];
 }> {
-  const [dSnap, iSnap, mSnap, bSnap, sSnap, qSnap, rSnap] = await Promise.all([
-    getDocs(collection(db, C_DIARIES)),
-    getDocs(collection(db, C_INVENTORY)),
-    getDocs(collection(db, C_INVENTORY_MOVEMENTS)),
-    getDocs(collection(db, C_BUDGETS)),
-    getDocs(collection(db, C_SUPPLIERS)),
-    getDocs(collection(db, C_QUALITY)),
-    getDocs(collection(db, C_REPORTS)),
+  const [
+    diariesRaw,
+    inventoryRaw,
+    inventoryMovementsRaw,
+    budgetsRaw,
+    suppliersRaw,
+    qualityRaw,
+    reportsRaw,
+  ] = await Promise.all([
+    readScopedCollection<DiaryEntry>(C_DIARIES, scope),
+    readScopedCollection<InventoryItem>(C_INVENTORY, scope),
+    readScopedCollection<InventoryMovement>(C_INVENTORY_MOVEMENTS, scope),
+    readScopedCollection<Budget>(C_BUDGETS, scope),
+    readScopedCollection<Supplier>(C_SUPPLIERS, scope),
+    readScopedCollection<QualityChecklist>(C_QUALITY, scope),
+    readScopedCollection<ObraReport>(C_REPORTS, scope),
   ]);
 
-  const diaries = sortDiaries(
-    dSnap.docs.map((d) => ({ id: d.id, ...d.data() }) as DiaryEntry)
+  const diaries = sortDiaries(diariesRaw);
+  const inventory = [...inventoryRaw].sort(
+    (a, b) =>
+      new Date(b.lastUpdated || 0).getTime() -
+      new Date(a.lastUpdated || 0).getTime()
   );
-  const inventory = iSnap.docs
-    .map(
-    (d) => ({ id: d.id, ...d.data() }) as InventoryItem
-    )
-    .sort(
-      (a, b) =>
-        new Date(b.lastUpdated || 0).getTime() -
-        new Date(a.lastUpdated || 0).getTime()
-    );
-  const inventoryMovements = sortByCreatedAtDesc(
-    mSnap.docs.map((d) => ({ id: d.id, ...d.data() }) as InventoryMovement)
-  );
-  const budgets = sortByCreatedAtDesc(
-    bSnap.docs.map((d) => ({ id: d.id, ...d.data() }) as Budget)
-  );
-  const suppliers = sortByCreatedAtDesc(
-    sSnap.docs.map((d) => ({ id: d.id, ...d.data() }) as Supplier)
-  );
-  const qualityChecklists = sortByCreatedAtDesc(
-    qSnap.docs.map((d) => ({ id: d.id, ...d.data() }) as QualityChecklist)
-  );
-  const reports = sortByCreatedAtDesc(
-    rSnap.docs.map((d) => ({ id: d.id, ...d.data() }) as ObraReport)
-  );
+  const inventoryMovements = sortByCreatedAtDesc(inventoryMovementsRaw);
+  const budgets = sortByCreatedAtDesc(budgetsRaw);
+  const suppliers = sortByCreatedAtDesc(suppliersRaw);
+  const qualityChecklists = sortByCreatedAtDesc(qualityRaw);
+  const reports = sortByCreatedAtDesc(reportsRaw);
 
   return {
     diaries,
@@ -340,9 +377,10 @@ export async function saveReportsToCloud(
   await applyByIdCollectionChanges(C_REPORTS, reports, toDelete);
 }
 
-export async function listReportsFromCloud(): Promise<ObraReport[]> {
-  const snap = await getDocs(collection(db, C_REPORTS));
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as ObraReport);
+export async function listReportsFromCloud(
+  scope: { projectIds: string[] | null } = { projectIds: null }
+): Promise<ObraReport[]> {
+  return readScopedCollection<ObraReport>(C_REPORTS, scope);
 }
 
 export async function createReportInCloud(report: ObraReport): Promise<void> {

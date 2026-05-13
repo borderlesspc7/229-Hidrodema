@@ -2,6 +2,8 @@ import {
   collection,
   doc,
   getDocs,
+  query,
+  where,
   setDoc,
   updateDoc,
   deleteDoc,
@@ -66,14 +68,28 @@ export async function listObraProjects(): Promise<ObraProject[]> {
   return sortByCreatedAtDesc(rows);
 }
 
-/** Gestor/admin: todas; vendedor: apenas obras com `ownerUid` = usuário. */
+/**
+ * Gestor/admin: todas; vendedor: apenas obras com `ownerUid` = usuário.
+ *
+ * IMPORTANTE: as rules de `obrasProjects` exigem que o `getDocs` retorne só
+ * docs visíveis ao usuário. Sem filtro, a query inteira falha com
+ * `permission-denied` quando existem obras de outros owners. Por isso
+ * filtramos explicitamente por `ownerUid` quando o user não é macro.
+ */
 export async function listObraProjectsForUser(
   user: User | null
 ): Promise<ObraProject[]> {
-  const all = await listObraProjects();
   if (!user) return [];
-  if (hasMacroVisibility(user)) return all;
-  return all.filter((p) => p.ownerUid === user.uid);
+  if (hasMacroVisibility(user)) return listObraProjects();
+  const q = query(
+    collection(db, COLLECTION),
+    where("ownerUid", "==", user.uid)
+  );
+  const snap = await getDocs(q);
+  const rows = snap.docs.map(
+    (d) => ({ id: d.id, ...(d.data() as object) })
+  ) as ObraProject[];
+  return sortByCreatedAtDesc(rows);
 }
 
 export async function upsertObraProject(

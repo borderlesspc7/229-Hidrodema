@@ -9,7 +9,7 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { db } from "../lib/firebaseconfig";
+import { auth, db } from "../lib/firebaseconfig";
 import { sortByCreatedAtDesc } from "../lib/firestoreSort";
 import type { User } from "../types/user";
 import {
@@ -94,20 +94,35 @@ export const createVisitRequest = async (
 ): Promise<string> => {
   try {
     const now = new Date().toISOString();
-    
-    // Remover campos undefined (Firebase não aceita)
+
+    // Firestore rejeita `undefined`. Construímos o payload omitindo campos
+    // ausentes em vez de defini-los como undefined.
     const cleanData = Object.fromEntries(
       Object.entries({ ...requestData }).filter(([, value]) => value !== undefined)
     );
-    
+
+    // `createdBy` é OBRIGATÓRIO pelas rules — fallback no auth.currentUser
+    // garante que o doc não nasça sem ele se o caller esqueceu de passar.
+    const createdBy =
+      ((requestData as any).createdBy as string | undefined) ??
+      auth.currentUser?.uid;
+    if (!createdBy) {
+      throw new Error(
+        "Usuário não autenticado. Faça login novamente para salvar a solicitação."
+      );
+    }
+
     const ownerSellerCode = extractSellerCode((requestData as any).vendedor);
-    const docRef = await addDoc(collection(db, REQUESTS_COLLECTION), {
+    const payload: Record<string, unknown> = {
       ...cleanData,
-      ownerUid: (requestData as any).createdBy ?? undefined,
-      ownerSellerCode: ownerSellerCode ?? undefined,
+      createdBy,
+      ownerUid: createdBy,
       createdAt: now,
       updatedAt: now,
-    });
+    };
+    if (ownerSellerCode) payload.ownerSellerCode = ownerSellerCode;
+
+    const docRef = await addDoc(collection(db, REQUESTS_COLLECTION), payload);
     return docRef.id;
   } catch (error) {
     console.error("Erro ao criar solicitação de visita:", error);
@@ -230,23 +245,30 @@ export const createVisitReport = async (
 ): Promise<string> => {
   try {
     const now = new Date().toISOString();
-    
-    // Remover campos undefined (Firebase não aceita)
+
+    // Firestore rejeita `undefined`. Construímos o payload omitindo campos
+    // ausentes em vez de defini-los como undefined.
     const cleanData = Object.fromEntries(
       Object.entries({ ...reportData }).filter(([, value]) => value !== undefined)
     );
-    
+
     const request = await getVisitRequestByRequestId(reportData.requestId);
     const ownerSellerCode =
       (request?.ownerSellerCode as string | undefined) ??
       extractSellerCode(request?.vendedor);
-    const docRef = await addDoc(collection(db, REPORTS_COLLECTION), {
+    const ownerUid = (request?.ownerUid ?? request?.createdBy) as
+      | string
+      | undefined;
+
+    const payload: Record<string, unknown> = {
       ...cleanData,
-      ownerUid: request?.ownerUid ?? request?.createdBy ?? undefined,
-      ownerSellerCode: ownerSellerCode ?? undefined,
       createdAt: now,
       updatedAt: now,
-    });
+    };
+    if (ownerUid) payload.ownerUid = ownerUid;
+    if (ownerSellerCode) payload.ownerSellerCode = ownerSellerCode;
+
+    const docRef = await addDoc(collection(db, REPORTS_COLLECTION), payload);
 
     // Atualizar a solicitação para indicar que tem relatório
     if (request && request.id) {
@@ -442,7 +464,30 @@ export async function loadVisitDataScoped(user: User | null): Promise<{
   reports: VisitReport[];
   byRequestId: Map<string, VisitRequest>;
 }> {
-  const isMacro = Boolean(user && (user.role === "admin" || user.role === "gestor"));
+  // Normaliza role pra evitar problemas com dados legados ("admin ", "Admin").
+  const rawRole = (user?.role ?? "").toString();
+  const normalizedRole = rawRole.trim().toLowerCase();
+  const isMacro = normalizedRole === "admin" || normalizedRole === "gestor";
+  // Diagnóstico: ajuda a entender por que a rule do servidor pode bloquear.
+  if (typeof window !== "undefined") {
+    try {
+      console.info(
+        "[loadVisitDataScoped] user check",
+        JSON.stringify({
+          uid: user?.uid ?? null,
+          email: user?.email ?? null,
+          rawRole,
+          rawRoleHex: Array.from(rawRole)
+            .map((c) => c.charCodeAt(0).toString(16))
+            .join(" "),
+          normalizedRole,
+          isMacro,
+        })
+      );
+    } catch {
+      // Ignora qualquer erro de serialização — é só log.
+    }
+  }
   const [allReq, allRep] = await Promise.all([
     isMacro ? getAllVisitRequests() : getVisitRequestsForUser(user),
     isMacro ? getAllVisitReports() : getVisitReportsForUser(user),

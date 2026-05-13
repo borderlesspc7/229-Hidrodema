@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../../hooks/useAuth";
+import { hasMacroVisibility } from "../../../lib/rbac";
 import Button from "../../../components/ui/Button/Button";
 import {
   listObraProjects,
@@ -186,10 +187,51 @@ export default function GerenciamentoObras() {
 
   useEffect(() => {
     let cancelled = false;
-    (async () => {
+    void (async () => {
+      if (!user) return;
       try {
+        // 1) Carrega as obras visíveis ao usuário (filtradas por ownerUid quando
+        //    não-macro — assim a query passa nas security rules sem cair em
+        //    `permission-denied`).
+        let userProjects = (await listObraProjectsForUser(user)) as
+          | unknown as Project[];
+
+        // Migração: se não tiver obra no Firestore mas houver no localStorage,
+        // promove para o backend para que o usuário não perca dados legados.
+        if (userProjects.length === 0) {
+          const savedProjects = localStorage.getItem("obrasProjects");
+          if (savedProjects) {
+            const parsed = JSON.parse(savedProjects) as Project[];
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              await Promise.all(
+                parsed.map((p) =>
+                  upsertObraProject({
+                    ...p,
+                    id: p.id,
+                    ownerUid: p.ownerUid ?? user.uid,
+                    createdAt: p.createdAt,
+                    updatedAt: p.updatedAt,
+                  } as unknown as Parameters<typeof upsertObraProject>[0])
+                )
+              );
+              localStorage.removeItem("obrasProjects");
+              userProjects = (await listObraProjectsForUser(user)) as
+                | unknown as Project[];
+            }
+          }
+        }
+        if (cancelled) return;
+        setProjects(userProjects);
+
+        // 2) Migra dados antigos (localStorage) e carrega módulos do gerenciamento
+        //    SEMPRE com escopo dos projetos do usuário: macro busca tudo,
+        //    demais filtram por `projectId in [...]` — único jeito de passar
+        //    nas rules `canAccessByProject`.
         await migrateGerenciamentoModuleFromLocalStorage();
-        const data = await loadGerenciamentoModuleData();
+        const scope = hasMacroVisibility(user)
+          ? { projectIds: null as null }
+          : { projectIds: userProjects.map((p) => p.id) };
+        const data = await loadGerenciamentoModuleData(scope);
         if (cancelled) return;
         setDiaryEntries(data.diaries);
         setInventory(data.inventory);
@@ -200,6 +242,7 @@ export default function GerenciamentoObras() {
         setReports(data.reports ?? []);
       } catch (e) {
         console.error(e);
+        if (cancelled) return;
         alert(
           "Não foi possível carregar diário/estoque/orçamentos no Firebase. Verifique permissões e conexão."
         );
@@ -208,43 +251,6 @@ export default function GerenciamentoObras() {
     return () => {
       cancelled = true;
     };
-  }, []);
-
-  useEffect(() => {
-    void (async () => {
-      if (!user) return;
-      try {
-        const list = await listObraProjectsForUser(user);
-        if (list.length > 0) {
-          setProjects(list as unknown as Project[]);
-          return;
-        }
-
-        // Migração: se ainda existir obras no localStorage, envia para o Firebase
-        const savedProjects = localStorage.getItem("obrasProjects");
-        if (savedProjects) {
-          const parsed = JSON.parse(savedProjects) as Project[];
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            await Promise.all(
-              parsed.map((p) =>
-                upsertObraProject({
-                  ...p,
-                  id: p.id,
-                  ownerUid: p.ownerUid ?? user.uid,
-                  createdAt: p.createdAt,
-                  updatedAt: p.updatedAt,
-                } as unknown as Parameters<typeof upsertObraProject>[0])
-              )
-            );
-            localStorage.removeItem("obrasProjects");
-            const migrated = await listObraProjectsForUser(user);
-            setProjects(migrated as unknown as Project[]);
-          }
-        }
-      } catch (e) {
-        console.error(e);
-      }
-    })();
   }, [user]);
 
   useEffect(() => {
