@@ -326,9 +326,24 @@ export default function GerenciamentoObras() {
     return reports.filter((r) => r.projectId === projectFilterId);
   }, [projectFilterId, reports]);
 
+  // Calcula os ids que sumiram entre estados consecutivos do array.
+  // Usado para comunicar `toDelete` ao service sem precisar varrer a coleção
+  // inteira no Firestore (que falharia com permission-denied nas coleções com
+  // regras escopadas por projeto/dono).
+  const diffRemovedIds = <T extends { id: string }>(
+    previous: T[],
+    next: T[]
+  ): string[] => {
+    const nextIds = new Set(next.map((item) => item.id));
+    return previous
+      .map((item) => item.id)
+      .filter((id) => !nextIds.has(id));
+  };
+
   const saveDiaries = async (entries: DiaryEntry[]) => {
     try {
-      await saveDiariesToCloud(entries);
+      const toDelete = diffRemovedIds(diaryEntries, entries);
+      await saveDiariesToCloud(entries, toDelete);
       setDiaryEntries(entries);
     } catch (e) {
       console.error(e);
@@ -340,7 +355,8 @@ export default function GerenciamentoObras() {
 
   const saveInventory = async (items: InventoryItem[]) => {
     try {
-      await saveInventoryToCloud(items);
+      const toDelete = diffRemovedIds(inventory, items);
+      await saveInventoryToCloud(items, toDelete);
       setInventory(items);
     } catch (e) {
       console.error(e);
@@ -350,7 +366,8 @@ export default function GerenciamentoObras() {
 
   const saveInventoryMovements = async (items: InventoryMovement[]) => {
     try {
-      await saveInventoryMovementsToCloud(items);
+      const toDelete = diffRemovedIds(inventoryMovements, items);
+      await saveInventoryMovementsToCloud(items, toDelete);
       setInventoryMovements(items);
     } catch (e) {
       console.error(e);
@@ -360,7 +377,8 @@ export default function GerenciamentoObras() {
 
   const saveBudgets = async (next: Budget[]) => {
     try {
-      await saveBudgetsToCloud(next);
+      const toDelete = diffRemovedIds(budgets, next);
+      await saveBudgetsToCloud(next, toDelete);
       setBudgets(next);
     } catch (e) {
       console.error(e);
@@ -370,7 +388,8 @@ export default function GerenciamentoObras() {
 
   const saveSuppliers = async (next: Supplier[]) => {
     try {
-      await saveSuppliersToCloud(next);
+      const toDelete = diffRemovedIds(suppliers, next);
+      await saveSuppliersToCloud(next, toDelete);
       setSuppliers(next);
     } catch (e) {
       console.error(e);
@@ -380,7 +399,8 @@ export default function GerenciamentoObras() {
 
   const saveQualityChecklists = async (next: QualityChecklist[]) => {
     try {
-      await saveQualityChecklistsToCloud(next);
+      const toDelete = diffRemovedIds(qualityChecklists, next);
+      await saveQualityChecklistsToCloud(next, toDelete);
       setQualityChecklists(next);
     } catch (e) {
       console.error(e);

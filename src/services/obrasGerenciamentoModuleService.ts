@@ -92,23 +92,33 @@ const LS_KEYS = {
 
 const BATCH_MAX = 450;
 
-async function replaceByIdCollection<T extends { id: string }>(
+/**
+ * Aplica mudanças explícitas (upsert + delete) em uma coleção, em batches.
+ *
+ * IMPORTANTE: Esta função NÃO lê a coleção inteira do Firestore. As regras de
+ * segurança das coleções de obras (`canAccessByProject(resource.data)`) só
+ * permitem leitura/escrita de documentos visíveis ao usuário, então um
+ * `getDocs(collection(db, col))` SEM filtro falhava com `permission-denied`
+ * sempre que existiam registros de outros projetos/donos — causando o erro
+ * "nenhum relatório está sendo salvo".
+ *
+ * O chamador (frontend) já tem o state anterior em memória e sabe quais ids
+ * sumiram; basta passar `toDelete` explicitamente.
+ */
+async function applyByIdCollectionChanges<T extends { id: string }>(
   col: string,
-  items: T[]
+  toUpsert: T[],
+  toDelete: string[] = []
 ): Promise<void> {
-  const snap = await getDocs(collection(db, col));
-  const existing = new Set(snap.docs.map((d) => d.id));
-  const incoming = new Set(items.map((i) => i.id));
-
   type Op =
     | { kind: "delete"; id: string }
     | { kind: "set"; id: string; data: Record<string, unknown> };
 
   const ops: Op[] = [];
-  for (const id of existing) {
-    if (!incoming.has(id)) ops.push({ kind: "delete", id });
+  for (const id of toDelete) {
+    ops.push({ kind: "delete", id });
   }
-  for (const item of items) {
+  for (const item of toUpsert) {
     ops.push({
       kind: "set",
       id: item.id,
@@ -219,41 +229,47 @@ export async function migrateGerenciamentoModuleFromLocalStorage(): Promise<void
     {
       col: C_DIARIES,
       lsKey: LS_KEYS.diaries,
-      replace: (items) => replaceByIdCollection(C_DIARIES, items as DiaryEntry[]),
+      replace: (items) =>
+        applyByIdCollectionChanges(C_DIARIES, items as DiaryEntry[]),
     },
     {
       col: C_INVENTORY,
       lsKey: LS_KEYS.inventory,
       replace: (items) =>
-        replaceByIdCollection(C_INVENTORY, items as InventoryItem[]),
+        applyByIdCollectionChanges(C_INVENTORY, items as InventoryItem[]),
     },
     {
       col: C_INVENTORY_MOVEMENTS,
       lsKey: LS_KEYS.inventoryMovements,
       replace: (items) =>
-        replaceByIdCollection(C_INVENTORY_MOVEMENTS, items as InventoryMovement[]),
+        applyByIdCollectionChanges(
+          C_INVENTORY_MOVEMENTS,
+          items as InventoryMovement[]
+        ),
     },
     {
       col: C_BUDGETS,
       lsKey: LS_KEYS.budgets,
-      replace: (items) => replaceByIdCollection(C_BUDGETS, items as Budget[]),
+      replace: (items) =>
+        applyByIdCollectionChanges(C_BUDGETS, items as Budget[]),
     },
     {
       col: C_SUPPLIERS,
       lsKey: LS_KEYS.suppliers,
       replace: (items) =>
-        replaceByIdCollection(C_SUPPLIERS, items as Supplier[]),
+        applyByIdCollectionChanges(C_SUPPLIERS, items as Supplier[]),
     },
     {
       col: C_QUALITY,
       lsKey: LS_KEYS.quality,
       replace: (items) =>
-        replaceByIdCollection(C_QUALITY, items as QualityChecklist[]),
+        applyByIdCollectionChanges(C_QUALITY, items as QualityChecklist[]),
     },
     {
       col: C_REPORTS,
       lsKey: LS_KEYS.reports,
-      replace: (items) => replaceByIdCollection(C_REPORTS, items as ObraReport[]),
+      replace: (items) =>
+        applyByIdCollectionChanges(C_REPORTS, items as ObraReport[]),
     },
   ];
 
@@ -275,40 +291,53 @@ export async function migrateGerenciamentoModuleFromLocalStorage(): Promise<void
   }
 }
 
-export async function saveDiariesToCloud(entries: DiaryEntry[]): Promise<void> {
-  await replaceByIdCollection(C_DIARIES, entries);
+export async function saveDiariesToCloud(
+  entries: DiaryEntry[],
+  toDelete: string[] = []
+): Promise<void> {
+  await applyByIdCollectionChanges(C_DIARIES, entries, toDelete);
 }
 
 export async function saveInventoryToCloud(
-  items: InventoryItem[]
+  items: InventoryItem[],
+  toDelete: string[] = []
 ): Promise<void> {
-  await replaceByIdCollection(C_INVENTORY, items);
+  await applyByIdCollectionChanges(C_INVENTORY, items, toDelete);
 }
 
 export async function saveInventoryMovementsToCloud(
-  movements: InventoryMovement[]
+  movements: InventoryMovement[],
+  toDelete: string[] = []
 ): Promise<void> {
-  await replaceByIdCollection(C_INVENTORY_MOVEMENTS, movements);
+  await applyByIdCollectionChanges(C_INVENTORY_MOVEMENTS, movements, toDelete);
 }
 
-export async function saveBudgetsToCloud(budgets: Budget[]): Promise<void> {
-  await replaceByIdCollection(C_BUDGETS, budgets);
+export async function saveBudgetsToCloud(
+  budgets: Budget[],
+  toDelete: string[] = []
+): Promise<void> {
+  await applyByIdCollectionChanges(C_BUDGETS, budgets, toDelete);
 }
 
 export async function saveSuppliersToCloud(
-  suppliers: Supplier[]
+  suppliers: Supplier[],
+  toDelete: string[] = []
 ): Promise<void> {
-  await replaceByIdCollection(C_SUPPLIERS, suppliers);
+  await applyByIdCollectionChanges(C_SUPPLIERS, suppliers, toDelete);
 }
 
 export async function saveQualityChecklistsToCloud(
-  checklists: QualityChecklist[]
+  checklists: QualityChecklist[],
+  toDelete: string[] = []
 ): Promise<void> {
-  await replaceByIdCollection(C_QUALITY, checklists);
+  await applyByIdCollectionChanges(C_QUALITY, checklists, toDelete);
 }
 
-export async function saveReportsToCloud(reports: ObraReport[]): Promise<void> {
-  await replaceByIdCollection(C_REPORTS, reports);
+export async function saveReportsToCloud(
+  reports: ObraReport[],
+  toDelete: string[] = []
+): Promise<void> {
+  await applyByIdCollectionChanges(C_REPORTS, reports, toDelete);
 }
 
 export async function listReportsFromCloud(): Promise<ObraReport[]> {
