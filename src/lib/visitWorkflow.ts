@@ -1,9 +1,7 @@
 import type { VisitRequest } from "../services/visitasService";
 
-/** Estados usados na planilha (UI) além dos guardados em `VisitRequest`. */
-export type VisitWorkflowUiStatus =
-  | VisitRequest["status"]
-  | "awaiting-report";
+/** Estados usados na planilha (alinhados a `VisitRequest.status`). */
+export type VisitWorkflowUiStatus = VisitRequest["status"];
 
 export type VisitWorkflowInput = {
   status: VisitWorkflowUiStatus;

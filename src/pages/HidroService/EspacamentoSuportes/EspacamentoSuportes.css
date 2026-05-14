@@ -181,6 +181,8 @@
   text-align: center;
   border: 1px solid #dee2e6;
   font-weight: 500;
+  /* Não herdar --hd-text do container (fundo claro nas linhas). */
+  color: #0f172a;
 }
 
 .diameter-cell {

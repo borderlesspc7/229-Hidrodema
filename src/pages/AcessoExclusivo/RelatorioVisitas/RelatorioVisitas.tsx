@@ -46,7 +46,7 @@ import {
   type VisitComment,
   type VisitReport,
 } from "../../../services/visitasService";
-import { sanitizeForDatabase, validateVisitFormData } from "../../../lib/validation";
+import { sanitizeForDatabase, validateVisitFormData, visitConfirmationOk } from "../../../lib/validation";
 import {
   canDeleteVisitRequest,
   canMutateVisitReport,
@@ -60,6 +60,7 @@ import {
   buildHidrodemaPrintDocument,
   escapeHtml,
 } from "../../../lib/printPdfBranding";
+import { sortByCreatedAtDesc } from "../../../lib/firestoreSort";
 
 interface FormData {
   [key: string]: string | string[];
@@ -105,6 +106,25 @@ interface DisplayVisit {
   canMutate: boolean;
 }
 
+/** Solicitações ainda sem relatório (e não canceladas) — prioridade na fila / dropdown. */
+function isVisitRequestAwaitingReport(v: DisplayVisit): boolean {
+  return (
+    Boolean(v.isRequest) &&
+    !v.hasReport &&
+    v.status !== "cancelled"
+  );
+}
+
+/**
+ * Ordena a lista para o fluxo “nova solicitação → relatório”: pendentes de relatório
+ * primeiro (mais recentes no topo), depois o restante por data de criação.
+ */
+function sortDisplayVisitsForWorkQueue(items: DisplayVisit[]): DisplayVisit[] {
+  const open = items.filter(isVisitRequestAwaitingReport);
+  const rest = items.filter((x) => !isVisitRequestAwaitingReport(x));
+  return [...sortByCreatedAtDesc(open), ...sortByCreatedAtDesc(rest)];
+}
+
 export default function RelatorioVisitas() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -139,7 +159,8 @@ export default function RelatorioVisitas() {
 
   const startNewRequest = () => {
     setViewMode("new");
-    setCurrentSection(1); // "Geral" (tela do print com a escolha da ação)
+    // Primeira seção = "Geral" (ação); regional/vendedores vêm em seguida.
+    setCurrentSection(0);
     setFormData({});
     setLoadedRequest(null);
     setEditingReport(null);
@@ -180,7 +201,7 @@ export default function RelatorioVisitas() {
   }, [formData.q19, formData.q21]);
 
   const shouldShowQuestion = (q: Question) => {
-    // Seção 1: ao escolher a regional, mostrar apenas o select de vendedores correspondente.
+    // Regional: ao escolher a regional, mostrar apenas o select de vendedores correspondente.
     if (q.section === "Informações Regionais e Vendedores") {
       if (q.id === "q1") return true;
       if (q.id === "q2") return selectedRegional.includes("VEND I & II");
@@ -195,13 +216,23 @@ export default function RelatorioVisitas() {
     return true;
   };
 
-  // Estrutura preparada para receber 25 perguntas sobre visitas
+  // Perguntas por secção (ordem no array: Geral → regional → resto; IDs q1…q30 mantidos para dados gravados)
   const questions: Question[] = [
-    // Seção 1: Informações Regionais e Vendedores
+    {
+      id: "q6",
+      type: "radio",
+      question: "1 - Selecione a ação que deseja realizar",
+      section: "Geral",
+      required: true,
+      options: [
+        "Solicitar uma nova visita",
+        "Fazer o relatório de uma visita realizada",
+      ],
+    },
     {
       id: "q1",
       type: "radio",
-      question: "1 - Informe sua Regional",
+      question: "2 - Informe sua Regional",
       section: "Informações Regionais e Vendedores",
       required: true,
       options: [
@@ -214,7 +245,7 @@ export default function RelatorioVisitas() {
     {
       id: "q2",
       type: "select",
-      question: "2 - Vendedor Solicitação - VEND I & II",
+      question: "3 - Vendedor Solicitação - VEND I & II",
       section: "Informações Regionais e Vendedores",
       required: true,
       options: [
@@ -235,7 +266,7 @@ export default function RelatorioVisitas() {
     {
       id: "q3",
       type: "select",
-      question: "3 - Vendedor Solicitação - Hunters",
+      question: "4 - Vendedor Solicitação - Hunters",
       section: "Informações Regionais e Vendedores",
       required: true,
       options: [
@@ -255,7 +286,7 @@ export default function RelatorioVisitas() {
     {
       id: "q4",
       type: "select",
-      question: "4 - Vendedor Solicitação - HVAC",
+      question: "5 - Vendedor Solicitação - HVAC",
       section: "Informações Regionais e Vendedores",
       required: true,
       options: [
@@ -285,7 +316,7 @@ export default function RelatorioVisitas() {
     {
       id: "q5",
       type: "select",
-      question: "5 - Vendedor Solicitação - Expansão & Novos Negócios",
+      question: "6 - Vendedor Solicitação - Expansão & Novos Negócios",
       section: "Informações Regionais e Vendedores",
       required: true,
       options: [
@@ -296,19 +327,7 @@ export default function RelatorioVisitas() {
         "035198 - RAFAEL SOUZA DA COSTA",
       ],
     },
-    // Seção 2: Geral
-    {
-      id: "q6",
-      type: "radio",
-      question: "6 - Selecione a ação que deseja realizar",
-      section: "Geral",
-      required: true,
-      options: [
-        "Solicitar uma nova visita",
-        "Fazer o relatório de uma visita realizada",
-      ],
-    },
-    // Seção 3: Dados do Cliente
+    // Dados do Cliente
     {
       id: "q7",
       type: "text",
@@ -444,20 +463,11 @@ export default function RelatorioVisitas() {
         "Confirmo que todas as informações fornecidas estão corretas e autorizo o processamento desta solicitação de visita",
       ],
     },
-    // Seção 6: Instruções para Relatório
-    {
-      id: "q19",
-      type: "text",
-      question: "19 - ID da Solicitação",
-      section: "Instruções para Relatório",
-      required: true,
-      placeholder: "Insira o ID da solicitação prévia",
-    },
-    // Seção 7: Dados da Visita
+    // Relatório: dados da visita (ID único — campo q21; q19 mantido em dados antigos via sincronização)
     {
       id: "q20",
       type: "radio",
-      question: "20 - Possui o número de solicitação da visita (ID)",
+      question: "19 - Possui o número de solicitação da visita (ID)",
       section: "Dados da Visita",
       required: true,
       options: ["Sim", "Não"],
@@ -465,17 +475,17 @@ export default function RelatorioVisitas() {
     {
       id: "q21",
       type: "text",
-      question: "21 - Solicitação de Visita",
+      question: "20 - ID da solicitação de visita",
       section: "Dados da Visita",
       required: true,
       instruction:
-        "Adicione o ID da Solicitação de visita que está referenciando.",
-      placeholder: "O número não pode ser 0",
+        "Selecione na lista (solicitações sem relatório) ou informe o código REQ-… da solicitação prévia.",
+      placeholder: "Ex.: REQ-20260514-12345",
     },
     {
       id: "q22",
       type: "text",
-      question: "22 - Nome do Cliente Visitado",
+      question: "21 - Nome do Cliente Visitado",
       section: "Dados da Visita",
       required: true,
       placeholder: "Insira sua resposta",
@@ -483,7 +493,7 @@ export default function RelatorioVisitas() {
     {
       id: "q23",
       type: "date",
-      question: "23 - Data da Visita",
+      question: "22 - Data da Visita",
       section: "Dados da Visita",
       required: true,
       placeholder: "Insira a data (dd/MM/yyyy)",
@@ -491,7 +501,7 @@ export default function RelatorioVisitas() {
     {
       id: "q24",
       type: "radio",
-      question: "24 - Essa visita foi Online",
+      question: "23 - Essa visita foi Online",
       section: "Dados da Visita",
       required: true,
       options: [
@@ -502,7 +512,7 @@ export default function RelatorioVisitas() {
     {
       id: "q25",
       type: "checkbox",
-      question: "25 - Quem realizou a visita",
+      question: "24 - Quem realizou a visita",
       section: "Dados da Visita",
       required: true,
       options: [
@@ -520,7 +530,7 @@ export default function RelatorioVisitas() {
     {
       id: "q26",
       type: "select",
-      question: "26 - Tema principal da visita",
+      question: "25 - Tema principal da visita",
       section: "Relatório",
       required: true,
       options: [
@@ -538,7 +548,7 @@ export default function RelatorioVisitas() {
     {
       id: "q27",
       type: "textarea",
-      question: "27 - Relatório da Visita",
+      question: "26 - Relatório da Visita",
       section: "Relatório",
       required: true,
       instruction: "Relatar com detalhes o que foi realizado na visita",
@@ -547,7 +557,7 @@ export default function RelatorioVisitas() {
     {
       id: "q28",
       type: "checkbox",
-      question: "28 - Ponto Emocional Principal Constatado",
+      question: "27 - Ponto Emocional Principal Constatado",
       section: "Relatório",
       required: true,
       options: [
@@ -569,7 +579,7 @@ export default function RelatorioVisitas() {
     {
       id: "q29",
       type: "text",
-      question: "29 - Próxima Ação",
+      question: "28 - Próxima Ação",
       section: "Relatório",
       required: true,
       instruction: "Vendedor / Engenharia / Logística...",
@@ -578,17 +588,17 @@ export default function RelatorioVisitas() {
     {
       id: "q30",
       type: "date",
-      question: "30 - Data para o Próximo Follow UP",
+      question: "29 - Data para o Próximo Follow UP",
       section: "Relatório",
       required: true,
       placeholder: "Insira a data (dd/MM/yyyy)",
     },
   ];
 
-  // Seções para Solicitação de Visita
+  // Seções para Solicitação de Visita ("Geral" primeiro: nova visita vs relatório)
   const solicitacaoSections = [
-    "Informações Regionais e Vendedores",
     "Geral",
+    "Informações Regionais e Vendedores",
     "Dados do Cliente",
     "Solicitação de Visita",
     "Confirmação",
@@ -611,8 +621,8 @@ export default function RelatorioVisitas() {
       return relatorioSections;
     }
 
-    // Se ainda não selecionou, mostrar apenas até a seção Geral
-    return ["Informações Regionais e Vendedores", "Geral"];
+    // Ainda sem ação: Geral primeiro, depois regional/vendedores
+    return ["Geral", "Informações Regionais e Vendedores"];
   };
 
   const sections = getActiveSections();
@@ -626,13 +636,17 @@ export default function RelatorioVisitas() {
         user ?? null
       );
 
+      // Ordem estável: mais recente primeiro — nova solicitação no topo, a anterior logo abaixo.
+      const sortedRequests = sortByCreatedAtDesc([...requests]);
+
       // Filtrar solicitações que ainda não têm relatório (disponíveis para fazer relatório)
-      const requestsWithoutReport = requests.filter((req) => !req.hasReport);
+      const requestsWithoutReport = sortedRequests.filter((req) => !req.hasReport);
       setAvailableRequests(requestsWithoutReport);
 
       // Combinar para exibição
+      const sortedReports = sortByCreatedAtDesc([...reports]);
       const displayData: DisplayVisit[] = [
-        ...requests.map((req) => ({
+        ...sortedRequests.map((req) => ({
           id: req.id || "",
           requestId: req.requestId,
           title: `${req.clientName} - ${new Date(
@@ -655,7 +669,7 @@ export default function RelatorioVisitas() {
           isRequest: true,
           canMutate: user ? canDeleteVisitRequest(user, req) : false,
         })),
-        ...reports.map((rep: VisitReport) => {
+        ...sortedReports.map((rep: VisitReport) => {
           const parent = rep.requestId
             ? byRequestId.get(rep.requestId)
             : undefined;
@@ -679,10 +693,12 @@ export default function RelatorioVisitas() {
         }),
       ];
 
+      const orderedDisplay = sortDisplayVisitsForWorkQueue(displayData);
+
       // Seed visual (apenas DEV): deixa a planilha com 1 linha igual ao mock do layout.
       // Não afeta produção e não sobrescreve dados reais.
       const seeded =
-        import.meta.env.DEV && displayData.length === 0
+        import.meta.env.DEV && orderedDisplay.length === 0
           ? ([
               {
                 id: "mock-visit-1",
@@ -702,7 +718,7 @@ export default function RelatorioVisitas() {
                 canMutate: false,
               } satisfies DisplayVisit,
             ] as DisplayVisit[])
-          : displayData;
+          : orderedDisplay;
 
       setVisitReports(seeded);
     } catch (err) {
@@ -719,8 +735,6 @@ export default function RelatorioVisitas() {
       setLoadedRequest(null);
       return;
     }
-
-    console.log("📋 Carregando solicitação ID:", requestId);
 
     // Buscar a solicitação na lista de disponíveis
     const request = availableRequests.find(
@@ -741,8 +755,6 @@ export default function RelatorioVisitas() {
         // Dados da visita
         q23: request.visitDate,
       }));
-
-      console.log("✅ Dados carregados com sucesso!");
     }
   };
 
@@ -766,9 +778,9 @@ export default function RelatorioVisitas() {
       };
     });
 
-    // Se mudou a seleção de ação (q6), resetar para a seção Geral
+    // Se mudou a seleção de ação (q6), voltar ao início do fluxo (seção Geral)
     if (questionId === "q6") {
-      setCurrentSection(1); // Índice da seção "Geral"
+      setCurrentSection(0);
       setLoadedRequest(null); // Limpar solicitação carregada
       setCheckInAt(null);
       setCheckInGeo(null);
@@ -859,6 +871,17 @@ export default function RelatorioVisitas() {
   };
 
   const handleNext = () => {
+    const curSectionName = sections[currentSection];
+    if (
+      curSectionName === "Geral" &&
+      !String(formData.q6 ?? "").trim() &&
+      currentSection < sections.length - 1
+    ) {
+      alert(
+        'Selecione primeiro a ação em "1 - Selecione a ação que deseja realizar" antes de avançar.'
+      );
+      return;
+    }
     if (currentSection < sections.length - 1) {
       setCurrentSection(currentSection + 1);
     }
@@ -1055,6 +1078,37 @@ export default function RelatorioVisitas() {
     }
   };
 
+  const initialSectionIndexForVisitEdit = (fd: FormData): number => {
+    const action = String(fd.q6 ?? "").trim();
+    const secList: readonly string[] =
+      action === "Solicitar uma nova visita"
+        ? solicitacaoSections
+        : action === "Fazer o relatório de uma visita realizada"
+          ? relatorioSections
+          : ["Geral", "Informações Regionais e Vendedores"];
+
+    const ix = (name: string) => {
+      const i = secList.indexOf(name);
+      return i >= 0 ? i : 0;
+    };
+
+    if (action === "Fazer o relatório de uma visita realizada") {
+      if (String(fd.q27 ?? "").trim().length >= 10) return ix("Relatório");
+      if (String(fd.q22 ?? "").trim()) return ix("Dados da Visita");
+      const rid = String(fd.q21 ?? fd.q19 ?? "").trim();
+      if (rid) return ix("Dados da Visita");
+      return 0;
+    }
+    if (action === "Solicitar uma nova visita") {
+      if (visitConfirmationOk(fd.q18)) return ix("Confirmação");
+      if (String(fd.q12 ?? "").trim()) return ix("Solicitação de Visita");
+      if (String(fd.q7 ?? "").trim()) return ix("Dados do Cliente");
+      if (String(fd.q1 ?? "").trim()) return ix("Informações Regionais e Vendedores");
+      return ix("Geral");
+    }
+    return 0;
+  };
+
   const handleEditReport = (report: DisplayVisit) => {
     if (!report.canMutate) {
       alert("Sem permissão para editar este registro.");
@@ -1062,6 +1116,7 @@ export default function RelatorioVisitas() {
     }
     setEditingReport(report);
     setFormData(report.formData);
+    setCurrentSection(initialSectionIndexForVisitEdit(report.formData as FormData));
     // Lembra de onde veio (planilha/histórico/comentários) para retorno do "Voltar"
     // e do salvar funcionarem corretamente.
     if (viewMode === "schedule" || viewMode === "history" || viewMode === "comments") {
@@ -1344,8 +1399,8 @@ export default function RelatorioVisitas() {
 
     switch (question.type) {
       case "text":
-        // Se for q19 ou q21 (seleção de solicitação), mostrar SELECT em vez de INPUT
-        if (question.id === "q19" || question.id === "q21") {
+        // q21: lista de solicitações (text no modelo, select na UI)
+        if (question.id === "q21") {
           return (
             <div className="visitas-form-question" key={question.id}>
               <label className="visitas-question-label">
@@ -1626,9 +1681,16 @@ export default function RelatorioVisitas() {
     }
   };
 
-  const currentQuestions = questions.filter(
-    (q) => q.section === sections[currentSection] && shouldShowQuestion(q)
-  );
+  const currentQuestions = questions.filter((q) => {
+    if (q.section !== sections[currentSection]) return false;
+    if (
+      q.section === "Informações Regionais e Vendedores" &&
+      !String(formData.q6 ?? "").trim()
+    ) {
+      return false;
+    }
+    return shouldShowQuestion(q);
+  });
   const progress = ((currentSection + 1) / sections.length) * 100;
 
   // Carregar dados na inicialização e quando o perfil muda
@@ -2027,7 +2089,7 @@ export default function RelatorioVisitas() {
           variant="service"
           className="visitas-form-card"
           title=""
-          textColor="#1e293b"
+          textColor="#f8fafc"
         >
           <div className="visitas-form-header">
             <h2 className="visitas-form-title">
@@ -2127,7 +2189,7 @@ export default function RelatorioVisitas() {
                   )}
                   {currentQuestions.map(renderQuestion)}
                 </>
-              ) : currentSection > 1 && !formData.q6 ? (
+              ) : currentSection > 0 && !formData.q6 ? (
                 <div className="visitas-placeholder-message">
                   <p>
                     ⚠️ Por favor, volte à seção "Geral" e selecione a ação que
@@ -2172,7 +2234,15 @@ export default function RelatorioVisitas() {
                   className={`visitas-section-dot ${
                     index === currentSection ? "active" : ""
                   } ${index < currentSection ? "completed" : ""}`}
-                  onClick={() => setCurrentSection(index)}
+                  onClick={() => {
+                    if (index > 0 && !String(formData.q6 ?? "").trim()) {
+                      alert(
+                        'Selecione primeiro a ação na seção "Geral" para navegar adiante.'
+                      );
+                      return;
+                    }
+                    setCurrentSection(index);
+                  }}
                 />
               ))}
             </div>

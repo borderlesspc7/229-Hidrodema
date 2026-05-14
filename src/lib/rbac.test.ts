@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   filterVisitRequestsForUser,
   hasMacroVisibility,
+  isAdmin,
   userOwnsVisitRow,
 } from "./rbac";
 import type { User } from "../types/user";
@@ -15,6 +16,17 @@ const baseUser = (): User => ({
   updatedAt: new Date(),
   role: "vendedor",
   sellerCode: "002620",
+});
+
+describe("isAdmin / roles legados", () => {
+  it("normaliza role com maiúsculas e espaços (Firestore legado)", () => {
+    expect(
+      isAdmin({
+        ...baseUser(),
+        role: " Admin " as unknown as User["role"],
+      })
+    ).toBe(true);
+  });
 });
 
 describe("hasMacroVisibility", () => {

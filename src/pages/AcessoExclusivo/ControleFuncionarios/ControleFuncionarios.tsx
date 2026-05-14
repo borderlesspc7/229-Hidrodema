@@ -8,7 +8,6 @@ import { normalizeRole, isAdmin } from "../../../lib/rbac";
 import { listUsers, updateUserAdminFields } from "../../../services/usersService";
 import { createDelegatedTask } from "../../../services/delegatedTasksService";
 import type { User, UserRole } from "../../../types/user";
-import { paths } from "../../../routes/paths";
 import { FiArrowLeft, FiRefreshCw, FiSave, FiUsers } from "react-icons/fi";
 import "./ControleFuncionarios.css";
 
@@ -64,14 +63,9 @@ export default function ControleFuncionarios() {
   };
 
   useEffect(() => {
-    if (!user) return;
-    if (!canSee) {
-      navigate(paths.acessoExclusivo);
-      return;
-    }
+    if (!user || !canSee) return;
     void load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.uid]);
+  }, [user?.uid, canSee]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -147,7 +141,9 @@ export default function ControleFuncionarios() {
       <div className="funcionarios-header">
         <Button
           variant="secondary"
-          onClick={() => navigate(paths.acessoExclusivo)}
+          onClick={() =>
+            navigate("..", { relative: "path", replace: true })
+          }
           className="funcionarios-back"
         >
           <FiArrowLeft size={16} />

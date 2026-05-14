@@ -35,7 +35,7 @@ export interface VisitRequest {
   visitDate: string;
   visitPeriod: string;
   responsibleSalesperson: string;
-  status: "pending" | "scheduled" | "completed" | "cancelled";
+  status: "pending" | "scheduled" | "awaiting-report" | "completed" | "cancelled";
   hasReport: boolean;
   formData: { [key: string]: string | string[] };
   createdAt: string;

@@ -122,6 +122,70 @@ async function getUserDocFromFirestore(uid: string) {
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+function asMinimalUser(firebaseUser: { uid: string; email: string | null; displayName: string | null }): User {
+  const now = new Date();
+  return {
+    uid: firebaseUser.uid,
+    email: firebaseUser.email ?? "",
+    name:
+      firebaseUser.displayName ??
+      (firebaseUser.email ? firebaseUser.email.split("@")[0] : "Usuário"),
+    createdAt: now,
+    updatedAt: now,
+    role: "user",
+  };
+}
+
+type FirebaseAuthLite = { uid: string; email: string | null; displayName: string | null };
+
+/**
+ * Mesma regra que no fluxo principal de `observeAuthState` (role + opcional claim de vendedor).
+ * Usado também no recovery pós-offline para não reentregar `role` legado sem normalizar.
+ */
+async function hydrateUserFromUserDoc(
+  firebaseUser: FirebaseAuthLite,
+  userDoc: Awaited<ReturnType<typeof getUserDocFromFirestore>>
+): Promise<User> {
+  if (!userDoc.exists()) {
+    return asMinimalUser({
+      uid: firebaseUser.uid,
+      email: firebaseUser.email,
+      displayName: firebaseUser.displayName,
+    });
+  }
+
+  let userData = userDoc.data() as User;
+
+  const rawRole = (userData.role ?? "").toString();
+  const normalizedRole = rawRole.trim().toLowerCase();
+  if (normalizedRole && normalizedRole !== rawRole) {
+    userData = { ...userData, role: normalizedRole as User["role"] };
+    try {
+      await setDoc(
+        doc(db, "users", firebaseUser.uid),
+        { role: normalizedRole },
+        { merge: true }
+      );
+    } catch (e) {
+      console.warn("Falha ao normalizar role no Firestore:", e);
+    }
+  }
+
+  const effectiveRole = (userData.role ?? "").toString().trim().toLowerCase();
+  const isVendorRole = effectiveRole !== "admin" && effectiveRole !== "gestor";
+  if (isVendorRole && !userData.sellerCode) {
+    try {
+      await claimSellerProfile();
+      const refreshed = await getUserDocFromFirestore(firebaseUser.uid);
+      if (refreshed.exists()) userData = refreshed.data() as User;
+    } catch {
+      // not-found / failed-precondition / CORS-em-dev: ignore.
+    }
+  }
+
+  return userData;
+}
+
 /**
  * Reentrega o perfil completo quando o Firestore voltar a responder.
  *
@@ -139,9 +203,18 @@ function scheduleProfileRecovery(
     for (const delay of delays) {
       await sleep(delay);
       try {
-        const doc = await getUserDocFromFirestore(uid);
-        if (doc.exists()) {
-          callback(doc.data() as User);
+        const userDoc = await getUserDocFromFirestore(uid);
+        if (userDoc.exists()) {
+          callback(
+            await hydrateUserFromUserDoc(
+              {
+                uid,
+                email: firebaseUser.email,
+                displayName: firebaseUser.displayName,
+              },
+              userDoc
+            )
+          );
         } else {
           callback(
             asMinimalUser({
@@ -157,20 +230,6 @@ function scheduleProfileRecovery(
       }
     }
   })();
-}
-
-function asMinimalUser(firebaseUser: { uid: string; email: string | null; displayName: string | null }): User {
-  const now = new Date();
-  return {
-    uid: firebaseUser.uid,
-    email: firebaseUser.email ?? "",
-    name:
-      firebaseUser.displayName ??
-      (firebaseUser.email ? firebaseUser.email.split("@")[0] : "Usuário"),
-    createdAt: now,
-    updatedAt: now,
-    role: "user",
-  };
 }
 
 function isFirestoreOfflineError(err: unknown): boolean {
@@ -330,50 +389,7 @@ export const authService = {
           try {
             const userDoc = await getUserDocFromFirestore(firebaseUser.uid);
             if (userDoc.exists()) {
-              let userData = userDoc.data() as User;
-
-              // Registros legados às vezes vêm com `role: "admin "` (espaço
-              // extra), `"Admin"`, etc. Isso quebra checks no client e no
-              // backend. Normalizamos uma única vez e gravamos de volta.
-              // Importante: aguardamos o setDoc completar antes de devolver
-              // o user, senão as primeiras queries (ex.: listagem em
-              // RelatorioVisitas) chegam no Firestore com o role ANTIGO no
-              // doc — as rules avaliam `users/{uid}.role` e bloqueiam.
-              const rawRole = (userData.role ?? "").toString();
-              const normalizedRole = rawRole.trim().toLowerCase();
-              if (normalizedRole && normalizedRole !== rawRole) {
-                userData = { ...userData, role: normalizedRole as User["role"] };
-                try {
-                  await setDoc(
-                    doc(db, "users", firebaseUser.uid),
-                    { role: normalizedRole },
-                    { merge: true }
-                  );
-                } catch (e) {
-                  console.warn("Falha ao normalizar role no Firestore:", e);
-                }
-              }
-
-              // Tenta auto-vínculo de vendedor via Cloud Function só pra quem
-              // realmente pode ser vendedor — admin/gestor não tem sellerCode
-              // por design, então pular evita chamada inútil que ainda por
-              // cima gera ruído de CORS quando rodando em localhost.
-              const effectiveRole = (userData.role ?? "")
-                .toString()
-                .trim()
-                .toLowerCase();
-              const isVendorRole =
-                effectiveRole !== "admin" && effectiveRole !== "gestor";
-              if (isVendorRole && !userData.sellerCode) {
-                try {
-                  await claimSellerProfile();
-                  const refreshed = await getUserDocFromFirestore(firebaseUser.uid);
-                  if (refreshed.exists()) userData = refreshed.data() as User;
-                } catch {
-                  // not-found / failed-precondition / CORS-em-dev: ignore.
-                }
-              }
-
+              const userData = await hydrateUserFromUserDoc(firebaseUser, userDoc);
               callback(userData);
             } else {
               // Usuário não encontrado no Firestore: devolve perfil mínimo (não bloqueia UI).

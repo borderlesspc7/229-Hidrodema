@@ -3,7 +3,8 @@ import type { VisitRequest, VisitReport } from "../services/visitasService";
 import type { ServiceRequest } from "../services/servicosService";
 
 export function normalizeRole(role: User["role"]): UserRole {
-  if (role === "admin" || role === "gestor" || role === "vendedor") return role;
+  const r = (role ?? "").toString().trim().toLowerCase();
+  if (r === "admin" || r === "gestor" || r === "vendedor" || r === "user") return r;
   return "user";
 }
 

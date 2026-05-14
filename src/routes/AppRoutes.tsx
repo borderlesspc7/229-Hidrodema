@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { Route, Routes, Navigate } from "react-router-dom";
+import { Route, Routes, Navigate, Outlet } from "react-router-dom";
 import { paths } from "./paths";
 import Login from "../pages/LoginPage/Login";
 import { ProtectedRoute } from "./ProtectedRoute";
@@ -60,23 +60,25 @@ export const AppRoutes = () => {
           }
         />
 
-        {/* Rotas aninhadas para acesso exclusivo */}
+        {/* Uma árvore aninhada: mesmo `ProtectedRoute`, `index` = menu, `*` = subrotas (RR7 não compete duas rotas irmãs no mesmo prefixo). */}
         <Route
           path={paths.acessoExclusivo}
           element={
             <ProtectedRoute>
-              <AcessoExclusivo />
+              <Outlet />
             </ProtectedRoute>
           }
-        />
-        <Route
-          path={`${paths.acessoExclusivo}/*`}
-          element={
-            <ProtectedRoute>
-              <ExclusiveRoutes />
-            </ProtectedRoute>
-          }
-        />
+        >
+          <Route
+            index
+            element={
+              <Suspense fallback={<PageLoading />}>
+                <AcessoExclusivo />
+              </Suspense>
+            }
+          />
+          <Route path="*" element={<ExclusiveRoutes />} />
+        </Route>
       </Routes>
     </Suspense>
   );

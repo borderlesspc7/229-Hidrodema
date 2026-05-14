@@ -430,12 +430,12 @@
 
 .visitas-question-instruction {
   font-size: 14px;
-  color: #64748b;
+  color: rgba(226, 232, 240, 0.92);
   font-style: italic;
   margin-bottom: 8px;
   padding: 8px 12px;
-  background: rgba(59, 130, 246, 0.05);
-  border-left: 3px solid #3b82f6;
+  background: rgba(15, 23, 42, 0.45);
+  border-left: 3px solid #60a5fa;
   border-radius: 4px;
 }
 
@@ -662,13 +662,14 @@
 .visitas-placeholder-message {
   text-align: center;
   padding: 60px 20px;
-  color: #64748b;
+  color: rgba(226, 232, 240, 0.88);
 }
 
 .visitas-placeholder-message p {
   font-size: 16px;
   margin-bottom: 12px;
   line-height: 1.6;
+  color: rgba(241, 245, 249, 0.92);
 }
 
 /* Form Navigation - Relatório de Visitas */
@@ -930,17 +931,22 @@
   grid-template-columns: 2fr 1.5fr 1fr 1fr 1.2fr 1fr;
   gap: 12px;
   padding: 12px 16px;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
   transition: all 0.3s ease;
   align-items: center;
+  background: rgba(15, 23, 42, 0.25);
+}
+
+.visitas-schedule-block:nth-child(even) .visitas-table-row {
+  background: rgba(30, 41, 59, 0.42);
 }
 
 .visitas-table-row:hover {
-  background: rgba(15, 23, 42, 0.35);
+  background: rgba(30, 58, 138, 0.38);
 }
 
 .visitas-schedule-block {
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.22);
 }
 
 .visitas-schedule-block:last-child {
@@ -975,7 +981,7 @@
 
 .visitas-table-cell {
   font-size: 13px;
-  color: rgba(226, 232, 240, 0.9);
+  color: #f1f5f9;
   font-weight: 500;
 }
 
@@ -991,35 +997,46 @@
 }
 
 .visitas-status-select {
-  padding: 6px 12px;
-  border-radius: 20px;
+  padding: 8px 12px;
+  border-radius: 10px;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border: 1px solid rgba(148, 163, 184, 0.14);
+  border: 2px solid rgba(148, 163, 184, 0.45);
   cursor: pointer;
   transition: all 0.3s ease;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.visitas-status-select option {
+  color: #0f172a;
+  background: #f8fafc;
 }
 
 .visitas-status-select.status-scheduled {
-  background: rgba(251, 191, 36, 0.2);
-  color: #d97706;
+  background: #fffbeb;
+  color: #92400e;
+  border-color: #f59e0b;
 }
 
 .visitas-status-select.status-awaiting-report {
-  background: rgba(59, 130, 246, 0.2);
-  color: #2563eb;
+  background: #eff6ff;
+  color: #1e3a8a;
+  border-color: #3b82f6;
 }
 
 .visitas-status-select.status-cancelled {
-  background: rgba(239, 68, 68, 0.2);
-  color: #dc2626;
+  background: #fef2f2;
+  color: #991b1b;
+  border-color: #ef4444;
 }
 
 .visitas-status-select.status-completed {
-  background: rgba(16, 185, 129, 0.2);
-  color: #059669;
+  background: #ecfdf5;
+  color: #065f46;
+  border-color: #10b981;
 }
 
 .visitas-table-actions {
@@ -1169,7 +1186,7 @@
 .visitas-date,
 .visitas-salesperson {
   font-size: 14px;
-  color: rgba(148, 163, 184, 0.92);
+  color: rgba(226, 232, 240, 0.95);
   font-weight: 500;
   display: flex;
   align-items: center;
@@ -1556,6 +1573,11 @@
     flex-direction: column;
     align-items: stretch;
     gap: 12px;
+    background: rgba(15, 23, 42, 0.55);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
   }
 
   .visitas-table-cell {
@@ -1563,13 +1585,14 @@
     justify-content: space-between;
     align-items: center;
     padding: 8px 0;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+    color: #f8fafc;
   }
 
   .visitas-table-cell::before {
     content: attr(data-label);
     font-weight: 600;
-    color: #1e40af;
+    color: #93c5fd;
     text-transform: uppercase;
     font-size: 12px;
     letter-spacing: 0.5px;

@@ -41,7 +41,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     return () => {
       cancelled = true;
     };
-  }, [stillLoading, logout, user]);
+  }, [stillLoading, logout, user?.uid]);
 
   if (stillLoading) {
     return <PageLoading />;

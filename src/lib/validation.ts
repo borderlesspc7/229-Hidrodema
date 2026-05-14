@@ -528,15 +528,132 @@ export function validateServiceRequestFormData(formData: Record<string, unknown>
   return { ok: true, value: sanitizeForDatabase(formData) };
 }
 
-export function validateVisitFormData(formData: Record<string, unknown>): ValidationResult<Record<string, unknown>> {
-  const action = validateRequiredText(formData.q6, "Ação");
+const VISIT_ACTION_NOVA = "Solicitar uma nova visita";
+const VISIT_ACTION_RELATORIO = "Fazer o relatório de uma visita realizada";
+
+function visitVendorFieldErrors(formData: Record<string, unknown>): string[] {
+  const regional = String(formData.q1 ?? "").trim();
+  const errors: string[] = [];
+  if (!regional) return errors;
+  const need = (when: boolean, key: "q2" | "q3" | "q4" | "q5", msg: string) => {
+    if (!when) return;
+    const v = String(formData[key] ?? "").trim();
+    if (!v) errors.push(msg);
+  };
+  need(regional.includes("VEND I & II"), "q2", "Selecione o vendedor (VEND I & II).");
+  need(regional.toUpperCase().includes("HUNTERS"), "q3", "Selecione o vendedor (Hunters).");
+  need(regional.includes("HVAC"), "q4", "Selecione o vendedor (HVAC).");
+  need(regional.includes("Expansão"), "q5", "Selecione o vendedor (Expansão & Novos Negócios).");
+  return errors;
+}
+
+export function visitConfirmationOk(q18: unknown): boolean {
+  if (Array.isArray(q18)) return q18.some((x) => typeof x === "string" && x.trim().length > 0);
+  if (typeof q18 === "string") return q18.trim().length > 0;
+  return false;
+}
+
+function validateVisitSolicitacaoForm(
+  formData: Record<string, unknown>
+): ValidationResult<Record<string, unknown>> {
+  const regional = validateRequiredText(formData.q1, "Regional");
+  const vendorExtra = regional.ok ? visitVendorFieldErrors(formData) : [];
+
   const client = validateRequiredText(formData.q7, "Nome do cliente");
+  const municipality = validateRequiredText(formData.q10, "Município");
+  const contact = validateRequiredText(formData.q11, "Contato do cliente");
+  const visitType = validateRequiredText(formData.q12, "Tipo de visita");
+  const visitReason = validateRequiredText(formData.q13, "Motivo da visita");
+  const visitAddress = validateRequiredText(formData.q14, "Endereço da visita");
+  const visitDate = validateDateISO(formData.q15, "Data da visita", { minYear: 2000, maxYear: 2100 });
+  const period = validateRequiredText(formData.q16, "Período sugerido");
+  const salesperson = validateRequiredText(formData.q17, "Vendedor responsável");
+
   const maybeCnpjRaw = typeof formData.q8 === "string" ? formData.q8.trim() : "";
   const cnpj = maybeCnpjRaw ? validateCNPJ(maybeCnpjRaw, "CNPJ do cliente") : ({ ok: true, value: "" } as const);
 
-  const base = collect([action, client, cnpj]);
-  if (!base.ok) return { ok: false, errors: base.errors };
+  const base = collect([
+    regional,
+    client,
+    municipality,
+    contact,
+    visitType,
+    visitReason,
+    visitAddress,
+    visitDate,
+    period,
+    salesperson,
+    cnpj,
+  ]);
+
+  const errors = [...(base.ok ? [] : base.errors), ...vendorExtra];
+  if (!visitConfirmationOk(formData.q18)) {
+    errors.push("Confirme a solicitação (caixa de confirmação da pergunta 18).");
+  }
+  if (errors.length) return { ok: false, errors };
   return { ok: true, value: sanitizeForDatabase(formData) };
+}
+
+function validateVisitRelatorioForm(
+  formData: Record<string, unknown>
+): ValidationResult<Record<string, unknown>> {
+  const errors: string[] = [];
+
+  const requestIdRaw = String(formData.q21 ?? formData.q19 ?? "").trim();
+  if (!requestIdRaw) {
+    errors.push("Selecione ou informe o ID da solicitação de visita.");
+  } else if (!/^REQ-\d{8}-\d+$/i.test(requestIdRaw)) {
+    errors.push("O ID da solicitação deve ter o formato REQ-AAAAMMDD-número.");
+  }
+
+  const hasId = validateRequiredText(formData.q20, "Confirmação de número de solicitação");
+  if (!hasId.ok) errors.push(...hasId.errors);
+
+  const clientVisited = validateRequiredText(formData.q22, "Nome do cliente visitado");
+  const visitDate = validateDateISO(formData.q23, "Data da visita", { minYear: 2000, maxYear: 2100 });
+  const online = validateRequiredText(formData.q24, "Modalidade da visita (online/presencial)");
+  const participants = validateStringArray(formData.q25, "Quem realizou a visita", { minItems: 1 });
+
+  const theme = validateRequiredText(formData.q26, "Tema principal da visita");
+  const themeStr = String(formData.q26 ?? "").trim();
+
+  const reportText = validateRequiredText(formData.q27, "Relatório da visita", { minLen: 10 });
+  const emotional = validateStringArray(formData.q28, "Ponto emocional principal", { minItems: 1 });
+  const nextAction = validateRequiredText(formData.q29, "Próxima ação");
+  const followUp = validateDateISO(formData.q30, "Data do próximo follow-up", { minYear: 2000, maxYear: 2100 });
+
+  const base = collect([
+    clientVisited,
+    visitDate,
+    online,
+    participants,
+    theme,
+    reportText,
+    emotional,
+    nextAction,
+    followUp,
+  ]);
+  if (!base.ok) errors.push(...base.errors);
+  if (theme.ok && themeStr === "Selecionar sua resposta") {
+    errors.push("Selecione um tema principal válido (não use o item placeholder).");
+  }
+
+  if (errors.length) return { ok: false, errors };
+  return { ok: true, value: sanitizeForDatabase(formData) };
+}
+
+export function validateVisitFormData(formData: Record<string, unknown>): ValidationResult<Record<string, unknown>> {
+  const action = validateRequiredText(formData.q6, "Ação");
+  if (!action.ok) return { ok: false, errors: action.errors };
+
+  if (action.value === VISIT_ACTION_NOVA) {
+    return validateVisitSolicitacaoForm(formData);
+  }
+  if (action.value === VISIT_ACTION_RELATORIO) {
+    return validateVisitRelatorioForm(formData);
+  }
+
+  return { ok: false, errors: ["Selecione uma ação válida (nova visita ou relatório)."] };
 }
 
 export function validateEqualizadorFormData(formData: Record<string, unknown>): ValidationResult<Record<string, unknown>> {

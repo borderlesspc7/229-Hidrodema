@@ -340,10 +340,10 @@
 .equalizador-table-header {
   display: grid;
   grid-template-columns: 1fr 2fr 2fr 1.5fr 1.5fr;
-  background: #f8fafc;
+  background: #f1f5f9;
   padding: 1rem 1.5rem;
-  font-weight: 600;
-  color: #374151;
+  font-weight: 700;
+  color: #0f172a;
   border-bottom: 1px solid #e5e7eb;
 }
 
@@ -351,6 +351,8 @@
   padding: 0.5rem;
   display: flex;
   align-items: center;
+  color: #111827;
+  font-weight: 500;
 }
 
 .equalizador-table-row {
@@ -359,6 +361,7 @@
   padding: 1rem 1.5rem;
   border-bottom: 1px solid #f3f4f6;
   transition: background-color 0.2s ease;
+  background: #ffffff;
 }
 
 .equalizador-table-row:hover {

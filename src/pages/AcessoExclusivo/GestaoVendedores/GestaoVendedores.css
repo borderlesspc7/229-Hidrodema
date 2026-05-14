@@ -58,8 +58,15 @@
   border: 1px solid #e2e8f0;
   padding: 8px 10px;
   text-align: left;
+  color: #0f172a;
+}
+
+.gestao-vendedores__table td {
+  background: #ffffff;
 }
 
 .gestao-vendedores__table th {
-  background: #f8fafc;
+  background: #e2e8f0;
+  color: #0f172a;
+  font-weight: 800;
 }

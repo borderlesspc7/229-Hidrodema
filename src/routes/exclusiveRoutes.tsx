@@ -17,10 +17,7 @@ const MedicoesPage = lazy(() => import("../pages/AcessoExclusivo/GerenciamentoOb
 const ProblemasPage = lazy(() => import("../pages/AcessoExclusivo/GerenciamentoObras/ProblemasPage/ProblemasPage"));
 const DocumentosPage = lazy(() => import("../pages/AcessoExclusivo/GerenciamentoObras/DocumentosPage/DocumentosPage"));
 /**
- * Estas rotas ficam sob <Route path="/acesso-exclusivo/*" />.
- * O React Router passa para o <Routes> filho apenas o pathname *restante*
- * (ex.: /gerenciamento-obras), não a URL completa — por isso os paths aqui
- * são relativos a /acesso-exclusivo/, sem esse prefixo.
+ * Rotas relativas ao prefixo `/acesso-exclusivo/` (definidas como filhas em `AppRoutes.tsx`).
  */
 export default function ExclusiveRoutes() {
   return (

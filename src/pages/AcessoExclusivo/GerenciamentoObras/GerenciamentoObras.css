@@ -853,6 +853,17 @@
   padding: 12px;
   text-align: left;
   border-bottom: 1px solid #e2e8f0;
+  color: #0f172a;
+}
+
+.obras-materials-table td a {
+  color: #1d4ed8;
+  font-weight: 700;
+}
+
+.obras-materials-table td a:hover {
+  color: #1e40af;
+  text-decoration: underline;
 }
 
 .obras-materials-table th {
